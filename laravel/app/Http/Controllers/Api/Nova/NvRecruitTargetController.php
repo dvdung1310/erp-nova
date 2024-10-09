@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Api\Nvu;
+namespace App\Http\Controllers\Api\Nova;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Api\Nvu\NvuCustomerCollection;
-use App\Models\NvuCustomerModel;
+use App\Models\CrmRecruitTargetModel;
 use Illuminate\Http\Request;
 
-class NvuCustomerController extends Controller
+class NvRecruitTargetController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,18 +14,16 @@ class NvuCustomerController extends Controller
     public function index()
     {
         try {
-            $customer = NvuCustomerModel::join('nvu_data_source', 'nvu_customer.customer_source', '=', 'nvu_data_source.source_id')
-                ->join('nvu_status_customer', 'nvu_customer.customer_status', '=', 'nvu_status_customer.status_id')
+            $recruitTarget = CrmRecruitTargetModel::join('crm_department', 'crm_recruit_target.department_id', '=', 'crm_department.department_id')
                 ->select(
-                    'nvu_customer.*', // Lấy toàn bộ cột từ bảng nvu_customer
-                    'nvu_data_source.source_name', // Lấy cột source_name từ bảng nvu_data_source
-                    'nvu_status_customer.status_name' // Lấy cột status_name từ bảng nvu_status_customer
+                    'crm_recruit_target.*',
+                    'crm_department.department_name'
                 )
                 ->paginate(10);
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                'data' => new NvuCustomerCollection($customer)
+                'data' =>  $recruitTarget
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -42,7 +39,7 @@ class NvuCustomerController extends Controller
      */
     public function create()
     {
-        //
+        
     }
 
     /**
@@ -51,28 +48,16 @@ class NvuCustomerController extends Controller
     public function store(Request $request)
     {
         try {
-            $request->validate(
-                [
-                    'customer_name' => 'required',
-                    'customer_phone' => 'required',
-                    'customer_date_receipt' => 'required',
-                    'customer_source' => 'required',
-                    'customer_description' => 'required',
-                    'customer_sale' => 'required',
-                    'customer_status' => 'required',
-                ]
-            );
-            $customer = NvuCustomerModel::create($request->all());
-
+            CrmRecruitTargetModel::create($request->all());
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                 'data' =>  $customer
+                'data' => CrmRecruitTargetModel::paginate(10)
             ]);
         } catch (\Throwable $th) {
             return response()->json([
                 'error' => true,
-                'message' => 'No customers found.'.$th,
+                'message' => 'No customers found.' . $th,
                 'data' => []
             ]);
         }
@@ -81,17 +66,19 @@ class NvuCustomerController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($nvucustomer)
+    public function show($nvrecruittarget)
     {
         try {
-            $customerWithOrders = NvuCustomerModel::join('nvu_data_source', 'nvu_customer.customer_source', '=', 'nvu_data_source.source_id')
-                ->join('nvu_status_customer', 'nvu_customer.customer_status', '=', 'nvu_status_customer.status_id')
-                ->where('nvu_customer.customer_id', $nvucustomer)
-                ->first();
+            $recruitTarget = CrmRecruitTargetModel::join('crm_department', 'crm_recruit_target.department_id', '=', 'crm_department.department_id')
+                ->select(
+                    'crm_recruit_target.*',
+                    'crm_department.department_name'
+                )
+              ->where('target_id',$nvrecruittarget)->first();
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                'data' => $customerWithOrders
+                'data' =>  $recruitTarget
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -105,17 +92,19 @@ class NvuCustomerController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit( $nvucustomer)
+    public function edit($nvrecruittarget)
     {
         try {
-            $customerWithOrders = NvuCustomerModel::join('nvu_data_source', 'nvu_customer.customer_source', '=', 'nvu_data_source.source_id')
-                ->join('nvu_status_customer', 'nvu_customer.customer_status', '=', 'nvu_status_customer.status_id')
-                ->where('nvu_customer.customer_id', $nvucustomer)
-                ->first();
+            $recruitTarget = CrmRecruitTargetModel::join('crm_department', 'crm_recruit_target.department_id', '=', 'crm_department.department_id')
+                ->select(
+                    'crm_recruit_target.*',
+                    'crm_department.department_name'
+                )
+              ->where('target_id',$nvrecruittarget)->first();
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                'data' => $customerWithOrders
+                'data' =>  $recruitTarget
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -129,14 +118,14 @@ class NvuCustomerController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, NvuCustomerModel $nvucustomer)
+    public function update(Request $request, CrmRecruitTargetModel $nvrecruittarget)
     {
         try {
-            $nvucustomer->update($request->all());
+            $nvrecruittarget->update($request->all());
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                'data' => new NvuCustomerCollection(NvuCustomerModel::paginate(10))
+                'data' => CrmRecruitTargetModel::paginate(10)
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -150,19 +139,19 @@ class NvuCustomerController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(NvuCustomerModel $nvucustomer)
+    public function destroy(CrmRecruitTargetModel $nvrecruittarget)
     {
         try {
-            $nvucustomer->delete();
+            $nvrecruittarget->delete();
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                'data' => new NvuCustomerCollection(NvuCustomerModel::paginate(10))
+                'data' => CrmRecruitTargetModel::paginate(10)
             ]);
         } catch (\Throwable $th) {
             return response()->json([
                 'error' => true,
-                'message' => 'No customers found.',
+                'message' => 'No customers found.' . $th,
                 'data' => []
             ]);
         }

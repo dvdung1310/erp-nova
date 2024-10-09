@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\Api\Nvu;
+namespace App\Http\Controllers\Api\Nova;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Api\Nvu\NvuCustomerCollection;
-use App\Models\NvuCustomerModel;
+use App\Models\CrmDepartmentModel;
+use App\Models\CrmEmployeeDayOffModel;
+use App\Models\CrmEmployeeModel;
 use Illuminate\Http\Request;
 
-class NvuCustomerController extends Controller
+class NvEmployeeDayOffController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,18 +16,17 @@ class NvuCustomerController extends Controller
     public function index()
     {
         try {
-            $customer = NvuCustomerModel::join('nvu_data_source', 'nvu_customer.customer_source', '=', 'nvu_data_source.source_id')
-                ->join('nvu_status_customer', 'nvu_customer.customer_status', '=', 'nvu_status_customer.status_id')
+            $day_off = CrmEmployeeDayOffModel::join('crm_employee', 'crm_employee_day_off.employee_id', '=', 'crm_employee.employee_id')
+                ->join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
                 ->select(
-                    'nvu_customer.*', // Lấy toàn bộ cột từ bảng nvu_customer
-                    'nvu_data_source.source_name', // Lấy cột source_name từ bảng nvu_data_source
-                    'nvu_status_customer.status_name' // Lấy cột status_name từ bảng nvu_status_customer
+                    'crm_employee_day_off.*',
+                    'crm_department.department_name',
                 )
                 ->paginate(10);
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                'data' => new NvuCustomerCollection($customer)
+                'data' =>  $day_off
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -42,7 +42,24 @@ class NvuCustomerController extends Controller
      */
     public function create()
     {
-        //
+        try {
+            // Lấy tất cả các department có status = 1
+            $department = CrmDepartmentModel::where('department_status', 1)->get();
+            return response()->json([
+                'error' => false,
+                'message' => 'Departments retrieved successfully.',
+                'data' => [
+                    'departments' => $department
+                ]
+            ]);
+        } catch (\Throwable $th) {
+            // Bắt lỗi và trả về thông báo lỗi
+            return response()->json([
+                'error' => true,
+                'message' => 'An error occurred: ' . $th->getMessage(),
+                'data' => []
+            ]);
+        }
     }
 
     /**
@@ -51,28 +68,16 @@ class NvuCustomerController extends Controller
     public function store(Request $request)
     {
         try {
-            $request->validate(
-                [
-                    'customer_name' => 'required',
-                    'customer_phone' => 'required',
-                    'customer_date_receipt' => 'required',
-                    'customer_source' => 'required',
-                    'customer_description' => 'required',
-                    'customer_sale' => 'required',
-                    'customer_status' => 'required',
-                ]
-            );
-            $customer = NvuCustomerModel::create($request->all());
-
+            CrmEmployeeDayOffModel::create($request->all());
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                 'data' =>  $customer
+                'data' => CrmEmployeeDayOffModel::paginate(10)
             ]);
         } catch (\Throwable $th) {
             return response()->json([
                 'error' => true,
-                'message' => 'No customers found.'.$th,
+                'message' => 'No customers found.' . $th,
                 'data' => []
             ]);
         }
@@ -81,17 +86,20 @@ class NvuCustomerController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($nvucustomer)
+    public function show($nvdayoff)
     {
         try {
-            $customerWithOrders = NvuCustomerModel::join('nvu_data_source', 'nvu_customer.customer_source', '=', 'nvu_data_source.source_id')
-                ->join('nvu_status_customer', 'nvu_customer.customer_status', '=', 'nvu_status_customer.status_id')
-                ->where('nvu_customer.customer_id', $nvucustomer)
-                ->first();
+            $day_off = CrmEmployeeDayOffModel::join('crm_employee', 'crm_employee_day_off.employee_id', '=', 'crm_employee.employee_id')
+                ->join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
+                ->select(
+                    'crm_employee_day_off.*',
+                    'crm_department.department_name',
+                )
+              ->where('off_id',$nvdayoff)->first();
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                'data' => $customerWithOrders
+                'data' =>  $day_off
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -105,17 +113,20 @@ class NvuCustomerController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit( $nvucustomer)
+    public function edit($nvdayoff)
     {
         try {
-            $customerWithOrders = NvuCustomerModel::join('nvu_data_source', 'nvu_customer.customer_source', '=', 'nvu_data_source.source_id')
-                ->join('nvu_status_customer', 'nvu_customer.customer_status', '=', 'nvu_status_customer.status_id')
-                ->where('nvu_customer.customer_id', $nvucustomer)
-                ->first();
+            $day_off = CrmEmployeeDayOffModel::join('crm_employee', 'crm_employee_day_off.employee_id', '=', 'crm_employee.employee_id')
+                ->join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
+                ->select(
+                    'crm_employee_day_off.*',
+                    'crm_department.department_name',
+                )
+              ->where('off_id',$nvdayoff)->first();
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                'data' => $customerWithOrders
+                'data' =>  $day_off
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -129,14 +140,14 @@ class NvuCustomerController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, NvuCustomerModel $nvucustomer)
+    public function update(Request $request, CrmEmployeeDayOffModel $nvdayoff)
     {
         try {
-            $nvucustomer->update($request->all());
+            $nvdayoff->update($request->all());
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                'data' => new NvuCustomerCollection(NvuCustomerModel::paginate(10))
+                'data' => CrmEmployeeDayOffModel::paginate(10)
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -146,23 +157,22 @@ class NvuCustomerController extends Controller
             ]);
         }
     }
-
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(NvuCustomerModel $nvucustomer)
+    public function destroy(CrmEmployeeDayOffModel $nvdayoff)
     {
         try {
-            $nvucustomer->delete();
+            $nvdayoff->delete();
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                'data' => new NvuCustomerCollection(NvuCustomerModel::paginate(10))
+                'data' => CrmEmployeeDayOffModel::paginate(10)
             ]);
         } catch (\Throwable $th) {
             return response()->json([
                 'error' => true,
-                'message' => 'No customers found.',
+                'message' => 'No customers found.' . $th,
                 'data' => []
             ]);
         }

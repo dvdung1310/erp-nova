@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Api\Nvu;
+namespace App\Http\Controllers\Api\Nova;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Api\Nvu\NvuCustomerCollection;
-use App\Models\NvuCustomerModel;
+use App\Http\Resources\Api\Nova\NvCategoryFileResource;
+use App\Models\CrmCategoryFileModel;
 use Illuminate\Http\Request;
 
-class NvuCustomerController extends Controller
+class NvCategoryFileController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,18 +15,10 @@ class NvuCustomerController extends Controller
     public function index()
     {
         try {
-            $customer = NvuCustomerModel::join('nvu_data_source', 'nvu_customer.customer_source', '=', 'nvu_data_source.source_id')
-                ->join('nvu_status_customer', 'nvu_customer.customer_status', '=', 'nvu_status_customer.status_id')
-                ->select(
-                    'nvu_customer.*', // Lấy toàn bộ cột từ bảng nvu_customer
-                    'nvu_data_source.source_name', // Lấy cột source_name từ bảng nvu_data_source
-                    'nvu_status_customer.status_name' // Lấy cột status_name từ bảng nvu_status_customer
-                )
-                ->paginate(10);
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                'data' => new NvuCustomerCollection($customer)
+                'data' => new NvCategoryFileResource(CrmCategoryFileModel::paginate(10))
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -51,28 +43,16 @@ class NvuCustomerController extends Controller
     public function store(Request $request)
     {
         try {
-            $request->validate(
-                [
-                    'customer_name' => 'required',
-                    'customer_phone' => 'required',
-                    'customer_date_receipt' => 'required',
-                    'customer_source' => 'required',
-                    'customer_description' => 'required',
-                    'customer_sale' => 'required',
-                    'customer_status' => 'required',
-                ]
-            );
-            $customer = NvuCustomerModel::create($request->all());
-
+            CrmCategoryFileModel::create($request->all());
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                 'data' =>  $customer
+                'data' => CrmCategoryFileModel::paginate(10)
             ]);
         } catch (\Throwable $th) {
             return response()->json([
                 'error' => true,
-                'message' => 'No customers found.'.$th,
+                'message' => 'No customers found.',
                 'data' => []
             ]);
         }
@@ -81,17 +61,14 @@ class NvuCustomerController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($nvucustomer)
+    public function show(CrmCategoryFileModel $nvcategoryfile)
     {
         try {
-            $customerWithOrders = NvuCustomerModel::join('nvu_data_source', 'nvu_customer.customer_source', '=', 'nvu_data_source.source_id')
-                ->join('nvu_status_customer', 'nvu_customer.customer_status', '=', 'nvu_status_customer.status_id')
-                ->where('nvu_customer.customer_id', $nvucustomer)
-                ->first();
+          
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                'data' => $customerWithOrders
+                'data' => $nvcategoryfile
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -105,17 +82,14 @@ class NvuCustomerController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit( $nvucustomer)
+    public function edit(CrmCategoryFileModel $nvcategoryfile)
     {
         try {
-            $customerWithOrders = NvuCustomerModel::join('nvu_data_source', 'nvu_customer.customer_source', '=', 'nvu_data_source.source_id')
-                ->join('nvu_status_customer', 'nvu_customer.customer_status', '=', 'nvu_status_customer.status_id')
-                ->where('nvu_customer.customer_id', $nvucustomer)
-                ->first();
+          
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                'data' => $customerWithOrders
+                'data' => $nvcategoryfile
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -129,14 +103,14 @@ class NvuCustomerController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, NvuCustomerModel $nvucustomer)
+    public function update(Request $request, CrmCategoryFileModel $nvcategoryfile)
     {
         try {
-            $nvucustomer->update($request->all());
+            $nvcategoryfile->update($request->all());
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                'data' => new NvuCustomerCollection(NvuCustomerModel::paginate(10))
+                'data' => new NvCategoryFileResource(CrmCategoryFileModel::paginate(10))
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -150,14 +124,14 @@ class NvuCustomerController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(NvuCustomerModel $nvucustomer)
+    public function destroy(CrmCategoryFileModel $nvcategoryfile)
     {
         try {
-            $nvucustomer->delete();
+            $nvcategoryfile->delete();
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                'data' => new NvuCustomerCollection(NvuCustomerModel::paginate(10))
+                'data' => CrmCategoryFileModel::paginate(10)
             ]);
         } catch (\Throwable $th) {
             return response()->json([
