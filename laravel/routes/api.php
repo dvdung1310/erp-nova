@@ -5,6 +5,8 @@ use App\Http\Controllers\Api\Nova\NvDepartmentTeamController;
 use App\Http\Controllers\Api\Nova\NvEmployeeController;
 use App\Http\Controllers\Api\Nova\NvEmployeeDayOffController;
 use App\Http\Controllers\Api\Nova\NvEmployeeFileController;
+use App\Http\Controllers\Api\Nova\NvRecruitCandidatesController;
+use App\Http\Controllers\Api\Nova\NvRecruitNewsController;
 use App\Http\Controllers\Api\Nova\NvRecruitTargetController;
 use App\Http\Controllers\Api\Nvu\NvuCustomerController;
 use App\Http\Controllers\Api\Nvu\NvuDataSourceController;
@@ -39,4 +41,5 @@ Route::group(['middleware' => 'api'], function () {
     Route::resource('nvdayoff',NvEmployeeDayOffController::class);
     Route::resource('nvcategoryfile',NvCategoryFileController::class);
     Route::resource('nvrecruittarget',NvRecruitTargetController::class);
+    Route::resource('nvrecruitcandidates',NvRecruitCandidatesController::class);
 });

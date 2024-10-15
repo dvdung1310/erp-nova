@@ -39,7 +39,24 @@ class NvRecruitTargetController extends Controller
      */
     public function create()
     {
-        
+        try {
+            // Lấy tất cả các department có status = 1
+            $RecruitTarget = CrmRecruitTargetModel::where('target_status', 1)->get();
+            return response()->json([
+                'error' => false,
+                'message' => 'Departments retrieved successfully.',
+                'data' => [
+                    'categoryFile' => $RecruitTarget
+                ]
+            ]);
+        } catch (\Throwable $th) {
+            // Bắt lỗi và trả về thông báo lỗi
+            return response()->json([
+                'error' => true,
+                'message' => 'An error occurred: ' . $th->getMessage(),
+                'data' => []
+            ]);
+        }
     }
 
     /**
