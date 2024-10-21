@@ -1,42 +1,37 @@
-import { Navigate, useLocation } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
 const AuthContext = ({ element }) => {
   const token = localStorage.getItem('token');
   const location = useLocation(); // Lấy thông tin route hiện tại
-console.log(location);
-  if (token) {
-    try {
-      const decodedToken = jwtDecode(token); 
-      const currentTime = Date.now() / 1000; 
-      
-      // Kiểm tra nếu token đã hết hạn
-      if (decodedToken.exp && decodedToken.exp < currentTime) {
-        // Token đã hết hạn, chuyển hướng đến trang đăng nhập
-        return <Navigate to="/login" replace />;
+  const navigate = useNavigate(); // Điều hướng
+
+  useEffect(() => {
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token); 
+        const currentTime = Date.now() / 1000; // Thời gian hiện tại
+
+        // Kiểm tra nếu token đã hết hạn
+        if (decodedToken.exp && decodedToken.exp < currentTime) {
+          // Token hết hạn, điều hướng đến trang đăng nhập
+          navigate('/login');
+        } else if (location.pathname === '/login') {
+          // Nếu đang ở trang login và có token hợp lệ, chuyển hướng về trang chủ
+          navigate('/');
+        }
+      } catch (error) {
+        console.error("Token không hợp lệ:", error);
+        navigate('/login');
       }
-
-      // Nếu người dùng đang ở trang login và đã có token hợp lệ, chuyển hướng về trang chủ
-      if (location.pathname === '/login') {
-        return <Navigate to="/" replace />;
-      }
-
-      // Token còn hiệu lực, render trang bảo mật
-      return element;
-    } catch (error) {
-      // Trường hợp token không hợp lệ hoặc có lỗi khi giải mã
-      console.error("Token không hợp lệ:", error);
-      return <Navigate to="/login" replace />;
+    } else if (location.pathname !== '/login') {
+      // Nếu không có token và đang ở trang khác ngoài /login, chuyển hướng đến trang login
+      navigate('/login');
     }
-  } else {
-    // Nếu không có token và đang ở trang khác ngoài /login, chuyển hướng đến trang đăng nhập
-    if (location.pathname !== '/login') {
-      return <Navigate to="/login" replace />;
-    }
-  }
+  }, [token, location.pathname, navigate]); // useEffect sẽ theo dõi các giá trị này
 
-  // Render trang như bình thường nếu không có token và đang ở trang login
-  return element;
+  return element; // Render trang bảo mật
 };
 
 export default AuthContext;

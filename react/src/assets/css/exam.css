@@ -1,0 +1,136 @@
+.create-exam-container {
+    max-width: 600px; /* Chiều rộng tối đa của form */
+    margin: 20px auto; /* Căn giữa form theo chiều dọc và ngang */
+    padding: 20px; /* Padding cho form */
+    border: 1px solid #ccc; /* Viền xung quanh form */
+    border-radius: 8px; /* Bo tròn các góc */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Đổ bóng cho form */
+    background-color: #f9f9f9; /* Màu nền cho form */
+}
+
+.create-exam-container h2 {
+    text-align: center; /* Căn giữa tiêu đề */
+    margin-bottom: 20px; /* Khoảng cách dưới tiêu đề */
+}
+
+.create-exam-container form {
+    display: flex; /* Sử dụng flexbox để dễ dàng căn chỉnh */
+    flex-direction: column; /* Căn chỉnh theo chiều dọc */
+}
+
+.create-exam-container label {
+    margin-bottom: 8px; /* Khoảng cách dưới label */
+    font-weight: bold; /* In đậm chữ */
+}
+
+.create-exam-container input[type="text"],
+.create-exam-container input[type="number"],
+.create-exam-container textarea,
+.create-exam-container select {
+    padding: 10px; /* Padding bên trong input */
+    border: 1px solid #ccc; /* Viền cho input */
+    border-radius: 4px; /* Bo tròn góc cho input */
+    margin-bottom: 15px; /* Khoảng cách dưới mỗi input */
+}
+
+.create-exam-container button {
+    padding: 10px; /* Padding cho nút */
+    border: none; /* Xóa viền */
+    border-radius: 4px; /* Bo tròn góc cho nút */
+    background-color: #28a745; /* Màu nền cho nút */
+    color: white; /* Màu chữ */
+    font-size: 16px; /* Kích thước chữ */
+    cursor: pointer; /* Thay đổi con trỏ khi hover */
+    transition: background-color 0.3s; /* Hiệu ứng chuyển màu */
+}
+
+.create-exam-container button:hover {
+    background-color: #218838; /* Màu nền khi hover */
+}
+
+.exam-table-container {
+    margin: 20px;
+}
+
+.exam-table-container h2 {
+    margin-bottom: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+button {
+    margin: 5px;
+    padding: 8px 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+
+.question-form-container {
+    width: 500px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+  }
+  
+  .question-form h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .answer-input {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  
+  input[type="text"] {
+    width: 70%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  input[type="radio"] {
+    margin-left: 10px;
+  }
+  
+  .submit-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .submit-btn:hover {
+    background-color: #218838;
+  }
+  

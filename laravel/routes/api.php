@@ -2,7 +2,8 @@
  
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
- 
+use App\Http\Controllers\ExamController;
+use App\Http\Controllers\QuestionController;
 Route::group([
     'middleware' => 'api',
     'prefix' => 'auth'
@@ -13,3 +14,11 @@ Route::group([
     Route::post('/refresh', [AuthController::class, 'refresh'])->middleware('auth:api')->name('refresh');
     Route::post('/me', [AuthController::class, 'me'])->middleware('auth:api')->name('me');
 });
+
+
+Route::post('/exams', [ExamController::class, 'store']);
+Route::get('/exams-index', [ExamController::class, 'index']);
+Route::delete('/exams/{id}', [ExamController::class, 'destroy']);
+Route::get('/getNameExam/{id}', [ExamController::class, 'getNameExam']);
+
+Route::post('/questions-store', [QuestionController::class, 'store']);
