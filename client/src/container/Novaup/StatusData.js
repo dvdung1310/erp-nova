@@ -5,8 +5,8 @@ import {PageHeader} from "../../components/page-headers/page-headers";
 const StatusData = () => {
     return (
         <div>
-            <PageHeader ghost title="Trạng thái data" />
-            <DragAndDropTable />
+            <PageHeader ghost title="Trạng thái data"/>
+            <DragAndDropTable/>
         </div>
     )
 }
