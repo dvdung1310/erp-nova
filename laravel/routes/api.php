@@ -16,8 +16,8 @@ use App\Http\Controllers\Api\Nvu\NvuRoomController;
 use App\Http\Controllers\Api\Nvu\NvuStatusCustomerController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ExamController;
-use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\Api\Nova\ExamController;
+use App\Http\Controllers\Api\Nova\QuestionController;
 Route::group([
     'middleware' => 'api',
     'prefix' => 'auth'
@@ -28,16 +28,13 @@ Route::group([
     Route::post('/refresh', [AuthController::class, 'refresh'])->middleware('auth:api')->name('refresh');
     Route::post('/me', [AuthController::class, 'me'])->middleware('auth:api')->name('me');
 });
-<<<<<<< HEAD
-
 
 Route::post('/exams', [ExamController::class, 'store']);
 Route::get('/exams-index', [ExamController::class, 'index']);
 Route::delete('/exams/{id}', [ExamController::class, 'destroy']);
 Route::get('/getNameExam/{id}', [ExamController::class, 'getNameExam']);
-
 Route::post('/questions-store', [QuestionController::class, 'store']);
-=======
+
 Route::group(['middleware' => 'api'], function () {
     Route::resource('nvucustomer', NvuCustomerController::class);
     Route::resource('nvudatasource', NvuDataSourceController::class);
@@ -54,4 +51,4 @@ Route::group(['middleware' => 'api'], function () {
     Route::resource('nvrecruittarget',NvRecruitTargetController::class);
     Route::resource('nvrecruitcandidates',NvRecruitCandidatesController::class);
 });
->>>>>>> 930bf2f0102637e47604bd32fd48e5e2cec9a3ed
+
