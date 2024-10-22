@@ -12,8 +12,11 @@ function Info() {
     values: '',
   });
   const [form] = Form.useForm();
-  const handleSubmit = (values) => {
-    setState({ ...state, values });
+  const handleSubmit = (e) => {
+   
+    setState({ ...state, e });
+    console.log(state);
+    
   };
 
   return (
@@ -21,7 +24,7 @@ function Info() {
       <Col xl={10} md={16} xs={24}>
         <div className="user-info-form">
           <BasicFormWrapper>
-            <Form style={{ width: '100%' }} form={form} name="info" onFinish={handleSubmit}>
+            <Form style={{ width: '100%' }} form={form} name="info" onSubmit={handleSubmit}>
               <Heading className="form-title" as="h4">
                 Personal Information
               </Heading>

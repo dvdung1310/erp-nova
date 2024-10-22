@@ -16,7 +16,6 @@ function ProjectLists() {
     pageSize: 0,
   });
   const { projects } = state;
-
   useEffect(() => {
     if (project) {
       setState({
@@ -24,18 +23,14 @@ function ProjectLists() {
       });
     }
   }, [project]);
-
   const onShowSizeChange = (current, pageSize) => {
     setState({ ...state, current, pageSize });
   };
-
   const onHandleChange = (current, pageSize) => {
     // You can create pagination in here
     setState({ ...state, current, pageSize });
   };
-
   const dataSource = [];
-
   if (projects.length)
     projects.map((value) => {
       const { id, title, status, category, percentage } = value;
@@ -104,7 +99,6 @@ function ProjectLists() {
         ),
       });
     });
-
   const columns = [
     {
       title: 'Project',
@@ -143,7 +137,6 @@ function ProjectLists() {
       key: 'action',
     },
   ];
-
   return (
     <Row gutter={25}>
       <Col xs={24}>
@@ -172,5 +165,4 @@ function ProjectLists() {
     </Row>
   );
 }
-
 export default ProjectLists;
