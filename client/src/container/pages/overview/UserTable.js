@@ -57,7 +57,6 @@ function UserListTable() {
       ),
     });
   });
-
   const usersTableColumns = [
     {
       title: 'User',

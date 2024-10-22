@@ -10,8 +10,11 @@ function SocialProfile() {
   const [state, setState] = useState({
     values: '',
   });
-  const handleSubmit = (values) => {
-    setState({ ...state, values });
+  const[user,setuser] = useState("")
+  const handleSubmit = (e) => {
+
+    setState({ ...state, e });
+    console.log(user);
   };
 
   return (
@@ -19,12 +22,14 @@ function SocialProfile() {
       <Col xl={10} md={16} xs={24}>
         <div className="social-form">
           <BasicFormWrapper>
-            <Form form={form} name="editAccount" onFinish={handleSubmit}>
+            <Form form={form} name="editAccount" onSubmit={handleSubmit}>
               <Heading className="form-title" as="h4">
                 Social Profiles
               </Heading>
-              <Form.Item name="facebook" label="Facebook">
+              <Form.Item  name="facebook" label="Facebook">
                 <Input
+                onChange={(e)=>setuser(e.target.value)}
+                value={user}
                   prefix={
                     <span className="facebook">
                       <FontAwesome name="facebook" />
