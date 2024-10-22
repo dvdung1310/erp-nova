@@ -94,7 +94,7 @@ function MenuItems({darkMode, toggleCollapsed, topMenu, events}) {
                     </NavLink>
                 </Menu.Item>
                 <Menu.Item key="nvu-customer">
-                    <NavLink onClick={toggleCollapsed} to={`${path}/business`}>
+                    <NavLink onClick={toggleCollapsed} to={`${path}/novaup/customer`}>
                         Khách hàng
                     </NavLink>
                 </Menu.Item>
@@ -104,7 +104,7 @@ function MenuItems({darkMode, toggleCollapsed, topMenu, events}) {
                     </NavLink>
                 </Menu.Item>
                 <Menu.Item key="nvu-room">
-                    <NavLink onClick={toggleCollapsed} to={`${path}/crm`}>
+                    <NavLink onClick={toggleCollapsed} to={`${path}/novaup/room`}>
                         Phòng
                     </NavLink>
                 </Menu.Item>
@@ -127,7 +127,7 @@ function MenuItems({darkMode, toggleCollapsed, topMenu, events}) {
                             </NavLink>
                         </Menu.Item>
                         <Menu.Item key="sales-option2">
-                            <NavLink onClick={toggleCollapsed} to={`${path}/sales/option2`}>
+                            <NavLink onClick={toggleCollapsed} to={`${path}/novaup/data-source`}>
                                Nguồn data
                             </NavLink>
                         </Menu.Item>

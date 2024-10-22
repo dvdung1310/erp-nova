@@ -49,16 +49,16 @@ class NvuDataSourceController extends Controller
                     'source_status' => 'required',
                 ]
             );
-            NvuDataSourceModel::create($request->all());
+            $data = NvuDataSourceModel::create($request->all());
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                'data' => new NvuDataSourceCollection(NvuDataSourceModel::paginate(10))
+                'data' => $data
             ]);
         } catch (\Throwable $th) {
             return response()->json([
                 'error' => true,
-                'message' => 'No customers found.',
+                'message' => 'No customers found.'.$th,
                 'data' => []
             ]);
         }

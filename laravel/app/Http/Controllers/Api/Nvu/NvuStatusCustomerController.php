@@ -59,7 +59,7 @@ class NvuStatusCustomerController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'error' => true,
-                'message' => 'No customers found.',
+                'message' => 'No customers found.'.$th,
                 'data' => []
             ]);
         }
@@ -117,7 +117,7 @@ class NvuStatusCustomerController extends Controller
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-               'data' => new NvuStatusCustomerCollection(NvuStatusCustomerModel::paginate(10))
+               'data' => NvuStatusCustomerModel::paginate(10)
             ]);
         } catch (\Throwable $th) {
             return response()->json([
