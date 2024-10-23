@@ -1,102 +1,165 @@
 <?php
-  
+
 namespace App\Http\Controllers;
-  
+
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Validator;
-  
-  
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Validator;
+use function Laravel\Prompts\error;
+
+// Import the Validator facade
+
+
 class AuthController extends Controller
 {
- 
+
     /**
      * Register a User.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function register() {
-        $validator = Validator::make(request()->all(), [
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|confirmed|min:8',
-        ]);
-  
-        if($validator->fails()){
-            return response()->json($validator->errors()->toJson(), 400);
+    public function register()
+    {
+        try {
+            $validator = Validator::make(request()->all(), [
+                'name' => 'required',
+                'email' => 'required|email|unique:users',
+                'password' => 'required|min:6',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'data' => null,
+                    'error' => true,
+                    'message' => $validator->errors()
+                ], 400);
+            }
+
+            $user = new User;
+            $user->name = request()->name;
+            $user->email = request()->email;
+            $user->password = bcrypt(request()->password);
+            $user->save();
+
+            return response()->json([
+                'data' => 'User successfully registered',
+                'user' => $user,
+                'error' => false
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'data' => null,
+                'error' => true,
+                'message' => $e->getMessage()
+            ], 500);
         }
-  
-        $user = new User;
-        $user->name = request()->name;
-        $user->email = request()->email;
-        $user->password = bcrypt(request()->password);
-        $user->save();
-  
-        return response()->json($user, 201);
+
     }
-  
-  
+
+
     /**
      * Get a JWT via given credentials.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function login()
     {
-        
-        $credentials = request(['email', 'password']);
-  
-        if (! $token = auth()->attempt($credentials)) {
-            return response()->json(['message' => 'Tài khoản không đúng'], 401);
+        try {
+            $validator = Validator::make(request()->all(), [
+                'email' => 'required|email',
+                'password' => 'required|string|min:6',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'data' => null,
+                    'error' => true,
+                    'message' => $validator->errors()
+                ], 400);
+            }
+            $credentials = request(['email', 'password']);
+
+            if (!$token = auth()->attempt($credentials)) {
+                return response()->json([
+                    'message' => 'Tài khoản không đúng',
+                    'error' => true,
+                    'data' => null
+                ], 401);
+            }
+            $accessToken = $this->respondWithToken($token)->original['access_token'];
+            return response()->json([
+                'accessToken' => $accessToken,
+                'error' => false,
+                'message' => 'Đăng nhập thành công'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'data' => null,
+                'error' => true,
+                'message' => $e->getMessage()
+            ], 500);
         }
-  
-        return $this->respondWithToken($token);
     }
-  
+
     /**
      * Get the authenticated User.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function me()
     {
-        return response()->json(auth()->user());
+        return response()->json([
+            'data' => auth()->user(),
+            'error' => false,
+            'message' => 'User information'
+        ]);
     }
-  
+
     /**
      * Log the user out (Invalidate the token).
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function logout()
     {
-        auth()->logout();
-  
-        return response()->json(['message' => 'Successfully logged out']);
+        try {
+            auth()->logout();
+            auth()->invalidate(true); // Thêm token vào danh sách đen
+
+            return response()->json(['message' => 'Successfully logged out']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to log out, please try again.'], 500);
+        }
     }
-  
+
     /**
      * Refresh a token.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function refresh()
     {
-        return $this->respondWithToken(auth()->refresh());
+        return response()->json([
+            'accessToken' => auth()->refresh(),
+            'error' => false,
+            'message' => 'Token refreshed'
+        ]);
+        // return $this->respondWithToken(auth()->refresh());
     }
-  
+
     /**
      * Get the token array structure.
      *
-     * @param  string $token
+     * @param string $token
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     protected function respondWithToken($token)
     {
         return response()->json([
             'access_token' => $token,
-            'token_type' => 'bearer',
+            'token_type' => 'Bearer',
             'expires_in' => auth()->factory()->getTTL() * 60
         ]);
     }

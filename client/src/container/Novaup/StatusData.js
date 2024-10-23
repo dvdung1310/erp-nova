@@ -5,8 +5,8 @@ import StatusCustomerTable from "../table/StatusCustomerTable";
 const StatusData = () => {
     return (
         <div>
-            <PageHeader ghost title="Trạng thái data" />
-           <StatusCustomerTable/>
+            <PageHeader ghost title="Trạng thái data"/>
+            <DragAndDropTable/>
         </div>
     )
 }

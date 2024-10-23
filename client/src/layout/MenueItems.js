@@ -157,6 +157,21 @@ function MenuItems({darkMode, toggleCollapsed, topMenu, events}) {
                 </Menu.Item>
             </SubMenu>
             {/* end Quản lý nhân sự   */}
+            {/**/}
+            {/* work */}
+            <SubMenu key="work" icon={!topMenu && <FeatherIcon icon="briefcase"/>} title="Làm việc">
+                <Menu.Item key="inbox">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/work`}>
+                        Dashboard
+                    </NavLink>
+                </Menu.Item>
+                <Menu.Item key="single">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/work/id`}>
+                        Read Email
+                    </NavLink>
+                </Menu.Item>
+            </SubMenu>
+            {/**/}
             <SubMenu key="layout" icon={!topMenu && <FeatherIcon icon="layout"/>} title="Layouts">
                 <Menu.Item key="light">
                     <NavLink

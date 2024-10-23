@@ -45,6 +45,12 @@ return [
             ],
             'throw' => false,
         ],
+        'public_messages' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/messages'),
+            'url' => env('APP_URL') . '/storage/messages',
+            'visibility' => 'public',
+        ],
 
         'public' => [
             'driver' => 'local',
