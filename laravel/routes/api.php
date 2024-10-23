@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Api\Nova\ExamController;
 use App\Http\Controllers\Api\Nova\QuestionController;
+use App\Http\Controllers\Api\Nova\WorkScheduleController;
+
 Route::group([
     'middleware' => 'api',
     'prefix' => 'auth'
@@ -34,6 +36,8 @@ Route::get('/exams-index', [ExamController::class, 'index']);
 Route::delete('/exams/{id}', [ExamController::class, 'destroy']);
 Route::get('/getNameExam/{id}', [ExamController::class, 'getNameExam']);
 Route::post('/questions-store', [QuestionController::class, 'store']);
+Route::post('workschedule', [WorkScheduleController::class, 'store']);
+Route::get('getWorkSchedulesByMonth/{month}', [WorkScheduleController::class, 'getWorkSchedulesByMonth']);
 
 Route::group(['middleware' => 'api'], function () {
     Route::resource('nvucustomer', NvuCustomerController::class);
@@ -43,6 +47,7 @@ Route::group(['middleware' => 'api'], function () {
     Route::resource('nvuroomrent', NvuRentRoomController::class);
     Route::resource('nvupayment', NvuPaymentController::class);
 });
+
 Route::group(['middleware' => 'api'], function () {
     Route::resource('nvdepartmentteam',NvDepartmentTeamController::class);
     Route::resource('nvemployee',NvEmployeeController::class);

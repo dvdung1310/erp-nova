@@ -134,7 +134,29 @@ function MenuItems({darkMode, toggleCollapsed, topMenu, events}) {
                     </SubMenu>
                 </Menu>
             </SubMenu>
-            {/**/}
+            {/* end novaup   */}
+
+            {/* Quản lý nhân sự */}
+            <SubMenu key="employees" icon={!topMenu && <FeatherIcon icon="users"/>} title="Quản lý nhân sự">
+                <Menu.Item key="nvu-home">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su`}>
+                        Tổng quan
+                    </NavLink>
+                </Menu.Item>
+
+                <Menu.Item key="store-works-chedule">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/dang-ki/lich-lam-viec`}>
+                       Đăng kí lịch làm việc
+                    </NavLink>
+                </Menu.Item>
+
+                <Menu.Item key="works-chedule">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/lich-lam-viec`}>
+                       Lịch làm việc
+                    </NavLink>
+                </Menu.Item>
+            </SubMenu>
+            {/* end Quản lý nhân sự   */}
             <SubMenu key="layout" icon={!topMenu && <FeatherIcon icon="layout"/>} title="Layouts">
                 <Menu.Item key="light">
                     <NavLink

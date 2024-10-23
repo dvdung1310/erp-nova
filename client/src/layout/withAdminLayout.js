@@ -392,7 +392,7 @@ const ThemeLayout = (WrappedComponent) => {
                   </ul>
                 </div>
                 <div className="customizer__single">
-                  <h4>Sidebar Type</h4>
+                  <h4>aaaa</h4>
                   <ul className="customizer-list d-flex">
                     <li className="customizer-list__item">
                       <Link

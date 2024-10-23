@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\Nova;
 
+use App\Http\Controllers\Controller;
 use App\Models\Question;
 use App\Models\Answer;
 use Illuminate\Http\Request;

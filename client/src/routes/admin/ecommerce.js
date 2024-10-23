@@ -9,7 +9,6 @@ const Invoice = lazy(() => import('../../container/ecommerce/Invoice'));
 const Orders = lazy(() => import('../../container/ecommerce/Orders'));
 const Sellers = lazy(() => import('../../container/ecommerce/Sellers'));
 const Cart = lazy(() => import('../../container/ecommerce/Cart'));
-
 function EcommerceRoute() {
   const { path } = useRouteMatch();
   return (
