@@ -24,7 +24,7 @@ function CustomerTable() {
         setDataSource(response.data.data);
       } else {
         message.error(response.data.message);
-        return;
+       
       }
     } catch (err) {
       message.error('An error occurred while fetching data.');
@@ -45,7 +45,7 @@ function CustomerTable() {
         setDataStatuses(response.data.data.dataStatus);
       } else {
         message.error(response.data.message);
-        return;
+    
       }
     } catch (err) {
       message.error('Failed to fetch source and status data.');
@@ -91,7 +91,7 @@ function CustomerTable() {
       message.success('Customer deleted successfully');
     } catch (error) {
       message.error('Failed to delete customer');
-      return;
+   
     }
   };
 
