@@ -128,11 +128,25 @@ function MenuItems({darkMode, toggleCollapsed, topMenu, events}) {
                         </Menu.Item>
                         <Menu.Item key="sales-option2">
                             <NavLink onClick={toggleCollapsed} to={`${path}/sales/option2`}>
-                               Nguồn data
+                                Nguồn data
                             </NavLink>
                         </Menu.Item>
                     </SubMenu>
                 </Menu>
+            </SubMenu>
+            {/**/}
+            {/* work */}
+            <SubMenu key="work" icon={!topMenu && <FeatherIcon icon="briefcase"/>} title="Làm việc">
+                <Menu.Item key="inbox">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/work`}>
+                        Dashboard
+                    </NavLink>
+                </Menu.Item>
+                <Menu.Item key="single">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/work/id`}>
+                        Read Email
+                    </NavLink>
+                </Menu.Item>
             </SubMenu>
             {/**/}
             <SubMenu key="layout" icon={!topMenu && <FeatherIcon icon="layout"/>} title="Layouts">

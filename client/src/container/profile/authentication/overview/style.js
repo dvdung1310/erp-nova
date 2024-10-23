@@ -102,6 +102,10 @@ const AuthWrapper = Styled.div`
     justify-content: center;
     form{
       width: 420px;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 15px 50px rgba(0,0,0,0.08);
+        background: #fff;
       h1{
         font-size: 24px;
         font-weight: 600;

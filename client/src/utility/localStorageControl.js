@@ -17,4 +17,6 @@ const removeItem = (key) => {
   localStorage.removeItem(key);
 };
 
-export { getItem, setItem, removeItem };
+const getToken = () => getItem('accessToken');
+
+export { getItem, setItem, removeItem , getToken};

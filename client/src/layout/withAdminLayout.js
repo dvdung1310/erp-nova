@@ -122,6 +122,7 @@ const ThemeLayout = (WrappedComponent) => {
           marginRight: 'auto',
           [rtl ? 'marginLeft' : 'marginRight']: '-17px',
         };
+        // eslint-disable-next-line react/jsx-props-no-spreading
         return <div {...props} style={{ ...style, ...customStyle }} />;
       };
 
@@ -132,6 +133,7 @@ const ThemeLayout = (WrappedComponent) => {
           backgroundColor: ChangeLayoutMode ? '#ffffff16' : '#F1F2F6',
           [left]: '2px',
         };
+        // eslint-disable-next-line react/jsx-props-no-spreading
         return <div style={{ ...style, ...thumbStyle }} {...props} />;
       };
 
@@ -155,6 +157,7 @@ const ThemeLayout = (WrappedComponent) => {
           borderRadius: 6,
           backgroundColor: ChangeLayoutMode ? '#ffffff16' : '#F1F2F6',
         };
+        // eslint-disable-next-line react/jsx-props-no-spreading
         return <div style={{ ...style, ...thumbStyle }} {...props} />;
       };
 
@@ -316,6 +319,7 @@ const ThemeLayout = (WrappedComponent) => {
               ) : null}
               <Layout className="atbd-main-layout">
                 <Content>
+                  {/* eslint-disable-next-line react/jsx-props-no-spreading */}
                   <WrappedComponent {...this.props} />
                   <Footer className="admin-footer" style={footerStyle}>
                     <Row>
