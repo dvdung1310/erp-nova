@@ -52,11 +52,11 @@ class NvuRoomController extends Controller
                     'room_status' => 'required',
                 ]
             );
-            NvuRoomModel::create($request->all());
+            $data = NvuRoomModel::create($request->all());
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                'data' => new NvuRoomCollection(NvuRoomModel::paginate(10))
+                'data' => $data
             ]);
         } catch (\Throwable $th) {
             return response()->json([

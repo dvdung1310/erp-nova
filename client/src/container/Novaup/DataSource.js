@@ -1,12 +1,12 @@
 import React from "react";
 import {PageHeader} from "../../components/page-headers/page-headers";
-import StatusCustomerTable from "../table/StatusCustomerTable";
+import DataSourceTable from "../table/DataSourceTable";
 
 const StatusData = () => {
     return (
         <div>
-            <PageHeader ghost title="Trạng thái data" />
-           <StatusCustomerTable/>
+            <PageHeader ghost title="Nguồn Data" />
+           <DataSourceTable/>
         </div>
     )
 }

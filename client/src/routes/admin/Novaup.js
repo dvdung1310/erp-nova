@@ -3,6 +3,9 @@ import React, {lazy} from "react";
 
 const Dashboard = lazy(() => import('../../container/Novaup'));
  const StatusData = lazy(() => import('../../container/Novaup/StatusData'));
+ const DataSource = lazy(() => import('../../container/Novaup/DataSource'));
+ const Customer = lazy(() => import('../../container/Novaup/Customer'));
+ const Room = lazy(() => import('../../container/Novaup/Room'));
 
 function NovaupRoutes() {
     const {path} = useRouteMatch();
@@ -11,6 +14,9 @@ function NovaupRoutes() {
         <Switch>
             <Route exact path={path} component={Dashboard}/>
             <Route path={`${path}/status-data`} component={StatusData}/>
+            <Route path={`${path}/data-source`} component={DataSource}/>
+            <Route path={`${path}/customer`} component={Customer}/>
+            <Route path={`${path}/room`} component={Room}/>
         </Switch>
     );
 }

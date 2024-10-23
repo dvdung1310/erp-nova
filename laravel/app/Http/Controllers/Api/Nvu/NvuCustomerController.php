@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\Nvu;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Nvu\NvuCustomerCollection;
 use App\Models\NvuCustomerModel;
+use App\Models\NvuDataSourceModel;
+use App\Models\NvuStatusCustomerModel;
 use Illuminate\Http\Request;
 
 class NvuCustomerController extends Controller
@@ -42,7 +44,27 @@ class NvuCustomerController extends Controller
      */
     public function create()
     {
-        //
+        try {
+            // Lấy tất cả các department có status = 1
+            $dataSource = NvuDataSourceModel::where('source_status', 1)->get();
+            $dataStatus = NvuStatusCustomerModel::where('status', 1)->get();
+            // Trả về dữ liệu dưới dạng JSON
+            return response()->json([
+                'error' => false,
+                'message' => 'Departments retrieved successfully.',
+                'data' => [
+                    'dataSource' => $dataSource,
+                    'dataStatus' => $dataStatus
+                ]
+            ]);
+        } catch (\Throwable $th) {
+            // Bắt lỗi và trả về thông báo lỗi
+            return response()->json([
+                'error' => true,
+                'message' => 'An error occurred: ' . $th->getMessage(),
+                'data' => []
+            ]);
+        }
     }
 
     /**
@@ -51,17 +73,7 @@ class NvuCustomerController extends Controller
     public function store(Request $request)
     {
         try {
-            $request->validate(
-                [
-                    'customer_name' => 'required',
-                    'customer_phone' => 'required',
-                    'customer_date_receipt' => 'required',
-                    'customer_source' => 'required',
-                    'customer_description' => 'required',
-                    'customer_sale' => 'required',
-                    'customer_status' => 'required',
-                ]
-            );
+           
             $customer = NvuCustomerModel::create($request->all());
 
             return response()->json([
@@ -69,10 +81,10 @@ class NvuCustomerController extends Controller
                 'message' => 'Customers retrieved successfully.',
                  'data' =>  $customer
             ]);
-        } catch (\Throwable $th) {
+        } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
-                'message' => 'No customers found.'.$th,
+                'message' => 'No customers found11111111111.'.$e->getMessage(),
                 'data' => []
             ]);
         }
