@@ -13,6 +13,7 @@ import Gallery from './gallery';
 import Novaup from "./Novaup";
 import Employees from "./employees";
 import withAdminLayout from '../../layout/withAdminLayout';
+import Work from "./work";
 
 const Projects = lazy(() => import('./projects'));
 const Calendars = lazy(() => import('../../container/Calendar'));
@@ -69,6 +70,7 @@ function Admin() {
                 {/**/}
                 <Route path={`${path}/novaup`} component={Novaup}/>
                 <Route path={`${path}/nhan-su`} component={Employees}/>
+                <Route path={`${path}/lam-viec`} component={Work}/>
             </Suspense>
         </Switch>
     );

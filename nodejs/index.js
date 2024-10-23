@@ -69,7 +69,7 @@ app.post('/change-group', (req, res) => {
         console.log(error);
     }
 })
-//user
+//user.js
 app.post('/update-avatar', (req, res) => {
     try {
         const {avatar, user_id} = req.body;

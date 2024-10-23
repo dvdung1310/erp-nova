@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\Work;
 
+use App\Http\Controllers\Controller;
 use App\Mail\InviteUserMail;
 use App\Models\Devices;
 use App\Models\Message;
@@ -36,11 +37,28 @@ class ProjectController extends Controller
                 'project_description' => 'nullable|string',
                 'group_id' => 'required',
                 'pathname' => 'nullable|string',
+                'members' => 'required|array',
                 'project_start_date' => 'required',
                 'project_end_date' => 'required',
             ]);
-            $create_by_user_id = auth()->guard('api')->user()->id;
+            $create_by_user_id = auth()->user()->id;
+
+
             $project = Project::create(array_merge($validatedData, ['create_by_user_id' => $create_by_user_id]));
+            $members = $request->members;
+            $project_id = $project->project_id; // Assuming you have the project ID
+
+            $membersData = [];
+            foreach ($members as $user_id) {
+                $membersData[] = [
+                    'project_id' => $project_id,
+                    'user_id' => $user_id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+            ProjectMember::insert($membersData);
+            $project = Project::with('projectMembers.user')->find($project_id);
             return response()->json([
                 'error' => false,
                 'message' => 'Project created successfully',
@@ -86,12 +104,12 @@ class ProjectController extends Controller
             }
             ProjectMember::insert($membersData);
             $project->update($validatedData);
-            $projectResponse = Project::with('projectMembers.user')->find($project_id);
+            $projectResponse = Project::with('projectMembers.user.js')->find($project_id);
 
             // Send notification to all members
             $pathname = $request->input('pathname');
-            $createByUserName = auth()->guard('api')->user()->name;
-            $create_by_user_id = auth()->guard('api')->user()->id;
+            $createByUserName = auth()->user()->name;
+            $create_by_user_id = auth()->user()->id;
             $notifications = [];
             foreach ($request->members as $user_id) {
                 if ($user_id != $create_by_user_id) {
@@ -156,12 +174,12 @@ class ProjectController extends Controller
                 'project_description' => 'nullable|string',
             ]);
             $project->update($validatedData);
-            $projectResponse = Project::with('projectMembers.user')->find($project_id);
+            $projectResponse = Project::with('projectMembers.user.js')->find($project_id);
             // Send notification to all members
             $pathname = $request->input('pathname');
             $pathname = $pathname ? $pathname : '/groups/' . $project->group_id;
-            $createByUserName = auth()->guard('api')->user()->name;
-            $create_by_user_id = auth()->guard('api')->user()->id;
+            $createByUserName = auth()->user()->name;
+            $create_by_user_id = auth()->user()->id;
             $notifications = [];
             $members = ProjectMember::where('project_id', $project_id)->pluck('user_id')->toArray();
             if (!empty($members)) {
@@ -229,12 +247,12 @@ class ProjectController extends Controller
                 'project_status' => 'required',
             ]);
             $project->update($validatedData);
-            $projectResponse = Project::with('projectMembers.user')->find($project_id);
+            $projectResponse = Project::with('projectMembers.user.js')->find($project_id);
             // Send notification to all members
             $pathname = $request->input('pathname');
             $pathname = $pathname ? $pathname : '/groups/' . $project->group_id;
-            $createByUserName = auth()->guard('api')->user()->name;
-            $create_by_user_id = auth()->guard('api')->user()->id;
+            $createByUserName = auth()->user()->name;
+            $create_by_user_id = auth()->user()->id;
             $notifications = [];
             $members = ProjectMember::where('project_id', $project_id)->pluck('user_id')->toArray();
             if (!empty($members)) {
@@ -328,12 +346,12 @@ class ProjectController extends Controller
                 ];
             }
             ProjectMember::insert($membersData);
-            $projectResponse = Project::with('projectMembers.user')->find($project_id);
+            $projectResponse = Project::with('projectMembers.user.js')->find($project_id);
             // Send notification to all members
             $pathname = $request->input('pathname');
             $pathname = $pathname ? $pathname : '/groups/' . $project->group_id;
-            $createByUserName = auth()->guard('api')->user()->name;
-            $create_by_user_id = auth()->guard('api')->user()->id;
+            $createByUserName = auth()->user()->name;
+            $create_by_user_id = auth()->user()->id;
             $notifications = [];
 
             if (!empty($membersToRemove)) {
@@ -448,12 +466,12 @@ class ProjectController extends Controller
                 'project_start_date' => 'required',
             ]);
             $project->update($validatedData);
-            $projectResponse = Project::with('projectMembers.user')->find($project_id);
+            $projectResponse = Project::with('projectMembers.user.js')->find($project_id);
             // Send notification to all members
             $pathname = $request->input('pathname');
             $pathname = $pathname ? $pathname : '/groups/' . $project->group_id;
-            $createByUserName = auth()->guard('api')->user()->name;
-            $create_by_user_id = auth()->guard('api')->user()->id;
+            $createByUserName = auth()->user()->name;
+            $create_by_user_id = auth()->user()->id;
             $notifications = [];
             $members = ProjectMember::where('project_id', $project_id)->pluck('user_id')->toArray();
             if (!empty($members)) {
@@ -522,12 +540,12 @@ class ProjectController extends Controller
                 'project_end_date' => 'required',
             ]);
             $project->update($validatedData);
-            $projectResponse = Project::with('projectMembers.user')->find($project_id);
+            $projectResponse = Project::with('projectMembers.user.js')->find($project_id);
             // Send notification to all members
             $pathname = $request->input('pathname');
             $pathname = $pathname ? $pathname : '/groups/' . $project->group_id;
-            $createByUserName = auth()->guard('api')->user()->name;
-            $create_by_user_id = auth()->guard('api')->user()->id;
+            $createByUserName = auth()->user()->name;
+            $create_by_user_id = auth()->user()->id;
             $notifications = [];
             $members = ProjectMember::where('project_id', $project_id)->pluck('user_id')->toArray();
             if (!empty($members)) {
@@ -704,15 +722,15 @@ class ProjectController extends Controller
     function getProjectByUserId()
     {
         try {
-            $user_id = auth()->guard('api')->user()->id;
+            $user_id = auth()->user()->id;
             $projects = ProjectMember::where('user_id', $user_id)
                 ->with(['project' => function ($query) {
-                    $query->with(['projectMembers.user'])->orderBy('created_at');
+                    $query->with(['projectMembers.user.js'])->orderBy('created_at');
                 }])
                 ->get()
                 ->map(function ($projectMember) {
                     $project = $projectMember->project;
-                    $project->user = $projectMember->user; // Add user information to the project
+                    $project->user = $projectMember->user; // Add user.js information to the project
                     return $project;
                 });
 
@@ -755,12 +773,12 @@ class ProjectController extends Controller
                     'password' => bcrypt('123456'), // You should generate a secure password or send a password reset link
                 ]);
             }
-            $user = auth()->guard('api')->user();
+            $user = auth()->user();
             $pathname = $request->input('pathname');
             $pathname = $pathname ? $pathname : '/groups/' . $project->group_id;
             $link = $this->ClientUrl . $pathname;
             // add notification
-            $createByUserName = auth()->guard('api')->user()->name;
+            $createByUserName = auth()->user()->name;
             $notifications = []; // Initialize the notifications array
 
             $notifications[] = [
@@ -804,7 +822,7 @@ class ProjectController extends Controller
     {
         try {
 
-            $projects = Project::with(['projectMembers.user'])
+            $projects = Project::with(['projectMembers.user.js'])
                 ->withCount(['tasks', 'tasks as completed_tasks_count' => function ($query) {
                     $query->where('task_status', 2); // Assuming 2 is the status for completed tasks
                 }])

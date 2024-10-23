@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\Work;
 
+use App\Http\Controllers\Controller;
 use App\Models\Devices;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -228,7 +229,7 @@ class UserController extends Controller
             $userLogin = auth()->guard('api')->user();
             if ($userLogin->role_id != 1) {
                 return response([
-                    'message' => 'You are not authorized to delete this user',
+                    'message' => 'You are not authorized to delete this user.js',
                     'error' => true,
                     'data' => null
                 ], 401);
