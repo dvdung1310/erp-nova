@@ -74,11 +74,11 @@ class NvDepartmentTeamController extends Controller
                     'team_status' => 'required',
                 ]
             );
-            CrmDepartmentTeamModel::create($request->all());
+            $data = CrmDepartmentTeamModel::create($request->all());
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                'data' => CrmDepartmentTeamModel::paginate(10)
+                'data' => $data
             ]);
         } catch (\Throwable $th) {
             return response()->json([

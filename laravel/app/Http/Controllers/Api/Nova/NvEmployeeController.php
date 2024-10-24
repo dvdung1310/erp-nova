@@ -24,11 +24,11 @@ class NvEmployeeController extends Controller
                 ->select(
                     'crm_employee.*',
                     'crm_department.department_name',
-                    'crm_department.department_name',
                     'crm_department_team.team_name',
                     'crm_employee_level.level_name',
                 )
-                ->paginate(10);
+                ->get();
+            
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
@@ -63,11 +63,11 @@ class NvEmployeeController extends Controller
                     'employee_levels' => $employee_level
                 ]
             ]);
-        } catch (\Throwable $th) {
+        } catch (\Exception $e) {
             // Bắt lỗi và trả về thông báo lỗi
             return response()->json([
                 'error' => true,
-                'message' => 'An error occurred: ' . $th->getMessage(),
+                'message' => 'An error occurred: '. $e->getMessage(),
                 'data' => []
             ]);
         }
@@ -85,10 +85,10 @@ class NvEmployeeController extends Controller
                 'message' => 'Customers retrieved successfully.',
                 'data' => CrmEmployeeModel::paginate(10)
             ]);
-        } catch (\Throwable $th) {
+        } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
-                'message' => 'No customers found.' . $th,
+                'message' => 'No customers found.'.$e->getMessage(),
                 'data' => []
             ]);
         }
@@ -168,10 +168,10 @@ class NvEmployeeController extends Controller
                 'message' => 'Customers retrieved successfully.',
                 'data' => CrmEmployeeModel::paginate(10)
             ]);
-        } catch (\Throwable $th) {
+        } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
-                'message' => 'No customers found.',
+                'message' => 'No customers found.'.$e->getMessage(),
                 'data' => []
             ]);
         }

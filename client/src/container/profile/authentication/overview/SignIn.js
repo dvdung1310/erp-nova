@@ -2,10 +2,13 @@ import React, {useCallback, useState} from 'react';
 import {Form, Input, Button, Spin} from 'antd';
 import {useHistory} from "react-router-dom";
 import Cookies from 'js-cookie';
+import { toast } from 'react-toastify';
 import {AuthWrapper} from './style';
+
 import {login} from '../../../../apis/auth';
 import Heading from '../../../../components/heading/heading';
 import {setItem} from "../../../../utility/localStorageControl";
+
 
 function SignIn() {
     const [isLoading, setLoading] = useState(false);
@@ -20,9 +23,18 @@ function SignIn() {
             const res = await login(data);
             setItem('accessToken', res?.accessToken)
             Cookies.set('logedIn', true);
+            toast.success('Đăng nhập thành công', {
+                position:'top-right',
+                autoClose:1000
+            });
+            window.location.reload();
             history.push('/admin')
             setLoading(false)
         } catch (error) {
+            toast.success('Đăng nhập thất bại', {
+                position:'top-right',
+                autoClose:1000
+            });
             setLoading(false)
             console.log(error);
         }

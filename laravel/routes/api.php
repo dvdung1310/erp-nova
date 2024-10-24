@@ -26,6 +26,7 @@ use App\Http\Middleware\MiddlewareLoginLeader;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Api\Nova\ExamController;
+use App\Http\Controllers\Api\Nova\NvDepartmentController;
 use App\Http\Controllers\Api\Nova\QuestionController;
 use App\Http\Controllers\Api\Nova\WorkScheduleController;
 
@@ -59,6 +60,7 @@ Route::group(['middleware' => 'api'], function () {
 });
 
 Route::group(['middleware' => 'api'], function () {
+    Route::resource('nvdepartment', NvDepartmentController::class);
     Route::resource('nvdepartmentteam', NvDepartmentTeamController::class);
     Route::resource('nvemployee', NvEmployeeController::class);
     Route::resource('nvdayoff', NvEmployeeDayOffController::class);

@@ -40,5 +40,15 @@ class DatabaseSeeder extends Seeder
                 'description' => 'Nhân viên',
             ],
         ]);
+        User::factory()->createMany([
+            [
+                'name' => 'Nguyễn Quang Linh',
+                'email' => 'nql5501@gmail.com',
+                'password' => '123456',
+           
+            ]
+           
+        ]);
+
     }
 }
