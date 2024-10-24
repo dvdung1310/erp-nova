@@ -37,7 +37,6 @@ class ProjectController extends Controller
                 'project_description' => 'nullable|string',
                 'group_id' => 'required',
                 'pathname' => 'nullable|string',
-                'members' => 'required|array',
                 'project_start_date' => 'required',
                 'project_end_date' => 'required',
             ]);
@@ -45,24 +44,19 @@ class ProjectController extends Controller
 
 
             $project = Project::create(array_merge($validatedData, ['create_by_user_id' => $create_by_user_id]));
-            $members = $request->members;
-            $project_id = $project->project_id; // Assuming you have the project ID
-
-            $membersData = [];
-            foreach ($members as $user_id) {
-                $membersData[] = [
-                    'project_id' => $project_id,
-                    'user_id' => $user_id,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-            }
-            ProjectMember::insert($membersData);
-            $project = Project::with('projectMembers.user')->find($project_id);
+            $project_id = $project->project_id;
+            $projectResponse = Project::with('projectMembers.user')
+                ->withCount([
+                    'tasks as total_tasks',
+                    'tasks as completed_tasks' => function ($query) {
+                        $query->where('task_status', 2);
+                    }
+                ])
+                ->find($project_id);
             return response()->json([
                 'error' => false,
                 'message' => 'Project created successfully',
-                'data' => $project
+                'data' => $projectResponse
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
@@ -104,7 +98,7 @@ class ProjectController extends Controller
             }
             ProjectMember::insert($membersData);
             $project->update($validatedData);
-            $projectResponse = Project::with('projectMembers.user.js')->find($project_id);
+            $projectResponse = Project::with('projectMembers.user')->find($project_id);
 
             // Send notification to all members
             $pathname = $request->input('pathname');
@@ -174,7 +168,14 @@ class ProjectController extends Controller
                 'project_description' => 'nullable|string',
             ]);
             $project->update($validatedData);
-            $projectResponse = Project::with('projectMembers.user.js')->find($project_id);
+            $projectResponse = Project::with('projectMembers.user')
+                ->withCount([
+                    'tasks as total_tasks',
+                    'tasks as completed_tasks' => function ($query) {
+                        $query->where('task_status', 2);
+                    }
+                ])
+                ->find($project_id);
             // Send notification to all members
             $pathname = $request->input('pathname');
             $pathname = $pathname ? $pathname : '/groups/' . $project->group_id;
@@ -247,7 +248,14 @@ class ProjectController extends Controller
                 'project_status' => 'required',
             ]);
             $project->update($validatedData);
-            $projectResponse = Project::with('projectMembers.user.js')->find($project_id);
+            $projectResponse = Project::with('projectMembers.user')
+                ->withCount([
+                    'tasks as total_tasks',
+                    'tasks as completed_tasks' => function ($query) {
+                        $query->where('task_status', 2);
+                    }
+                ])
+                ->find($project_id);
             // Send notification to all members
             $pathname = $request->input('pathname');
             $pathname = $pathname ? $pathname : '/groups/' . $project->group_id;
@@ -346,7 +354,14 @@ class ProjectController extends Controller
                 ];
             }
             ProjectMember::insert($membersData);
-            $projectResponse = Project::with('projectMembers.user.js')->find($project_id);
+            $projectResponse = Project::with('projectMembers.user')
+                ->withCount([
+                    'tasks as total_tasks',
+                    'tasks as completed_tasks' => function ($query) {
+                        $query->where('task_status', 2);
+                    }
+                ])
+                ->find($project_id);
             // Send notification to all members
             $pathname = $request->input('pathname');
             $pathname = $pathname ? $pathname : '/groups/' . $project->group_id;
@@ -450,8 +465,7 @@ class ProjectController extends Controller
         }
     }
 
-    public
-    function updateStartDate(Request $request, $project_id)
+    public function updateStartDate(Request $request, $project_id)
     {
         try {
             $project = Project::find($project_id);
@@ -466,7 +480,14 @@ class ProjectController extends Controller
                 'project_start_date' => 'required',
             ]);
             $project->update($validatedData);
-            $projectResponse = Project::with('projectMembers.user.js')->find($project_id);
+            $projectResponse = Project::with('projectMembers.user')
+                ->withCount([
+                    'tasks as total_tasks',
+                    'tasks as completed_tasks' => function ($query) {
+                        $query->where('task_status', 2);
+                    }
+                ])
+                ->find($project_id);
             // Send notification to all members
             $pathname = $request->input('pathname');
             $pathname = $pathname ? $pathname : '/groups/' . $project->group_id;
@@ -540,7 +561,14 @@ class ProjectController extends Controller
                 'project_end_date' => 'required',
             ]);
             $project->update($validatedData);
-            $projectResponse = Project::with('projectMembers.user.js')->find($project_id);
+            $projectResponse = Project::with('projectMembers.user')
+                ->withCount([
+                    'tasks as total_tasks',
+                    'tasks as completed_tasks' => function ($query) {
+                        $query->where('task_status', 2);
+                    }
+                ])
+                ->find($project_id);
             // Send notification to all members
             $pathname = $request->input('pathname');
             $pathname = $pathname ? $pathname : '/groups/' . $project->group_id;
@@ -598,8 +626,7 @@ class ProjectController extends Controller
         }
     }
 
-    public
-    function delete(Request $request, $project_id)
+    public function delete(Request $request, $project_id)
     {
         try {
             $project = Project::find($project_id);
@@ -610,20 +637,27 @@ class ProjectController extends Controller
                     'data' => null
                 ], 404);
             }
-
+            $projectResponse = Project::with('projectMembers.user')
+                ->withCount([
+                    'tasks as total_tasks',
+                    'tasks as completed_tasks' => function ($query) {
+                        $query->where('task_status', 2);
+                    }
+                ])
+                ->find($project_id);
             // Delete related task members
             $tasks = Task::where('project_id', $project_id)->get();
             foreach ($tasks as $task) {
                 $task->taskMembers()->delete();
             }
 
-// Delete related tasks
+            // Delete related tasks
             $task_ids = Task::where('project_id', $project_id)->pluck('task_id');
 
-// Delete related task members
+            // Delete related task members
             TaskMember::whereIn('task_id', $task_ids)->delete();
 
-// Delete the notifications
+            // Delete the notifications
             Notification::whereIn('task_id', $task_ids)->delete();
 
             // Delete message tasks and retrieve message IDs
@@ -633,9 +667,9 @@ class ProjectController extends Controller
             // Retrieve file URLs from Message table
             $fileUrls = Message::whereIn('message_id', $messageIds)->pluck('file_url');
             $imageUrls = Message::whereIn('message_id', $messageIds)->pluck('image_url');
+
             // Delete files from public directory
             foreach ($imageUrls as $imageUrl) {
-                // Remove the leading slash if present
                 $array = explode('/', $imageUrl);
                 $imageUrl = array_pop($array);
                 Storage::disk('public_messages')->delete($imageUrl);
@@ -643,33 +677,30 @@ class ProjectController extends Controller
 
             // Delete files from public directory
             foreach ($fileUrls as $fileUrl) {
-                // Remove the leading slash if present
                 $array = explode('/', $fileUrl);
                 $fileUrl = array_pop($array);
                 Storage::disk('public_messages')->delete($fileUrl);
             }
 
-// Delete messages from Message table
+            // Delete messages from Message table
             Message::whereIn('message_id', $messageIds)->delete();
 
-// Delete the tasks
+            // Delete the tasks
             Task::whereIn('task_id', $task_ids)->delete();
-
-            // Delete the task
-            $task->delete();
 
             // Delete related project members
             ProjectMember::where('project_id', $project_id)->delete();
+
             // Delete related notifications
             Notification::where('project_id', $project_id)->delete();
+
             // Delete the project
             $project->delete();
-
 
             return response()->json([
                 'error' => false,
                 'message' => 'Project deleted successfully',
-                'data' => null
+                'data' => $projectResponse
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -680,8 +711,7 @@ class ProjectController extends Controller
         }
     }
 
-    public
-    function getAllProjects()
+    public function getAllProjects()
     {
         try {
             $projects = Project::all();
@@ -725,12 +755,12 @@ class ProjectController extends Controller
             $user_id = auth()->user()->id;
             $projects = ProjectMember::where('user_id', $user_id)
                 ->with(['project' => function ($query) {
-                    $query->with(['projectMembers.user.js'])->orderBy('created_at');
+                    $query->with(['projectMembers.user'])->orderBy('created_at');
                 }])
                 ->get()
                 ->map(function ($projectMember) {
                     $project = $projectMember->project;
-                    $project->user = $projectMember->user; // Add user.js information to the project
+                    $project->user = $projectMember->user; // Add user information to the project
                     return $project;
                 });
 
@@ -794,6 +824,7 @@ class ProjectController extends Controller
 
             // Prepare email data
             $inviteData = [
+                'email_to' => $validated['email_to'],
                 'group_name' => $project->project_name,
                 'user_name' => $user->name,
                 'message' => $validated['message'],
@@ -822,7 +853,7 @@ class ProjectController extends Controller
     {
         try {
 
-            $projects = Project::with(['projectMembers.user.js'])
+            $projects = Project::with(['projectMembers.user'])
                 ->withCount(['tasks', 'tasks as completed_tasks_count' => function ($query) {
                     $query->where('task_status', 2); // Assuming 2 is the status for completed tasks
                 }])

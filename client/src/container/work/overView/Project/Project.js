@@ -1,55 +1,42 @@
-import React, {lazy, useState, Suspense} from 'react';
-import {useSelector, useDispatch} from 'react-redux';
-import {Row, Col, Spin, Select} from 'antd';
-import {Link} from 'react-router-dom';
+import React, {lazy, useState} from 'react';
+import {useSelector} from 'react-redux';
+import {Row, Col} from 'antd';
 import FeatherIcon from 'feather-icons-react';
 import CreateProject from './overViewProject/CreateProject';
-import {ProjectHeader, ProjectSorting} from './style';
-import {AutoComplete} from '../../../../components/autoComplete/autoComplete';
+import {ProjectHeader} from './style';
 import {Button} from '../../../../components/buttons/buttons';
-import {filterProjectByStatus, sortingProjectByCategory} from '../../../../redux/project/actionCreator';
 import {Main} from '../../../styled';
 import {PageHeader} from '../../../../components/page-headers/page-headers';
+import CreateGroup from "../Group/overViewGroup/CreateGroup";
 
 const List = lazy(() => import('./overViewProject/List'));
+const Grid = lazy(() => import('./overViewProject/Grid'));
 
-// eslint-disable-next-line react/prop-types
-function Project({listProject, listUser}) {
-    const dispatch = useDispatch();
-    const searchData = useSelector((state) => state.headerSearchData);
+function Project({listProject, listUser, group_id, listGroup}) {
     const [state, setState] = useState({
-        notData: searchData,
         visible: false,
-        categoryActive: 'all',
+        visible_group: false,
     });
 
-    const {notData, visible} = state;
-    const handleSearch = (searchText) => {
-        const data = searchData.filter((item) => item.title.toUpperCase().startsWith(searchText.toUpperCase()));
-        setState({
-            ...state,
-            notData: data,
-        });
-    };
-
-    const onSorting = (selectedItems) => {
-        dispatch(sortingProjectByCategory(selectedItems));
-    };
-
-    const onChangeCategory = (value) => {
-        setState({
-            ...state,
-            categoryActive: value,
-        });
-        dispatch(filterProjectByStatus(value));
-    };
-
+    const {visible, visible_group} = state;
     const showModal = () => {
         setState({
             ...state,
             visible: true,
         });
     };
+    const showModalGroup = () => {
+        setState({
+            ...state,
+            visible_group: true,
+        });
+    }
+    const onCancelGroup = () => {
+        setState({
+            ...state,
+            visible_group: false,
+        });
+    }
 
     const onCancel = () => {
         setState({
@@ -60,79 +47,58 @@ function Project({listProject, listUser}) {
 
     return (
         <>
-            <ProjectHeader>
-                <PageHeader
-                    ghost
-                    title="Danh sách dự án"
-                    subTitle={<>12 Running Projects</>}
-                    buttons={[
-                        <Button onClick={showModal} key="1" type="primary" size="default">
-                            <FeatherIcon icon="plus" size={16}/> Create Projects
-                        </Button>,
-                    ]}
-                />
-            </ProjectHeader>
-            <Main>
-                <Row gutter={25}>
-                    <Col xs={24}>
-                        <ProjectSorting>
-                            <div className="project-sort-bar">
-                                <div className="project-sort-nav">
-                                    <nav>
-                                        <ul>
-                                            <li className={state.categoryActive === 'all' ? 'active' : 'deactivate'}>
-                                                <Link onClick={() => onChangeCategory('all')} to="#">
-                                                    All
-                                                </Link>
-                                            </li>
-                                            <li className={state.categoryActive === 'progress' ? 'active' : 'deactivate'}>
-                                                <Link onClick={() => onChangeCategory('progress')} to="#">
-                                                    In Progress
-                                                </Link>
-                                            </li>
-                                            <li className={state.categoryActive === 'complete' ? 'active' : 'deactivate'}>
-                                                <Link onClick={() => onChangeCategory('complete')} to="#">
-                                                    Complete
-                                                </Link>
-                                            </li>
-                                            <li className={state.categoryActive === 'late' ? 'active' : 'deactivate'}>
-                                                <Link onClick={() => onChangeCategory('late')} to="#">
-                                                    Late
-                                                </Link>
-                                            </li>
-                                            <li className={state.categoryActive === 'early' ? 'active' : 'deactivate'}>
-                                                <Link onClick={() => onChangeCategory('early')} to="#">
-                                                    Early
-                                                </Link>
-                                            </li>
-                                        </ul>
-                                    </nav>
-                                </div>
-                                <div className="project-sort-search">
-                                    <AutoComplete onSearch={handleSearch} dataSource={notData}
-                                                  placeholder="Search projects" patterns/>
-                                </div>
-                                <div className="project-sort-group">
-                                    <div className="sort-group">
-                                        <span>Sort By:</span>
-                                        <Select onChange={onSorting} defaultValue="category">
-                                            <Select.Option value="category">Project Category</Select.Option>
-                                            <Select.Option value="rate">Top Rated</Select.Option>
-                                            <Select.Option value="popular">Popular</Select.Option>
-                                            <Select.Option value="time">Newest</Select.Option>
-                                            <Select.Option value="price">Price</Select.Option>
-                                        </Select>
-                                    </div>
-                                </div>
+            <>
+                <ProjectHeader>
+                    <PageHeader
+                        ghost
+                        title="Danh sách nhóm làm việc"
+                        subTitle={<>{listGroup?.length} Nhóm</>}
+                        buttons={[
+                            <Button onClick={showModalGroup} key="1" type="primary" size="default">
+                                <FeatherIcon icon="plus" size={16}/> Tạo nhóm
+                            </Button>,
+                        ]}
+                    />
+                </ProjectHeader>
+                <Main>
+                    <Row gutter={25}>
+                        <Col xs={24}>
+                            <div>
+                                <Grid listGroup={listGroup} listUser={listUser}/>
                             </div>
-                        </ProjectSorting>
-                        <div>
-                            <List listProject={listProject} listUser={listUser}/>
-                        </div>
-                    </Col>
-                </Row>
-                <CreateProject onCancel={onCancel} visible={visible}/>
-            </Main>
+                        </Col>
+                    </Row>
+                    <CreateGroup group_id={group_id} listUser={listUser} onCancel={onCancelGroup} visible={visible_group}/>
+                </Main>
+            </>
+
+            {/**/}
+            <>
+                <ProjectHeader>
+                    <PageHeader
+                        ghost
+                        title="Danh sách dự án"
+                        subTitle={<>{listProject?.length} dự án</>}
+                        buttons={[
+                            <Button onClick={showModal} key="1" type="primary" size="default">
+                                <FeatherIcon icon="plus" size={16}/> Tạo dự án
+                            </Button>,
+                        ]}
+                    />
+                </ProjectHeader>
+                <Main>
+                    <Row gutter={25}>
+                        <Col xs={24}>
+                            <div>
+                                <List listProject={listProject} listUser={listUser}/>
+                            </div>
+                        </Col>
+                    </Row>
+                    <CreateProject group_id={group_id} listUser={listUser} onCancel={onCancel} visible={visible}/>
+                </Main>
+            </>
+
+
         </>
     );
 }

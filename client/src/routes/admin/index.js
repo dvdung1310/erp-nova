@@ -33,7 +33,6 @@ const Task = lazy(() => import('../../container/task/Index'));
 
 function Admin() {
     const {path} = useRouteMatch();
-    console.log(path)
 
     return (
         <Switch>

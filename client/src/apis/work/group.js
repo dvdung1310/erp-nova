@@ -23,3 +23,31 @@ export const getGroupByParentId = async (id) => {
     });
     return response.data;
 }
+export const createGroup = async (data) => {
+    const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/groups/create`, data, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    return response.data;
+}
+export const updateGroup = async (data, id) => {
+    const response = await instanceAxios.put(`${LARAVEL_SERVER}/api/groups/update/${id}`, data, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        }
+    );
+    return response.data;
+}
+export const deleteGroup = async (id) => {
+    const response = await instanceAxios.delete(`${LARAVEL_SERVER}/api/groups/delete/${id}`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    return response.data;
+}

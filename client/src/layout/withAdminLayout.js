@@ -99,6 +99,7 @@ const ThemeLayout = (WrappedComponent) => {
       };
 
       const footerStyle = {
+        display: 'none',
         padding: '20px 30px 18px',
         color: 'rgba(0, 0, 0, 0.65)',
         fontSize: '14px',

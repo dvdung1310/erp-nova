@@ -48,7 +48,7 @@ class GroupController extends Controller
             ]);
             if ($group->exists) {
                 return response([
-                    'message' => 'Group.js already exists',
+                    'message' => 'Group already exists',
                     'data' => null,
                     'error' => true
                 ], 400);
@@ -62,21 +62,20 @@ class GroupController extends Controller
 
             $parent_group_id = $request->parent_group_id;
             $leaderIds = $this->getAllLeaderIds($parent_group_id);
-            $groupResponse = $group->where('group_name', $request->group_name)->first();
             if (isset($parent_group_id)) {
                 if ((string)$user_role == '1' || (string)$user_role == '2' || (string)$user_role == '3' || (string)$user_role == '4') {
                     $group->save();
                     $group_id = $group->group_id;
                     $dataResponse = Group::where('group_id', $group_id)
                         ->with('leader') // Assuming there is a relationship defined in the Group.js model
-                        ->select('group_id', 'group_name', 'color', 'leader_id')
+                        ->select('group_id', 'group_name', 'color', 'leader_id', 'group_description')
                         ->first();
                     if (!$group->parent_group_id) {
                         Http::post($this->nodeUrl . '/change-group');
                     }
 
                     return response([
-                        'message' => 'Group.js created successfully',
+                        'message' => 'Group created successfully',
                         'data' => $dataResponse,
                         'error' => false
                     ], 200);
@@ -94,14 +93,14 @@ class GroupController extends Controller
             $group_id = $group->group_id;
             $dataResponse = Group::where('group_id', $group_id)
                 ->with('leader') // Assuming there is a relationship defined in the Group.js model
-                ->select('group_id', 'group_name', 'color', 'leader_id')
+                ->select('group_id', 'group_name', 'color', 'leader_id', 'group_description')
                 ->first();
             if (!$group->parent_group_id) {
                 Http::post($this->nodeUrl . '/change-group');
             }
 
             return response([
-                'message' => 'Group.js created successfully',
+                'message' => 'Group created successfully',
                 'data' => $dataResponse,
                 'error' => false
             ], 200);
@@ -137,7 +136,7 @@ class GroupController extends Controller
         try {
             $groups = Group::where('parent_group_id', $parent_group_id)
                 ->with('leader') // Assuming there is a relationship defined in the Group.js model
-                ->select('group_id', 'group_name', 'color', 'leader_id')
+                ->select('group_id', 'group_name', 'color', 'leader_id', 'group_description')
                 ->get();
             $project = Project::where('group_id', $parent_group_id)
                 ->with(['projectMembers.user'])
@@ -305,7 +304,7 @@ class GroupController extends Controller
             $group = Group::find($group_id);
             if (!$group) {
                 return response([
-                    'message' => 'Group.js not found',
+                    'message' => 'Group not found',
                     'data' => null,
                     'error' => true
                 ], 404);
@@ -323,14 +322,14 @@ class GroupController extends Controller
             $leaderIds = $this->getAllLeaderIds($parent_group_id);
             $leaderIds[] = $group->leader_id;
             if (isset($parent_group_id)) {
-                if ($user_role == 1) {
+                if ($user_role == 1 || $user_role == 2) {
                     $group->save();
                     if (!$group->parent_group_id) {
                         Http::post($this->nodeUrl . '/change-group');
                     }
                     $dataResponse = Group::where('group_id', $group_id)
                         ->with('leader') // Assuming there is a relationship defined in the Group.js model
-                        ->select('group_id', 'group_name', 'color', 'leader_id')
+                        ->select('group_id', 'group_name', 'color', 'leader_id', 'group_description')
                         ->first();
                     return response([
                         'message' => 'Group.js created successfully',
@@ -354,10 +353,10 @@ class GroupController extends Controller
             }
             $dataResponse = Group::where('group_id', $group_id)
                 ->with('leader') // Assuming there is a relationship defined in the Group.js model
-                ->select('group_id', 'group_name', 'color', 'leader_id')
+                ->select('group_id', 'group_name', 'color', 'leader_id', 'group_description')
                 ->first();
             return response([
-                'message' => 'Group.js updated successfully',
+                'message' => 'Group updated successfully',
                 'data' => $dataResponse,
                 'error' => false
             ], 200);
@@ -379,7 +378,7 @@ class GroupController extends Controller
             if ((string)auth()->user()->role_id == '1' || (string)auth()->user()->role_id == '2') {
                 $groups = Group::whereNull('parent_group_id')
                     ->with('leader') // Assuming there is a relationship defined in the Group.js model
-                    ->select('group_id', 'group_name', 'color', 'leader_id')
+                    ->select('group_id', 'group_name', 'color', 'leader_id', 'group_description')
                     ->get();;
                 return response([
                     'data' => $groups,
@@ -389,7 +388,7 @@ class GroupController extends Controller
             } else {
                 $groups = Group::whereNull('parent_group_id')
                     ->with('leader') // Assuming there is a relationship defined in the Group.js model
-                    ->select('group_id', 'group_name', 'color', 'leader_id')
+                    ->select('group_id', 'group_name', 'color', 'leader_id', 'group_description')
                     ->get();
                 $filteredGroups = $this->filterGroupsWithUser($groups, $user_id);
                 $dataResponse = [];

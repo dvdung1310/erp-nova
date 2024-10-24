@@ -2,17 +2,17 @@ import Styled from 'styled-components';
 
 const ProjectHeader = Styled.div`
     .ant-page-header-heading-sub-title{
-        ${({ theme }) => (theme.rtl ? 'margin-left' : 'margin-right')}: 0;
+        ${({theme}) => (theme.rtl ? 'margin-left' : 'margin-right')}: 0;
         position: relative;
-        ${({ theme }) => (!theme.rtl ? 'padding-left' : 'padding-right')}: 15px;
+        ${({theme}) => (!theme.rtl ? 'padding-left' : 'padding-right')}: 15px;
         font-weight: 500;
         &:before{
             position: absolute;
             content: '';
             width: 1px;
             height: 24px;
-            background: ${({ theme }) => theme['dash-color']};
-            ${({ theme }) => (!theme.rtl ? 'left' : 'right')}: 0;
+            background: ${({theme}) => theme['dash-color']};
+            ${({theme}) => (!theme.rtl ? 'left' : 'right')}: 0;
             top:0;
         }
     }
@@ -32,7 +32,7 @@ const ProjectSorting = Styled.div`
         }
 
         .project-sort-group{
-            ${({ theme }) => (theme.rtl ? 'margin-right' : 'margin-left')}: auto;
+            ${({theme}) => (theme.rtl ? 'margin-right' : 'margin-left')}: auto;
         }
         .project-sort-search{
             .ant-select-selection-search{
@@ -68,8 +68,8 @@ const ProjectSorting = Styled.div`
         }
         .project-sort-group .sort-group .ant-select {
             min-width: 170px;
-            ${({ theme }) => (!theme.rtl ? 'padding-left' : 'padding-right')}: 5px;
-            ${({ theme }) => (theme.rtl ? 'margin-left' : 'margin-right')}: 5px;
+            ${({theme}) => (!theme.rtl ? 'padding-left' : 'padding-right')}: 5px;
+            ${({theme}) => (theme.rtl ? 'margin-left' : 'margin-right')}: 5px;
         }
     }
     @media (max-width: 1199px){
@@ -93,13 +93,13 @@ const ProjectSorting = Styled.div`
     }
     @media (max-width: 991px){
         .project-sort-group{
-            ${({ theme }) => (theme.rtl ? 'margin-right' : 'margin-left')}: unset;
+            ${({theme}) => (theme.rtl ? 'margin-right' : 'margin-left')}: unset;
             flex: 0 0 100%;
             margin-top: 15px;
             .sort-group{
                 justify-content: flex-start;
                 .layout-style{
-                    ${({ theme }) => (theme.rtl ? 'margin-right' : 'margin-left')}: auto;
+                    ${({theme}) => (theme.rtl ? 'margin-right' : 'margin-left')}: auto;
                 }
             }
         }
@@ -111,7 +111,7 @@ const ProjectSorting = Styled.div`
                     display: none;
                 }
                 .ant-select{
-                    ${({ theme }) => (theme.rtl ? 'margin-left' : 'margin-right')}: 0;
+                    ${({theme}) => (theme.rtl ? 'margin-left' : 'margin-right')}: 0;
                 }
             }
         }
@@ -129,22 +129,22 @@ const ProjectSorting = Styled.div`
             align-items: center;
             justify-content: space-between;
             li{
-                ${({ theme }) => (theme.rtl ? 'margin-left' : 'margin-right')}: 12px;
-                ${({ theme }) => (theme.rtl ? 'margin-left' : 'margin-right')}: 11px;
-                ${({ theme }) => (theme.rtl ? 'border-left' : 'border-right')}: 1px solid ${({ theme }) =>
-  theme['border-color-light']};
+                ${({theme}) => (theme.rtl ? 'margin-left' : 'margin-right')}: 12px;
+                ${({theme}) => (theme.rtl ? 'margin-left' : 'margin-right')}: 11px;
+                ${({theme}) => (theme.rtl ? 'border-left' : 'border-right')}: 1px solid ${({theme}) =>
+    theme['border-color-light']};
                 &:last-child{
-                    ${({ theme }) => (theme.rtl ? 'margin-left' : 'margin-right')}: 0;
-                    ${({ theme }) => (theme.rtl ? 'margin-left' : 'margin-right')}: 0;
-                    ${({ theme }) => (theme.rtl ? 'border-left' : 'border-right')}: 0 none;
+                    ${({theme}) => (theme.rtl ? 'margin-left' : 'margin-right')}: 0;
+                    ${({theme}) => (theme.rtl ? 'margin-left' : 'margin-right')}: 0;
+                    ${({theme}) => (theme.rtl ? 'border-left' : 'border-right')}: 0 none;
                 }
                 a{
-                    color: ${({ theme }) => theme['gray-solid']};
+                    color: ${({theme}) => theme['gray-solid']};
                     font-weight: 400;
                 }
                 &.active{
                     a{
-                        color: ${({ theme }) => theme['primary-color']};
+                        color: ${({theme}) => theme['primary-color']};
                     }
                 }
             }
@@ -160,24 +160,24 @@ const ProjectSorting = Styled.div`
     }
     .ant-select-arrow{
         right: auto;
-        ${({ theme }) => (theme.rtl ? 'left' : 'right')}: 11px !important;
+        ${({theme}) => (theme.rtl ? 'left' : 'right')}: 11px !important;
     }
     
     .sort-group{
-        color: ${({ theme }) => theme['gray-solid']};
+        color: ${({theme}) => theme['gray-solid']};
         display: flex;
         align-items: center;
         justify-content: flex-end;
 
                
         .ant-select{
-            ${({ theme }) => (!theme.rtl ? 'padding-left' : 'padding-right')}: 10px;
-            ${({ theme }) => (!theme.rtl ? 'margin-left' : 'margin-right')}: 15px;
+            ${({theme}) => (!theme.rtl ? 'padding-left' : 'padding-right')}: 10px;
+            ${({theme}) => (!theme.rtl ? 'margin-left' : 'margin-right')}: 15px;
             min-width: 260px;
             .ant-select-selector{
                 border: 0 none;
                 .ant-select-selection-item{                    
-                    color: ${({ theme }) => theme['gray-solid']};
+                    color: ${({theme}) => theme['gray-solid']};
                 }
                 
             }
@@ -185,7 +185,7 @@ const ProjectSorting = Styled.div`
         .layout-style{
             display: flex;
             align-items: center;
-            ${({ theme }) => (theme.rtl ? 'margin-right' : 'margin-left')}: 20px;
+            ${({theme}) => (theme.rtl ? 'margin-right' : 'margin-left')}: 20px;
             a{
                 display: flex;
                 width: 40px;
@@ -193,10 +193,10 @@ const ProjectSorting = Styled.div`
                 border-radius: 50%;
                 align-items: center;
                 justify-content: center;
-                color: ${({ theme }) => theme['gray-solid']};
+                color: ${({theme}) => theme['gray-solid']};
                 &:hover,
                 &.active{
-                    color: ${({ theme }) => theme['primary-color']};
+                    color: ${({theme}) => theme['primary-color']};
                     background: #fff;
                 }
             }
@@ -220,7 +220,7 @@ const ProjectSorting = Styled.div`
                 justify-content: center;
                 margin-bottom: -5px;
                 li{
-                    ${({ theme }) => (theme.rtl ? 'border-left' : 'border-right')}: 0 none;
+                    ${({theme}) => (theme.rtl ? 'border-left' : 'border-right')}: 0 none;
                     margin-bottom: 5px;
                 }
             }
@@ -229,11 +229,21 @@ const ProjectSorting = Styled.div`
 `;
 
 const ProjectCard = Styled.div`
+    .project-container {
+        border-radius: 10px;
+        background: #fff;
+        transition: 0.3s all ease;
+        padding: 20px;
+        }
+        .project-container:hover {
+            box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+        }
     .ant-card-body{
         padding: 0px !important;
     }
     .project-top{
-        padding:30px 30px 0px;
+        flex: 1;
+        margin-left: 20px;
     }
     .project-bottom{
         .project-assignees{
@@ -245,14 +255,14 @@ const ProjectCard = Styled.div`
         align-items: flex-start;
         justify-content: space-between;
         h1{
-            font-size: 16px;
+            font-size: 20px;
             display: flex;
             flex-wrap: wrap;
             align-items: center;
             margin: -2px;
             a{
-                color: ${({ theme }) => theme['dark-color']};
-                ${({ theme }) => (theme.rtl ? 'margin-left' : 'margin-right')}: 11px !important;
+                color: ${({theme}) => theme['dark-color']};
+                ${({theme}) => (theme.rtl ? 'margin-left' : 'margin-right')}: 11px !important;
             }
             a,
             .ant-tag{
@@ -261,41 +271,41 @@ const ProjectCard = Styled.div`
             .ant-tag{
                 text-transform: uppercase;
                 font-size: 10px;
-                ${({ theme }) => (theme.rtl ? 'margin-left' : 'margin-right')}: 0;
+                ${({theme}) => (theme.rtl ? 'margin-left' : 'margin-right')}: 0;
                 line-height: 18px;
                 background: red;
                 color: #fff;
                 border: 0 none;
                 &.early{
-                    background: ${({ theme }) => theme['primary-color']};
+                    background: ${({theme}) => theme['primary-color']};
                 }
                 &.progress{
-                    background: ${({ theme }) => theme['danger-color']};
+                    background: ${({theme}) => theme['danger-color']};
                 }
                 &.late{
-                    background: ${({ theme }) => theme['warning-color']};
+                    background: ${({theme}) => theme['warning-color']};
                 }
                 &.complete{
-                    background: ${({ theme }) => theme['success-color']};
+                    background: ${({theme}) => theme['success-color']};
                 }
             }
         }
         .ant-dropdown-trigger{
-            color: ${({ theme }) => theme['extra-light-color']};
+            color: ${({theme}) => theme['extra-light-color']};
         }
     }
     .project-desc{
         margin: 7px 0 25px 0;
-        color: ${({ theme }) => theme['gray-color']};
+        color: ${({theme}) => theme['gray-color']};
     }
     .project-timing{
         display: flex;
         align-items: center;
         margin-bottom: 15px;
         div{
-            ${({ theme }) => (theme.rtl ? 'margin-left' : 'margin-right')}: 30px;
+            ${({theme}) => (theme.rtl ? 'margin-left' : 'margin-right')}: 30px;
             &:last-child{
-                ${({ theme }) => (theme.rtl ? 'margin-left' : 'margin-right')}: 0;
+                ${({theme}) => (theme.rtl ? 'margin-left' : 'margin-right')}: 0;
             }
             span, strong{
                 display: block;
@@ -303,7 +313,7 @@ const ProjectCard = Styled.div`
             span{
                 font-size: 12px;
                 margin-bottom: 2px;
-                color: ${({ theme }) => theme['gray-solid']};
+                color: ${({theme}) => theme['gray-solid']};
             }
             strong{
                 font-weight: 500;
@@ -313,7 +323,7 @@ const ProjectCard = Styled.div`
     .project-progress{
         p{
             margin: 2px 0 0 0;
-            color: ${({ theme }) => theme['gray-solid']};
+            color: ${({theme}) => theme['gray-solid']};
             font-size: 12px;
         }
         .ant-progress-text{
@@ -322,12 +332,12 @@ const ProjectCard = Styled.div`
         }
     }
     .project-assignees{
-        border-top: 1px solid ${({ theme }) => theme['border-color-light']};
+        border-top: 1px solid ${({theme}) => theme['border-color-light']};
         margin-top: 17px;
         padding-top: 16px;
         p{
             font-size: 13px;
-            color: ${({ theme }) => theme['gray-solid']}
+            color: ${({theme}) => theme['gray-solid']}
         }
         ul{
             margin: -3px;
@@ -365,13 +375,13 @@ const ProjectListTitle = Styled.div`
         font-weight: 500;
         margin-bottom: 5px;
         a{
-            color: ${({ theme }) => theme['dark-color']};
+            color: ${({theme}) => theme['dark-color']};
         }
     }
     p{
         margin: 0;
         font-size: 12px;
-        color: ${({ theme }) => theme['gray-solid']};
+        color: ${({theme}) => theme['gray-solid']};
     }
 `;
 
@@ -400,7 +410,7 @@ const ProjectList = Styled.div`
         p{
             margin: 4px 0 0 0;
             font-size: 12px;
-            color: ${({ theme }) => theme['gray-solid']};
+            color: ${({theme}) => theme['gray-solid']};
         }
     }
     .date-started,
@@ -410,14 +420,14 @@ const ProjectList = Styled.div`
     .ant-table{
         .ant-table-thead{
             th{
-                background-color: ${({ theme }) => theme['bg-color-light']};
+                background-color: ${({theme}) => theme['bg-color-light']};
             }
         }
         .ant-table-tbody{
             tr{
                 &:hover{
                     td{
-                        background-color: ${({ theme }) => theme['bg-color-light']};
+                        background-color: ${({theme}) => theme['bg-color-light']};
                     }
                 }
             }
@@ -425,22 +435,22 @@ const ProjectList = Styled.div`
     }
     .ant-table-container table > thead > tr th{
         font-weight: 400;
-        color: ${({ theme }) => theme['light-color']};
-        border-top: 1px solid ${({ theme }) => theme['border-color-light']};
+        color: ${({theme}) => theme['light-color']};
+        border-top: 1px solid ${({theme}) => theme['border-color-light']};
     }
     .ant-table-container table > thead > tr th:first-child{
-        border-radius: ${({ theme }) => (theme.rtl ? '0 10px 10px 0' : '10px 0 0 10px')} !important;
-        ${({ theme }) => (!theme.rtl ? 'border-left' : 'border-right')}: 1px solid ${({ theme }) =>
-  theme['border-color-light']};
+        border-radius: ${({theme}) => (theme.rtl ? '0 10px 10px 0' : '10px 0 0 10px')} !important;
+        ${({theme}) => (!theme.rtl ? 'border-left' : 'border-right')}: 1px solid ${({theme}) =>
+    theme['border-color-light']};
     }
     .ant-table-container table > thead > tr th:last-child{
-        border-radius: ${({ theme }) => (!theme.rtl ? '0 10px 10px 0' : '10px 0 0 10px')} !important;
-        ${({ theme }) => (theme.rtl ? 'border-left' : 'border-right')}: 1px solid ${({ theme }) =>
-  theme['border-color-light']};
+        border-radius: ${({theme}) => (!theme.rtl ? '0 10px 10px 0' : '10px 0 0 10px')} !important;
+        ${({theme}) => (theme.rtl ? 'border-left' : 'border-right')}: 1px solid ${({theme}) =>
+    theme['border-color-light']};
     }
     .ant-dropdown-trigger{
         svg{
-            color: ${({ theme }) => theme['extra-light-color']};
+            color: ${({theme}) => theme['extra-light-color']};
         }
     }
 `;
@@ -459,7 +469,7 @@ const ProjectDetailsWrapper = Styled.div`
             }
         }
         h1{
-            ${({ theme }) => (theme.rtl ? 'margin-left' : 'margin-right')}: 20px;
+            ${({theme}) => (theme.rtl ? 'margin-left' : 'margin-right')}: 20px;
             margin-bottom: 0;
             font-size: 20px;
             @media only screen and (max-width: 800px) {
@@ -472,12 +482,12 @@ const ProjectDetailsWrapper = Styled.div`
         button{
             font-size: 12px;
             font-weight: 500;
-            ${({ theme }) => (theme.rtl ? 'margin-left' : 'margin-right')}: 10px;
+            ${({theme}) => (theme.rtl ? 'margin-left' : 'margin-right')}: 10px;
             height: 35px;
             padding: 0px 13.5px;
             &.btn-markComplete{
                 background: #fff;
-                border-color: ${({ theme }) => theme['border-color-deep']};
+                border-color: ${({theme}) => theme['border-color-deep']};
             }
         }
     }
@@ -494,22 +504,22 @@ const ProjectDetailsWrapper = Styled.div`
             align-items: center;
             justify-content: center;
             margin: 0 5px;
-            box-shadow: 0 3px 5px ${({ theme }) => theme['gray-solid']}05;
+            box-shadow: 0 3px 5px ${({theme}) => theme['gray-solid']}05;
             svg,
             img{
-                ${({ theme }) => (theme.rtl ? 'margin-left' : 'margin-right')}: 6px;
+                ${({theme}) => (theme.rtl ? 'margin-left' : 'margin-right')}: 6px;
             }
         }
         .project-edit{
-            color: ${({ theme }) => theme['primary-color']};
+            color: ${({theme}) => theme['primary-color']};
         }
         .project-remove{
-            color: ${({ theme }) => theme['danger-color']};
+            color: ${({theme}) => theme['danger-color']};
         }
     }
     .project-progress{
         border-radius: 10px;
-        background: ${({ theme }) => theme['success-color']};
+        background: ${({theme}) => theme['success-color']};
         padding: 20px 25px 20px;
         margin-bottom: 25px;
         h3{
@@ -540,7 +550,7 @@ const ProjectDetailsWrapper = Styled.div`
             margin-bottom: 0;
         }
         > div{
-            ${({ theme }) => (theme.rtl ? 'margin-left' : 'margin-right')}: 20px;
+            ${({theme}) => (theme.rtl ? 'margin-left' : 'margin-right')}: 20px;
         }
         a{
             display: flex;
@@ -557,14 +567,14 @@ const ProjectDetailsWrapper = Styled.div`
             margin: 0 0 3px;
         }
         p{
-            color: ${({ theme }) => theme['gray-solid']};
+            color: ${({theme}) => theme['gray-solid']};
             margin: 0;
         }
         .color-primary{
             a{
                 background: rgba(95,99,242,0.1);
                 svg{
-                    color: ${({ theme }) => theme['primary-color']};
+                    color: ${({theme}) => theme['primary-color']};
                 }
             }
         }
@@ -572,7 +582,7 @@ const ProjectDetailsWrapper = Styled.div`
             a{
                 background: rgba(255,105,165,0.1);
                 svg{
-                    color: ${({ theme }) => theme['secondary-color']};
+                    color: ${({theme}) => theme['secondary-color']};
                 }
             }
         }
@@ -580,7 +590,7 @@ const ProjectDetailsWrapper = Styled.div`
             a{
                 background: rgba(32,201,151,0.1);
                 svg{
-                    color: ${({ theme }) => theme['success-color']};
+                    color: ${({theme}) => theme['success-color']};
                 }
             }
         }
@@ -588,7 +598,7 @@ const ProjectDetailsWrapper = Styled.div`
             a{
                 background: rgba(250,139,12,0.1);
                 svg{
-                    color: ${({ theme }) => theme['warning-color']};
+                    color: ${({theme}) => theme['warning-color']};
                 }
             }
         }
@@ -597,7 +607,7 @@ const ProjectDetailsWrapper = Styled.div`
         p{
             font-size: 15px;
             line-height: 25px;
-            color: ${({ theme }) => theme['gray-color']};
+            color: ${({theme}) => theme['gray-color']};
         }
     }
     .about-project{
@@ -611,7 +621,7 @@ const ProjectDetailsWrapper = Styled.div`
         div{
             margin: 0 40px;
             span{
-                color: ${({ theme }) => theme['gray-solid']};
+                color: ${({theme}) => theme['gray-solid']};
                 font-size: 13px;
                 display: block;
                 margin-bottom: 3px;
@@ -626,10 +636,10 @@ const ProjectDetailsWrapper = Styled.div`
             padding: 0px 12.6px;
             font-size: 12px;
             font-weight: 500;
-            border-color: ${({ theme }) => theme['border-color-light']};
+            border-color: ${({theme}) => theme['border-color-light']};
         }
         i +span, svg +span, img +span {
-            ${({ theme }) => (theme.rtl ? 'margin-right' : 'margin-left')}: 6px;
+            ${({theme}) => (theme.rtl ? 'margin-right' : 'margin-left')}: 6px;
         }
     }
     .project-users{
@@ -642,7 +652,7 @@ const ProjectDetailsWrapper = Styled.div`
                 margin-bottom: 0;
             }
             & > div{
-                ${({ theme }) => (theme.rtl ? 'margin-left' : 'margin-right')}: 15px;
+                ${({theme}) => (theme.rtl ? 'margin-left' : 'margin-right')}: 15px;
             }
             div{
                 img{
@@ -658,7 +668,7 @@ const ProjectDetailsWrapper = Styled.div`
                     margin-bottom: 2px;
                 }
                 p{
-                    color: ${({ theme }) => theme['gray-solid']};
+                    color: ${({theme}) => theme['gray-solid']};
                     margin: 0;
                 }
             }
@@ -680,16 +690,16 @@ const ProjectDetailsWrapper = Styled.div`
                 &.file-name{
                     font-size: 14px;
                     font-weight: 500;
-                    color: ${({ theme }) => theme['dark-color']};
+                    color: ${({theme}) => theme['dark-color']};
                 }
                 &.file-size{
                     margin: 2px 0;;
-                    color: ${({ theme }) => theme['gray-solid']};
+                    color: ${({theme}) => theme['gray-solid']};
                 }
                 &.file-content-action{
                     a{
                         font-weight: 500;
-                        color: ${({ theme }) => theme['primary-color']};
+                        color: ${({theme}) => theme['primary-color']};
                     }
                     a + a{
                         margin-left: 8px;
@@ -701,7 +711,7 @@ const ProjectDetailsWrapper = Styled.div`
             width: 50%;
             align-items: center;
             .file-single-logo{
-                ${({ theme }) => (theme.rtl ? 'margin-left' : 'margin-right')}: 16px;
+                ${({theme}) => (theme.rtl ? 'margin-left' : 'margin-right')}: 16px;
                 img{
                     max-width: 42px;
                 }
@@ -709,7 +719,7 @@ const ProjectDetailsWrapper = Styled.div`
         }
         .file-single-action{
             .ant-dropdown-trigger {
-                color: ${({ theme }) => theme['extra-light-color']};
+                color: ${({theme}) => theme['extra-light-color']};
             }
         }
     }
@@ -720,7 +730,7 @@ const ProjectDetailsWrapper = Styled.div`
             svg,
             i.
             img{
-                ${({ theme }) => (theme.rtl ? 'margin-left' : 'margin-right')}: 8px;
+                ${({theme}) => (theme.rtl ? 'margin-left' : 'margin-right')}: 8px;
             }
         }
     }
@@ -729,7 +739,7 @@ const ProjectDetailsWrapper = Styled.div`
 const TaskLists = Styled.div`
     .ant-card{
         .ant-card-head{
-            border-color: ${({ theme }) => theme['border-color-light']};
+            border-color: ${({theme}) => theme['border-color-light']};
             margin-bottom: 0;
         }
         .ant-card-body{
@@ -740,25 +750,25 @@ const TaskLists = Styled.div`
         a{
             font-size: 14px;
             font-weight: 500;
-            color: ${({ theme }) => theme['gray-solid']};
+            color: ${({theme}) => theme['gray-solid']};
             position: relative;
             padding: 20px 0px;
             &:not(:last-child){
-                ${({ theme }) => (theme.rtl ? 'margin-left' : 'margin-right')}: 18px;
+                ${({theme}) => (theme.rtl ? 'margin-left' : 'margin-right')}: 18px;
             }
             &:before{
                 position: absolute;
                 content: '';
                 width: 100%;
-                ${({ theme }) => (theme.rtl ? 'right' : 'left')}: 0;
+                ${({theme}) => (theme.rtl ? 'right' : 'left')}: 0;
                 bottom: -2px;
                 height: 1px;
 
             }
             &.active{
-                color: ${({ theme }) => theme['primary-color']};
+                color: ${({theme}) => theme['primary-color']};
                 &:before{
-                    background: ${({ theme }) => theme['primary-color']};
+                    background: ${({theme}) => theme['primary-color']};
                 }
             }
         }
@@ -767,11 +777,11 @@ const TaskLists = Styled.div`
         margin-top: 15px;
         .ant-checkbox-checked{
             .ant-checkbox-inner{
-                background: ${({ theme }) => theme['success-color']};
-                border-color: ${({ theme }) => theme['success-color']};
+                background: ${({theme}) => theme['success-color']};
+                border-color: ${({theme}) => theme['success-color']};
             }
             &:after{
-                border-color: ${({ theme }) => theme['success-color']};
+                border-color: ${({theme}) => theme['success-color']};
             }
         }
         thead{
@@ -783,12 +793,12 @@ const TaskLists = Styled.div`
                 border-bottom: 0;
                 padding: 10px;
                 &:first-child{
-                    ${({ theme }) => (theme.rtl ? 'margin-left' : 'margin-right')}: 25px;
+                    ${({theme}) => (theme.rtl ? 'margin-left' : 'margin-right')}: 25px;
                 }
                 .ant-checkbox-indeterminate {
                     .ant-checkbox-inner{
                         &:after{
-                            background: ${({ theme }) => theme['success-color']};
+                            background: ${({theme}) => theme['success-color']};
                         }
                     }
                 }
@@ -812,30 +822,30 @@ const TaskLists = Styled.div`
                 > td{
                     padding: 10px;
                     border-bottom: 0;
-                    text-align: ${({ theme }) => (theme.rtl ? 'right' : 'left')};
+                    text-align: ${({theme}) => (theme.rtl ? 'right' : 'left')};
                     &:first-child{
-                        ${({ theme }) => (!theme.rtl ? 'padding-left' : 'padding-right')}: 25px;
+                        ${({theme}) => (!theme.rtl ? 'padding-left' : 'padding-right')}: 25px;
                     }
                     &:last-child{
-                        ${({ theme }) => (theme.rtl ? 'padding-left' : 'padding-right')}: 25px;
+                        ${({theme}) => (theme.rtl ? 'padding-left' : 'padding-right')}: 25px;
                     }
                     .task-title{
-                        color: ${({ theme }) => theme['gray-color']};
+                        color: ${({theme}) => theme['gray-color']};
                     }
                     .task-created{
                         font-size: 12px;
-                        color: ${({ theme }) => theme['gray-color']};
+                        color: ${({theme}) => theme['gray-color']};
                     }
                     .ant-checkbox{
                         &:hover{
                             .ant-checkbox-inner{
-                                border-color: ${({ theme }) => theme['success-color']};
+                                border-color: ${({theme}) => theme['success-color']};
                             }
                         }
                     }
                 }
                 &:hover{
-                    box-shadow: 0 15px 50px ${({ theme }) => theme['gray-solid']}20;
+                    box-shadow: 0 15px 50px ${({theme}) => theme['gray-solid']}20;
                     > td{
                         background: #fff;
                     }
@@ -848,13 +858,13 @@ const TaskLists = Styled.div`
         margin: 18px 25px 25px;
         button{
             width: 100%;
-            text-align: ${({ theme }) => (theme.rtl ? 'right' : 'left')};
+            text-align: ${({theme}) => (theme.rtl ? 'right' : 'left')};
             justify-content: flex-start;
             font-size: 12px;
             font-weight: 500;
             &.ant-btn-primary{
                 border-radius: 6px;
-                background: ${({ theme }) => theme['primary-color']}10;
+                background: ${({theme}) => theme['primary-color']}10;
             }
         }
     }
@@ -871,7 +881,7 @@ const TasklistAction = Styled.div`
         line-height: normal;
     }
     span, a{
-        color: ${({ theme }) => theme['gray-solid']};
+        color: ${({theme}) => theme['gray-solid']};
     }
     .task-created{
         color: #9299b8 !important;
@@ -891,7 +901,7 @@ const ActivitiesWrapper = Styled.div`
         &:not(:last-child){
             margin-bottom: 20px;
             padding-bottom: 20px;
-            border-bottom: 1px solid ${({ theme }) => theme['border-color-light']};
+            border-bottom: 1px solid ${({theme}) => theme['border-color-light']};
         }
     }
     .activity-dateMeta{
@@ -901,8 +911,8 @@ const ActivitiesWrapper = Styled.div`
         flex-flow: column;
         align-items: center;
         justify-content: center;
-        background: ${({ theme }) => theme['bg-color-light']};
-        border: 1px solid ${({ theme }) => theme['border-color-light']};
+        background: ${({theme}) => theme['bg-color-light']};
+        border: 1px solid ${({theme}) => theme['border-color-light']};
         @media only screen and (max-width: 575px) {
             height: auto;
             padding: 30px 0px;
@@ -913,7 +923,7 @@ const ActivitiesWrapper = Styled.div`
             margin-bottom: 0px;
         }
         .activity-month{
-            color: ${({ theme }) => theme['gray-color']};
+            color: ${({theme}) => theme['gray-color']};
         }
     }
 
@@ -928,22 +938,22 @@ const ActivitiesWrapper = Styled.div`
             height: 24px;
             width: 24px;
             border-radius: 50%;
-            margin: ${({ theme }) => (theme.rtl ? '4px 0 0 10px' : '4px 10px 0 0')};
+            margin: ${({theme}) => (theme.rtl ? '4px 0 0 10px' : '4px 10px 0 0')};
             &.bg-primary{
-                background: ${({ theme }) => theme['primary-color']}15;
-                color: ${({ theme }) => theme['primary-color']};
+                background: ${({theme}) => theme['primary-color']}15;
+                color: ${({theme}) => theme['primary-color']};
             }
             &.bg-secondary{
-                background: ${({ theme }) => theme['secondary-color']}15;
-                color: ${({ theme }) => theme['secondary-color']};
+                background: ${({theme}) => theme['secondary-color']}15;
+                color: ${({theme}) => theme['secondary-color']};
             }
             &.bg-success{
-                background: ${({ theme }) => theme['success-color']}15;
-                color: ${({ theme }) => theme['success-color']};
+                background: ${({theme}) => theme['success-color']}15;
+                color: ${({theme}) => theme['success-color']};
             }
         }
         img{
-            ${({ theme }) => (theme.rtl ? 'margin-left' : 'margin-right')}: 12px;
+            ${({theme}) => (theme.rtl ? 'margin-left' : 'margin-right')}: 12px;
         }
         .activity-title{
             font-size: 14px;
@@ -952,27 +962,27 @@ const ActivitiesWrapper = Styled.div`
             span{
                 font-weight: 400;
                 margin: 0 2px;
-                color: ${({ theme }) => theme['gray-solid']};
+                color: ${({theme}) => theme['gray-solid']};
             }
         }
         .activity-timeMeta{
             font-size: 12px;
             margin-bottom: 0;
-            color: ${({ theme }) => theme['extra-light-color']};
+            color: ${({theme}) => theme['extra-light-color']};
         }
     }
 `;
 
 export {
-  ProjectHeader,
-  ProjectSorting,
-  ProjectCard,
-  ProjectPagination,
-  ProjectListTitle,
-  ProjectListAssignees,
-  ProjectList,
-  ProjectDetailsWrapper,
-  TaskLists,
-  TasklistAction,
-  ActivitiesWrapper,
+    ProjectHeader,
+    ProjectSorting,
+    ProjectCard,
+    ProjectPagination,
+    ProjectListTitle,
+    ProjectListAssignees,
+    ProjectList,
+    ProjectDetailsWrapper,
+    TaskLists,
+    TasklistAction,
+    ActivitiesWrapper,
 };
