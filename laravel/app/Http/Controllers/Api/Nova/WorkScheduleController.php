@@ -20,7 +20,7 @@ class WorkScheduleController extends Controller
                 $code = ($day['morning'] ? '1' : '0') . ($day['afternoon'] ? '1' : '0') . ($day['evening'] ? '1' : '0');
                 WorkSchedule::updateOrCreate(
                     [
-                        'user_id' => 2,
+                        'user_id' => Auth::id(),
                         'date' => $date,
                     ],
                     [
@@ -47,12 +47,12 @@ class WorkScheduleController extends Controller
                         ->orWhere('date', $startOfExtraDay);
                 })
                 ->get()
-                ->groupBy('2');
+                ->groupBy('user_id');
         } else {
             $schedules = WorkSchedule::with('user')
                 ->whereBetween('date', [$startOfMonth, $endOfMonth])
                 ->get()
-                ->groupBy('2');
+                ->groupBy('user_id');
         }
 
         $result = $schedules->map(function ($userSchedules) {

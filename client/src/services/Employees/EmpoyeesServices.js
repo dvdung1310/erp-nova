@@ -1,8 +1,12 @@
-import axiosInstance from "../config/axios";
+import axiosInstance from "../../config/axios";
 
-export const saveWorkSchedule = async (scheduleData) => {
+export const saveWorkSchedule = async (scheduleData, token) => {
     try {
-        const response = await axiosInstance.post('/workschedule', { schedule: scheduleData });
+        const response = await axiosInstance.post('/workschedule', { schedule: scheduleData }, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
         return response.data;
     } catch (error) {
         console.error('Error saving work schedule:', error.response ? error.response.data : error.message);

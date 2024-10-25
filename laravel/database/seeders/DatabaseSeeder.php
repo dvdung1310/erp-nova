@@ -15,30 +15,36 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+
+        User::create([
+            'name' => 'Hoàng hải',
+            'email' => 'hai@gmail.com',
+            'password' => bcrypt('123456'),
+        ]);
         // User::factory(10)->create();
 
 
-        Role::factory()->createMany([
-            [
-                'name' => 'admin',
-                'description' => 'Super Admin',
-            ],
-            [
-                'name' => 'ceo',
-                'description' => 'Tổng Giám Đốc',
-            ],
-            [
-                'name' => 'manager',
-                'description' => 'Giám đốc',
-            ],
-            [
-                'name' => 'leader',
-                'description' => 'Trưởng phòng',
-            ],
-            [
-                'name' => 'employee',
-                'description' => 'Nhân viên',
-            ],
-        ]);
+        // Role::factory()->createMany([
+        //     [
+        //         'name' => 'admin',
+        //         'description' => 'Super Admin',
+        //     ],
+        //     [
+        //         'name' => 'ceo',
+        //         'description' => 'Tổng Giám Đốc',
+        //     ],
+        //     [
+        //         'name' => 'manager',
+        //         'description' => 'Giám đốc',
+        //     ],
+        //     [
+        //         'name' => 'leader',
+        //         'description' => 'Trưởng phòng',
+        //     ],
+        //     [
+        //         'name' => 'employee',
+        //         'description' => 'Nhân viên',
+        //     ],
+        // ]);
     }
 }

@@ -6,7 +6,7 @@ const StatusData = () => {
     return (
         <div>
             <PageHeader ghost title="Trạng thái data"/>
-            <DragAndDropTable/>
+            <StatusCustomerTable/>
         </div>
     )
 }

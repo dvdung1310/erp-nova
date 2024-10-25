@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { startOfMonth, eachDayOfInterval, addDays, getDay } from "date-fns/esm";
-import { fullWorkSchedule } from '../../../services/EmpoyeesServices';
+import { fullWorkSchedule } from '../../../services/Employees/EmpoyeesServices';
 import '../FullWorkSchedule.css';
 
 const FullWorkSchedule = () => {
   const [scheduleData, setScheduleData] = useState([]);
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // Lấy tháng hiện tại
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [weeks, setWeeks] = useState([]);
 
   useEffect(() => {
@@ -33,6 +33,12 @@ const FullWorkSchedule = () => {
       }
 
       const weeksArray = [];
+      if (selectedMonth === 10) {
+        const extraWeekStart = new Date(2024, 8, 31); // 30/09/2024
+        const extraWeekEnd = new Date(2024, 9, 7); // 06/10/2024
+        const extraDays = eachDayOfInterval({ start: extraWeekStart, end: extraWeekEnd });
+        weeksArray.push(extraDays.map(day => day.toISOString().split('T')[0]));
+      }
       const firstTuesday = addDays(firstMonday, 1);
       const days = eachDayOfInterval({ start: firstTuesday, end: addDays(firstTuesday, 27) });
 
@@ -87,12 +93,12 @@ const FullWorkSchedule = () => {
         </thead>
       </table>
 
-      <div style={{ marginTop: '70px' }}>
+      <div style={{ marginTop: '70px' , marginBottom:'30px' }}>
         {weeks.map((week, weekIndex) => (
           <div key={weekIndex} className="mb-4">
             <table className="min-w-full bg-white border border-gray-200">
               <thead>
-                <tr>
+                <tr className="week-tr">
                   <th className="px-4 border name-class">Tuần {weekIndex + 1} tháng {selectedMonth}</th>
                   {week.map((date, idx) => (
                     <th key={idx} colSpan={3} className="px-4 border text-center date-class">
@@ -146,7 +152,7 @@ const FullWorkSchedule = () => {
             type="button"
             key={month}
             onClick={() => setSelectedMonth(month + 1)}
-            className={`mx-2 p-2 ${selectedMonth === month + 1 ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+            className={`mx-2  p-2 ${selectedMonth === month + 1 ? "bg-blue-500 text-white" : "bg-gray-200"}`}
           >
             Tháng {month + 1}
           </button>

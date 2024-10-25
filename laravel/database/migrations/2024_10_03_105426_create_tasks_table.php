@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->increments('task_id');
             $table->unsignedInteger('project_id'); // Ensure this matches the type in work_projects
             $table->string('task_name')->default('');
-            $table->text('task_description')->default('');
+            $table->text('task_description');
             $table->tinyInteger('task_priority')->default(0);
             $table->tinyInteger('task_status')->default(0);
             $table->date('task_start_date')->nullable();

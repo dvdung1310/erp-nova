@@ -41,13 +41,16 @@ Route::group([
     Route::post('/me', [AuthController::class, 'me'])->middleware(middlewareLogin::class)->name('me');
 });
 
-Route::post('/exams', [ExamController::class, 'store']);
-Route::get('/exams-index', [ExamController::class, 'index']);
-Route::delete('/exams/{id}', [ExamController::class, 'destroy']);
-Route::get('/getNameExam/{id}', [ExamController::class, 'getNameExam']);
-Route::post('/questions-store', [QuestionController::class, 'store']);
-Route::post('workschedule', [WorkScheduleController::class, 'store']);
-Route::get('getWorkSchedulesByMonth/{month}', [WorkScheduleController::class, 'getWorkSchedulesByMonth']);
+Route::group(['middleware' => 'api'], function () {
+    Route::post('/store-exams', [ExamController::class, 'store']);
+    Route::get('/exams-index', [ExamController::class, 'index']);
+    Route::delete('/exams/{id}', [ExamController::class, 'destroy']);
+    Route::get('/getNameExam/{id}', [ExamController::class, 'getNameExam']);
+    Route::post('/questions-store', [QuestionController::class, 'store']);
+    Route::post('workschedule', [WorkScheduleController::class, 'store']);
+    Route::get('getWorkSchedulesByMonth/{month}', [WorkScheduleController::class, 'getWorkSchedulesByMonth']);
+});
+
 
 Route::group(['middleware' => 'api'], function () {
     Route::resource('nvucustomer', NvuCustomerController::class);

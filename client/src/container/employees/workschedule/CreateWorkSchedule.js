@@ -2,7 +2,7 @@ import { Row, Col, Checkbox, Card, Button } from "antd";
 import { useState, useEffect } from "react";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { saveWorkSchedule } from '../../../services/EmpoyeesServices';
+import { saveWorkSchedule } from '../../../services/Employees/EmpoyeesServices';
 import '../style.css';
 
 const CreateWorkSchedule = () => {
@@ -43,7 +43,8 @@ const CreateWorkSchedule = () => {
         }));
 
         try {
-            const result = await saveWorkSchedule(scheduleData);
+            const accessToken = localStorage.getItem('accessToken');
+            const result = await saveWorkSchedule(scheduleData, accessToken);
             toast.success(result.message);
         } catch (error) {
             console.error('Error submitting schedule:', error);

@@ -13,7 +13,7 @@ function HorizontalForm() {
           <Form name="horizontal-form" layout="horizontal">
             <Row align="middle">
               <Col lg={8} md={9} xs={24}>
-                <label htmlFor="name">Name</label>
+                <label htmlFor="name">Name22</label>
               </Col>
               <Col lg={16} md={15} xs={24}>
                 <Form.Item name="name" initialValue="Duran Clayton">

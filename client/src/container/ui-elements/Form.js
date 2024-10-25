@@ -52,7 +52,7 @@ function Forms() {
               <BasicFormWrapper>
                 <Form layout="vertical" form={form} name="basicforms" onFinish={handleSubmit}>
                   <Form.Item label="Username" name="username">
-                    <Input placeholder="Username" />
+                    <Input placeholder="Username222" />
                   </Form.Item>
 
                   <Form.Item

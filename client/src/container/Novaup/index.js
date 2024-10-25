@@ -1,13 +1,4 @@
-<<<<<<< HEAD
-const Dashboard = () => {
-    return (
-        <div>
-            <h1>Dashboard 2</h1>
-        </div>
-    );
-=======
 
-// Import các thư viện và thành phần cần thiết
 import React, { useEffect, useState } from 'react'; // Import React và các hook từ React
 import axios from 'axios'; // Import axios để gọi API
 import { 
@@ -172,7 +163,6 @@ function Dashboard() {
       </Main>
     </>
   );
->>>>>>> b49943633e2abd0f8fa4242867a948915ef131b7
 }
 
 export default Dashboard; // Xuất component để sử dụng trong các phần khác
