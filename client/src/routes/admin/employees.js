@@ -5,12 +5,9 @@ const EmployeesList = lazy(() => import('../../container/employees/CrmEmployees'
 const FullWorkSchedule = lazy(() => import('../../container/employees/workschedule/FullWorkSchedule'));
 const CreateWorksSchedule = lazy(() => import('../../container/employees/workschedule/CreateWorkSchedule'));
 const EmployeesMain = lazy(() => import('../../container/employees/CrmEmployees'));
-<<<<<<< HEAD
 const CreateExam = lazy(() => import('../../container/employees/exam/CreateExam'));
-=======
 const Department = lazy(() => import('../../container/employees/CrmDepartment'));
 const DepartmentTeam = lazy(() => import('../../container/employees/CrmDepartmentTeam'));
->>>>>>> 5a5c642919b52b9a68ad4af1d8a5064c246c79d1
 
 function Employees() {
     const {path} = useRouteMatch();
