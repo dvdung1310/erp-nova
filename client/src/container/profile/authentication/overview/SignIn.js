@@ -6,6 +6,7 @@ import {AuthWrapper} from './style';
 import {login} from '../../../../apis/auth';
 import Heading from '../../../../components/heading/heading';
 import {setItem} from "../../../../utility/localStorageControl";
+import {toast} from "react-toastify";
 
 function SignIn() {
     const [isLoading, setLoading] = useState(false);
@@ -20,15 +21,32 @@ function SignIn() {
             const res = await login(data);
             setItem('accessToken', res?.accessToken)
             Cookies.set('logedIn', true);
-            history.push('/admin')
+            history.push('/admin');
+            window.location.reload();
+            toast.success('Đăng nhập thành công', {
+                position: "top-right",
+                autoClose: 1000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
             setLoading(false)
         } catch (error) {
             setLoading(false)
+            toast.error('Đăng nhập thất bại', {
+                position: "top-right",
+                autoClose: 1000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
             console.log(error);
         }
     }, [history]);
-
-
     return (
         <AuthWrapper>
             <div className="auth-contents">

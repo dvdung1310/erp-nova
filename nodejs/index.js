@@ -69,7 +69,7 @@ app.post('/change-group', (req, res) => {
         console.log(error);
     }
 })
-//user
+//user.js
 app.post('/update-avatar', (req, res) => {
     try {
         const {avatar, user_id} = req.body;
@@ -119,7 +119,6 @@ app.post('/update-status-project', (req, res) => {
         const {
             devices, createByUserName, notification, statusMessage, createByUserId, projectName, pathname, members
         } = req.body;
-        console.log(req.body)
         const payload = JSON.stringify({
             title: 'THông báo mới',
             body: `${createByUserName} Đã cập nhật trạng thái của dự án: ${projectName} (${statusMessage})`,
@@ -336,7 +335,6 @@ app.post('/update-add-members-task', (req, res) => {
 app.post('/update-remove-members-task', (req, res) => {
     try {
         const {devices, createByUserName, notification, createByUserId, taskName, pathname, members} = req.body;
-        console.log(members);
         const payload = JSON.stringify({
             title: 'THông báo mới',
             body: `${createByUserName} Đã xóa bạn khỏi công việc: ${taskName}`,

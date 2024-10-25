@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\Work;
 
+use App\Http\Controllers\Controller;
 use App\Models\Devices;
 use App\Models\Message;
 use App\Models\MessageTask;
@@ -98,7 +99,7 @@ class MessageController extends Controller
                 'task_id' => $request->task_id
             ]);
             $message = Message::where('message_id', $message->message_id)
-                ->with('user')
+                ->with('user.js')
                 ->first();
             // Thông báo cho các thành viên khác trong task
             $members = $task->users->pluck('id');
@@ -171,7 +172,7 @@ class MessageController extends Controller
     {
         try {
             $messages = MessageTask::where('task_id', $task_id)
-                ->with(['message.user']) // Eager load the user relationship
+                ->with(['message.user.js']) // Eager load the user.js relationship
                 ->get()
                 ->pluck('message');
             return response()->json([

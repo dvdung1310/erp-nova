@@ -4,41 +4,41 @@ import { Row, Col, Spin, Select } from 'antd';
 import { Switch, NavLink, Route, Link } from 'react-router-dom';
 import FeatherIcon from 'feather-icons-react';
 import propTypes from 'prop-types';
-import CreateProject from './overview/CreateProject';
+import CreateProject from './overViewProject/CreateProject';
 import { ProjectHeader, ProjectSorting } from './style';
-import { AutoComplete } from '../../components/autoComplete/autoComplete';
-import { Button } from '../../components/buttons/buttons';
-import { filterProjectByStatus, sortingProjectByCategory } from '../../redux/project/actionCreator';
-import { Main } from '../styled';
-import { PageHeader } from '../../components/page-headers/page-headers';
+import { AutoComplete } from '../../../../components/autoComplete/autoComplete';
+import { Button } from '../../../../components/buttons/buttons';
+import { filterProjectByStatus, sortingProjectByCategory } from '../../../../redux/project/actionCreator';
+import { Main } from '../../../styled';
+import { PageHeader } from '../../../../components/page-headers/page-headers';
 
-const Grid = lazy(() => import('./overview/Grid'));
-const List = lazy(() => import('./overview/List'));
+const Grid = lazy(() => import('./overViewProject/Grid'));
+const List = lazy(() => import('./overViewProject/List'));
 
 function Project({ match }) {
   const dispatch = useDispatch();
-  const searchData = useSelector((state) => state.headerSearchData);
+  const searchData = useSelector(state => state.headerSearchData);
   const { path } = match;
   const [state, setState] = useState({
     notData: searchData,
-    visible: false,
+    visible: true,
     categoryActive: 'all',
   });
 
   const { notData, visible } = state;
-  const handleSearch = (searchText) => {
-    const data = searchData.filter((item) => item.title.toUpperCase().startsWith(searchText.toUpperCase()));
+  const handleSearch = searchText => {
+    const data = searchData.filter(item => item.title.toUpperCase().startsWith(searchText.toUpperCase()));
     setState({
       ...state,
       notData: data,
     });
   };
 
-  const onSorting = (selectedItems) => {
+  const onSorting = selectedItems => {
     dispatch(sortingProjectByCategory(selectedItems));
   };
 
-  const onChangeCategory = (value) => {
+  const onChangeCategory = value => {
     setState({
       ...state,
       categoryActive: value,
@@ -69,7 +69,7 @@ function Project({ match }) {
           subTitle={<>12 Running Projects</>}
           buttons={[
             <Button onClick={showModal} key="1" type="primary" size="default">
-                <FeatherIcon icon="plus" size={16} /> Create Projects
+              <FeatherIcon icon="plus" size={16} /> Create Projects
             </Button>,
           ]}
         />

@@ -1,33 +1,31 @@
 <?php
 
+use App\Http\Controllers\Api\Nova\ExamController;
 use App\Http\Controllers\Api\Nova\NvCategoryFileController;
 use App\Http\Controllers\Api\Nova\NvDepartmentTeamController;
 use App\Http\Controllers\Api\Nova\NvEmployeeController;
 use App\Http\Controllers\Api\Nova\NvEmployeeDayOffController;
-use App\Http\Controllers\Api\Nova\NvEmployeeFileController;
 use App\Http\Controllers\Api\Nova\NvRecruitCandidatesController;
-use App\Http\Controllers\Api\Nova\NvRecruitNewsController;
 use App\Http\Controllers\Api\Nova\NvRecruitTargetController;
+use App\Http\Controllers\Api\Nova\QuestionController;
+use App\Http\Controllers\Api\Nova\WorkScheduleController;
 use App\Http\Controllers\Api\Nvu\NvuCustomerController;
 use App\Http\Controllers\Api\Nvu\NvuDataSourceController;
 use App\Http\Controllers\Api\Nvu\NvuPaymentController;
 use App\Http\Controllers\Api\Nvu\NvuRentRoomController;
 use App\Http\Controllers\Api\Nvu\NvuRoomController;
 use App\Http\Controllers\Api\Nvu\NvuStatusCustomerController;
-use App\Http\Controllers\DeviceController;
-use App\Http\Controllers\GroupController;
-use App\Http\Controllers\MessageController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\TaskController;
+use App\Http\Controllers\Api\Work\DeviceController;
+use App\Http\Controllers\Api\Work\GroupController;
+use App\Http\Controllers\Api\Work\MessageController;
+use App\Http\Controllers\Api\Work\NotificationController;
+use App\Http\Controllers\Api\Work\ProjectController;
+use App\Http\Controllers\Api\Work\TaskController;
+use App\Http\Controllers\AuthController;
 use App\Http\Middleware\middlewareLogin;
 use App\Http\Middleware\MiddlewareLoginCeo;
 use App\Http\Middleware\MiddlewareLoginLeader;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\Api\Nova\ExamController;
-use App\Http\Controllers\Api\Nova\QuestionController;
-use App\Http\Controllers\Api\Nova\WorkScheduleController;
 
 
 Route::group([
@@ -39,6 +37,7 @@ Route::group([
     Route::post('/logout', [AuthController::class, 'logout'])->middleware(middlewareLogin::class)->name('logout');
     Route::post('/refresh', [AuthController::class, 'refresh'])->middleware('auth:api')->name('refresh');
     Route::post('/me', [AuthController::class, 'me'])->middleware(middlewareLogin::class)->name('me');
+    Route::get('get-all', [AuthController::class, 'getAllUser'])->middleware(middlewareLogin::class);
 });
 
 Route::group(['middleware' => 'api'], function () {
@@ -71,10 +70,7 @@ Route::group(['middleware' => 'api'], function () {
 });
 // work
 //groups
-Route::group([
-    'middleware' => 'api',
-    'prefix' => 'groups'
-], function () {
+Route::prefix('groups')->group(function () {
     Route::get('get-all-group-parent', [GroupController::class, 'getAllGroupParent'])->middleware(middlewareLogin::class);
     Route::get('get-by-ceo', [GroupController::class, 'getAllProjectsAndTasksInGroups'])->middleware(MiddlewareLoginCeo::class);
     Route::get('get-by-user-id', [GroupController::class, 'getGroupByUserId'])->middleware(middlewareLogin::class);
@@ -107,7 +103,7 @@ Route::prefix('tasks')->group(function () {
 
     //
     Route::post('create', [TaskController::class, 'create'])->middleware(MiddlewareLoginLeader::class);
-    Route::get('get-task-unfinished-by-user-id', [TaskController::class, 'getTaskUnfinishedByUserId'])->middleware(middlewareLogin::class);
+    Route::get('get-task-unfinished-by-user.js-id', [TaskController::class, 'getTaskUnfinishedByUserId'])->middleware(middlewareLogin::class);
     Route::delete('delete/{task_id}', [TaskController::class, 'delete'])->middleware(MiddlewareLoginLeader::class);
     Route::get('get-task-by-project-id/{project_id}', [TaskController::class, 'getTaskByProjectId'])->middleware(middlewareLogin::class);
     Route::put('update-name/{task_id}', [TaskController::class, 'updateName'])->middleware(middlewareLogin::class);

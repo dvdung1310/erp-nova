@@ -6,6 +6,7 @@ import FeatherIcon from 'feather-icons-react';
 import propTypes from 'prop-types';
 import { NavTitle } from './style';
 import versions from '../demoData/changelog.json';
+import {getGroupByUserId} from "../apis/work/group";
 
 const { SubMenu } = Menu;
 
@@ -14,6 +15,7 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
     const pathName = window.location.pathname;
     const pathArray = pathName.split(path);
     const mainPath = pathArray[1];
+    const [listGroup, setListGroup] = useState([]);
     const mainPathSplit = mainPath.split('/');
     const { onRtlChange, onLtrChange, modeChangeDark, modeChangeLight, modeChangeTopNav, modeChangeSideNav } = events;
     const [openKeys, setOpenKeys] = React.useState(
@@ -33,6 +35,18 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
     const onOpenChanges = (keys) => {
         setOpenKey(keys);
     };
+    // lấy dữ liệu group
+    const fetchGroup = async () => {
+        try {
+            const response = await getGroupByUserId();
+            setListGroup(response?.data);
+        } catch (error) {
+            console.log('error', error);
+        }
+    }
+    useEffect(() => {
+        fetchGroup();
+    }, []);
 
     return (
         <Menu
@@ -112,7 +126,7 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
                         Đặt phòng
                     </NavLink>
                 </Menu.Item>
-                {/*  */}
+                {/* cấu hình novaup */}
                 <Menu
                     mode={!topMenu || window.innerWidth <= 991 ? 'inline' : 'horizontal'}
                     theme={darkMode ? 'dark' : 'light'}
@@ -187,15 +201,28 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
             {/* work */}
             <SubMenu key="work" icon={!topMenu && <FeatherIcon icon="briefcase" />} title="Làm việc">
                 <Menu.Item key="inbox">
-                    <NavLink onClick={toggleCollapsed} to={`${path}/work`}>
-                        Dashboard
+                    <NavLink onClick={toggleCollapsed} to={`${path}/lam-viec`}>
+                        Tổng quan
                     </NavLink>
                 </Menu.Item>
-                <Menu.Item key="single">
-                    <NavLink onClick={toggleCollapsed} to={`${path}/work/id`}>
-                        Read Email
-                    </NavLink>
-                </Menu.Item>
+                {
+                    listGroup?.length >0 && listGroup.map((group, index) => (
+                        <Menu.Item key={`group-${index}`}>
+                            <NavLink onClick={toggleCollapsed} to={`${path}/lam-viec/nhom-lam-viec/${group?.group_id}`}>
+                                <div style={{
+                                    width: '20px',
+                                    height: '20px',
+                                    borderRadius: '4px',
+                                    backgroundColor: group?.color,
+                                    display: 'inline-block',
+                                    marginRight: '10px'
+                                }}></div>
+                                {group?.group_name}
+                            </NavLink>
+                        </Menu.Item>
+                    ))
+                }
+
             </SubMenu>
             {/**/}
             <SubMenu key="layout" icon={!topMenu && <FeatherIcon icon="layout" />} title="Layouts">

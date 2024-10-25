@@ -84,7 +84,7 @@ function Drawers() {
                         <Form.Item
                           name="name"
                           label="Name"
-                          rules={[{ required: true, message: 'Please enter user name' }]}
+                          rules={[{ required: true, message: 'Please enter user.js name' }]}
                         >
                           <Input placeholder="Please enter user name" />
                         </Form.Item>

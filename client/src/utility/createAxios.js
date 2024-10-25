@@ -25,7 +25,7 @@ export const createAxios = () => {
             if (decodedToken.exp < date.getTime() / 1000) {
                 const dataRefresh = await refreshToken();
                 setItem("accessToken", dataRefresh.accessToken)
-                config.headers.token = `Bearer ${dataRefresh?.accessToken}`;
+                config.headers.Authorization = `Bearer ${dataRefresh?.accessToken}`;
             }
             return config;
         },

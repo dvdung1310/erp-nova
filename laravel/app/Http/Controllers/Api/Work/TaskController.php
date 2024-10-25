@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\Work;
 
+use App\Http\Controllers\Controller;
 use App\Models\Devices;
 use App\Models\Message;
 use App\Models\MessageTask;

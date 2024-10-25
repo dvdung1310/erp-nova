@@ -44,7 +44,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'data' => 'User successfully registered',
-                'user' => $user,
+                'user.js' => $user,
                 'error' => false
             ], 201);
         } catch (\Exception $e) {
@@ -117,7 +117,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Log the user out (Invalidate the token).
+     * Log the user.js out (Invalidate the token).
      *
      * @return JsonResponse
      */
@@ -162,5 +162,24 @@ class AuthController extends Controller
             'token_type' => 'Bearer',
             'expires_in' => auth()->factory()->getTTL() * 60
         ]);
+    }
+
+    public function getAllUser()
+    {
+        try {
+            $users = User::select('id', 'name', 'email', 'avatar', 'role_id')->get();
+            return response([
+                'message' => 'Users fetched successfully',
+                'error' => false,
+                'data' => $users
+            ]);
+        } catch (\Exception $e) {
+            return response([
+                'message' => 'Error: ' . $e->getMessage(),
+                'error' => true,
+                'data' => null
+            ], 400);
+        }
+
     }
 }

@@ -34,21 +34,14 @@
     "import/first": "off",
     "import/newline-after-import": "off",
     "react/jsx-props-no-spreading": "off",
+    "spaced-comment": "off",
+    "import/order": "off",
     "prettier/prettier": 0,
     "import/no-named-as-default-member": 0,
-    "import/order": [
-      2,
-      {
-        "groups": [
-          "external",
-          "index",
-          "sibling",
-          "parent",
-          "internal",
-          "builtin"
-        ]
-      }
-    ],
+    "camelcase": "off",
+    "react/prop-types": "off",
+    "jsx-a11y/click-events-have-key-events": "off",
+    "jsx-a11y/no-static-element-interactions": "off",
     "react/jsx-filename-extension": [
       0,
       {
