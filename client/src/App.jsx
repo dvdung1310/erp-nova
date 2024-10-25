@@ -14,8 +14,10 @@ import './static/css/style.css';
 import config from './config/config';
 import ProtectedRoute from './components/utilities/protectedRoute';
 import 'antd/dist/antd.less';
+
 import 'react-toastify/dist/ReactToastify.css';
-const {theme} = config;
+
+const { theme } = config;
 
 const ProviderConfig = () => {
     const {rtl, isLoggedIn, topMenu, darkMode, auth} = useSelector(state => {

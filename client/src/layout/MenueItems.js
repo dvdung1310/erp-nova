@@ -153,7 +153,12 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
             <SubMenu key="employees" icon={!topMenu && <FeatherIcon icon="users" />} title="Quản lý nhân sự">
                 <Menu.Item key="nvu-home">
                     <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su`}>
-                        Tổng quan
+                        Nhân sự
+                    </NavLink>
+                </Menu.Item>
+                <Menu.Item key="nvu-department">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/phong-ban`}>
+                        Phòng ban
                     </NavLink>
                 </Menu.Item>
                 <Menu
