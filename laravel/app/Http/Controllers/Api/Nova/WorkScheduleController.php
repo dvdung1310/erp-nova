@@ -41,7 +41,7 @@ class WorkScheduleController extends Controller
         $endOfMonth = Carbon::createFromDate($year, $month, 1)->endOfMonth()->endOfDay();
         if ($month == 10) {
             $startOfExtraDay = Carbon::create(2024, 9, 30)->startOfDay();
-            $schedules = WorkSchedule::with('user.js')
+            $schedules = WorkSchedule::with('user')
                 ->where(function ($query) use ($startOfMonth, $endOfMonth, $startOfExtraDay) {
                     $query->whereBetween('date', [$startOfMonth, $endOfMonth])
                         ->orWhere('date', $startOfExtraDay);
@@ -49,10 +49,10 @@ class WorkScheduleController extends Controller
                 ->get()
                 ->groupBy('user_id');
         } else {
-            $schedules = WorkSchedule::with('user.js')
+            $schedules = WorkSchedule::with('user')
                 ->whereBetween('date', [$startOfMonth, $endOfMonth])
                 ->get()
-                ->groupBy('user_id');
+                ->groupBy('user_id');   
         }
 
         $result = $schedules->map(function ($userSchedules) {

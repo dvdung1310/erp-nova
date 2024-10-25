@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { HorizontalFormStyleWrap } from './Style';
 import { Cards } from '../../../components/cards/frame/cards-frame';
 import { BasicFormWrapper } from '../../styled';
-import { storeExam } from '../../../services/Employees/ExamServices';
+import { storeExam }  from '../../../apis/employees/exam';
 
 const CreateExam = () => {
     const [form] = Form.useForm(); // Sử dụng form của Ant Design

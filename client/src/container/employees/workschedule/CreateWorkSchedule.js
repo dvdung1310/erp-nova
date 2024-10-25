@@ -2,7 +2,7 @@ import { Row, Col, Checkbox, Card, Button } from "antd";
 import { useState, useEffect } from "react";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { saveWorkSchedule } from '../../../services/Employees/EmpoyeesServices';
+import { saveWorkSchedule } from '../../../apis/employees/index';
 import '../style.css';
 
 const CreateWorkSchedule = () => {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { startOfMonth, eachDayOfInterval, addDays, getDay } from "date-fns/esm";
-import { fullWorkSchedule } from '../../../services/Employees/EmpoyeesServices';
+import { fullWorkSchedule } from  '../../../apis/employees/index';
 import '../FullWorkSchedule.css';
 
 const FullWorkSchedule = () => {
