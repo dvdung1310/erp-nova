@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use http\Env\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use function Laravel\Prompts\error;
@@ -44,7 +45,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'data' => 'User successfully registered',
-                'user.js' => $user,
+                'user' => $user,
                 'error' => false
             ], 201);
         } catch (\Exception $e) {
@@ -88,8 +89,14 @@ class AuthController extends Controller
                 ], 401);
             }
             $accessToken = $this->respondWithToken($token)->original['access_token'];
+            $role_id = auth()->user()->role_id;
+            $user_id = auth()->user()->id;
             return response()->json([
-                'accessToken' => $accessToken,
+                'data' => [
+                    'accessToken' => $accessToken,
+                    'role_id' => $role_id,
+                    'user_id' => $user_id
+                ],
                 'error' => false,
                 'message' => 'Đăng nhập thành công'
             ]);
@@ -173,6 +180,24 @@ class AuthController extends Controller
                 'error' => false,
                 'data' => $users
             ]);
+        } catch (\Exception $e) {
+            return response([
+                'message' => 'Error: ' . $e->getMessage(),
+                'error' => true,
+                'data' => null
+            ], 400);
+        }
+
+    }
+
+    public function checkToken()
+    {
+        try {
+            return [
+                'message' => 'Token valid',
+                'error' => false,
+                'data' => null
+            ];
         } catch (\Exception $e) {
             return response([
                 'message' => 'Error: ' . $e->getMessage(),

@@ -418,7 +418,7 @@ function ProjectLists({listProject, listUser = []}) {
                 message: dataJoinProject?.message,
                 pathname
             }
-           const res = await joinProject(payload, selectedProject?.project_id);
+            const res = await joinProject(payload, selectedProject?.project_id);
             if (res.error) {
                 toast.error(res?.message, {
                     position: "top-right",
@@ -477,7 +477,7 @@ function ProjectLists({listProject, listUser = []}) {
                     <ProjectListTitle>
                         <Heading as="h4">
                             {/* eslint-disable-next-line camelcase */}
-                            <Link to={`/admin/project/projectDetails/${project_id}`}>{project_name}</Link>
+                            <Link to={`/admin/lam-viec/du-an/${project_id}`}>{project_name}</Link>
                         </Heading>
                     </ProjectListTitle>
                 ),
@@ -498,6 +498,7 @@ function ProjectLists({listProject, listUser = []}) {
                                                  marginLeft: '-10px',
                                                  cursor: 'default'
                                              }}
+                                             key={index}
                                              title={member?.user?.name}
                                         >
                                             <li key={index}>

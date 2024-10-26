@@ -36,9 +36,10 @@ Route::group([
     Route::post('/register', [AuthController::class, 'register'])->name('register');
     Route::post('/login', [AuthController::class, 'login'])->name('login');
     Route::post('/logout', [AuthController::class, 'logout'])->middleware(middlewareLogin::class)->name('logout');
-    Route::post('/refresh', [AuthController::class, 'refresh'])->middleware('auth:api')->name('refresh');
+    Route::post('/refresh', [AuthController::class, 'refresh'])->name('refresh');
     Route::post('/me', [AuthController::class, 'me'])->middleware(middlewareLogin::class)->name('me');
     Route::get('get-all', [AuthController::class, 'getAllUser'])->middleware(middlewareLogin::class);
+    Route::post('/check-token', [AuthController::class, 'checkToken'])->middleware(middlewareLogin::class);
 });
 
 Route::group(['middleware' => 'api'], function () {

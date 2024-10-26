@@ -10,22 +10,32 @@ import {ToastContainer} from "react-toastify";
 import store, {rrfProps} from './redux/store';
 import Admin from './routes/admin';
 import Auth from './routes/auth';
+import {getToken} from './utility/localStorageControl';
 import './static/css/style.css';
 import config from './config/config';
 import ProtectedRoute from './components/utilities/protectedRoute';
 import 'antd/dist/antd.less';
-
+import '@mui/material/styles';
+import '@mui/material/Tooltip';
+import './styles/customcss.css'
 import 'react-toastify/dist/ReactToastify.css';
 
-const { theme } = config;
+const {theme} = config;
 
 const ProviderConfig = () => {
-    const {rtl, isLoggedIn, topMenu, darkMode, auth} = useSelector(state => {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    useEffect(() => {
+        const accessToken = getToken();
+        if (accessToken) {
+            setIsLoggedIn(true);
+        }
+    }, [setIsLoggedIn]);
+
+    const {rtl, topMenu, darkMode, auth} = useSelector(state => {
         return {
             darkMode: state.ChangeLayoutMode.data,
             rtl: state.ChangeLayoutMode.rtlData,
             topMenu: state.ChangeLayoutMode.topMenu,
-            isLoggedIn: state.auth.login,
             auth: state.fb.auth,
         };
     });

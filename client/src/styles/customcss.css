@@ -1,0 +1,10 @@
+.form-add-members {
+    min-width: 400px;
+    padding: 20px !important;
+}
+.ant-modal-wrap {
+    z-index: 999999 !important;
+}
+.ant-modal-content {
+    padding: 30px !important;
+}

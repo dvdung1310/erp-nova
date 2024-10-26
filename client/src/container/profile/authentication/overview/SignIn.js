@@ -2,13 +2,12 @@ import React, {useCallback, useState} from 'react';
 import {Form, Input, Button, Spin} from 'antd';
 import {useHistory} from "react-router-dom";
 import Cookies from 'js-cookie';
-import { toast } from 'react-toastify';
+import {toast} from 'react-toastify';
 import {AuthWrapper} from './style';
 
 import {login} from '../../../../apis/auth';
 import Heading from '../../../../components/heading/heading';
 import {setItem} from "../../../../utility/localStorageControl";
-
 
 
 function SignIn() {
@@ -22,7 +21,9 @@ function SignIn() {
             setLoading(true)
             const data = form.getFieldsValue();
             const res = await login(data);
-            setItem('accessToken', res?.accessToken)
+            setItem('accessToken', res?.data?.accessToken)
+            setItem('role_id', res?.data?.role_id)
+            setItem('user_id', res?.data?.user_id)
             Cookies.set('logedIn', true);
             history.push('/admin');
             window.location.reload();

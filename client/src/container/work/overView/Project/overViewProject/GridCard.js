@@ -288,6 +288,7 @@ function GridCard({value, listUser}) {
                                 style={{
                                     backgroundColor: "#dc3545",
                                     minWidth: '150px',
+                                    color: 'white',
                                 }}
                         >
                             {isLoading ? <div>

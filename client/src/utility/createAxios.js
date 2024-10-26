@@ -1,14 +1,18 @@
 import axios from "axios";
-import {jwtDecode} from "jwt-decode";
+import jwtDecode from "jwt-decode";
 import {getToken, setItem} from "./localStorageControl";
 
-const LARAVEL_SERVER = process.env.LARAVEL_SERVER;
+const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
 const refreshToken = async () => {
     try {
-        const res = await axios.post(`${LARAVEL_SERVER}api/auth/refresh`, {}, {
-            withCredentials: true,
+        const accessToken = getToken();
+        const res = await axios.post(`${LARAVEL_SERVER}/api/auth/refresh`, {}, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            }
         });
-        return res.data.accessToken;
+        return res.data;
     } catch (err) {
         console.log(err);
     }
