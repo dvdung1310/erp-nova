@@ -1,13 +1,12 @@
-import React, { useEffect, useState, lazy, Suspense } from 'react'; // Added lazy import
+import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { Route, Switch, useRouteMatch, useHistory, NavLink } from 'react-router-dom';
-import axios from 'axios';
 import { Row, Col, Table, Spin, message, Popconfirm, Button, Modal, Form, Input, Select, DatePicker } from 'antd';
 import moment from 'moment';
 import { Cards } from '../../components/cards/frame/cards-frame';
 import { Main } from '../styled';
-import API_ENDPOINTS from '../../apis/crm'; // Ensure this file is accessible
+import { getEmployees, createEmployees, deleteEmployees ,updateEmployees,storeEmployees} from '../../apis/employees/employee';
+const EmployeeFile = lazy(() => import('./CrmEmployeeFile'));
 const { Option } = Select;
-const EmployeeFile = lazy(() => import('./CrmEmployeeFile')); // Updated import
 
 function CrmEmployees() {
   const { path } = useRouteMatch();
@@ -16,63 +15,57 @@ function CrmEmployees() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [editingEmployee, setEditingEmployee] = useState(null);
-  const [dataSources, setDataSources] = useState([]);
-  const [dataStatuses, setDataStatuses] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [departmentTeams, setDepartmentTeams] = useState([]);
   const [employeeLevels, setEmployeeLevels] = useState([]);
 
   const fetchData = async () => {
+    setLoading(true);
     try {
-      const response = await axios.get(API_ENDPOINTS.employee);
-      if (!response.data.error) {
-        setDataSource(response.data.data);
+      const res = await getEmployees();
+      if (!res.error) {
+        setDataSource(res.data);
       } else {
-        message.error(response.data.message);
+        message.error(res.message);
       }
     } catch (error) {
-      message.error('Có lỗi xảy ra khi tải dữ liệu nhân sự.');
+      message.error("Có lỗi xảy ra khi tải dữ liệu nhân sự.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Lấy dữ liệu phòng ban, team, vị trí để tạo mới
   const fetchCreateData = async () => {
     try {
-      const response = await axios.get(`${API_ENDPOINTS.employee}/create`);
-      if (!response.data.error) {
-        const {
-          departments: fetchedDepartments,
-          departmentTeams: fetchedDepartmentTeams,
-          employeeLevels: fetchedEmployeeLevels,
-        } = response.data.data; // Updated variable names
-        setDepartments(fetchedDepartments);
-        setDepartmentTeams(fetchedDepartmentTeams);
-        setEmployeeLevels(fetchedEmployeeLevels);
+      const res = await createEmployees();
+      if (!res.error) {
+       
+        setDepartments(res.data.departments || []);
+        setDepartmentTeams(res.data.department_teams || []);
+        setEmployeeLevels(res.data.employee_levels || []);
       } else {
-        message.error(response.data.message);
+        message.error(res.message);
       }
     } catch (error) {
-      message.error('Không thể tải dữ liệu tạo mới.');
+      message.error("Không thể tải dữ liệu tạo mới.");
     }
   };
 
   useEffect(() => {
     fetchData();
+    fetchCreateData(); // Call this function on component mount
   }, []);
 
   const handleOpenModal = (employee = null) => {
     setEditingEmployee(employee);
     form.resetFields();
-
+    
     if (employee) {
       form.setFieldsValue({
         ...employee,
         employee_date_join: moment(employee.employee_date_join),
       });
     }
-    fetchCreateData();
     setIsModalVisible(true);
   };
 
@@ -80,48 +73,58 @@ function CrmEmployees() {
     try {
       const values = await form.validateFields();
       values.employee_date_join = values.employee_date_join.format('YYYY-MM-DD');
-
+  
+      let response;
+  
       if (editingEmployee) {
-        await axios.put(`${API_ENDPOINTS.employee}/${editingEmployee.employeeId}`, values); // Updated to employeeId
+        // Cập nhật thông tin nhân viên
+        response = await updateEmployees(values, editingEmployee.employee_id);
         message.success('Cập nhật nhân sự thành công!');
       } else {
-        const response = await axios.post(API_ENDPOINTS.employee, values);
+        // Thêm mới nhân viên
+        response = await storeEmployees(values);
         setDataSource((prev) => [...prev, response.data.data]);
         message.success('Thêm nhân sự thành công!');
       }
-
+  
+      // Đóng modal và làm mới dữ liệu
       setIsModalVisible(false);
       fetchData();
     } catch (error) {
-      message.error('Lưu thông tin nhân sự thất bại.');
+      console.error('Error:', error); // Log chi tiết lỗi để dễ theo dõi
+      message.error('Lưu thông tin nhân sự thất bại.'); // Thông báo lỗi cho người dùng
     }
   };
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${API_ENDPOINTS.employee}/${id}`);
-      setDataSource((prev) => prev.filter((item) => item.employeeId !== id)); // Updated to employeeId
-      message.success('Xóa nhân sự thành công!');
+      const res = await deleteEmployees(id);
+      if (res.success) {
+        setDataSource((prev) => prev.filter((item) => item.employeeId !== id));
+        message.success('Xóa nhân sự thành công!');
+      } else {
+        message.error(res.message || 'Xóa nhân sự thất bại.');
+      }
     } catch (error) {
-      message.error('Xóa nhân sự thất bại.');
+      message.error(error.message || 'Xóa nhân sự thất bại.');
     }
   };
 
   const columns = [
-    { title: 'ID', dataIndex: 'employee_id', key: 'employee_id' }, // Updated to employeeId
-    { title: 'Họ Tên', dataIndex: 'employee_name', key: 'employee_name' }, // Updated to employeeName
-    { title: 'Email cá nhân', dataIndex: 'employee_email', key: 'employee_email' }, // Updated to employeeEmail
-    { title: 'Email Nova', dataIndex: 'employee_email_nova', key: 'employee_email_nova' }, // Updated to employeeEmailNova
-    { title: 'SĐT', dataIndex: 'employee_phone', key: 'employee_phone' }, // Updated to employeePhone
-    { title: 'Địa chỉ', dataIndex: 'employee_address', key: 'employee_address' }, // Updated to employeeAddress
-    { title: 'CMND', dataIndex: 'employee_identity', key: 'employee_identity' }, // Updated to employeeIdentity
-    { title: 'Số tài khoản', dataIndex: 'employee_bank_number', key: 'department_name' }, // Updated to employeeBankNumber
-    { title: 'Phòng ban', dataIndex: 'department_name', key: 'departmentName' }, // Updated to departmentName
-    { title: 'Team', dataIndex: 'team_name', key: 'team_name' }, // Updated to teamName
-    { title: 'Vị trí', dataIndex: 'level_name', key: 'level_name' }, // Updated to levelName
+    { title: 'ID', dataIndex: 'employee_id', key: 'employee_id' },
+    { title: 'Họ Tên', dataIndex: 'employee_name', key: 'employee_name' },
+    { title: 'Email cá nhân', dataIndex: 'employee_email', key: 'employee_email' },
+    { title: 'Email Nova', dataIndex: 'employee_email_nova', key: 'employee_email_nova' },
+    { title: 'SĐT', dataIndex: 'employee_phone', key: 'employee_phone' },
+    { title: 'Địa chỉ', dataIndex: 'employee_address', key: 'employee_address' },
+    { title: 'CMND', dataIndex: 'employee_identity', key: 'employee_identity' },
+    { title: 'Số tài khoản', dataIndex: 'employee_bank_number', key: 'employee_bank_number' },
+    { title: 'Phòng ban', dataIndex: 'department_name', key: 'department_name' },
+    { title: 'Team', dataIndex: 'team_name', key: 'team_name' },
+    { title: 'Vị trí', dataIndex: 'level_name', key: 'level_name' },
     {
       title: 'Trạng thái',
-      dataIndex: 'employee_status', // Updated to employeeStatus
+      dataIndex: 'employee_status',
       key: 'employee_status',
       render: (status) => (
         <span style={{ color: status === 1 ? 'blue' : 'orange' }}>{status === 1 ? 'Hiển thị' : 'Ẩn'}</span>
@@ -135,9 +138,11 @@ function CrmEmployees() {
     },
     {
       title: 'Hồ sơ',
-      dataIndex: 'employee_id', // Make sure this is correct
+      dataIndex: 'employee_id',
       key: 'file',
-      render: (employeeId) => <NavLink to={`${path}/ho-so`}>Hồ sơ</NavLink>,
+      render: (employee_id) => (
+        <NavLink to={`/admin/nhan-su/ho-so/${employee_id}`}>Hồ sơ</NavLink>
+      ),
     },
     {
       title: 'Hành động',
@@ -149,7 +154,7 @@ function CrmEmployees() {
           </Button>
           <Popconfirm
             title="Bạn có chắc muốn xóa nhân sự này không?"
-            onConfirm={() => handleDelete(record.employeeId)} // Updated to employeeId
+            onConfirm={() => handleDelete(record.employee_id)}
             okText="Yes"
             cancelText="No"
           >
@@ -180,15 +185,14 @@ function CrmEmployees() {
                     pagination={false}
                     dataSource={dataSource}
                     columns={columns}
-                    rowKey="employeeId" // Updated to employeeId
+                    rowKey="employee_id"
                   />
                 )}
               </Cards>
             </Col>
           </Row>
         </Route>
-        {/* Define the route for employee profile */}
-        <Route path={`${path}/ho-so`}>
+        <Route path={`/admin/nhan-su/ho-so/:employee_id`}>
           <Suspense fallback={<div>Loading...</div>}>
             <EmployeeFile />
           </Suspense>
@@ -204,7 +208,7 @@ function CrmEmployees() {
         <Form form={form} layout="vertical">
           <Form.Item
             label="Họ Tên"
-            name="employeeName" // Updated to employeeName
+            name="employee_name"
             rules={[{ required: true, message: 'Vui lòng nhập tên nhân sự!' }]}
           >
             <Input />
@@ -212,7 +216,7 @@ function CrmEmployees() {
 
           <Form.Item
             label="SĐT"
-            name="employeePhone" // Updated to employeePhone
+            name="employee_phone"
             rules={[{ required: true, message: 'Vui lòng nhập số điện thoại!' }]}
           >
             <Input />
@@ -220,7 +224,7 @@ function CrmEmployees() {
 
           <Form.Item
             label="Email cá nhân"
-            name="employeeEmail" // Updated to employeeEmail
+            name="employee_email"
             rules={[{ required: true, message: 'Vui lòng nhập email cá nhân!' }]}
           >
             <Input />
@@ -228,7 +232,7 @@ function CrmEmployees() {
 
           <Form.Item
             label="Email Nova"
-            name="employeeEmailNova" // Updated to employeeEmailNova
+            name="employee_email_nova"
             rules={[{ required: true, message: 'Vui lòng nhập email Nova!' }]}
           >
             <Input />
@@ -236,14 +240,14 @@ function CrmEmployees() {
 
           <Form.Item
             label="Địa chỉ"
-            name="employeeAddress" // Updated to employeeAddress
+            name="employee_address"
           >
             <Input />
           </Form.Item>
 
           <Form.Item
             label="CMND"
-            name="employeeIdentity" // Updated to employeeIdentity
+            name="employee_identity"
             rules={[{ required: true, message: 'Vui lòng nhập CMND!' }]}
           >
             <Input />
@@ -251,7 +255,7 @@ function CrmEmployees() {
 
           <Form.Item
             label="Số tài khoản"
-            name="employeeBankNumber" // Updated to employeeBankNumber
+            name="employee_bank_number"
             rules={[{ required: true, message: 'Vui lòng nhập số tài khoản!' }]}
           >
             <Input />
@@ -259,57 +263,57 @@ function CrmEmployees() {
 
           <Form.Item
             label="Phòng ban"
-            name="departmentId" // Updated to departmentId
+            name="department_id"
             rules={[{ required: true, message: 'Vui lòng chọn phòng ban!' }]}
           >
             <Select placeholder="Chọn phòng ban">
-              {departments.map((department) => (
-                <Option key={department.id} value={department.id}>
-                  {department.name}
-                </Option> // Updated department mapping
+              {departments.map(department => (
+                <Option key={department.department_id} value={department.department_id}>
+                  {department.department_name}
+                </Option>
               ))}
             </Select>
           </Form.Item>
 
           <Form.Item
             label="Team"
-            name="teamId" // Updated to teamId
+            name="team_id"
             rules={[{ required: true, message: 'Vui lòng chọn team!' }]}
           >
             <Select placeholder="Chọn team">
-              {departmentTeams.map((team) => (
-                <Option key={team.id} value={team.id}>
-                  {team.name}
-                </Option> // Updated team mapping
+              {departmentTeams.map(team => (
+                <Option key={team.team_id} value={team.team_id}>
+                  {team.team_name}
+                </Option>
               ))}
             </Select>
           </Form.Item>
 
           <Form.Item
             label="Vị trí"
-            name="levelId" // Updated to levelId
+            name="level_id"
             rules={[{ required: true, message: 'Vui lòng chọn vị trí!' }]}
           >
             <Select placeholder="Chọn vị trí">
-              {employeeLevels.map((level) => (
-                <Option key={level.id} value={level.id}>
-                  {level.name}
-                </Option> // Updated level mapping
+              {employeeLevels.map(level => (
+                <Option key={level.level_id} value={level.level_id}>
+                  {level.level_name}
+                </Option>
               ))}
             </Select>
           </Form.Item>
 
           <Form.Item
             label="Ngày tham gia"
-            name="employee_date_join" // Updated to employee_date_join
+            name="employee_date_join"
             rules={[{ required: true, message: 'Vui lòng chọn ngày tham gia!' }]}
           >
-            <DatePicker />
+            <DatePicker format="DD-MM-YYYY" />
           </Form.Item>
 
           <Form.Item
             label="Trạng thái"
-            name="employeeStatus" // Updated to employeeStatus
+            name="employee_status"
             rules={[{ required: true, message: 'Vui lòng chọn trạng thái!' }]}
           >
             <Select placeholder="Chọn trạng thái">
@@ -319,7 +323,6 @@ function CrmEmployees() {
           </Form.Item>
         </Form>
       </Modal>
-      {/* Define your routes here */}
     </Main>
   );
 }

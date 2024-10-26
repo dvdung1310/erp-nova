@@ -17,6 +17,7 @@ class NvRecruitTargetResource extends JsonResource
         return [
             'target_id' => $this->target_id,
             'target_position' => $this->target_position,
+            'target_quantity' => $this->target_quantity,
             'target_amout' => $this->target_amout,
             'target_start_date' => $this->target_start_date,
             'target_end_date' => $this->target_end_date,

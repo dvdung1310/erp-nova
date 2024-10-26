@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Nova\ExamController;
 use App\Http\Controllers\Api\Nova\NvCategoryFileController;
 use App\Http\Controllers\Api\Nova\NvDepartmentTeamController;
 use App\Http\Controllers\Api\Nova\NvEmployeeController;
+use App\Http\Controllers\Api\Nova\NvEmployeeFileController;
 use App\Http\Controllers\Api\Nova\NvEmployeeDayOffController;
 use App\Http\Controllers\Api\Nova\NvRecruitCandidatesController;
 use App\Http\Controllers\Api\Nova\NvRecruitTargetController;
@@ -67,8 +68,10 @@ Route::group(['middleware' => 'api'], function () {
     Route::resource('nvemployee', NvEmployeeController::class);
     Route::resource('nvdayoff', NvEmployeeDayOffController::class);
     Route::resource('nvcategoryfile', NvCategoryFileController::class);
+    Route::resource('nvemployeefile', NvEmployeeFileController::class);
     Route::resource('nvrecruittarget', NvRecruitTargetController::class);
     Route::resource('nvrecruitcandidates', NvRecruitCandidatesController::class);
+    Route::get('showEmployeeFile/{employee_id}',[NvEmployeeController::class,'showEmployeeFile']);
 });
 // work
 //groups

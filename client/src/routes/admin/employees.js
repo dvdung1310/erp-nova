@@ -8,7 +8,7 @@ const EmployeesMain = lazy(() => import('../../container/employees/CrmEmployees'
 const CreateExam = lazy(() => import('../../container/employees/exam/CreateExam'));
 const Department = lazy(() => import('../../container/employees/CrmDepartment'));
 const DepartmentTeam = lazy(() => import('../../container/employees/CrmDepartmentTeam'));
-
+const EmployeeFile = lazy(() => import('../../container/employees/CrmEmployeeFile'));
 function Employees() {
     const {path} = useRouteMatch();
 
@@ -17,10 +17,9 @@ function Employees() {
             <Route exact path={path} component={EmployeesMain}/>
             <Route path={`${path}/tong-quan`} component={EmployeesList}/>
             <Route path={`${path}/phong-ban`} component={Department}/>
-       
+            <Route path={`${path}/ho-so/:employee_id`} component={EmployeeFile}/>
             <Route path={`${path}/lich-lam-viec`} component={FullWorkSchedule}/>
             <Route path={`${path}/dang-ki/lich-lam-viec`} component={CreateWorksSchedule}/>
-
             <Route path={`${path}/tao-de`} component={CreateExam}/>
         </Switch>
     );

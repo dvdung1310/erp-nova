@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Nova\NvEmployeeResource;
 use App\Models\CrmDepartmentModel;
 use App\Models\CrmDepartmentTeamModel;
+use App\Models\CrmEmployeeFileModel;
 use App\Models\CrmEmployeeLevelModel;
 use App\Models\CrmEmployeeModel;
 use Illuminate\Http\Request;
@@ -187,7 +188,7 @@ class NvEmployeeController extends Controller
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                'data' => CrmEmployeeModel::paginate(10)
+               
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -196,5 +197,23 @@ class NvEmployeeController extends Controller
                 'data' => []
             ]);
         }
+    }
+    public function showEmployeeFile($employee_id){
+        try {
+            $files = CrmEmployeeFileModel::where('employee_id',$employee_id)->get();
+            return response()->json([
+                'error' => false,
+                'message' => 'Customers retrieved successfully.',
+                'data'=>$files
+               
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => 'No customers found.' . $e->getMessage(),
+                'data' => []
+            ]);
+        }
+
     }
 }

@@ -74,10 +74,10 @@ class NvEmployeeFileController extends Controller
                 'message' => 'Customers retrieved successfully.',
                 'data' => CrmEmployeeFileModel::paginate(10)
             ]);
-        } catch (\Throwable $th) {
+        } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
-                'message' => 'No customers found.' . $th,
+                'message' => 'No customers found.' . $e->getMessage(),
                 'data' => []
             ]);
         }
@@ -143,22 +143,34 @@ class NvEmployeeFileController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, CrmEmployeeFileModel $nvemployeefile)
-    {
-        try {
-            $nvemployeefile->update($request->all());
-            return response()->json([
-                'error' => false,
-                'message' => 'Customers retrieved successfully.',
-                'data' => CrmEmployeeFileModel::paginate(10)
-            ]);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'error' => true,
-                'message' => 'No customers found.',
-                'data' => []
-            ]);
+{
+    try {
+
+        // Handle file upload if present
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $filePath = $file->store('uploads/files', 'public'); // Store in 'storage/app/public/uploads/files'
+            $validatedData['file'] = $filePath;
         }
+
+        // Update the employee file record
+        $nvemployeefile->update($validatedData);
+
+        // Return success response with updated data
+        return response()->json([
+            'error' => false,
+            'message' => 'Employee file updated successfully.',
+            'data' => CrmEmployeeFileModel::paginate(10),
+        ]);
+    } catch (\Throwable $th) {
+        return response()->json([
+            'error' => true,
+            'message' => 'Failed to update employee file.',
+            'data' => [],
+        ], 500);
     }
+}
+
 
     /**
      * Remove the specified resource from storage.
@@ -170,12 +182,13 @@ class NvEmployeeFileController extends Controller
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                'data' => CrmEmployeeFileModel::paginate(10)
+               
+                
             ]);
         } catch (\Throwable $th) {
             return response()->json([
                 'error' => true,
-                'message' => 'No customers found.' . $th,
+                'message' => 'No customers found.'. $th,
                 'data' => []
             ]);
         }
