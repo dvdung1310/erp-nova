@@ -3,18 +3,16 @@ import {Form, Input, Select, Col, Row, DatePicker, Spin, List} from 'antd';
 import propTypes from 'prop-types';
 import {Button} from '../../../../../components/buttons/buttons';
 import {Modal} from '../../../../../components/modals/antd-modals';
-import {CheckboxGroup} from '../../../../../components/checkbox/checkbox';
 import {BasicFormWrapper} from '../../../../styled';
 import {useHistory, useLocation, useParams} from "react-router-dom";
 import {toast} from "react-toastify";
-import {createProject} from "../../../../../apis/work/project";
 import Avatar from "../../../../../components/Avatar/Avatar";
 import {checkRole} from "../../../../../utility/checkValue";
 import {createGroup} from "../../../../../apis/work/group";
 
 const dateFormat = 'MM/DD/YYYY';
 
-function CreateGroup({visible, onCancel, group_id, listUser}) {
+function CreateGroup({visible, onCancel, group_id, listUser = [], admin = false}) {
     const [listUserData, setListUser] = useState(listUser);
     const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
     const location = useLocation();
@@ -39,15 +37,20 @@ function CreateGroup({visible, onCancel, group_id, listUser}) {
             unmounted = true;
         };
     }, [visible]);
+    useEffect(() => {
+        setListUser(listUser);
+    }, [listUser]);
     //
     const [selectedMembers, setSelectedMembers] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
     const handleSearchChange = (e) => setSearchTerm(e.target.value);
-    const filteredMembers = listUserData?.filter(
+
+    const filteredMembers = listUserData && listUserData.filter(
         (member) =>
             member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             member.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
     const handleSelectMember = (member) => {
         // Add the member if it's not already selected
         setSelectedMembers(member);
@@ -71,7 +74,6 @@ function CreateGroup({visible, onCancel, group_id, listUser}) {
                     autoClose: 1000,
                 });
             }
-            console.log(selectedMembers);
             if (!selectedMembers || !selectedMembers.id) {
                 setIsLoading(false);
                 return toast.warn('Chọn trưởng nhóm', {
@@ -102,6 +104,14 @@ function CreateGroup({visible, onCancel, group_id, listUser}) {
             onCancel();
             setSelectedMembers([]);
             form.resetFields();
+            if(admin) {
+                history.push('/admin/lam-viec', {
+                    key: 'createGroup',
+                    data: res.data,
+                });
+                setIsLoading(false);
+                return;
+            }
             history.push({pathname}, {
                 key: 'createGroup',
                 data: res.data,
@@ -128,7 +138,7 @@ function CreateGroup({visible, onCancel, group_id, listUser}) {
     return (
         <Modal
             type={state.modalType}
-            title="Tạo dự án"
+            title="Tạo nhóm"
             visible={state.visible}
             footer={[
                 <div key="1" className="project-modal-footer">
@@ -140,7 +150,7 @@ function CreateGroup({visible, onCancel, group_id, listUser}) {
                     >
                         {isLoading ? <div>
                             <Spin/>
-                        </div> : 'Tạo dự án'}
+                        </div> : 'Tạo nhóm'}
 
                     </Button>
                 </div>,

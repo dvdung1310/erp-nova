@@ -28,9 +28,9 @@ const ProviderConfig = () => {
         const accessToken = getToken();
         if (accessToken) {
             setIsLoggedIn(true);
-        }
-    }, [setIsLoggedIn]);
 
+        }
+    }, []);
     const {rtl, topMenu, darkMode, auth} = useSelector(state => {
         return {
             darkMode: state.ChangeLayoutMode.data,
@@ -42,14 +42,14 @@ const ProviderConfig = () => {
 
     const [path, setPath] = useState(window.location.pathname);
 
-    useEffect(() => {
-        let unmounted = false;
-        if (!unmounted) {
-            setPath(window.location.pathname);
-        }
-        // eslint-disable-next-line no-return-assign
-        return () => (unmounted = true);
-    }, [setPath]);
+    // useEffect(() => {
+    //     let unmounted = false;
+    //     if (!unmounted) {
+    //         setPath(window.location.pathname);
+    //     }
+    //     // eslint-disable-next-line no-return-assign
+    //     return () => (unmounted = true);
+    // }, [setPath]);
 
     return (
         <ConfigProvider direction={rtl ? 'rtl' : 'ltr'}>
@@ -60,11 +60,14 @@ const ProviderConfig = () => {
                             <Spin/>
                         </div>
                     ) : (
-                        <Router basename={process.env.PUBLIC_URL}>
-                            {!isLoggedIn ? <Route path="/" component={Auth}/> :
-                                <ProtectedRoute path="/admin" component={Admin}/>}
-                            {isLoggedIn && (path === process.env.PUBLIC_URL || path === `${process.env.PUBLIC_URL}/`) && (
-                                <Redirect to="/admin"/>
+                        <Router>
+                            {isLoggedIn ? (
+                                <>
+                                    <ProtectedRoute path="/admin" component={Admin} isLoggedIn={isLoggedIn}/>
+                                    <Redirect from="/" to="/admin"/>
+                                </>
+                            ) : (
+                                <Route path="/" component={Auth}/>
                             )}
                         </Router>
                     )}

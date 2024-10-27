@@ -83,3 +83,12 @@ export const joinProject = async (data, id) => {
     );
     return response.data;
 }
+export const getProjectByUserId = async () => {
+    const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/projects/get-project-by-user-id`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }}
+    );
+    return response.data;
+}

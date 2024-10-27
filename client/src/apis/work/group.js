@@ -51,3 +51,12 @@ export const deleteGroup = async (id) => {
     });
     return response.data;
 }
+export const getGroupByCeo = async () => {
+    const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/groups/get-by-ceo`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    return response.data;
+}

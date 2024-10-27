@@ -6,7 +6,7 @@ import {
     getTasks,
 } from "../../../../apis/work/task";
 
-import TaskLisk from "./overViewTask/TaskLisk";
+import TaskLisk from "./overViewTask/TaskList";
 import moment from "moment";
 import {Spin} from "antd";
 

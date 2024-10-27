@@ -3,8 +3,7 @@ import propTypes from 'prop-types';
 import { Route, Redirect } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
-function ProtectedRoute({ component, path }) {
-  const isLoggedIn = useSelector(state => state.auth.login);
+function ProtectedRoute({ component, path, isLoggedIn }) {
   return isLoggedIn ? <Route component={component} path={path} /> : <Redirect to="/" />;
 }
 
