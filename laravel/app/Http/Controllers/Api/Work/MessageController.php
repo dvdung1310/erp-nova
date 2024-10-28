@@ -77,7 +77,7 @@ class MessageController extends Controller
                 $request->file_url = $url_file;
             }
 
-            $message_by_user_id = auth()->guard('api')->user()->id;
+            $message_by_user_id = auth()->user()->id;
             $payload = [
                 'text' => $request->text,
                 'image_url' => $request->image_url,
@@ -99,13 +99,13 @@ class MessageController extends Controller
                 'task_id' => $request->task_id
             ]);
             $message = Message::where('message_id', $message->message_id)
-                ->with('user.js')
+                ->with('user')
                 ->first();
             // Thông báo cho các thành viên khác trong task
             $members = $task->users->pluck('id');
             $pathname = $request->input('pathname');
-            $createByUserName = auth()->guard('api')->user()->name;
-            $create_by_user_id = auth()->guard('api')->user()->id;
+            $createByUserName = auth()->user()->name;
+            $create_by_user_id = auth()->user()->id;
             $notifications = [];
 
             if ($request->text) {
@@ -172,7 +172,7 @@ class MessageController extends Controller
     {
         try {
             $messages = MessageTask::where('task_id', $task_id)
-                ->with(['message.user.js']) // Eager load the user.js relationship
+                ->with(['message.user']) // Eager load the user.js relationship
                 ->get()
                 ->pluck('message');
             return response()->json([

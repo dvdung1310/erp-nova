@@ -44,6 +44,7 @@ function CreateProject({visible, onCancel, group_id}) {
                     position: "top-right",
                     autoClose: 1000,
                 });
+                setIsLoading(false);
                 return;
             }
             if (!data?.project_start_date) {
@@ -51,6 +52,7 @@ function CreateProject({visible, onCancel, group_id}) {
                     position: "top-right",
                     autoClose: 1000,
                 });
+                setIsLoading(false);
                 return;
             }
             if (!data?.project_end_date) {
@@ -58,6 +60,7 @@ function CreateProject({visible, onCancel, group_id}) {
                     position: "top-right",
                     autoClose: 1000,
                 });
+                setIsLoading(false);
                 return;
             }
             const payload = {

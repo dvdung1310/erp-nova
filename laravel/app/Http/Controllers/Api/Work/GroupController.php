@@ -467,14 +467,17 @@ class GroupController extends Controller
     public function getAllProjectsAndTasksInGroups()
     {
         try {
-            $groups = Group::whereNull('parent_group_id')->get();
+            $groups = Group::whereNull('parent_group_id')
+                ->with('leader')
+                ->get();
             $allGroupsProjectsAndTasks = [];
 
             foreach ($groups as $group) {
                 $groupData = [
                     'group_id' => $group->group_id,
                     'group_name' => $group->group_name,
-                    'group_color' => $group->color,
+                    'color' => $group->color,
+                    'leader' => $group->leader,
                     'total_projects' => 0,
                     'total_tasks' => 0,
                     'total_completed_tasks' => 0,

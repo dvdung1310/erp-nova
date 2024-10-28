@@ -39,7 +39,7 @@ class TaskController extends Controller
                 'members' => 'nullable|array',
                 'members.*' => 'exists:users,id',
             ]);
-            $create_by_user_id = auth()->guard('api')->user()->id;
+            $create_by_user_id = auth()->user()->id;
             $task = Task::create(array_merge($validatedData, ['create_by_user_id' => $create_by_user_id]));
             $membersData = [];
             foreach ($request->members as $user_id) {
@@ -69,18 +69,10 @@ class TaskController extends Controller
     public function getTaskByProjectId(Request $request, $project_id)
     {
         try {
-            $user_id = auth()->guard('api')->user()->id;
-            $role_id = auth()->guard('api')->user()->role_id;
+            $user_id = auth()->user()->id;
+            $role_id = auth()->user()->role_id;
             $tasks = [];
-            $taskExit = Task::where('project_id', $project_id)->exists();
-            if (!$taskExit) {
-                return response()->json([
-                    'error' => true,
-                    'message' => 'Tasks not found',
-                    'data' => null
-                ], 404);
-            }
-            if ($role_id != 4) {
+            if ($role_id != 5) {
                 $tasks = Task::where('project_id', $project_id)
                     ->with(['users' => function ($query) {
                         $query->select('users.id', 'users.name', 'users.email', 'users.avatar');
@@ -153,8 +145,8 @@ class TaskController extends Controller
 
             //
             $pathname = $request->input('pathname');
-            $createByUserName = auth()->guard('api')->user()->name;
-            $create_by_user_id = auth()->guard('api')->user()->id;
+            $createByUserName = auth()->user()->name;
+            $create_by_user_id = auth()->user()->id;
             $notifications = [];
 
             if (!empty($membersToAdd)) {
@@ -377,8 +369,8 @@ class TaskController extends Controller
 //
             $members = $task->users->pluck('id');
             $pathname = $request->input('pathname');
-            $createByUserName = auth()->guard('api')->user()->name;
-            $create_by_user_id = auth()->guard('api')->user()->id;
+            $createByUserName = auth()->user()->name;
+            $create_by_user_id = auth()->user()->id;
             $notifications = [];
             foreach ($members as $user_id) {
                 if ($user_id != $create_by_user_id) {
@@ -463,8 +455,8 @@ class TaskController extends Controller
             }
             $members = $task->users->pluck('id');
             $pathname = $request->input('pathname');
-            $createByUserName = auth()->guard('api')->user()->name;
-            $create_by_user_id = auth()->guard('api')->user()->id;
+            $createByUserName = auth()->user()->name;
+            $create_by_user_id = auth()->user()->id;
             $notifications = [];
             foreach ($members as $user_id) {
                 if ($user_id != $create_by_user_id) {
@@ -538,8 +530,8 @@ class TaskController extends Controller
             //
             $members = $task->users->pluck('id');
             $pathname = $request->input('pathname');
-            $createByUserName = auth()->guard('api')->user()->name;
-            $create_by_user_id = auth()->guard('api')->user()->id;
+            $createByUserName = auth()->user()->name;
+            $create_by_user_id = auth()->user()->id;
             $notifications = [];
             foreach ($members as $user_id) {
                 if ($user_id != $create_by_user_id) {
@@ -612,8 +604,8 @@ class TaskController extends Controller
 
             $members = $task->users->pluck('id');
             $pathname = $request->input('pathname');
-            $createByUserName = auth()->guard('api')->user()->name;
-            $create_by_user_id = auth()->guard('api')->user()->id;
+            $createByUserName = auth()->user()->name;
+            $create_by_user_id = auth()->user()->id;
             $notifications = [];
             foreach ($members as $user_id) {
                 if ($user_id != $create_by_user_id) {
@@ -698,7 +690,7 @@ class TaskController extends Controller
     public function getTaskUnfinishedByUserId(Request $request)
     {
         try {
-            $user_id = auth()->guard('api')->user()->id;
+            $user_id = auth()->user()->id;
 
             // Fetch tasks
             $tasks = Task::whereHas('users', function ($query) use ($user_id) {

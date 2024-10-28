@@ -1,0 +1,73 @@
+.task {
+  .content {
+    display: flex;
+    flex-direction: column;
+
+    .head {
+      width: 100%;
+      background: #f7f9fc;
+      min-height: 80px;
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+
+      span {
+        display: block;
+        font-size: 22px;
+        margin-left: 20px;
+        font-weight: 600;
+        color: #333;
+        text-transform: uppercase;
+      }
+
+      div span {
+        font-size: 14px;
+        margin-left: 20px;
+        line-height: 40px;
+      }
+    }
+
+    .body {
+      .form-add-members {
+        min-width: 400px;
+        padding: 20px !important;
+      }
+
+      th {
+        text-align: center;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 14px;
+      }
+
+      .table-cell {
+        min-width: 200px;
+        user-select: none;
+        width: 350px;
+        color: #000;
+        font-size: 12px;
+        padding: 8px;
+        text-align: center;
+        cursor: pointer;
+        white-space: nowrap; /* Prevent text from wrapping */
+        overflow: hidden; /* Hide overflow text */
+        text-overflow: ellipsis; /* Display ellipsis for overflow text */
+        height: 60px; /* Set a default height */
+        align-items: center; /* Vertically center the content */
+      }
+
+      .table-cell-clickable {
+        cursor: pointer;
+      }
+
+      .chip-status {
+        font-size: 14px;
+      }
+
+      .chip-assignee {
+        font-size: 14px;
+        padding: 4px 8px;
+      }
+    }
+  }
+}

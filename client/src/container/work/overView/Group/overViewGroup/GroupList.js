@@ -1,14 +1,10 @@
-import React, {useState} from 'react';
-import {Form, Input, List, Progress, Spin, Tag} from 'antd';
-import FeatherIcon from 'feather-icons-react';
-import {Link, useHistory, useLocation, useRouteMatch} from 'react-router-dom';
-import PropTypes from 'prop-types';
-import {Cards} from '../../../../../components/cards/frame/cards-frame';
-import {Dropdown} from '../../../../../components/dropdown/dropdown';
-import {textRefactor} from '../../../../../components/utilities/utilities';
-import {ProjectCard} from '../style';
-import {MdDelete, MdEdit, MdGroups, MdOutlineDateRange} from "react-icons/md";
-import {GrInProgress} from "react-icons/gr";
+import './GroupList.scss';
+import React, {useState} from "react";
+import {Link, useHistory, useLocation} from "react-router-dom";
+import {Card, Col, Form, Input, List, Progress, Row, Spin} from 'antd';
+import {Dropdown} from "../../../../../components/dropdown/dropdown";
+import {MdDelete, MdEdit} from "react-icons/md";
+import FeatherIcon from "feather-icons-react";
 import {Modal} from "../../../../../components/modals/antd-modals";
 import {Button} from "../../../../../components/buttons/buttons";
 import {BasicFormWrapper} from "../../../../styled";
@@ -17,8 +13,8 @@ import {checkRole} from "../../../../../utility/checkValue";
 import {toast} from "react-toastify";
 import {deleteGroup, updateGroup} from "../../../../../apis/work/group";
 
-function GridCard({value, listUser}) {
-    const {group_id, group_name, color, leader} = value;
+const ListGroupComponent = ({listGroup, listUser = []}) => {
+    const URL_LARAVEL = process.env.REACT_APP_LARAVEL_SERVER;
     const [form] = Form.useForm();
     const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
     const [listUserData, setListUser] = useState(listUser);
@@ -30,6 +26,7 @@ function GridCard({value, listUser}) {
     const [isLoading, setIsLoading] = useState(false);
     const [selectedMembers, setSelectedMembers] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedGroup, setSelectedGroup] = useState(null)
     const handleSearchChange = (e) => setSearchTerm(e.target.value);
     const filteredMembers = listUserData?.filter(
         (member) =>
@@ -50,7 +47,6 @@ function GridCard({value, listUser}) {
         setShowModalConfirm(false);
         setShowModalEdit(false);
     }
-
     const handleEditClick = (type, value) => {
         switch (type) {
             case 'name':
@@ -59,10 +55,13 @@ function GridCard({value, listUser}) {
                     group_description: value.group_description,
                     color: value.color,
                 });
-                setSelectedMembers(value.leader);
+                console.log(value)
+                setSelectedGroup(value)
+                setSelectedMembers(value?.leader);
                 handleShowModalEdit();
                 break;
             case 'delete':
+                setSelectedGroup(value)
                 handleShowModalConfirm();
                 break;
             default:
@@ -100,7 +99,7 @@ function GridCard({value, listUser}) {
                 color: values.color,
                 leader_id: selectedMembers?.id,
             }
-            const res = await updateGroup(payload, group_id);
+            const res = await updateGroup(payload, selectedGroup?.group_id);
             if (res.error) {
                 toast.error(res.error, {
                     position: "top-right",
@@ -114,10 +113,10 @@ function GridCard({value, listUser}) {
                 autoClose: 1000,
             });
             handleCloseModal();
-            history.push({pathname}, {
-                key: 'updateGroup',
+            history.push('/admin/lam-viec', {
+                key: 'createGroup',
                 data: res.data,
-            })
+            });
             setIsLoading(false);
 
         } catch (e) {
@@ -128,7 +127,7 @@ function GridCard({value, listUser}) {
     const handleDeleteGroup = async () => {
         try {
             setIsLoading(true);
-            const res = await deleteGroup(group_id);
+            const res = await deleteGroup(selectedGroup?.group_id);
             if (res.error) {
                 toast.error(res.error, {
                     position: "top-right",
@@ -142,10 +141,10 @@ function GridCard({value, listUser}) {
                 autoClose: 1000,
             });
             handleCloseModal();
-            history.push({pathname}, {
-                key: 'deleteGroup',
-                data: value,
-            })
+            history.push('/admin/lam-viec', {
+                key: 'createGroup',
+                data: res.data,
+            });
             setIsLoading(false);
         } catch (e) {
             setIsLoading(false);
@@ -153,52 +152,116 @@ function GridCard({value, listUser}) {
         }
     }
     return (
-        <>
-            <ProjectCard>
-                <Cards headless>
-                    <div className='d-flex align-items-center project-container'>
-                        <div className="card-top">
-                            <div style={{
-                                backgroundColor: color,
-                                width: '20px',
-                                height: '20px',
-                                borderRadius: '4px',
-                            }}></div>
-                        </div>
-                        <div className="project-top">
-                            <div className="project-title">
-                                <h1>
-                                    <Link to={`/admin/lam-viec/nhom-lam-viec/${group_id}`}>{group_name}</Link>
-                                </h1>
+        <div className='list-project'>
+            <Row gutter={[16, 16]}>
+                {
+                    listGroup.length > 0 && listGroup.map((group, index) => {
+                        return (
+                            <Col xs={24} md={8} key={index}>
+                                <Card
+                                    hoverable
+                                    style={{
+                                        background: `linear-gradient(45deg, rgba(${parseInt(group?.color.slice(1, 3), 16)}, ${parseInt(group?.color.slice(3, 5), 16)}, ${parseInt(group?.color.slice(5, 7), 16)}, 0.2), #dadada)`,
+                                        height: '100%',
+                                    }}
+                                >
+                                    <div>
+                                        <Card.Meta
+                                            title={
+                                                <div className="d-flex justify-content-between align-items-center"
+                                                     style={{marginBottom: '20px', flexWrap: 'wrap'}}>
+                                                    <div className='d-flex align-items-center'>
+                                                        <div style={{
+                                                            width: '20px',
+                                                            height: '20px',
+                                                            backgroundColor: group?.color,
+                                                            borderRadius: '4px',
+                                                            marginRight: '10px',
+                                                        }}></div>
+                                                        <Link to={`/admin/lam-viec/nhom-lam-viec/${group?.group_id}`}
+                                                              style={{fontSize: '24px'}}>
+                                                            {group?.group_name}
+                                                        </Link>
+                                                    </div>
 
-                            </div>
-                            <div className="project-timing">
-                                <span>Trưởng nhóm: {leader?.name}</span>
-                            </div>
-                        </div>
-                        <Dropdown
-                            className="wide-dropdwon"
-                            content={
-                                <div className='popover-content'>
-                                    <div className='action-item' onClick={() => handleEditClick('name', value)}>
-                                        <MdEdit size={30} className='d-block ms-1 fs-4 text-secondary'/>
-                                        <span>Sửa tên, mô tả ...</span>
-                                    </div>
-                                    <div className='action-item' onClick={() => handleEditClick('delete', value)}>
-                                        <MdDelete color='red' size={30} className='icon-delete'/>
-                                        <span>Xóa dự án</span>
-                                    </div>
-                                </div>
-                            }
-                        >
-                            <div role='button' style={{cursor: 'pointer'}}>
-                                <FeatherIcon icon="more-horizontal" size={18}/>
-                            </div>
-                        </Dropdown>
-                    </div>
+                                                    <Dropdown
+                                                        className="wide-dropdwon"
+                                                        content={
+                                                            <div className='popover-content'>
+                                                                <div className='action-item' onClick={() => handleEditClick('name', group)}>
+                                                                    <MdEdit size={30}
 
-                </Cards>
-            </ProjectCard>
+                                                                            className='d-block ms-1 fs-4 text-secondary'/>
+                                                                    <span>Sửa tên, mô tả ...</span>
+                                                                </div>
+                                                                <div className='action-item' onClick={() => handleEditClick('delete', group)}>
+                                                                    <MdDelete color='red' size={30}
+
+                                                                              className='icon-delete'/>
+                                                                    <span>Xóa dự án</span>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    >
+                                                        <div role='button' style={{cursor: 'pointer'}}>
+                                                            <FeatherIcon icon="more-horizontal" size={18}/>
+                                                        </div>
+                                                    </Dropdown>
+                                                </div>
+                                            }
+                                        />
+                                        <p><strong>Trưởng nhóm:</strong> {group?.leader?.name}</p>
+                                        <p><strong>Tổng số dự án:</strong> {group?.total_projects}</p>
+                                        <p><strong>Tổng số công việc:</strong> {group?.total_tasks}</p>
+                                        <Progress
+                                            percent={Math.round((group?.overdue_tasks / group?.total_tasks) * 100)}
+                                            status="exception"
+                                            showInfo={false}
+                                        />
+                                        <p className='d-flex justify-content-between'>
+                                            <span><strong>Quá hạn</strong> {group?.overdue_tasks} / {group?.total_tasks} công việc</span>
+                                            <span className="float-right">
+                                                {/* eslint-disable-next-line no-restricted-globals */}
+                                                {isNaN(group?.overdue_tasks) || isNaN(group?.total_tasks) || group?.total_tasks === 0
+                                                    ? '0%'
+                                                    : `${Math.round((group?.overdue_tasks / group?.total_tasks) * 100)}%`}
+                                        </span>
+                                        </p>
+                                        <Progress
+                                            percent={Math.round((group?.total_doing_tasks / group?.total_tasks) * 100)}
+                                            status="active"
+                                            showInfo={false}
+                                        />
+                                        <p className='d-flex justify-content-between'>
+                                            <span><strong>Đang làm</strong> {group?.total_doing_tasks} / {group?.total_tasks} công việc</span>
+                                            <span className="float-right">
+                                                {/* eslint-disable-next-line no-restricted-globals */}
+                                                {isNaN(group?.total_doing_tasks) || isNaN(group?.total_tasks) || group?.total_tasks === 0
+                                                    ? '0%'
+                                                    : `${Math.round((group?.total_doing_tasks / group?.total_tasks) * 100)}%`}
+                                        </span>
+                                        </p>
+                                        <Progress
+                                            percent={Math.round((group?.total_completed_tasks / group?.total_tasks) * 100)}
+                                            status="success"
+                                            showInfo={false}
+                                        />
+                                        <p className='d-flex justify-content-between'>
+                                            <span><strong>Hoàn thành</strong> {group?.total_completed_tasks} / {group?.total_tasks} công việc</span>
+                                            <span className="float-right">
+                                                {/* eslint-disable-next-line no-restricted-globals */}
+                                                {isNaN(group?.total_completed_tasks) || isNaN(group?.total_tasks) || group?.total_tasks === 0
+                                                    ? '0%'
+                                                    : `${Math.round((group?.total_completed_tasks / group?.total_tasks) * 100)}%`}
+                                        </span>
+                                        </p>
+                                    </div>
+                                </Card>
+                            </Col>
+                        )
+                    })
+                }
+            </Row>
             {/*modal update*/}
             <Modal
                 type="primary"
@@ -304,13 +367,8 @@ function GridCard({value, listUser}) {
                     </BasicFormWrapper>
                 </div>
             </Modal>
-        </>
-
-    );
+        </div>
+    )
+        ;
 }
-
-GridCard.propTypes = {
-    value: PropTypes.object,
-};
-
-export default GridCard;
+export default ListGroupComponent;
