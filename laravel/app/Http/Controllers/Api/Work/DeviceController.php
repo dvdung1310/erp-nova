@@ -14,7 +14,7 @@ class DeviceController extends Controller
             $validatedData = $request->validate([
                 'endpoint' => 'required',
             ]);
-            $user_id = auth()->guard('api')->user()->id;
+            $user_id = auth()->user()->id;
             $device = Devices::where('user_id', $user_id)->first();
             $endpoint = $request->input('endpoint');
             if ($device) {

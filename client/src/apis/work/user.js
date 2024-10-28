@@ -13,3 +13,13 @@ export const getAllUsers = async () => {
     });
     return response.data;
 }
+export const registerDevice = async (data) => {
+    const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/devices/create`, data, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        }
+    );
+    return response.data;
+}

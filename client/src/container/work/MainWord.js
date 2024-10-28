@@ -56,7 +56,9 @@ const MainWord = () => {
     }, [role_id, state])
 
     return (
-        <div className='home-page'>
+        <div className='home-page' style={{
+            minHeight: '100vh'
+        }}>
             <div className='content'>
                 <ProjectHeader>
                     <PageHeader

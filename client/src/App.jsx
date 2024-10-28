@@ -28,7 +28,9 @@ const ProviderConfig = () => {
         const accessToken = getToken();
         if (accessToken) {
             setIsLoggedIn(true);
-
+        }
+        else {
+            setIsLoggedIn(false);
         }
     }, []);
     const {rtl, topMenu, darkMode, auth} = useSelector(state => {
@@ -42,14 +44,14 @@ const ProviderConfig = () => {
 
     const [path, setPath] = useState(window.location.pathname);
 
-    // useEffect(() => {
-    //     let unmounted = false;
-    //     if (!unmounted) {
-    //         setPath(window.location.pathname);
-    //     }
-    //     // eslint-disable-next-line no-return-assign
-    //     return () => (unmounted = true);
-    // }, [setPath]);
+    useEffect(() => {
+        let unmounted = false;
+        if (!unmounted) {
+            setPath(window.location.pathname);
+        }
+        // eslint-disable-next-line no-return-assign
+        return () => (unmounted = true);
+    }, [setPath]);
 
     return (
         <ConfigProvider direction={rtl ? 'rtl' : 'ltr'}>
@@ -60,7 +62,7 @@ const ProviderConfig = () => {
                             <Spin/>
                         </div>
                     ) : (
-                        <Router>
+                        <Router basename={process.env.PUBLIC_URL}>
                             {isLoggedIn ? (
                                 <>
                                     <ProtectedRoute path="/admin" component={Admin} isLoggedIn={isLoggedIn}/>

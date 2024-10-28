@@ -37,10 +37,10 @@ app.use(cors({
 const CLIENT_URL = process.env.CLIENT_URL;
 // vapid key
 // const vapidKeys = webpush.generateVAPIDKeys();
-//
 // console.log(vapidKeys);
-const publicVapidKey = 'BI-7iyPz63EKG7JTOmAS5k0KDM70334h2Ou25aEfqDIYGGGMw9s-fFRA1eSXFRz4AysoF48qhJ1y3yWFh7RIGfo';
-const privateVapidKey = 'JA5koYktj5q2Sci1hnqeqfnJc8JvcS61L7EcVhi_BGs';
+
+const publicVapidKey = 'BFRuISHeTPNFMZv_7-PndFq72gEqCd8tvf1YX7mTYyuXkOa3vdBxtvzxaj3B1B8AsYy0rG1Mg4DsFS51glqBFSM';
+const privateVapidKey = 'KVI4U3_fZMmKSZyP2zD0FKICW6pEIAnHralKjqthxzE';
 webpush.setVapidDetails('mailto:datkt.novaedu@gmail.com', publicVapidKey, privateVapidKey);
 // router
 const sendNotificationSocket = (notification, members, createByUserId) => {
@@ -88,32 +88,32 @@ app.post('/update-avatar', (req, res) => {
 app.post('/update-name-project', (req, res) => {
     try {
         const {devices, createByUserName, notification, createByUserId, projectName, pathname, members} = req.body;
+        console.log(req.body);
         const payload = JSON.stringify({
-            title: 'THông báo mới', body: `${createByUserName} Đã cập nhật tên dự án: ${projectName}`, data: {
-                url: `${CLIENT_URL}${pathname}`
-            }
+            title: 'THông báo mới',
+            body: `${createByUserName} Đã cập nhật tên dự án: ${projectName}`,
+            data: {url: `${CLIENT_URL}${pathname}`}
         });
+
         // Gửi thông báo đến các client
         sendNotificationSocket(notification, members, createByUserId);
+
         // Gửi thông báo đến các thiết bị
-        devices.forEach(subscription => {
+        const promises = devices.map(subscription =>
             webpush.sendNotification(subscription, payload).catch(error => {
                 console.error('Lỗi khi gửi thông báo:', error);
-                res.status(500).json({
-                    message: "Lỗi khi gửi thông báo"
-                });
-            });
-        });
-        res.status(200).json({
-            message: "Update project success"
-        });
+                throw new Error("Lỗi khi gửi thông báo");
+            })
+        );
+
+        Promise.all(promises)
+            .then(() => res.status(200).json({message: "Update project success"}))
+            .catch(error => res.status(500).json({message: error.message}));
     } catch (error) {
-        res.status(500).json({
-            message: "Lỗi khi gửi thông báo"
-        });
         console.log(error);
+        res.status(500).json({message: "Lỗi khi gửi thông báo"});
     }
-})
+});
 app.post('/update-status-project', (req, res) => {
     try {
         const {
@@ -460,7 +460,16 @@ app.post('/update-status-task', (req, res) => {
 })
 app.post('/create-comment-task', (req, res) => {
     try {
-        const {devices, createByUserName, notification, content, createByUserId, taskName, pathname, members} = req.body;
+        const {
+            devices,
+            createByUserName,
+            notification,
+            content,
+            createByUserId,
+            taskName,
+            pathname,
+            members
+        } = req.body;
         const payload = JSON.stringify({
             title: 'THông báo mới',
             body: `${createByUserName} Đã thêm bình luận công việc: ${taskName} "${content}" `,
