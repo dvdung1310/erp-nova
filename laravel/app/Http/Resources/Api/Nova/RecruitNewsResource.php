@@ -25,7 +25,6 @@ class RecruitNewsResource extends JsonResource
             'news_status' => $this->news_status, 
             'created_at' => $this->created_at, 
             'updated_at' => $this->updated_at, 
-            'target_position' => $this->target_position, 
         ];
     }
 }

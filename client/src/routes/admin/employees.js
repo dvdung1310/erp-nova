@@ -12,7 +12,7 @@ const StartExam = lazy(() => import('../../container/employees/exam/StartExam'))
 const ResultExam = lazy(() => import('../../container/employees/exam/ResultExam'));
 const Department = lazy(() => import('../../container/employees/CrmDepartment'));
 const DepartmentTeam = lazy(() => import('../../container/employees/CrmDepartmentTeam'));
-
+const EmployeeFile = lazy(() => import('../../container/employees/CrmEmployeeFile'));
 function Employees() {
     const {path} = useRouteMatch();
     return (
@@ -23,6 +23,9 @@ function Employees() {
             <Route path={`${path}/lich-lam-viec`} component={FullWorkSchedule}/>
             <Route path={`${path}/dang-ki/lich-lam-viec`} component={CreateWorksSchedule}/>
             <Route path={`${path}/danh-sach-de`} component={ListExam}/>
+            <Route path={`${path}/ho-so/:employee_id`} component={EmployeeFile}/>
+            <Route path={`${path}/lich-lam-viec`} component={FullWorkSchedule}/>
+            <Route path={`${path}/dang-ki/lich-lam-viec`} component={CreateWorksSchedule}/>
             <Route path={`${path}/tao-de`} component={CreateExam}/>
             <Route path={`${path}/de-thi/:id`} component={DetailExam} />
             <Route path={`${path}/lam-bai-thi/:id`} component={StartExam} />

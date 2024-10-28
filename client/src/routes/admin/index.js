@@ -14,6 +14,7 @@ import Novaup from "./Novaup";
 import Employees from "./employees";
 import withAdminLayout from '../../layout/withAdminLayout';
 import Work from "./work";
+import Recruit from "./Recruit";
 
 const Projects = lazy(() => import('./projects'));
 const Calendars = lazy(() => import('../../container/Calendar'));
@@ -30,6 +31,7 @@ const Calendar = lazy(() => import('../../container/calendar/Calendar'));
 // const FileManager = lazy(() => import('../../container/fileManager/FileManager'));
 const Kanban = lazy(() => import('../../container/kanban/Index'));
 const Task = lazy(() => import('../../container/task/Index'));
+// const Recruit = lazy(() => import('../../container/task/Index'));
 
 function Admin() {
     const {path} = useRouteMatch();
@@ -70,6 +72,7 @@ function Admin() {
                 <Route path={`${path}/novaup`} component={Novaup}/>
                 <Route path={`${path}/nhan-su`} component={Employees}/>
                 <Route path={`${path}/lam-viec`} component={Work}/>
+                <Route path={`${path}/tuyen-dung`} component={Recruit}/>
             </Suspense>
         </Switch>
     );

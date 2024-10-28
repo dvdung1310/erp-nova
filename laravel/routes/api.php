@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Nova\ExamController;
 use App\Http\Controllers\Api\Nova\NvCategoryFileController;
 use App\Http\Controllers\Api\Nova\NvDepartmentTeamController;
 use App\Http\Controllers\Api\Nova\NvEmployeeController;
+use App\Http\Controllers\Api\Nova\NvEmployeeFileController;
 use App\Http\Controllers\Api\Nova\NvEmployeeDayOffController;
 use App\Http\Controllers\Api\Nova\NvRecruitCandidatesController;
 use App\Http\Controllers\Api\Nova\NvRecruitTargetController;
@@ -25,6 +26,7 @@ use App\Http\Middleware\MiddlewareLoginCeo;
 use App\Http\Middleware\MiddlewareLoginLeader;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Nova\NvDepartmentController;
+use App\Http\Controllers\Api\Nova\NvRecruitNewsController;
 use App\Http\Controllers\Api\Nova\QuestionController;
 use App\Http\Controllers\Api\Nova\WorkScheduleController;
 
@@ -77,8 +79,13 @@ Route::group(['middleware' => 'api'], function () {
     Route::resource('nvemployee', NvEmployeeController::class);
     Route::resource('nvdayoff', NvEmployeeDayOffController::class);
     Route::resource('nvcategoryfile', NvCategoryFileController::class);
+    Route::resource('nvemployeefile', NvEmployeeFileController::class);
     Route::resource('nvrecruittarget', NvRecruitTargetController::class);
+    Route::resource('nvrecruitnews ', NvRecruitNewsController::class);
     Route::resource('nvrecruitcandidates', NvRecruitCandidatesController::class);
+    Route::get('showEmployeeFile/{employee_id}',[NvEmployeeController::class,'showEmployeeFile']);
+    Route::delete('/nvrecruitnews/{id}', [NvRecruitNewsController::class,'destroy']);
+    Route::put('/nvrecruitnews/{id}', [NvRecruitNewsController::class,'update']);
 });
 // work
 //groups

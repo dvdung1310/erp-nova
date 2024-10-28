@@ -25,8 +25,8 @@ class NvEmployeeFileResource extends JsonResource
             'file_status' => $this->file_status,
             'created_at' => $this->created_at, 
             'updated_at' => $this->updated_at, 
-            'employee_name' => $this->employee_name, 
-            'category_name' => $this->category_name, 
+            // 'employee_name' => $this->employee_name, 
+            // 'category_name' => $this->category_name, 
             
         ];
     }
