@@ -8,13 +8,13 @@ import '../style.css';
 const CreateWorkSchedule = () => {
     const [currentWeek, setCurrentWeek] = useState([]);
     const [checkboxValues, setCheckboxValues] = useState({});
-
+    const [currentWeekOfMonth, setCurrentWeekOfMonth] = useState(1);
     const getWeekDays = () => {
         const current = new Date();
-        const firstDayOfWeek = current.getDate() - current.getDay() + 1;
+        const firstDayOfWeek = current.getDate() - current.getDay() + 1; 
         const weekDays = [];
         for (let i = 0; i < 7; i += 1) {
-            const day = new Date(current.setDate(firstDayOfWeek + i));
+            const day = new Date(current.getFullYear(), current.getMonth(), firstDayOfWeek + i);
             weekDays.push({
                 dayName: day.toLocaleDateString('vi-VN', { weekday: 'long' }),
                 date: day.toLocaleDateString('vi-VN'),
@@ -23,8 +23,20 @@ const CreateWorkSchedule = () => {
         return weekDays;
     };
 
+    const getCurrentWeekOfMonth = () => {
+        const current = new Date();
+        const firstDayOfMonth = new Date(current.getFullYear(), current.getMonth(), 1);
+        const firstDayOfWeek = firstDayOfMonth.getDay();
+        const currentDay = current.getDate();
+
+        // Tính số tuần của tháng
+        const weekNumber = Math.ceil((currentDay + firstDayOfWeek) / 7);
+        return weekNumber;
+    };
+
     useEffect(() => {
         setCurrentWeek(getWeekDays());
+        setCurrentWeekOfMonth(getCurrentWeekOfMonth());
     }, []);
 
     const handleCheckboxChange = (dayName, values) => {
@@ -54,7 +66,7 @@ const CreateWorkSchedule = () => {
     return (
         <div>
             <Card>
-                <h2 className="text-center mb-25 font-bold">Đăng kí lịch làm việc</h2>
+                <h2 className="text-center mb-25 font-bold">Đăng kí lịch làm việc Tuần {currentWeekOfMonth} của tháng {new Date().getMonth() + 1}</h2>
                 <Row gutter={25}>
                     {currentWeek.map((day, index) => (
                         <Col lg={6} md={12} xs={24} key={index}>

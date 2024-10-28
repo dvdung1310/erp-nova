@@ -167,7 +167,7 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
                     openKeys={openKey}
                     onOpenChange={onOpenChanges}
                 >
-                    <SubMenu key="work-schedule" title="Chấm công-nghỉ phép" icon={<FeatherIcon icon="briefcase" />}>
+                    <SubMenu key="work-schedule" title="Đăng kí lịch" icon={<FeatherIcon icon="briefcase" />}>
                         <Menu.Item key="store-works-chedule">
                             <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/dang-ki/lich-lam-viec`}>
                                 Đăng kí lịch làm việc
@@ -189,7 +189,7 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
                 >
                     <SubMenu key="exam" title="Quản lý đào tạo" icon={<FeatherIcon icon="settings" />}>
                         <Menu.Item key="exam-list">
-                            <NavLink onClick={toggleCollapsed} to={`${path}/novaup/status-data`}>
+                            <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-de`}>
                                 Danh sách đề
                             </NavLink>
                         </Menu.Item>

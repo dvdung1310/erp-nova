@@ -44,11 +44,20 @@ Route::group([
 Route::group(['middleware' => 'api'], function () {
     Route::post('/store-exams', [ExamController::class, 'store']);
     Route::get('/exams-index', [ExamController::class, 'index']);
-    Route::delete('/exams/{id}', [ExamController::class, 'destroy']);
+    Route::delete('/destroy-exams/{id}', [ExamController::class, 'destroy']);
+    Route::post('/update-exams/{id}', [ExamController::class, 'update']);
     Route::get('/getNameExam/{id}', [ExamController::class, 'getNameExam']);
     Route::post('/questions-store', [QuestionController::class, 'store']);
     Route::post('workschedule', [WorkScheduleController::class, 'store']);
     Route::get('getWorkSchedulesByMonth/{month}', [WorkScheduleController::class, 'getWorkSchedulesByMonth']);
+    Route::post('/upload-image', [ExamController::class, 'upload'])->name('upload.image');
+    Route::post('/store-question', [QuestionController::class, 'store']);
+    Route::get('/list-question-answer/{id}', [QuestionController::class, 'getQuestionsWithAnswers']);
+    Route::delete('/delete-question-answer/{id}', [QuestionController::class, 'DeleteQuestion']);
+    Route::post('/update-question-answer', [QuestionController::class, 'UpdateQuestion']);
+    Route::post('/store-result-user', [ExamController::class, 'StoreResult']);
+    Route::get('/get-exam-user/{id}', [ExamController::class, 'getExamUserResult']);
+    Route::get('/list-exam-user/{id}', [ExamController::class, 'getListUserExam']);
 });
 
 
