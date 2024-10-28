@@ -134,14 +134,16 @@ function CrmEmployees() {
       title: 'Tin tuyển dụng',
       dataIndex: 'target_id',
       key: 'target_news',
-      render: (target_id) => <NavLink to={`/admin/tuyen-dung/tin-tuyen-dung/${target_id}`}>Danh sách</NavLink>,
+      render: (target_id) => (
+        <NavLink to={`/admin/tuyen-dung/tin-tuyen-dung/${target_id}`}>Danh sách</NavLink>
+      ),
     },
     {
       title: 'Trạng thái',
       dataIndex: 'target_status',
       key: 'target_status',
       render: (status) => (
-        <span style={{ color: status === 1 ? 'blue' : 'orange' }}>{status === 1 ? 'Hiển thị' : 'Ẩn'}</span>
+        <span style={{ color: status === 1 ? 'blue' : 'orange' }}>{status === 1 ? 'Đang tuyển' : 'Không tuyển'}</span>
       ),
     },
     {
@@ -169,35 +171,33 @@ function CrmEmployees() {
 
   return (
     <Main>
-      <Switch>
-        <Route exact path={path}>
-          <Row gutter={15}>
-            <Col xs={24}>
-              <Cards title="Danh sách nhân sự">
-                <Button type="primary" onClick={() => handleOpenModal(null)} style={{ marginBottom: 16 }}>
-                  Thêm mới chỉ tiêu tuyển dụng
-                </Button>
-                {loading ? (
-                  <Spin tip="Loading..." />
-                ) : (
-                  <Table
-                    className="table-responsive"
-                    pagination={false}
-                    dataSource={dataSource}
-                    columns={columns}
-                    rowKey="target_id"
-                  />
-                )}
-              </Cards>
-            </Col>
-          </Row>
-        </Route>
+      <Row gutter={15}>
+        <Col xs={24}>
+          <Cards title="Danh sách nhân sự">
+            <Button type="primary" onClick={() => handleOpenModal(null)} style={{ marginBottom: 16 }}>
+              Thêm mới chỉ tiêu tuyển dụng
+            </Button>
+            {loading ? (
+              <Spin tip="Loading..." />
+            ) : (
+              <Table
+                className="table-responsive"
+                pagination={false}
+                dataSource={dataSource}
+                columns={columns}
+                rowKey="target_id"
+              />
+            )}
+          </Cards>
+        </Col>
+      </Row>
+      {/* <Switch>
         <Route path={`/admin/tuyen-dung/tin-tuyen-dung/:target_id`}>
           <Suspense fallback={<div>Loading...</div>}>
             <RecruitNews />
           </Suspense>
         </Route>
-      </Switch>
+      </Switch> */}
       <Modal
         title={editingEmployee ? 'Cập nhật nhân sự' : 'Thêm nhân sự mới'}
         visible={isModalVisible}
@@ -256,8 +256,7 @@ function CrmEmployees() {
           <Form.Item
             label="Trạng thái"
             name="target_status"
-            rules={[{ required: true, message: 'Vui lòng chọn trạng thái!' }]}
-          >
+            rules={[{ required: true, message: 'Vui lòng chọn trạng thái!' }]}>
             <Select placeholder="Chọn trạng thái">
               <Option value={1}>Hiển thị</Option>
               <Option value={0}>Ẩn</Option>

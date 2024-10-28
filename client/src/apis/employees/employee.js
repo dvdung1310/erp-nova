@@ -38,14 +38,15 @@ export const storeEmployeesFile = async (data) => {
     const response = await axios.post(`${LARAVEL_SERVER}/api/nvemployeefile`,data);
     return response.data;
 };
-export const editEmployeesFile = async (id) => {
-    const response = await axios.get(`${LARAVEL_SERVER}/api/nvemployeefile/${id}`);
-    return response.data;
-};
 export const updateEmployeesFile = async (data,id) => {
     const response = await axios.put(`${LARAVEL_SERVER}/api/nvemployeefile/${id}`,data);
     return response.data;
 };
+export const editEmployeesFile = async (id) => {
+    const response = await axios.get(`${LARAVEL_SERVER}/api/nvemployeefile/${id}`);
+    return response.data;
+};
+
 export const deleteEmployeesFile = async (id) => {
     const response = await axios.delete(`${LARAVEL_SERVER}/api/nvemployeefile/${id}`);
     return response.data;

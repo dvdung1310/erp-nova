@@ -96,7 +96,7 @@ class NvEmployeeFileController extends Controller
                     'crm_employee.employee_name',
                     'crm_category_file.category_name',
                 )
-               ->where('file_id',$nvemployeefile)->first();
+                ->where('file_id', $nvemployeefile)->first();
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
@@ -124,7 +124,7 @@ class NvEmployeeFileController extends Controller
                     'crm_employee.employee_name',
                     'crm_category_file.category_name',
                 )
-               ->where('file_id',$nvemployeefile)->first();
+                ->where('file_id', $nvemployeefile)->first();
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
@@ -145,27 +145,22 @@ class NvEmployeeFileController extends Controller
     public function update(Request $request, CrmEmployeeFileModel $nvemployeefile)
 {
     try {
+        // Lấy dữ liệu đầu vào từ request
+        $data = $request->all();
 
-        // Handle file upload if present
-        if ($request->hasFile('file')) {
-            $file = $request->file('file');
-            $filePath = $file->store('uploads/files', 'public'); // Store in 'storage/app/public/uploads/files'
-            $validatedData['file'] = $filePath;
-        }
+        // Cập nhật bản ghi
+        $nvemployeefile->update($data);
 
-        // Update the employee file record
-        $nvemployeefile->update($validatedData);
-
-        // Return success response with updated data
+        // Trả về phản hồi thành công
         return response()->json([
-            'error' => false,
-            'message' => 'Employee file updated successfully.',
-            'data' => CrmEmployeeFileModel::paginate(10),
+            'success' => true,  // Đồng bộ với logic client-side
+            'message' => 'Cập nhật nhân sự thành công.',
+            'data' => $nvemployeefile,
         ]);
     } catch (\Throwable $th) {
         return response()->json([
-            'error' => true,
-            'message' => 'Failed to update employee file.',
+            'success' => false,  // Đồng bộ với client
+            'message' => 'Cập nhật thất bại: ' . $th->getMessage(),
             'data' => [],
         ], 500);
     }
@@ -180,15 +175,14 @@ class NvEmployeeFileController extends Controller
         try {
             $nvemployeefile->delete();
             return response()->json([
-                'error' => false,
-                'message' => 'Customers retrieved successfully.',
-               
-                
+                'success' => true,  // Đổi từ 'error' thành 'success'
+                'message' => 'Xóa nhân sự thành công.',  // Thông báo phù hợp hơn
+                'data' => $nvemployeefile
             ]);
         } catch (\Throwable $th) {
             return response()->json([
-                'error' => true,
-                'message' => 'No customers found.'. $th,
+                'success' => false,  // Đồng bộ với logic client
+                'message' => 'Xóa nhân sự thất bại: ' . $th->getMessage(),
                 'data' => []
             ]);
         }

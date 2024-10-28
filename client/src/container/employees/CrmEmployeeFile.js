@@ -65,21 +65,19 @@ function CrmEmployees() {
   }, []);
 
   const handleOpenModal = (employee = null) => {
-    setEditingEmployee(employee); // Lưu employee để biết đang sửa
-  
-    form.resetFields(); // Reset các giá trị của form trước
+    form.resetFields(); // Luôn reset toàn bộ form trước
   
     if (employee) {
       form.setFieldsValue({
-        category_id: employee.category_id,
-        file_name: employee.file_name,
-        file_discription: employee.file_discription,
-        file_date: moment(employee.file_date), // Chuyển thành moment object
-        file_status: employee.file_status,
-        employee_id: employee.employee_id,
+        category_id: employee.category_id ?? '',
+        file_name: employee.file_name ?? '',
+        file_discription: employee.file_discription ?? '',
+        file_date: employee.file_date ? moment(employee.file_date) : null,
+        file_status: employee.file_status ?? 1,
+        employee_id: employee.employee_id ?? '',
       });
     }
-  
+    setEditingEmployee(employee); // Đặt nhân viên đang sửa nếu có
     setIsModalVisible(true); // Hiển thị modal
   };
 
@@ -90,7 +88,7 @@ function CrmEmployees() {
 
       let response;
       if (editingEmployee) {
-        response = await updateEmployeesFile(values, editingEmployee.employee_id);
+        response = await updateEmployeesFile(values, editingEmployee.file_id);
         message.success('Cập nhật thất bại!');
       } else {
         response = await storeEmployeesFile(values);
@@ -109,7 +107,6 @@ function CrmEmployees() {
     console.log('Deleting employee with ID:', id); // Log ID cần xóa
     try {
         const res = await deleteEmployeesFile(id);
-        console.log('API response:', res); // Log phản hồi từ API
         if (res.success) {
             setDataSource((prev) => {
                 const newDataSource = prev.filter((item) => item.file_id !== id);

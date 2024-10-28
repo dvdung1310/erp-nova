@@ -167,10 +167,10 @@ class NvRecruitTargetController extends Controller
                 'message' => 'Customers retrieved successfully.',
                 'data' => CrmRecruitTargetModel::paginate(10)
             ]);
-        } catch (\Throwable $th) {
+        } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
-                'message' => 'No customers found.' . $th,
+                'message' => 'No customers found.' . $e->getMessage(),
                 'data' => []
             ]);
         }

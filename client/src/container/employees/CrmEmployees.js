@@ -34,7 +34,6 @@ function CrmEmployees() {
       setLoading(false);
     }
   };
-
   const fetchCreateData = async () => {
     try {
       const res = await createEmployees();
@@ -50,12 +49,10 @@ function CrmEmployees() {
       message.error("Không thể tải dữ liệu tạo mới.");
     }
   };
-
   useEffect(() => {
     fetchData();
     fetchCreateData(); // Call this function on component mount
   }, []);
-
   const handleOpenModal = (employee = null) => {
     setEditingEmployee(employee);
     form.resetFields();
@@ -68,14 +65,11 @@ function CrmEmployees() {
     }
     setIsModalVisible(true);
   };
-
   const handleModalOk = async () => {
     try {
       const values = await form.validateFields();
       values.employee_date_join = values.employee_date_join.format('YYYY-MM-DD');
-  
       let response;
-  
       if (editingEmployee) {
         // Cập nhật thông tin nhân viên
         response = await updateEmployees(values, editingEmployee.employee_id);
@@ -86,7 +80,6 @@ function CrmEmployees() {
         setDataSource((prev) => [...prev, response.data.data]);
         message.success('Thêm nhân sự thành công!');
       }
-  
       // Đóng modal và làm mới dữ liệu
       setIsModalVisible(false);
       fetchData();
