@@ -193,13 +193,13 @@ const TaskList = (props) => {
                 const res = await updateNameTask(payload, selectedTask.task_id)
                 setTasks(tasks.map((task) => task.task_id === selectedTask.task_id ? res.data : task))
                 toast.success('Thực hiện cập nhật tên công việc thành công', {
-                    position: "bottom-right", autoClose: 1000
+                    position: "top-right", autoClose: 1000
                 })
                 setLoadingUpdate(false);
             } catch (error) {
                 setLoadingUpdate(false);
-                toast.error('Lỗi khi cập nhật tên công việc', {
-                    position: "bottom-right", autoClose: 1000
+                toast.error(error.response.data.message, {
+                    position: "top-right", autoClose: 1000
                 });
                 console.log(error);
             }
@@ -217,7 +217,7 @@ const TaskList = (props) => {
                 const res = await updateStartDateTask(payload, selectedTask.task_id)
                 if (res.error) {
                     toast.error(res.message, {
-                        position: "bottom-right", autoClose: 1000
+                        position: "top-right", autoClose: 1000
                     });
                     setLoadingUpdate(false);
                     handleClose();
@@ -225,13 +225,13 @@ const TaskList = (props) => {
                 }
                 setTasks(tasks.map((task) => task.task_id === selectedTask.task_id ? res.data : task))
                 toast.success('Thực hiện cập nhật ngày bắt đầu công việc thành công', {
-                    position: "bottom-right", autoClose: 1000
+                    position: "top-right", autoClose: 1000
                 })
                 setLoadingUpdate(false);
             } catch (error) {
                 setLoadingUpdate(false);
-                toast.error('Lỗi khi cập nhật ngày bắt đầu công việc', {
-                    position: "bottom-right", autoClose: 1000
+                toast.error(error.response.data.message, {
+                    position: "top-right", autoClose: 1000
                 });
                 console.log(error);
             }
@@ -249,7 +249,7 @@ const TaskList = (props) => {
                 const res = await updateEndDateTask(payload, selectedTask.task_id)
                 if (res.error) {
                     toast.error(res.message, {
-                        position: "bottom-right", autoClose: 1000
+                        position: "top-right", autoClose: 1000
                     });
                     handleClose();
                     setLoadingUpdate(false);
@@ -257,13 +257,13 @@ const TaskList = (props) => {
                 }
                 setTasks(tasks.map((task) => task.task_id === selectedTask.task_id ? res.data : task))
                 toast.success('Thực hiện cập nhật ngày kết thúc công việc thành công', {
-                    position: "bottom-right", autoClose: 1000
+                    position: "top-right", autoClose: 1000
                 })
                 setLoadingUpdate(false);
             } catch (error) {
                 setLoadingUpdate(false);
-                toast.error('Lỗi khi cập nhật ngày kết thúc công việc', {
-                    position: "bottom-right", autoClose: 1000
+                toast.error(error.response.data.message, {
+                    position: "top-right", autoClose: 1000
                 });
                 console.log(error);
             }
@@ -287,7 +287,7 @@ const TaskList = (props) => {
                 const res = await updateMemberTask(payload, selectedTask.task_id)
                 if (res.error) {
                     toast.error(res.message, {
-                        position: "bottom-right", autoClose: 1000
+                        position: "top-right", autoClose: 1000
                     });
                     handleClose();
                     setLoadingUpdate(false);
@@ -295,14 +295,14 @@ const TaskList = (props) => {
                 }
                 setTasks(tasks.map((task) => task.task_id === selectedTask.task_id ? res.data : task))
                 toast.success('Thực hiện cập nhật người thực hiện công việc thành công', {
-                    position: "bottom-right", autoClose: 1000
+                    position: "top-right", autoClose: 1000
                 })
                 setSelectedMembers([]);
                 setLoadingUpdate(false);
             } catch (error) {
                 setLoadingUpdate(false);
-                toast.error('Lỗi khi cập nhật người thực hiện công việc', {
-                    position: "bottom-right", autoClose: 1000
+                toast.error(error.response.data.message, {
+                    position: "top-right", autoClose: 1000
                 });
                 console.log(error);
             }
@@ -322,13 +322,13 @@ const TaskList = (props) => {
                 const res = await updateStatusTask(payload, selectedTask.task_id)
                 setTasks(tasks.map((task) => task.task_id === selectedTask.task_id ? res.data : task))
                 toast.success('Thực hiện cập nhật trạng thái công việc thành công', {
-                    position: "bottom-right", autoClose: 1000
+                    position: "top-right", autoClose: 1000
                 })
                 setLoadingUpdate(false);
             } catch (error) {
                 setLoadingUpdate(false);
-                toast.error('Lỗi khi cập nhật trạng thái công việc', {
-                    position: "bottom-right", autoClose: 1000
+                toast.error(error.response.data.message, {
+                    position: "top-right", autoClose: 1000
                 });
                 console.log(error);
             }
@@ -360,7 +360,7 @@ const TaskList = (props) => {
             const res = await deleteTask(task_id)
             if (res.error) {
                 toast.error(res.message, {
-                    position: "bottom-right", autoClose: 1000
+                    position: "top-right", autoClose: 1000
                 })
                 setLoadingDelete(false);
                 setShowModalConfirm(false);
@@ -369,13 +369,13 @@ const TaskList = (props) => {
             setTasks(tasks.filter((task) => task?.task_id?.toString() !== task_id))
             setLoadingDelete(false);
             toast.success('Thực hiện xóa công việc thành công', {
-                position: "bottom-right", autoClose: 1000
+                position: "top-right", autoClose: 1000
             })
             setShowModalConfirm(false);
         } catch (error) {
             setLoadingDelete(false);
             toast.error(error.response.data.message, {
-                position: "bottom-right", autoClose: 1000
+                position: "top-right", autoClose: 1000
             });
             console.log(error);
         }
@@ -385,7 +385,7 @@ const TaskList = (props) => {
             setLoadingCreate(true);
             if (!dataCreateTask.task_name || !dataCreateTask.task_start_date || !dataCreateTask.task_end_date) {
                 toast.error('Vui lòng nhập đầy đủ thông tin', {
-                    position: "bottom-right", autoClose: 1000
+                    position: "top-right", autoClose: 1000
                 });
                 setLoadingCreate(false);
                 return;
@@ -401,14 +401,14 @@ const TaskList = (props) => {
             const res = await createTask(payload)
             if (res.error) {
                 toast.error(res.message, {
-                    position: "bottom-right", autoClose: 1000
+                    position: "top-right", autoClose: 1000
                 });
                 setLoadingCreate(false);
                 return;
             }
             setTasks([...tasks, res.data]);
             toast.success('Thực hiện tạo công việc thành công', {
-                position: "bottom-right", autoClose: 1000
+                position: "top-right", autoClose: 1000
             })
             setLoadingCreate(false);
             setShowModalCreate(false);
@@ -420,8 +420,8 @@ const TaskList = (props) => {
             })
         } catch (error) {
             setLoadingCreate(false);
-            toast.error('Lỗi khi tạo công việc', {
-                position: "bottom-right", autoClose: 1000
+            toast.error(error.response.data.message, {
+                position: "top-right", autoClose: 1000
             });
             console.log(error);
         }

@@ -113,7 +113,7 @@ function StatusCustomerTable() {
       dataIndex: 'department_id',
       key: 'team',
       render: (department_id, record) => (
-        <NavLink to={`${path}/teams/${department_id}`}>{record.department_name}</NavLink>
+        <NavLink to={`${path}/teams/${department_id}`}>{record?.department_name}</NavLink>
       ),
     },
     {

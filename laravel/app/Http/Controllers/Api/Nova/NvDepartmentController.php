@@ -44,7 +44,21 @@ class NvDepartmentController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+
+            $data = CrmDepartmentModel::create($request->all());
+            return response()->json([
+                'error' => false,
+                'message' => 'Customers retrieved successfully.',
+                'data' => $data
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'error' => true,
+                'message' => 'No customers found.' . $th,
+                'data' => []
+            ]);
+        }
     }
 
     /**

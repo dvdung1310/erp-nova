@@ -336,9 +336,6 @@ class ProjectController extends Controller
                     'data' => null
                 ], 404);
             }
-            $validatedData = $request->validate([
-                'members' => 'required|array',
-            ]);
             $members = $request->members;
             $projectMembers = ProjectMember::where('project_id', $project_id)->pluck('user_id')->toArray();
             $membersToAdd = array_values(array_diff($members, $projectMembers));

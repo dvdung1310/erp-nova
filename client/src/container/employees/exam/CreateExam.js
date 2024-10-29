@@ -6,10 +6,10 @@ import 'react-toastify/dist/ReactToastify.css';
 import { HorizontalFormStyleWrap } from './Style';
 import { Cards } from '../../../components/cards/frame/cards-frame';
 import { BasicFormWrapper } from '../../styled';
-import { storeExam } from '../../../services/Employees/ExamServices';
+import { storeExam }  from '../../../apis/employees/exam';
 
 const CreateExam = () => {
-    const [form] = Form.useForm(); // Sử dụng form của Ant Design
+    const [form] = Form.useForm(); 
     const [examData, setExamData] = useState({
         name: '',
         description: '',
@@ -27,7 +27,6 @@ const CreateExam = () => {
 
     const onFinish = async (values) => {
         try {
-
             const formData = new FormData();
             formData.append('name', values.name);
             formData.append('description', values.description);
@@ -37,13 +36,11 @@ const CreateExam = () => {
             if (examData.image) {
                 formData.append('image', examData.image);
             }
-
             const response = await storeExam(formData);
             if (!response.data.error) {
                 toast.success(response.data.message);
             }else{
                 toast.error('lỗi rồi');
-                console.log('3');
             }
         } catch (error) {
             toast.error(error.message);
@@ -112,8 +109,8 @@ const CreateExam = () => {
                                         <Upload
                                             name="image"
                                             listType="picture"
-                                            beforeUpload={() => false} // Không upload ngay lập tức
-                                            onChange={handleUploadChange} // Xử lý khi file thay đổi
+                                            beforeUpload={() => false} 
+                                            onChange={handleUploadChange} 
                                         >
                                             <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
                                         </Upload>

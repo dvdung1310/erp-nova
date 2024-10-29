@@ -120,7 +120,6 @@ function AuthInfo() {
         <InfoWraper>
             <Message/>
             <Notification/>
-
             <Settings/>
             <Support/>
             <div className="nav-author">

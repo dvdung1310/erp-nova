@@ -11,7 +11,7 @@ class CrmRecruitTargetModel extends Model
     protected $table='crm_recruit_target';
     protected $primaryKey = 'target_id';
     protected $fillable=[
-        'target_position','target_amout','target_start_date',
+        'target_position','target_quantity','target_amout','target_start_date',
         'target_end_date','department_id','target_status'
     ];
 }

@@ -88,7 +88,6 @@ app.post('/update-avatar', (req, res) => {
 app.post('/update-name-project', (req, res) => {
     try {
         const {devices, createByUserName, notification, createByUserId, projectName, pathname, members} = req.body;
-        console.log(req.body);
         const payload = JSON.stringify({
             title: 'THông báo mới',
             body: `${createByUserName} Đã cập nhật tên dự án: ${projectName}`,

@@ -413,11 +413,20 @@ function ProjectLists({listProject, listUser = []}) {
     const handleJoinProject = async () => {
         try {
             setLoadingUpdate(true);
+            if(!dataJoinProject?.email_to){
+                toast.warn('Vui lòng nhập email', {
+                    position: "top-right",
+                    autoClose: 1000,
+                })
+                setLoadingUpdate(false);
+                return;
+            }
             const payload = {
                 email_to: dataJoinProject?.email_to,
                 message: dataJoinProject?.message,
                 pathname
             }
+            console.log(payload)
             const res = await joinProject(payload, selectedProject?.project_id);
             if (res.error) {
                 toast.error(res?.message, {
@@ -427,7 +436,7 @@ function ProjectLists({listProject, listUser = []}) {
                 setLoadingUpdate(false);
                 return;
             }
-            toast.success('Tham gia dự án thành công', {
+            toast.success('Mời tham gia dự án thành công', {
                 position: "top-right",
                 autoClose: 1000,
             });
@@ -555,6 +564,7 @@ function ProjectLists({listProject, listUser = []}) {
                 action: (
                     <Dropdown
                         className="wide-dropdwon"
+                        action='click'
                         content={
                             <div className='popover-content'>
                                 <div className='action-item' onClick={() => handleEditClick('name', value)}>

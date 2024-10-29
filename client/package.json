@@ -3,6 +3,8 @@
   "version": "3.0.0",
   "private": true,
   "dependencies": {
+    "@ckeditor/ckeditor5-build-classic": "^43.2.0",
+    "@ckeditor/ckeditor5-react": "^9.3.1",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@mui/material": "^6.1.5",
@@ -70,6 +72,7 @@
     "redux-thunk": "^2.4.1",
     "sass": "^1.80.4",
     "simple-react-lightbox": "^3.6.9-0",
+    "socket.io-client": "^4.8.1",
     "styled-components": "^5.3.6",
     "swiper": "^8.0.7",
     "uuid": "^9.0.0",

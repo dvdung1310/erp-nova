@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Nova\ExamController;
 use App\Http\Controllers\Api\Nova\NvCategoryFileController;
 use App\Http\Controllers\Api\Nova\NvDepartmentTeamController;
 use App\Http\Controllers\Api\Nova\NvEmployeeController;
+use App\Http\Controllers\Api\Nova\NvEmployeeFileController;
 use App\Http\Controllers\Api\Nova\NvEmployeeDayOffController;
 use App\Http\Controllers\Api\Nova\NvRecruitCandidatesController;
 use App\Http\Controllers\Api\Nova\NvRecruitTargetController;
@@ -25,6 +26,7 @@ use App\Http\Middleware\MiddlewareLoginCeo;
 use App\Http\Middleware\MiddlewareLoginLeader;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Nova\NvDepartmentController;
+use App\Http\Controllers\Api\Nova\NvRecruitNewsController;
 use App\Http\Controllers\Api\Nova\QuestionController;
 use App\Http\Controllers\Api\Nova\WorkScheduleController;
 
@@ -45,11 +47,20 @@ Route::group([
 Route::group(['middleware' => 'api'], function () {
     Route::post('/store-exams', [ExamController::class, 'store']);
     Route::get('/exams-index', [ExamController::class, 'index']);
-    Route::delete('/exams/{id}', [ExamController::class, 'destroy']);
+    Route::delete('/destroy-exams/{id}', [ExamController::class, 'destroy']);
+    Route::post('/update-exams/{id}', [ExamController::class, 'update']);
     Route::get('/getNameExam/{id}', [ExamController::class, 'getNameExam']);
     Route::post('/questions-store', [QuestionController::class, 'store']);
     Route::post('workschedule', [WorkScheduleController::class, 'store']);
     Route::get('getWorkSchedulesByMonth/{month}', [WorkScheduleController::class, 'getWorkSchedulesByMonth']);
+    Route::post('/upload-image', [ExamController::class, 'upload'])->name('upload.image');
+    Route::post('/store-question', [QuestionController::class, 'store']);
+    Route::get('/list-question-answer/{id}', [QuestionController::class, 'getQuestionsWithAnswers']);
+    Route::delete('/delete-question-answer/{id}', [QuestionController::class, 'DeleteQuestion']);
+    Route::post('/update-question-answer', [QuestionController::class, 'UpdateQuestion']);
+    Route::post('/store-result-user', [ExamController::class, 'StoreResult']);
+    Route::get('/get-exam-user/{id}', [ExamController::class, 'getExamUserResult']);
+    Route::get('/list-exam-user/{id}', [ExamController::class, 'getListUserExam']);
 });
 
 
@@ -68,8 +79,13 @@ Route::group(['middleware' => 'api'], function () {
     Route::resource('nvemployee', NvEmployeeController::class);
     Route::resource('nvdayoff', NvEmployeeDayOffController::class);
     Route::resource('nvcategoryfile', NvCategoryFileController::class);
+    Route::resource('nvemployeefile', NvEmployeeFileController::class);
     Route::resource('nvrecruittarget', NvRecruitTargetController::class);
+    Route::resource('nvrecruitnews ', NvRecruitNewsController::class);
     Route::resource('nvrecruitcandidates', NvRecruitCandidatesController::class);
+    Route::get('showEmployeeFile/{employee_id}',[NvEmployeeController::class,'showEmployeeFile']);
+    Route::delete('/nvrecruitnews/{id}', [NvRecruitNewsController::class,'destroy']);
+    Route::put('/nvrecruitnews/{id}', [NvRecruitNewsController::class,'update']);
 });
 // work
 //groups
@@ -106,7 +122,7 @@ Route::prefix('tasks')->group(function () {
 
     //
     Route::post('create', [TaskController::class, 'create'])->middleware(MiddlewareLoginLeader::class);
-    Route::get('get-task-unfinished-by-user.js-id', [TaskController::class, 'getTaskUnfinishedByUserId'])->middleware(middlewareLogin::class);
+    Route::get('get-task-unfinished-by-user-id', [TaskController::class, 'getTaskUnfinishedByUserId'])->middleware(middlewareLogin::class);
     Route::delete('delete/{task_id}', [TaskController::class, 'delete'])->middleware(MiddlewareLoginLeader::class);
     Route::get('get-task-by-project-id/{project_id}', [TaskController::class, 'getTaskByProjectId'])->middleware(middlewareLogin::class);
     Route::put('update-name/{task_id}', [TaskController::class, 'updateName'])->middleware(middlewareLogin::class);

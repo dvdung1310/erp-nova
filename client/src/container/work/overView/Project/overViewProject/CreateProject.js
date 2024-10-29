@@ -126,7 +126,9 @@ function CreateProject({visible, onCancel, group_id}) {
             <div className="project-modal">
                 <BasicFormWrapper>
                     <Form form={form} name="createProject" onFinish={handleOk}>
-                        <Form.Item name="project_name" label="">
+                        <Form.Item name="project_name" label=""
+                                   rules={[{required: true, message: 'Vui lòng nhập tên dự án!'}]}
+                        >
                             <Input placeholder="Tên dự án"/>
                         </Form.Item>
                         <Form.Item name="project_description" label="">
@@ -134,12 +136,16 @@ function CreateProject({visible, onCancel, group_id}) {
                         </Form.Item>
                         <Row gutter={15}>
                             <Col md={12}>
-                                <Form.Item name="project_start_date" label="Ngày bắt đầu">
+                                <Form.Item name="project_start_date" label="Ngày bắt đầu"
+                                           rules={[{required: true, message: 'Vui lòng nhập ngày bắt đầu!'}]}
+                                >
                                     <DatePicker placeholder="mm/dd/yyyy" format={dateFormat}/>
                                 </Form.Item>
                             </Col>
                             <Col md={12}>
-                                <Form.Item name="project_end_date" label="Ngày kết thúc">
+                                <Form.Item name="project_end_date" label="Ngày kết thúc"
+                                           rules={[{required: true, message: 'Vui lòng nhập ngày kết thúc!'}]}
+                                >
                                     <DatePicker placeholder="mm/dd/yyyy" format={dateFormat}/>
                                 </Form.Item>
                             </Col>

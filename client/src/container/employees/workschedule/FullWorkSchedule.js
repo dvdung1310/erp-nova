@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { startOfMonth, eachDayOfInterval, addDays, getDay } from "date-fns/esm";
-import { fullWorkSchedule } from '../../../services/Employees/EmpoyeesServices';
+import { fullWorkSchedule } from  '../../../apis/employees/index';
 import '../FullWorkSchedule.css';
 
 const FullWorkSchedule = () => {
@@ -34,8 +34,8 @@ const FullWorkSchedule = () => {
 
       const weeksArray = [];
       if (selectedMonth === 10) {
-        const extraWeekStart = new Date(2024, 8, 31); // 30/09/2024
-        const extraWeekEnd = new Date(2024, 9, 7); // 06/10/2024
+        const extraWeekStart = new Date(2024, 8, 31); 
+        const extraWeekEnd = new Date(2024, 9, 7); 
         const extraDays = eachDayOfInterval({ start: extraWeekStart, end: extraWeekEnd });
         weeksArray.push(extraDays.map(day => day.toISOString().split('T')[0]));
       }
@@ -47,12 +47,12 @@ const FullWorkSchedule = () => {
         week.push(day.toISOString().split('T')[0]);
         if (week.length === 7) {
           weeksArray.push(week);
-          week = []; // Reset tuần
+          week = [];
         }
       });
 
       if (week.length) {
-        weeksArray.push(week); // Thêm tuần cuối nếu chưa đủ
+        weeksArray.push(week);
       }
 
       setWeeks(weeksArray);
@@ -84,9 +84,9 @@ const FullWorkSchedule = () => {
           <tr>
             {Array(7).fill().map((_, idx) => (
               <>
-                <th key={`S${idx}`} className="px-4 border sang">S</th>
-                <th key={`C${idx}`} className="px-4 border chieu">C</th>
-                <th key={`T${idx}`} className="px-4 border toi">T</th>
+                <th style={{ width:'25px' }} key={`S${idx}`} className="px-4 border sang">S</th>
+                <th style={{ width:'25px' }} key={`C${idx}`} className="px-4 border chieu">C</th>
+                <th style={{ width:'25px' }} key={`T${idx}`} className="px-4 border toi">T</th>
               </>
             ))}
           </tr>
@@ -114,7 +114,7 @@ const FullWorkSchedule = () => {
                     let totalDays = 0; // Biến tổng số ngày đã đăng ký
                     return (
                       <tr key={idx} className="text-center">
-                        <td className="border px-4">{user.name}</td>
+                        <td className="border px-4 aa">{user.name}</td>
                         {week.map((date) => {
                           const schedule = user.schedule[date];
                           const formattedCode = schedule ? formatScheduleCode(schedule).split(" ") : ["x", "x", "x"];
@@ -124,9 +124,9 @@ const FullWorkSchedule = () => {
 
                           return (
                             <>
-                              <td key={`${date}-S`} className="border px-4">{formattedCode[0]}</td>
-                              <td key={`${date}-C`} className="border px-4">{formattedCode[1]}</td>
-                              <td key={`${date}-T`} className="border px-4">{formattedCode[2]}</td>
+                              <td key={`${date}-S`} style={{ width:'25px' }} className="border px-4">{formattedCode[0]}</td>
+                              <td key={`${date}-C`} style={{ width:'25px' }} className="border px-4">{formattedCode[1]}</td>
+                              <td key={`${date}-T`} style={{ width:'25px' }} className="border px-4">{formattedCode[2]}</td>
                             </>
                           );
                         })}

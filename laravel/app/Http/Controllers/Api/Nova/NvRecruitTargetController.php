@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\Nova;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Api\Nova\NvRecruitTargetResource;
+use App\Models\CrmDepartmentModel;
 use App\Models\CrmRecruitTargetModel;
 use Illuminate\Http\Request;
 
@@ -41,12 +43,12 @@ class NvRecruitTargetController extends Controller
     {
         try {
             // Lấy tất cả các department có status = 1
-            $RecruitTarget = CrmRecruitTargetModel::where('target_status', 1)->get();
+            $department = CrmDepartmentModel::where('department_status', 1)->get();
             return response()->json([
                 'error' => false,
                 'message' => 'Departments retrieved successfully.',
                 'data' => [
-                    'categoryFile' => $RecruitTarget
+                    'departments' => $department
                 ]
             ]);
         } catch (\Throwable $th) {
@@ -65,16 +67,16 @@ class NvRecruitTargetController extends Controller
     public function store(Request $request)
     {
         try {
-            CrmRecruitTargetModel::create($request->all());
+           $data =  CrmRecruitTargetModel::create($request->all());
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                'data' => CrmRecruitTargetModel::paginate(10)
+                'data' =>$data
             ]);
-        } catch (\Throwable $th) {
+        } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
-                'message' => 'No customers found.' . $th,
+                'message' => 'No customers found.' . $e->getMessage(),
                 'data' => []
             ]);
         }
@@ -165,10 +167,10 @@ class NvRecruitTargetController extends Controller
                 'message' => 'Customers retrieved successfully.',
                 'data' => CrmRecruitTargetModel::paginate(10)
             ]);
-        } catch (\Throwable $th) {
+        } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
-                'message' => 'No customers found.' . $th,
+                'message' => 'No customers found.' . $e->getMessage(),
                 'data' => []
             ]);
         }

@@ -1,0 +1,53 @@
+.options-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.options-container .ant-form-item {
+    flex: 1;
+    margin-right: 8px; 
+}
+
+.options-container .ant-form-item:last-child {
+    margin-right: 0;
+}
+
+.ant-modal {
+    width: 70%;
+}
+
+.ant-card-head{
+    display: none;
+    height: 0;
+}
+
+.btn-answer{
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-answer span{
+    font-size: 20px;
+}
+.answer-container{
+    display: flex;
+    justify-content: center;
+}
+.answer-container .ant-row{
+    width: 75%;
+    display: flex;
+    justify-content: center;
+}
+
+.question-card {
+    margin-bottom: 20px;
+}
+
+.answer-option {
+    text-align: center;
+    font-weight: bold;
+}
+

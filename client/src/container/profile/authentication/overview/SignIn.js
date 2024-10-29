@@ -30,11 +30,6 @@ function SignIn() {
             toast.success('Đăng nhập thành công', {
                 position: "top-right",
                 autoClose: 1000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
             });
             setLoading(false)
         } catch (error) {
@@ -42,11 +37,6 @@ function SignIn() {
             toast.error('Đăng nhập thất bại', {
                 position: "top-right",
                 autoClose: 1000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
             });
             console.log(error);
         }
