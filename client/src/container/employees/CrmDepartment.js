@@ -139,7 +139,9 @@ function StatusCustomerTable() {
                   Thêm phòng ban
                 </Button>
                 {loading ? (
-                  <Spin tip="Loading..." />
+                    <div className='spin'>
+                    <Spin />
+                    </div>
                 ) : (
                   <Table
                     className="table-responsive"

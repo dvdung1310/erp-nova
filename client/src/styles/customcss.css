@@ -16,3 +16,6 @@
 .ant-scroll-number-only {
     height: initial !important;
 }
+.ant-dropdown {
+    z-index: 500 !important;
+}

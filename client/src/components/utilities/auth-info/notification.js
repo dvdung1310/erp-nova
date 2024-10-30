@@ -45,7 +45,7 @@ function NotificationBox() {
             socketConnection.on('notification', (data) => {
                 getNotify();
                 toast.warn('Bạn có thông báo mới', {
-                     position: "top-right",
+                    position: "top-right",
                     autoClose: 1000,
                 });
             });
@@ -213,8 +213,9 @@ function NotificationBox() {
     return (
         <div className="notification">
             <Popover placement="bottomLeft" content={content} action="click">
-                <Badge count={notificationUnread?.length > 9 ? '9+' : notificationUnread?.length} offset={[-8, -5]}
-                       className="custom-badge">
+                <Badge
+                    count={notificationUnread?.length <= 0 ? 'N' : (notificationUnread?.length > 9 ? '9+' : notificationUnread?.length)}
+                    offset={[-8, -5]} className="custom-badge">
                     <Link to="#" className="head-example">
                         <FeatherIcon icon="bell" size={20}/>
                     </Link>
