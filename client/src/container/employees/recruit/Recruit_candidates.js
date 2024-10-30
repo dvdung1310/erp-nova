@@ -249,8 +249,6 @@ function Recruit_news() {
               type="application/pdf"
               width="100%"
               height="500px"
-              onLoad={() => console.log('CV loaded successfully')}
-              onError={() => console.log('Error loading CV')}
             />
           ) : (
             <p>Không có CV để hiển thị.</p>

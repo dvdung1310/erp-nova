@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Work;
 use App\Http\Controllers\Controller;
 use App\Mail\InviteUserMail;
 use App\Models\Devices;
+use App\Models\Group;
 use App\Models\Message;
 use App\Models\MessageTask;
 use App\Models\Notification;
@@ -40,6 +41,10 @@ class ProjectController extends Controller
                 'project_start_date' => 'required',
                 'project_end_date' => 'required',
             ]);
+            //
+            $group = Group::where('group_id', $request->group_id)->first();
+
+
             $create_by_user_id = auth()->user()->id;
             $leader_id = $request->leader_id ? $request->leader_id : $create_by_user_id;
             $project = Project::create(array_merge($validatedData, ['create_by_user_id' => $create_by_user_id], ['leader_id' => $leader_id]));
