@@ -1,6 +1,7 @@
 import { Row, Col, Checkbox, Card, Button } from "antd";
 import { useState, useEffect } from "react";
 import { ToastContainer, toast } from 'react-toastify';
+import { useParams, useHistory } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import { saveWorkSchedule } from '../../../apis/employees/index';
 import '../style.css';
@@ -8,6 +9,7 @@ import '../style.css';
 const CreateWorkSchedule = () => {
     const [currentWeek, setCurrentWeek] = useState([]);
     const [checkboxValues, setCheckboxValues] = useState({});
+    const history = useHistory();
     const [currentWeekOfMonth, setCurrentWeekOfMonth] = useState(1);
     const getWeekDays = () => {
         const current = new Date();
@@ -28,8 +30,6 @@ const CreateWorkSchedule = () => {
         const firstDayOfMonth = new Date(current.getFullYear(), current.getMonth(), 1);
         const firstDayOfWeek = firstDayOfMonth.getDay();
         const currentDay = current.getDate();
-
-        // Tính số tuần của tháng
         const weekNumber = Math.ceil((currentDay + firstDayOfWeek) / 7);
         return weekNumber;
     };
@@ -58,6 +58,9 @@ const CreateWorkSchedule = () => {
             const accessToken = localStorage.getItem('accessToken');
             const result = await saveWorkSchedule(scheduleData, accessToken);
             toast.success(result.message);
+            setTimeout(() => {
+                history.push(`/admin/nhan-su/lich-lam-viec`);
+            }, 2000);
         } catch (error) {
             console.error('Error submitting schedule:', error);
         }
@@ -66,7 +69,7 @@ const CreateWorkSchedule = () => {
     return (
         <div>
             <Card>
-                <h2 className="text-center mb-25 font-bold">Đăng kí lịch làm việc Tuần {currentWeekOfMonth} của tháng {new Date().getMonth() + 1}</h2>
+                <h2 className="text-center mb-25 font-bold">Đăng kí lịch làm việc <span style={{ fontSize:'25px' , fontWeight:'bolder' }}>Tuần {currentWeekOfMonth} của tháng {new Date().getMonth() + 1}</span></h2>
                 <Row gutter={25}>
                     {currentWeek.map((day, index) => (
                         <Col lg={6} md={12} xs={24} key={index}>
