@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CrmCategoryFileModel;
 use App\Models\CrmEmployeeFileModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class NvEmployeeFileController extends Controller
 {
@@ -65,23 +66,104 @@ class NvEmployeeFileController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+    // public function store(Request $request)
+    // {
+    //     try {
+    //         CrmEmployeeFileModel::create($request->all());
+    //         return response()->json([
+    //             'error' => false,
+    //             'message' => 'Customers retrieved successfully.',
+    //             'data' => CrmEmployeeFileModel::paginate(10)
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'error' => true,
+    //             'message' => 'No customers found.' . $e->getMessage(),
+    //             'data' => []
+    //         ]);
+    //     }
+    // }
     public function store(Request $request)
     {
         try {
-            CrmEmployeeFileModel::create($request->all());
+            // Kiểm tra và xử lý file upload
+            $cvPath = null; // Biến để lưu đường dẫn file
+
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+
+                // Kiểm tra xem file có hợp lệ không
+                if ($file->isValid()) {
+                    // Lưu file vào thư mục 'uploads/cvs' trong storage
+                    $cvPath = $file->store('uploads/employee', 'public');
+                }
+            }
+
+            // Tạo ứng viên mới và lưu thông tin vào database
+            $employeeFile = CrmEmployeeFileModel::create([
+                'file_name' => $request->input('file_name'),
+                'file_discription' => $request->input('file_discription'),
+                'file_date' => $request->input('file_date'),
+                'category_id' => $request->input('category_id'),
+                'employee_id' => $request->input('employee_id'),
+                'file_status' => $request->input('file_status'),
+                'candidates_status' => 0,
+                'file' => $cvPath, // Lưu đường dẫn file vào database
+            ]);
+
             return response()->json([
                 'error' => false,
-                'message' => 'Customers retrieved successfully.',
-                'data' => CrmEmployeeFileModel::paginate(10)
+                'message' => 'Hồ sơ được lưu thành công.',
+                'data' => $employeeFile,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
-                'message' => 'No customers found.' . $e->getMessage(),
-                'data' => []
+                'message' => 'Không thể lưu hồ sơn: ' . $e->getMessage(),
+                'data' => [],
             ]);
         }
     }
+    public function update(Request $request, $id)
+    {
+        try {
+            $employeeFile = CrmEmployeeFileModel::findOrFail($id);
+            $cvPath = $employeeFile->file;
+            // Kiểm tra nếu có file mới được tải lên
+            if ($request->hasFile('file')) {
+                // Xóa CV cũ nếu tồn tại
+                if ($cvPath) {
+                    Storage::disk('public')->delete($cvPath);
+                }
+                $file = $request->file('file');
+                if ($file->isValid()) {
+                    $cvPath = $file->store('uploads/employee', 'public');
+                }
+            }
+            $updateData = [
+                'file_name' => $request->input('file_name', $employeeFile->file_name),
+                'file_discription' => $request->input('file_discription', $employeeFile->file_discription),
+                'file_date' => $request->input('file_date', $employeeFile->file_date),
+                'category_id' => $request->input('category_id', $employeeFile->category_id),
+                'employee_id' => $request->input('employee_id', $employeeFile->employee_id), 
+                'file_status' => $request->input('file_status', $employeeFile->file_status), 
+                'file' => $cvPath,
+            ];
+            $employeeFile->update($updateData);
+            return response()->json([
+                'error' => false,
+                'message' => 'employeeFile updated successfully.',
+                'data' => $employeeFile,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Could not update employeeFile: ' . $e->getMessage(),
+                'data' => [],
+            ], 400);
+        }
+    }
+
 
     /**
      * Display the specified resource.
@@ -142,30 +224,30 @@ class NvEmployeeFileController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, CrmEmployeeFileModel $nvemployeefile)
-{
-    try {
-        // Lấy dữ liệu đầu vào từ request
-        $data = $request->all();
+    // public function update(Request $request, CrmEmployeeFileModel $nvemployeefile)
+    // {
+    //     try {
+    //         // Lấy dữ liệu đầu vào từ request
+    //         $data = $request->all();
 
-        // Cập nhật bản ghi
-        $nvemployeefile->update($data);
+    //         // Cập nhật bản ghi
+    //         $nvemployeefile->update($data);
 
-        // Trả về phản hồi thành công
-        return response()->json([
-            'success' => true,  // Đồng bộ với logic client-side
-            'message' => 'Cập nhật nhân sự thành công.',
-            'data' => $nvemployeefile,
-        ]);
-    } catch (\Throwable $th) {
-        return response()->json([
-            'success' => false,  // Đồng bộ với client
-            'message' => 'Cập nhật thất bại: ' . $th->getMessage(),
-            'data' => [],
-        ], 500);
-    }
-}
-
+    //         // Trả về phản hồi thành công
+    //         return response()->json([
+    //             'success' => true,  // Đồng bộ với logic client-side
+    //             'message' => 'Cập nhật nhân sự thành công.',
+    //             'data' => $nvemployeefile,
+    //         ]);
+    //     } catch (\Throwable $th) {
+    //         return response()->json([
+    //             'success' => false,  // Đồng bộ với client
+    //             'message' => 'Cập nhật thất bại: ' . $th->getMessage(),
+    //             'data' => [],
+    //         ], 500);
+    //     }
+    // }
+    
 
     /**
      * Remove the specified resource from storage.

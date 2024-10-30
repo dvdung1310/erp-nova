@@ -1,6 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { Route, Switch, useRouteMatch, useParams } from 'react-router-dom';
-import { Row, Col, Table, Spin, message, Popconfirm, Button, Modal, Form, Input, Select, DatePicker } from 'antd';
+import {
+  Row,
+  Col,
+  Table,
+  Spin,
+  message,
+  Popconfirm,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Select,
+  DatePicker,
+  Upload,
+} from 'antd';
 import moment from 'moment';
 import { Cards } from '../../components/cards/frame/cards-frame';
 import { Main } from '../styled';
@@ -8,36 +22,35 @@ import {
   getEmployeesFile,
   createEmployeesFile,
   storeEmployeesFile,
-  editEmployeesFile,
   updateEmployeesFile,
   deleteEmployeesFile,
 } from '../../apis/employees/employee';
 
 const { Option } = Select;
-
+const { Dragger } = Upload;
+const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
 function CrmEmployees() {
   const { path } = useRouteMatch();
   const { employee_id } = useParams();
   const [dataSource, setDataSource] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [fileModalVisible, setFileModalVisible] = useState(false);
+  const [previewFile, setPreviewFile] = useState(null);
   const [form] = Form.useForm();
   const [editingEmployee, setEditingEmployee] = useState(null);
-  const [categoryFile, setCategoryFile] = useState([]); // Define state for category files
+  const [categoryFile, setCategoryFile] = useState([]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
       const res = await getEmployeesFile(employee_id);
-      console.log('Employee Files:', res);
-
       if (!res.error) {
         setDataSource(res.data);
       } else {
         message.error(res.message);
       }
     } catch (error) {
-      console.error('Error fetching employee data:', error);
       message.error('Có lỗi xảy ra khi tải dữ liệu nhân sự.');
     } finally {
       setLoading(false);
@@ -48,25 +61,22 @@ function CrmEmployees() {
     try {
       const res = await createEmployeesFile();
       if (!res.error) {
-        setCategoryFile(res.data.categoryFile || []); // Use defined setter
+        setCategoryFile(res.data.categoryFile || []);
       } else {
         message.error(res.message);
       }
     } catch (error) {
-      console.error('Error fetching create data:', error);
       message.error('Không thể tải dữ liệu tạo mới.');
     }
   };
 
-  // Fetch data when component mounts
   useEffect(() => {
     fetchData();
     fetchCreateData();
   }, []);
 
   const handleOpenModal = (employee = null) => {
-    form.resetFields(); // Luôn reset toàn bộ form trước
-  
+    form.resetFields();
     if (employee) {
       form.setFieldsValue({
         category_id: employee.category_id ?? '',
@@ -77,72 +87,86 @@ function CrmEmployees() {
         employee_id: employee.employee_id ?? '',
       });
     }
-    setEditingEmployee(employee); // Đặt nhân viên đang sửa nếu có
-    setIsModalVisible(true); // Hiển thị modal
+    setEditingEmployee(employee);
+    setIsModalVisible(true);
   };
 
   const handleModalOk = async () => {
     try {
       const values = await form.validateFields();
-      // values.employee_date_join = values.employee_date_join.format('YYYY-MM-DD');
+      const formData = new FormData();
+
+      // Append form data
+      for (const key in values) {
+        if (values[key] instanceof moment) {
+          formData.append(key, values[key].format('YYYY-MM-DD'));
+        } else {
+          formData.append(key, values[key]);
+        }
+      }
+
+      // Append file if uploaded
+      const fileList = form.getFieldValue('file');
+      if (fileList && fileList.length > 0) {
+        formData.append('file', fileList[0].originFileObj);
+      }
 
       let response;
       if (editingEmployee) {
-        response = await updateEmployeesFile(values, editingEmployee.file_id);
-        message.success('Cập nhật thất bại!');
+        response = await updateEmployeesFile(formData, editingEmployee.file_id);
+        message.success('Cập nhật hồ sơ thành công!');
       } else {
-        response = await storeEmployeesFile(values);
+        response = await storeEmployeesFile(formData);
         setDataSource((prev) => [...prev, response.data.data]);
-        message.success('Thêm mới thành công!');
+        message.success('Thêm mới hồ sơ thành công!');
       }
+
       setIsModalVisible(false);
-      fetchData(); // Refresh data after save
+      fetchData();
     } catch (error) {
-      console.error('Error:', error);
-      message.error('Lưu thông tin thất bại.'+ error);
+      message.error('Lưu thông tin thất bại: ' + error.message);
     }
   };
 
   const handleDelete = async (id) => {
-    console.log('Deleting employee with ID:', id); // Log ID cần xóa
     try {
-        const res = await deleteEmployeesFile(id);
-        if (res.success) {
-            setDataSource((prev) => {
-                const newDataSource = prev.filter((item) => item.file_id !== id);
-                console.log('Updated dataSource:', newDataSource); 
-                return newDataSource;
-            });
-            message.success('Xóa nhân sự thành công!');
-        } else {
-            message.error(res.message || 'Xóa nhân sự thất bại.');
-        }
-    } catch (error) {
-        console.error('Error during deletion:', error); // Log lỗi
+      const res = await deleteEmployeesFile(id);
+      if (res.success) {
+        setDataSource((prev) => prev.filter((item) => item.file_id !== id));
+        message.success('Xóa nhân sự thành công!');
+      } else {
         message.error('Xóa nhân sự thất bại.');
+      }
+    } catch (error) {
+      message.error('Xóa nhân sự thất bại.');
     }
-};
-
+  };
+  const handleFileClick = (file) => {
+    const completePath = `${LARAVEL_SERVER}/storage/${file}`; // Thay bằng đường dẫn file thực tế
+    setPreviewFile(completePath);
+    setFileModalVisible(true); // Hiển thị modal khi nhấn vào tên file
+  };
 
   const columns = [
     { title: 'ID', dataIndex: 'file_id', key: 'file_id' },
     { title: 'Tên hồ sơ', dataIndex: 'file_name', key: 'file_name' },
     { title: 'Mô tả', dataIndex: 'file_discription', key: 'file_discription' },
-    { title: 'Ngày', dataIndex: 'file_date', key: 'file_date' },
-    { title: 'File', dataIndex: 'file', key: 'file' },
+    // { title: 'Ngày', dataIndex: 'file_date', key: 'file_date' },
     {
-      title: 'Trạng thái',
-      dataIndex: 'file_status',
-      key: 'file_status',
-      render: (status) => (
-        <span style={{ color: status === 1 ? 'blue' : 'orange' }}>{status === 1 ? 'Hiển thị' : 'Ẩn'}</span>
+      title: 'File',
+      dataIndex: 'file',
+      key: 'file',
+      render: (file) => (
+        <Button type="link" onClick={() => handleFileClick(file)}>
+          hồ sơ
+        </Button>
       ),
     },
     {
       title: 'Ngày Nhập',
       dataIndex: 'created_at',
       key: 'created_at',
-      render: (created_at) => moment(created_at??"").format('DD-MM-YYYY'),
+      render: (created_at) => moment(created_at).format('DD-MM-YYYY'),
     },
     {
       title: 'Hành động',
@@ -185,7 +209,7 @@ function CrmEmployees() {
                     pagination={false}
                     dataSource={dataSource}
                     columns={columns}
-                    rowKey="employee_id"
+                    rowKey="file_id"
                   />
                 )}
               </Cards>
@@ -201,37 +225,28 @@ function CrmEmployees() {
         onCancel={() => setIsModalVisible(false)}
       >
         <Form form={form} layout="vertical">
-          <Form.Item
-            name="category_id"
-            label="Danh mục"
-            rules={[{ required: true, message: 'Vui lòng chọn danh mục!' }]}
-          >
+          {/* <Form.Item name="category_id" label="Danh mục" rules={[{ required: true }]}>
             <Select placeholder="Chọn danh mục">
-              {categoryFile.map((dept) => (
-                <Option key={dept.category_id} value={dept.category_id}>
-                  {dept.category_name}
+              {categoryFile.map((item) => (
+                <Option key={item.category_id} value={item.category_id}>
+                  {item.category_name}
                 </Option>
               ))}
             </Select>
-          </Form.Item>
-          <Form.Item
-            name="file_name"
-            label="Tên file"
-            rules={[{ required: true, message: 'Vui lòng tên file!' }]}>
+          </Form.Item> */}
+          <Form.Item name="file_name" label="Tên file" rules={[{ required: true }]}>
             <Input placeholder="Nhập tên file" />
           </Form.Item>
-          <Form.Item name="file_discription" label="Mô Tả" rules={[{ required: false }]}>
+          <Form.Item name="file_discription" label="Mô tả">
             <Input.TextArea placeholder="Nhập mô tả" rows={3} />
           </Form.Item>
-          <Form.Item
-            name="file_date"
-            label="Ngày tạo hồ sơ"
-            rules={[{ required: true, message: 'Vui lòng chọn ngày!' }]}
-          >
+          {/* <Form.Item name="file_date" label="Ngày tạo hồ sơ" rules={[{ required: true }]}>
             <DatePicker style={{ width: '100%' }} />
-          </Form.Item>
-          <Form.Item name="file" label="Tải file" rules={[{ required: true, message: 'Vui lòng tải file!' }]}>
-            <Input type="file" />
+          </Form.Item> */}
+          <Form.Item name="file" label="Tải file" valuePropName="fileList" getValueFromEvent={(e) => e.fileList}>
+            <Dragger beforeUpload={() => false}>
+              <p>Click hoặc kéo tệp vào đây để tải lên</p>
+            </Dragger>
           </Form.Item>
           <Form.Item name="employee_id" initialValue={employee_id} hidden>
             <Input type="hidden" />
@@ -241,6 +256,39 @@ function CrmEmployees() {
           </Form.Item>
         </Form>
       </Modal>
+      <Modal
+  title="Xem trước file"
+  visible={fileModalVisible}
+  footer={null}
+  onCancel={() => setFileModalVisible(false)}
+  width={800}
+>
+  {previewFile ? (
+    previewFile.match(/\.(pdf)$/i) ? (
+      <iframe src={previewFile} title="PDF Preview" width="100%" height="500px" style={{ border: 'none' }} />
+    ) : previewFile.match(/\.(jpg|jpeg|png|gif)$/i) ? (
+      <img src={previewFile} alt="Preview" style={{ width: '100%' }} />
+    ) : previewFile.match(/\.(doc|docx|xls|xlsx)$/i) ? (
+      <iframe
+        src={`https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(previewFile)}`}
+        title="Office Preview"
+        width="100%"
+        height="500px"
+        style={{ border: 'none' }}
+      />
+    ) : (
+      <div style={{ textAlign: 'center' }}>
+        <p>Không thể hiển thị loại tệp này trong modal.</p>
+        <Button type="primary" href={previewFile} target="_blank" rel="noopener noreferrer">
+          Tải xuống hoặc xem file
+        </Button>
+      </div>
+    )
+  ) : (
+    <p>Không có file để xem trước.</p>
+  )}
+</Modal>
+
     </Main>
   );
 }

@@ -174,11 +174,11 @@ function StatusCustomerTable() {
           <Form.Item
             label="Trạng thái"
             name="department_status"
-            rules={[{ required: true, message: 'Vui lòng chọn trạng thái!' }]}
+             rules={[{ required: true, message: 'Vui lòng chọn trạng thái!' }]}
           >
             <Select>
-              <Option value={1}>Hiển thị</Option>
-              <Option value={0}>Ẩn</Option>
+              <Option value='1'>Hiển thị</Option>
+              <Option value='0'>Ẩn</Option>
             </Select>
           </Form.Item>
         </Form>

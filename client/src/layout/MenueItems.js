@@ -240,10 +240,14 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
                                 Đăng kí lịch làm việc
                             </NavLink>
                         </Menu.Item>
-
                         <Menu.Item key="works-chedule">
                             <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/lich-lam-viec`}>
                                 Lịch làm việc
+                            </NavLink>
+                        </Menu.Item>
+                        <Menu.Item key="works-day-off">
+                            <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/nghi-phep`}>
+                                Nghỉ phép
                             </NavLink>
                         </Menu.Item>
                     </SubMenu>

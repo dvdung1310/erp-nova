@@ -13,6 +13,7 @@ const ResultExam = lazy(() => import('../../container/employees/exam/ResultExam'
 const Department = lazy(() => import('../../container/employees/CrmDepartment'));
 const DepartmentTeam = lazy(() => import('../../container/employees/CrmDepartmentTeam'));
 const EmployeeFile = lazy(() => import('../../container/employees/CrmEmployeeFile'));
+const CrmEmployeeDayOff = lazy(() => import('../../container/employees/CrmEmployeeDayOff'));
 function Employees() {
     const {path} = useRouteMatch();
     return (
@@ -30,6 +31,7 @@ function Employees() {
             <Route path={`${path}/de-thi/:id`} component={DetailExam} />
             <Route path={`${path}/lam-bai-thi/:id`} component={StartExam} />
             <Route path={`${path}/ket-qua-bai-thi/:id`} component={ResultExam} />
+            <Route path={`${path}/nghi-phep`} component={CrmEmployeeDayOff} />
         </Switch>
     );
 }

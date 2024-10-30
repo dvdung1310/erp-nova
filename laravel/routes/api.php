@@ -86,6 +86,7 @@ Route::group(['middleware' => 'api'], function () {
     Route::get('showEmployeeFile/{employee_id}',[NvEmployeeController::class,'showEmployeeFile']);
     Route::delete('/nvrecruitnews/{id}', [NvRecruitNewsController::class,'destroy']);
     Route::put('/nvrecruitnews/{id}', [NvRecruitNewsController::class,'update']);
+    // Route::delete('/nvrecruitcandidates/{nvrecruitcandidates}', [NvRecruitCandidatesController::class,'destroy']);
 });
 // work
 //groups
