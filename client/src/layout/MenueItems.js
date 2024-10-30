@@ -162,6 +162,7 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
             Phòng ban
           </NavLink>
         </Menu.Item>
+        <Menu.Item key="nvu-nhansu"> <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-nhanh-su`}> Nhân sự new </NavLink> </Menu.Item>
         <Menu
           mode={!topMenu || window.innerWidth <= 991 ? 'inline' : 'horizontal'}
           theme={darkMode ? 'dark' : 'light'}

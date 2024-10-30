@@ -60,7 +60,7 @@ function Users() {
             title="Users Card"
             subTitle={
               <>
-                <span className="title-counter">274 Users </span>
+                <span className="title-counter">2741 Users </span>
                 <AutoComplete
                   onSearch={handleSearch}
                   dataSource={notData}
@@ -185,7 +185,6 @@ function Users() {
                 }}
               />
             </Switch>
-
             <Col xs={24}>
               <div className="user-card-pagination">
                 <Pagination
