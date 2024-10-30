@@ -168,14 +168,14 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
           openKeys={openKey}
           onOpenChange={onOpenChanges}
         >
-          <SubMenu key="work-schedule" title="Chấm công-nghỉ phép" icon={<FeatherIcon icon="briefcase" />}>
-            <Menu.Item key="store-works-chedule">
+          <SubMenu key="work-schedule" title=" - Chấm công">
+            <Menu.Item className='pl-custom-sidebar' key="store-works-chedule">
               <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/dang-ki/lich-lam-viec`}>
                 Đăng kí lịch làm việc
               </NavLink>
             </Menu.Item>
 
-            <Menu.Item key="works-chedule">
+            <Menu.Item className='pl-custom-sidebar' key="works-chedule">
               <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/lich-lam-viec`}>
                 Lịch làm việc
               </NavLink>
@@ -188,13 +188,13 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
           openKeys={openKey}
           onOpenChange={onOpenChanges}
         >
-          <SubMenu key="exam" title="Quản lý đào tạo" icon={<FeatherIcon icon="settings" />}>
-            <Menu.Item key="exam-list">
+          <SubMenu key="exam" title=" - Quản lý đào tạo">
+            <Menu.Item className='pl-custom-sidebar' key="exam-list">
               <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-de`}>
                 Danh sách đề
               </NavLink>
             </Menu.Item>
-            <Menu.Item key="exam-add">
+            <Menu.Item className='pl-custom-sidebar'   key="exam-add">
               <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/tao-de`}>
                 Tạo đề
               </NavLink>
@@ -204,7 +204,7 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
       </SubMenu>
       {/* Tuyển dụng   */}
       {/* Tuyển dụng */}
-      <SubMenu key="tuyendung" icon={!topMenu && <FeatherIcon icon="home" />} title="Tuyển dụng">
+      <SubMenu style={{ display:'none' }} key="tuyendung" icon={!topMenu && <FeatherIcon icon="home" />} title="Tuyển dụng">
         <Menu.Item key="nvu-home">
           <NavLink onClick={toggleCollapsed} to={`${path}/tuyen-dung`}>
             Chỉ tiêu tuyển dụng
@@ -240,7 +240,9 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
           ))}
       </SubMenu>
       {/**/}
-      <SubMenu key="layout" icon={!topMenu && <FeatherIcon icon="layout" />} title="Layouts">
+      {/* start d-none */}
+      <SubMenu style={{ display:'none' }}>
+      <SubMenu className='d-none' key="layout" icon={!topMenu && <FeatherIcon icon="layout" />} title="Layouts">
         <Menu.Item key="light">
           <NavLink
             onClick={() => {
@@ -1057,11 +1059,6 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
             Gallery 1
           </NavLink>
         </Menu.Item>
-        {/* <Menu.Item key="two">
-          <NavLink onClick={toggleCollapsed} to={`${path}/gallery/two`}>
-            Gallery 2
-          </NavLink>
-        </Menu.Item> */}
       </SubMenu>
       <Menu.Item
         icon={
@@ -1215,6 +1212,7 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
           Coming Soon
         </NavLink>
       </Menu.Item>
+      </SubMenu>
     </Menu>
   );
 }

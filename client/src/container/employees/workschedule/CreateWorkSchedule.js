@@ -1,9 +1,9 @@
-import { Row, Col, Checkbox, Card, Button } from "antd";
+import { Row, Col, Checkbox, Card, Button, message } from "antd"; // Thêm message từ antd
 import { useState, useEffect } from "react";
 import { ToastContainer, toast } from 'react-toastify';
-import { useParams, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
-import { saveWorkSchedule } from '../../../apis/employees/index';
+import { saveWorkSchedule, getWorkScheduleForWeekByUserId } from '../../../apis/employees/index';
 import '../style.css';
 
 const CreateWorkSchedule = () => {
@@ -11,15 +11,18 @@ const CreateWorkSchedule = () => {
     const [checkboxValues, setCheckboxValues] = useState({});
     const history = useHistory();
     const [currentWeekOfMonth, setCurrentWeekOfMonth] = useState(1);
+    const [isRegistrationClosed, setIsRegistrationClosed] = useState(false);
+
     const getWeekDays = () => {
         const current = new Date();
-        const firstDayOfWeek = current.getDate() - current.getDay() + 1; 
+        const firstDayOfWeek = current.getDate() - current.getDay() + 1;
         const weekDays = [];
         for (let i = 0; i < 7; i += 1) {
             const day = new Date(current.getFullYear(), current.getMonth(), firstDayOfWeek + i);
+            const formattedDate = day.toLocaleDateString('en-GB'); // Định dạng dd-mm-yyyy
             weekDays.push({
                 dayName: day.toLocaleDateString('vi-VN', { weekday: 'long' }),
-                date: day.toLocaleDateString('vi-VN'),
+                date: formattedDate,
             });
         }
         return weekDays;
@@ -34,24 +37,65 @@ const CreateWorkSchedule = () => {
         return weekNumber;
     };
 
+    const fetchUserWorkSchedule = async () => {
+        try {
+            const response = await getWorkScheduleForWeekByUserId();
+            const scheduleData = response.data;
+            console.log('Schedule Data:', scheduleData);
+            const initialCheckboxValues = {};
+            scheduleData.forEach(day => {
+                const checkedValues = [];
+                if (day.morning) checkedValues.push("morning");
+                if (day.afternoon) checkedValues.push("afternoon");
+                if (day.evening) checkedValues.push("evening");
+                initialCheckboxValues[day.date] = checkedValues; 
+            });
+            console.log(initialCheckboxValues);
+            setCheckboxValues(initialCheckboxValues);
+        } catch (error) {
+            console.error('Error fetching work schedule:', error);
+        }
+    };
+
+    const checkRegistrationDeadline = () => {
+        const now = new Date();
+        const firstDayOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay() + 1);
+        const mondayMorningDeadline = new Date(firstDayOfWeek.getFullYear(), firstDayOfWeek.getMonth(), firstDayOfWeek.getDate(), 9, 0, 0); // 9h sáng thứ 2
+        // console.log('ngay hien tại :' ,now);
+        // console.log('ngày hết hạn :' ,mondayMorningDeadline);
+        if (now > mondayMorningDeadline) {
+            setIsRegistrationClosed(true);
+            toast.warning('Đã hết hạn đăng ký lịch làm việc!'); 
+        } else {
+            setIsRegistrationClosed(false);
+        }
+    };
+
     useEffect(() => {
         setCurrentWeek(getWeekDays());
         setCurrentWeekOfMonth(getCurrentWeekOfMonth());
+        fetchUserWorkSchedule();
+        checkRegistrationDeadline();
     }, []);
 
-    const handleCheckboxChange = (dayName, values) => {
+    const handleCheckboxChange = (date, values) => {
+        console.log(`Checkbox values for ${date}:`, values);
         setCheckboxValues(prevValues => ({
             ...prevValues,
-            [dayName]: values,
+            [date]: values,
         }));
     };
 
     const handleSubmit = async () => {
+        if (isRegistrationClosed) {
+            return; // Ngăn không cho gửi nếu đã hết hạn đăng ký
+        }
+
         const scheduleData = currentWeek.map(day => ({
             date: day.date,
-            morning: checkboxValues[day.dayName]?.includes("morning") || false,
-            afternoon: checkboxValues[day.dayName]?.includes("afternoon") || false,
-            evening: checkboxValues[day.dayName]?.includes("evening") || false,
+            morning: checkboxValues[day.date]?.includes("morning") || false,
+            afternoon: checkboxValues[day.date]?.includes("afternoon") || false,
+            evening: checkboxValues[day.date]?.includes("evening") || false,
         }));
 
         try {
@@ -69,14 +113,18 @@ const CreateWorkSchedule = () => {
     return (
         <div>
             <Card>
-                <h2 className="text-center mb-25 font-bold">Đăng kí lịch làm việc <span style={{ fontSize:'25px' , fontWeight:'bolder' }}>Tuần {currentWeekOfMonth} của tháng {new Date().getMonth() + 1}</span></h2>
+                <h2 className="text-center mb-25 font-bold">
+                    Đăng kí lịch làm việc <span style={{ fontSize: '25px', fontWeight: 'bolder' }}>Tuần {currentWeekOfMonth} của tháng {new Date().getMonth() + 1}</span>
+                </h2>
                 <Row gutter={25}>
                     {currentWeek.map((day, index) => (
                         <Col lg={6} md={12} xs={24} key={index}>
                             <div className="mb-25 custom-col">
                                 <h4>{`${day.dayName} (${day.date})`}</h4>
                                 <Checkbox.Group
-                                    onChange={(values) => handleCheckboxChange(day.dayName, values)}
+                                    value={checkboxValues[day.date] || []}
+                                    onChange={(values) => handleCheckboxChange(day.date, values)}
+                                    // disabled={isRegistrationClosed} // Vô hiệu hóa checkbox nếu hết hạn
                                 >
                                     <Checkbox value="morning">Sáng</Checkbox>
                                     <Checkbox value="afternoon">Chiều</Checkbox>
@@ -87,7 +135,7 @@ const CreateWorkSchedule = () => {
                     ))}
                     <Col lg={6} md={12} xs={24}>
                         <div>
-                            <Button type="primary" onClick={handleSubmit}>
+                            <Button type="primary" onClick={handleSubmit} disabled={isRegistrationClosed}>
                                 Lưu
                             </Button>
                         </div>
@@ -96,7 +144,6 @@ const CreateWorkSchedule = () => {
             </Card>
             <ToastContainer />
         </div>
-        
     );
 };
 
