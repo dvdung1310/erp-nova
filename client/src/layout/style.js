@@ -7,6 +7,7 @@ const Div = Styled.div`
             margin-left: 20px;
         }
     }
+    
     header{
         box-shadow: 0 2px 30px ${({ theme }) => theme['gray-solid']}10;
         ${({ darkMode }) => (darkMode ? `background: #272B41;` : '')};
@@ -324,6 +325,7 @@ const Div = Styled.div`
                         }
                     }
                 }
+                
                 .ant-menu-item{
                     .menuItem-iocn{
                         width: auto;
@@ -424,6 +426,10 @@ const Div = Styled.div`
                             ${({ theme }) => (theme.rtl ? 'padding-right' : 'padding-left')}: 50px !important;
                         }
                     }
+
+                    .pl-custom-sidebar .ant-menu-title-content a{
+                    padding-left:82px !important;
+                }
                 }
                 .ant-menu-item{
                     display: flex;

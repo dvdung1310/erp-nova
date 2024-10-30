@@ -45,7 +45,7 @@ class NvDepartmentController extends Controller
     public function store(Request $request)
     {
         try {
-
+           
             $data = CrmDepartmentModel::create($request->all());
             return response()->json([
                 'error' => false,
@@ -67,7 +67,7 @@ class NvDepartmentController extends Controller
     public function show($nvdepartment)
     {
         try {
-            $data = CrmDepartmentTeamModel::where('department_id',$nvdepartment)->get();
+            $data = CrmDepartmentModel::where('department_id',$nvdepartment)->get();
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',

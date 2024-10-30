@@ -28,3 +28,13 @@ export const fullWorkSchedule = async (month) => {
     });
     return response;
 };
+
+export const getWorkScheduleForWeekByUserId = async () => {
+    const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/getWorkScheduleForWeekByUserId`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    return response;
+};
