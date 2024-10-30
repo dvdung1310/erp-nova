@@ -53,6 +53,7 @@ Route::group(['middleware' => 'api'], function () {
     Route::post('/questions-store', [QuestionController::class, 'store']);
     Route::post('workschedule', [WorkScheduleController::class, 'store']);
     Route::get('getWorkSchedulesByMonth/{month}', [WorkScheduleController::class, 'getWorkSchedulesByMonth']);
+    Route::get('getWorkScheduleForWeekByUserId', [WorkScheduleController::class, 'getWorkScheduleForWeekByUserId']);
     Route::post('/upload-image', [ExamController::class, 'upload'])->name('upload.image');
     Route::post('/store-question', [QuestionController::class, 'store']);
     Route::get('/list-question-answer/{id}', [QuestionController::class, 'getQuestionsWithAnswers']);
@@ -123,7 +124,7 @@ Route::prefix('tasks')->group(function () {
 
     //
     Route::post('create', [TaskController::class, 'create'])->middleware(MiddlewareLoginLeader::class);
-    Route::get('get-task-unfinished-by-user.js-id', [TaskController::class, 'getTaskUnfinishedByUserId'])->middleware(middlewareLogin::class);
+    Route::get('get-task-unfinished-by-user-id', [TaskController::class, 'getTaskUnfinishedByUserId'])->middleware(middlewareLogin::class);
     Route::delete('delete/{task_id}', [TaskController::class, 'delete'])->middleware(MiddlewareLoginLeader::class);
     Route::get('get-task-by-project-id/{project_id}', [TaskController::class, 'getTaskByProjectId'])->middleware(middlewareLogin::class);
     Route::put('update-name/{task_id}', [TaskController::class, 'updateName'])->middleware(middlewareLogin::class);

@@ -1,196 +1,228 @@
-import React from 'react';
-import { Badge } from 'antd';
+import React, {useEffect, useState} from 'react';
+import {Badge, Spin} from 'antd';
 import FeatherIcon from 'feather-icons-react';
-import { Link } from 'react-router-dom';
+import {Link, useHistory} from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Scrollbars } from 'react-custom-scrollbars';
-import { useSelector } from 'react-redux';
-import { AtbdTopDropdwon } from './auth-info-style';
-import { Popover } from '../../popup/popup';
+import {Scrollbars} from 'react-custom-scrollbars';
+import {useSelector} from 'react-redux';
+import {AtbdTopDropdwon} from './auth-info-style';
+import {Popover} from '../../popup/popup';
 import Heading from '../../heading/heading';
+import {getNotifications, updateStatusNotification} from "../../../apis/work/user";
+import moment from "moment";
+import {toast} from "react-toastify";
 
 function NotificationBox() {
-  const { rtl } = useSelector(state => {
-    return {
-      rtl: state.ChangeLayoutMode.rtlData,
+    const [activeTab, setActiveTab] = useState('recent');
+    const [notification, setNotification] = useState([])
+    const [notificationUnread, setNotificationUnread] = useState([])
+    const [notificationRender, setNotificationRender] = useState([])
+    const history = useHistory();
+    const [loadingClick, setLoadingClick] = useState(false);
+    const socketConnection = useSelector(state => state?.userSocket?.socketConnection);
+    const {rtl} = useSelector(state => {
+        return {
+            rtl: state.ChangeLayoutMode.rtlData,
+        };
+    });
+    const getNotify = async () => {
+        try {
+            const response = await getNotifications();
+            setNotification(response.data)
+            setNotificationRender(response.data)
+            setNotificationUnread(response.data.filter(item => item.notification_status === 0))
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    useEffect(() => {
+        getNotify();
+    }, []);
+    useEffect(() => {
+
+        if (socketConnection) {
+            socketConnection.off('notification');
+            socketConnection.on('notification', (data) => {
+                getNotify();
+                toast.warn('Bạn có thông báo mới', {
+                    position: "top-right",
+                    autoClose: 1000,
+                });
+            });
+        }
+
+    }, [socketConnection]);
+    const handleUpdateStatusNotification = async (item) => {
+        try {
+            const url = new URL(item?.notification_link);
+            const pathname = url.pathname;
+            if (item.notification_status === 1) {
+                history.push(pathname)
+                setActiveTab('recent');
+            } else {
+                setLoadingClick(true);
+                const payload = {
+                    notification_status: 1
+                }
+                const res = await updateStatusNotification(item.notification_id, payload)
+                if (res.error) {
+                    toast.error(res.message, {
+                        position: "bottom-right",
+                        autoClose: 1000,
+                    })
+                }
+                getNotify();
+                setActiveTab('recent');
+                history.push(pathname)
+                setLoadingClick(false);
+            }
+
+        } catch (error) {
+            setLoadingClick(false)
+            toast.error(error.response.data.message, {
+                position: "bottom-right",
+                autoClose: 1000,
+            })
+
+            console.log('error', error)
+        }
+
+    }
+
+    function renderThumb({style, ...props}) {
+        const thumbStyle = {
+            borderRadius: 6,
+            backgroundColor: '#F1F2F6',
+        };
+        return <div style={{...style, ...thumbStyle}} {...props} />;
+    }
+
+    const renderTrackVertical = () => {
+        const thumbStyle = {
+            position: 'absolute',
+            width: '6px',
+            transition: 'opacity 200ms ease 0s',
+            opacity: 0,
+            [rtl ? 'left' : 'right']: '2px',
+            bottom: '2px',
+            top: '2px',
+            borderRadius: '3px',
+        };
+        return <div className="hello" style={thumbStyle}/>;
     };
-  });
 
-  function renderThumb({ style, ...props }) {
-    const thumbStyle = {
-      borderRadius: 6,
-      backgroundColor: '#F1F2F6',
+    function renderView({style, ...props}) {
+        const customStyle = {
+            marginRight: rtl && 'auto',
+            [rtl ? 'marginLeft' : 'marginRight']: '-17px',
+        };
+        return <div {...props} style={{...style, ...customStyle}}/>;
+    }
+
+    renderThumb.propTypes = {
+        style: PropTypes.shape(PropTypes.object),
     };
-    return <div style={{ ...style, ...thumbStyle }} {...props} />;
-  }
 
-  const renderTrackVertical = () => {
-    const thumbStyle = {
-      position: 'absolute',
-      width: '6px',
-      transition: 'opacity 200ms ease 0s',
-      opacity: 0,
-      [rtl ? 'left' : 'right']: '2px',
-      bottom: '2px',
-      top: '2px',
-      borderRadius: '3px',
+    renderView.propTypes = {
+        style: PropTypes.shape(PropTypes.object),
     };
-    return <div className="hello" style={thumbStyle} />;
-  };
 
-  function renderView({ style, ...props }) {
-    const customStyle = {
-      marginRight: rtl && 'auto',
-      [rtl ? 'marginLeft' : 'marginRight']: '-17px',
-    };
-    return <div {...props} style={{ ...style, ...customStyle }} />;
-  }
+    const content = (
+        <AtbdTopDropdwon className="atbd-top-dropdwon">
+            {
+                loadingClick &&
+                <div className='d-flex justify-content-center'>
+                    <Spin/>
+                </div>
+            }
 
-  renderThumb.propTypes = {
-    style: PropTypes.shape(PropTypes.object),
-  };
+            <div style={{
+                display: 'flex',
+                justifyContent: 'space-evenly',
+                padding: '0 10px',
+                margin: '10px 0'
 
-  renderView.propTypes = {
-    style: PropTypes.shape(PropTypes.object),
-  };
+            }}>
+                <Badge count={notification?.length > 99 ? '99+' : notification?.length} offset={[10, -5]}
+                       className="custom-badge">
+                    <div className={`head-example ${activeTab === 'recent' ? 'active' : ''}`}
+                         onClick={() => {
+                             setNotificationRender(notification);
+                             setActiveTab('recent');
+                         }}
+                    >
+                        Tất cả
+                    </div>
+                </Badge>
+                <Badge count={notificationUnread?.length > 99 ? '99+' : notificationUnread?.length} offset={[10, -5]}
+                       className="custom-badge">
+                    <div className={`head-example ${activeTab === 'unread' ? 'active' : ''}`}
+                         onClick={() => {
+                             setNotificationRender(notificationUnread);
+                             setActiveTab('unread');
+                         }}
+                    >
+                        Chưa đọc
+                    </div>
+                </Badge>
 
-  const content = (
-    <AtbdTopDropdwon className="atbd-top-dropdwon">
-      <Heading as="h5" className="atbd-top-dropdwon__title">
-        <span className="title-text">Notifications</span>
-        <Badge className="badge-success" count={3} />
-      </Heading>
-      <Scrollbars
-        autoHeight
-        autoHide
-        renderThumbVertical={renderThumb}
-        renderView={renderView}
-        renderTrackVertical={renderTrackVertical}
-      >
-        <ul className="atbd-top-dropdwon__nav notification-list">
-          <li>
-            <Link to="#">
-              <div className="atbd-top-dropdwon__content notifications">
-                <div className="notification-icon bg-primary">
-                  <FeatherIcon icon="hard-drive" />
-                </div>
-                <div className="notification-content d-flex">
-                  <div className="notification-text">
-                    <Heading as="h5">
-                      <span>James</span> sent you a message
-                    </Heading>
-                    <p>5 hours ago</p>
-                  </div>
-                  <div className="notification-status">
-                    <Badge dot />
-                  </div>
-                </div>
-              </div>
-            </Link>
-          </li>
-          <li>
-            <Link to="#">
-              <div className="atbd-top-dropdwon__content notifications">
-                <div className="notification-icon bg-secondary">
-                  <FeatherIcon icon="share" />
-                </div>
-                <div className="notification-content d-flex">
-                  <div className="notification-text">
-                    <Heading as="h5">
-                      <span>James</span> sent you a message
-                    </Heading>
-                    <p>5 hours ago</p>
-                  </div>
+            </div>
 
-                  <div className="notification-status">
-                    <Badge dot />
-                  </div>
-                </div>
-              </div>
-            </Link>
-          </li>
-          <li>
-            <Link to="#">
-              <div className="atbd-top-dropdwon__content notifications">
-                <div className="notification-icon bg-secondary">
-                  <FeatherIcon icon="share" />
-                </div>
-                <div className="notification-content d-flex">
-                  <div className="notification-text">
-                    <Heading as="h5">
-                      <span>James</span> sent you a message
-                    </Heading>
-                    <p>5 hours ago</p>
-                  </div>
+            <Scrollbars
+                autoHeight
+                autoHide
+                renderThumbVertical={renderThumb}
+                renderView={renderView}
+                renderTrackVertical={renderTrackVertical}
+            >
+                <ul className="atbd-top-dropdwon__nav notification-list">
+                    {
+                        notificationRender?.map((notification, index) => (
+                            // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
+                            <li key={index} onClick={() => handleUpdateStatusNotification(notification)}>
+                                <div>
+                                    <div className="atbd-top-dropdwon__content notifications">
+                                        <div className="notification-icon bg-primary">
+                                            <FeatherIcon icon="hard-drive"/>
+                                        </div>
+                                        <div className="notification-content d-flex">
+                                            <div className="notification-text">
+                                                <Heading as="h5">
+                                                    {notification?.notification_title}
+                                                </Heading>
+                                                <p> {moment(notification?.created_at).fromNow()} &nbsp;
+                                                    {moment(notification?.created_at).format('HH:mm DD/MM/YYYY')}</p>
+                                            </div>
+                                            <div className="notification-status">
+                                                {
+                                                    notification?.notification_status === 0 && <Badge dot/>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        ))
+                    }
 
-                  <div className="notification-status">
-                    <Badge dot />
-                  </div>
-                </div>
-              </div>
-            </Link>
-          </li>
-          <li>
-            <Link to="#">
-              <div className="atbd-top-dropdwon__content notifications">
-                <div className="notification-icon bg-secondary">
-                  <FeatherIcon icon="share" />
-                </div>
-                <div className="notification-content d-flex">
-                  <div className="notification-text">
-                    <Heading as="h5">
-                      <span>James</span> sent you a message
-                    </Heading>
-                    <p>5 hours ago</p>
-                  </div>
+                </ul>
+            </Scrollbars>
+        </AtbdTopDropdwon>
+    );
 
-                  <div className="notification-status">
-                    <Badge dot />
-                  </div>
-                </div>
-              </div>
-            </Link>
-          </li>
-          <li>
-            <Link to="#">
-              <div className="atbd-top-dropdwon__content notifications">
-                <div className="notification-icon bg-secondary">
-                  <FeatherIcon icon="share" />
-                </div>
-                <div className="notification-content d-flex">
-                  <div className="notification-text">
-                    <Heading as="h5">
-                      <span>James</span> sent you a message
-                    </Heading>
-                    <p>5 hours ago</p>
-                  </div>
-
-                  <div className="notification-status">
-                    <Badge dot />
-                  </div>
-                </div>
-              </div>
-            </Link>
-          </li>
-        </ul>
-      </Scrollbars>
-      <Link className="btn-seeAll" to="#">
-        See all incoming activity
-      </Link>
-    </AtbdTopDropdwon>
-  );
-
-  return (
-    <div className="notification">
-      <Popover placement="bottomLeft" content={content} action="click">
-        <Badge dot offset={[-8, -5]}>
-          <Link to="#" className="head-example">
-            <FeatherIcon icon="bell" size={20} />
-          </Link>
-        </Badge>
-      </Popover>
-    </div>
-  );
+    return (
+        <div className="notification">
+            <Popover placement="bottomLeft" content={content} action="click">
+                <Badge
+                    count={notificationUnread?.length <= 0 ? 'N' : (notificationUnread?.length > 9 ? '9+' : notificationUnread?.length)}
+                    offset={[-8, -5]} className="custom-badge">
+                    <Link to="#" className="head-example">
+                        <FeatherIcon icon="bell" size={20}/>
+                    </Link>
+                </Badge>
+            </Popover>
+        </div>
+    );
 }
 
 export default NotificationBox;

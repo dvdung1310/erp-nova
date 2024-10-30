@@ -178,6 +178,7 @@ function GridCard({value, listUser}) {
                         </div>
                         <Dropdown
                             className="wide-dropdwon"
+                            action='click'
                             content={
                                 <div className='popover-content'>
                                     <div className='action-item' onClick={() => handleEditClick('name', value)}>

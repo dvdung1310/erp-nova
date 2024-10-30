@@ -104,7 +104,7 @@ function CreateGroup({visible, onCancel, group_id, listUser = [], admin = false}
             onCancel();
             setSelectedMembers([]);
             form.resetFields();
-            if(admin) {
+            if (admin) {
                 history.push('/admin/lam-viec', {
                     key: 'createGroup',
                     data: res.data,
@@ -160,7 +160,9 @@ function CreateGroup({visible, onCancel, group_id, listUser = [], admin = false}
             <div className="project-modal">
                 <BasicFormWrapper>
                     <Form form={form} name="createProject" onFinish={handleOk}>
-                        <Form.Item name="group_name" label="">
+                        <Form.Item name="group_name" label=""
+                                   rules={[{required: true, message: 'Vui lòng nhập tên nhóm!'}]}
+                        >
                             <Input placeholder="Tên nhóm"/>
                         </Form.Item>
                         <Form.Item name="group_description" label="">

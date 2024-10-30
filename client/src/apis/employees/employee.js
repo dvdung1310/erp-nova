@@ -10,7 +10,12 @@ export const createEmployees = async (data) => {
   return response.data;
 };
 export const storeEmployees = async (data) => {
-  const response = await axios.post(`${LARAVEL_SERVER}/api/nvemployee`, data);
+  console.log(data);
+  const response = await axios.post(`${LARAVEL_SERVER}/api/nvemployee`, data,{
+    headers: {
+      'Content-Type': 'application/json',
+  }
+  });
   return response.data;
 };
 export const deleteEmployees = async (id) => {

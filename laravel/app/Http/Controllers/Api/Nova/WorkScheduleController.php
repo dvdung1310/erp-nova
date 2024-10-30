@@ -45,7 +45,7 @@ class WorkScheduleController extends Controller
             $startOfExtraDay2 = Carbon::create(2024, 11, 2)->startOfDay();
             $startOfExtraDay3 = Carbon::create(2024, 11, 3)->startOfDay();
             $schedules = WorkSchedule::with('user')
-                ->where(function ($query) use ($startOfMonth, $endOfMonth, $startOfExtraDay , $startOfExtraDay1 , $startOfExtraDay2 , $startOfExtraDay3) {
+                ->where(function ($query) use ($startOfMonth, $endOfMonth, $startOfExtraDay, $startOfExtraDay1, $startOfExtraDay2, $startOfExtraDay3) {
                     $query->whereBetween('date', [$startOfMonth, $endOfMonth])
                         ->orWhere('date', $startOfExtraDay)
                         ->orWhere('date', $startOfExtraDay1)
@@ -58,7 +58,7 @@ class WorkScheduleController extends Controller
             $schedules = WorkSchedule::with('user')
                 ->whereBetween('date', [$startOfMonth, $endOfMonth])
                 ->get()
-                ->groupBy('user_id');   
+                ->groupBy('user_id');
         }
 
         $result = $schedules->map(function ($userSchedules) {
@@ -75,4 +75,29 @@ class WorkScheduleController extends Controller
         });
         return response()->json($result->values());
     }
+
+    public function getWorkScheduleForWeekByUserId()
+    {
+        $userId = Auth::id();
+        $today = Carbon::now();
+        $startOfWeek = $today->startOfWeek()->format('Y-m-d'); 
+        $endOfWeek = $today->endOfWeek()->format('Y-m-d');  
+        
+        $schedule = WorkSchedule::where('user_id', $userId)
+            ->whereBetween('date', [$startOfWeek, $endOfWeek])
+            ->get(['date', 'code']);
+    
+        $result = $schedule->map(function ($item) {
+            $code = str_pad($item->code, 3, '0', STR_PAD_LEFT); 
+            return [
+                'date' => Carbon::parse($item->date)->format('d/m/Y'),
+                'morning' => $code[0] === '1',  
+                'afternoon' => $code[1] === '1',
+                'evening' => $code[2] === '1', 
+            ];
+        });
+    
+        return response()->json($result);
+    }
+    
 }

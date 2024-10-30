@@ -25,7 +25,9 @@ import {
   showRecruitNews,
   deleteRecruitNews,
 } from '../../../apis/employees/recruit';
+import {storeEmployeesFile} from "../../../apis/employees/employee";
 
+// eslint-disable-next-line import/no-self-import
 const RecruitNews = lazy(() => import('./Recruit_news'));
 const { Option } = Select;
 

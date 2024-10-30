@@ -134,261 +134,6 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
           openKeys={openKey}
           onOpenChange={onOpenChanges}
         >
-            <SubMenu key="dashboard" icon={!topMenu && <FeatherIcon icon="home" />} title="Dashboard">
-                <Menu.Item key="home">
-                    <NavLink onClick={toggleCollapsed} to={`${path}`}>
-                        Social Media
-                    </NavLink>
-                </Menu.Item>
-                <Menu.Item key="business">
-                    <NavLink onClick={toggleCollapsed} to={`${path}/business`}>
-                        Fintech / Business
-                    </NavLink>
-                </Menu.Item>
-                <Menu.Item key="performance">
-                    <NavLink onClick={toggleCollapsed} to={`${path}/performance`}>
-                        Site Performance
-                    </NavLink>
-                </Menu.Item>
-                <Menu.Item key="eco">
-                    <NavLink onClick={toggleCollapsed} to={`${path}/eco`}>
-                        Ecommerce
-                    </NavLink>
-                </Menu.Item>
-                <Menu.Item key="crm">
-                    <NavLink onClick={toggleCollapsed} to={`${path}/crm`}>
-                        CRM
-                    </NavLink>
-                </Menu.Item>
-                <Menu.Item key="sales">
-                    <NavLink onClick={toggleCollapsed} to={`${path}/sales`}>
-                        Sales Performance
-                    </NavLink>
-                </Menu.Item>
-            </SubMenu>
-            {/* novaup */}
-            <SubMenu key="novaup" icon={!topMenu && <FeatherIcon icon="home" />} title="Novaup">
-                <Menu.Item key="nvu-home">
-                    <NavLink onClick={toggleCollapsed} to={`${path}/novaup`}>
-                        Dashboard
-                    </NavLink>
-                </Menu.Item>
-                <Menu.Item key="nvu-customer">
-                    <NavLink onClick={toggleCollapsed} to={`${path}/novaup/customer`}>
-                        Khách hàng
-                    </NavLink>
-                </Menu.Item>
-                <Menu.Item key="nvu-revenue">
-                    <NavLink onClick={toggleCollapsed} to={`${path}/eco`}>
-                        Doanh thu
-                    </NavLink>
-                </Menu.Item>
-                <Menu.Item key="nvu-room">
-                    <NavLink onClick={toggleCollapsed} to={`${path}/novaup/room`}>
-                        Phòng
-                    </NavLink>
-                </Menu.Item>
-                <Menu.Item key="nvu-boking">
-                    <NavLink onClick={toggleCollapsed} to={`${path}/sales`}>
-                        Đặt phòng
-                    </NavLink>
-                </Menu.Item>
-                {/* cấu hình novaup */}
-                <Menu
-                    mode={!topMenu || window.innerWidth <= 991 ? 'inline' : 'horizontal'}
-                    theme={darkMode ? 'dark' : 'light'}
-                    openKeys={openKey}
-                    onOpenChange={onOpenChanges}
-                >
-                    <SubMenu key="sales" title="Cấu hình" icon={<FeatherIcon icon="settings" />}>
-                        <Menu.Item key="sales-option1">
-                            <NavLink onClick={toggleCollapsed} to={`${path}/novaup/status-data`}>
-                                Trạng thái data
-                            </NavLink>
-                        </Menu.Item>
-                        <Menu.Item key="sales-option2">
-                            <NavLink onClick={toggleCollapsed} to={`${path}/novaup/data-source`}>
-                                Nguồn data
-                            </NavLink>
-                        </Menu.Item>
-                    </SubMenu>
-                </Menu>
-            </SubMenu>
-            {/* end novaup   */}
-
-            {/* Quản lý nhân sự */}
-            <SubMenu key="employees" icon={!topMenu && <FeatherIcon icon="users" />} title="Quản lý nhân sự">
-                <Menu.Item key="nvu-home">
-                    <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su`}>
-                        Nhân sự
-                    </NavLink>
-                </Menu.Item>
-                <Menu.Item key="nvu-department">
-                    <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/phong-ban`}>
-                        Phòng ban
-                    </NavLink>
-                </Menu.Item>
-                <Menu.Item key="nvu-nc">
-                    <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-nhanh-su`}>
-                        Nhân sự New
-                    </NavLink>
-                </Menu.Item>
-                <Menu
-                    mode={!topMenu || window.innerWidth <= 991 ? 'inline' : 'horizontal'}
-                    theme={darkMode ? 'dark' : 'light'}
-                    openKeys={openKey}
-                    onOpenChange={onOpenChanges}
-                >
-                    <SubMenu key="work-schedule" title="Đăng kí lịch" icon={<FeatherIcon icon="briefcase" />}>
-                        <Menu.Item key="store-works-chedule">
-                            <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/dang-ki/lich-lam-viec`}>
-                                Đăng kí lịch làm việc
-                            </NavLink>
-                        </Menu.Item>
-                        <Menu.Item key="works-chedule">
-                            <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/lich-lam-viec`}>
-                                Lịch làm việc
-                            </NavLink>
-                        </Menu.Item>
-                        <Menu.Item key="works-day-off">
-                            <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/nghi-phep`}>
-                                Nghỉ phép
-                            </NavLink>
-                        </Menu.Item>
-                    </SubMenu>
-                </Menu>
-                <Menu
-                    mode={!topMenu || window.innerWidth <= 991 ? 'inline' : 'horizontal'}
-                    theme={darkMode ? 'dark' : 'light'}
-                    openKeys={openKey}
-                    onOpenChange={onOpenChanges}
-                >
-                    <SubMenu key="exam" title="Quản lý đào tạo" icon={<FeatherIcon icon="settings" />}>
-                        <Menu.Item key="exam-list">
-                            <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-de`}>
-                                Danh sách đề
-                            </NavLink>
-                        </Menu.Item>
-                        <Menu.Item key="exam-add">
-                            <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/tao-de`}>
-                                Tạo đề
-                            </NavLink>
-                        </Menu.Item>
-                    </SubMenu>
-                </Menu>
-            </SubMenu>
-            {/* end Quản lý nhân sự   */}
-            {/**/}
-            {/* work */}
-            <SubMenu key="work" icon={!topMenu && <FeatherIcon icon="briefcase" />} title="Làm việc">
-                <Menu.Item key="inbox">
-                    <NavLink onClick={toggleCollapsed} to={`${path}/lam-viec`}>
-                        Tổng quan
-                    </NavLink>
-                </Menu.Item>
-                {
-                    listGroup?.length >0 && listGroup.map((group, index) => (
-                        <Menu.Item key={`group-${index}`}>
-                            <NavLink onClick={toggleCollapsed} to={`${path}/lam-viec/nhom-lam-viec/${group?.group_id}`}>
-                                <div style={{
-                                    width: '20px',
-                                    height: '20px',
-                                    borderRadius: '4px',
-                                    backgroundColor: group?.color,
-                                    display: 'inline-block',
-                                    marginRight: '10px'
-                                }}></div>
-                                {group?.group_name}
-                            </NavLink>
-                        </Menu.Item>
-                    ))
-                }
-
-            </SubMenu>
-            {/**/}
-            <SubMenu key="layout" icon={!topMenu && <FeatherIcon icon="layout" />} title="Layouts">
-                <Menu.Item key="light">
-                    <NavLink
-                        onClick={() => {
-                            toggleCollapsed();
-                            modeChangeLight();
-                        }}
-                        to="#"
-                    >
-                        Light Mode
-                    </NavLink>
-                </Menu.Item>
-                <Menu.Item key="dark">
-                    <NavLink
-                        onClick={() => {
-                            toggleCollapsed();
-                            modeChangeDark();
-                        }}
-                        to="#"
-                    >
-                        Dark Mode
-                    </NavLink>
-                </Menu.Item>
-                <Menu.Item key="topMenu">
-                    <NavLink
-                        onClick={() => {
-                            toggleCollapsed();
-                            modeChangeTopNav();
-                        }}
-                        to="#"
-                    >
-                        Top Menu
-                    </NavLink>
-                </Menu.Item>
-                <Menu.Item key="sideMenu">
-                    <NavLink
-                        onClick={() => {
-                            toggleCollapsed();
-                            modeChangeSideNav();
-                        }}
-                        to="#"
-                    >
-                        Side Menu
-                    </NavLink>
-                </Menu.Item>
-                <Menu.Item key="rtl">
-                    <NavLink
-                        onClick={() => {
-                            toggleCollapsed();
-                            onRtlChange();
-                        }}
-                        to="#"
-                    >
-                        RTL
-                    </NavLink>
-                </Menu.Item>
-                <Menu.Item key="ltr">
-                    <NavLink
-                        onClick={() => {
-                            toggleCollapsed();
-                            onLtrChange();
-                        }}
-                        to="#"
-                    >
-                        LTR
-                    </NavLink>
-                </Menu.Item>
-            </SubMenu>
-            <Menu.Item
-                icon={
-                    !topMenu && (
-                        <NavLink className="menuItem-iocn" to={`${path}/changelog`}>
-                            <FeatherIcon icon="activity" />
-                        </NavLink>
-                    )
-                }
-                key="changelog"
-            >
-                <NavLink onClick={toggleCollapsed} to={`${path}/changelog`}>
-                    Changelog
-                    <span className="badge badge-primary menuItem">{versions[0].version}</span>
-                </NavLink>
-            </Menu.Item>
           <SubMenu key="sales" title="Cấu hình" icon={<FeatherIcon icon="settings" />}>
             <Menu.Item key="sales-option1">
               <NavLink onClick={toggleCollapsed} to={`${path}/novaup/status-data`}>
@@ -417,25 +162,21 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
             Phòng ban
           </NavLink>
         </Menu.Item>
-        <Menu.Item key="nvu-nhansu">
-          <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-nhanh-su`}>
-            Nhân sự new
-          </NavLink>
-        </Menu.Item>
+        <Menu.Item key="nvu-nhansu"> <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-nhanh-su`}> Nhân sự new </NavLink> </Menu.Item>
         <Menu
           mode={!topMenu || window.innerWidth <= 991 ? 'inline' : 'horizontal'}
           theme={darkMode ? 'dark' : 'light'}
           openKeys={openKey}
           onOpenChange={onOpenChanges}
         >
-          <SubMenu key="work-schedule" title="Chấm công-nghỉ phép" icon={<FeatherIcon icon="briefcase" />}>
-            <Menu.Item key="store-works-chedule">
+          <SubMenu key="work-schedule" title=" - Chấm công">
+            <Menu.Item className='pl-custom-sidebar' key="store-works-chedule">
               <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/dang-ki/lich-lam-viec`}>
                 Đăng kí lịch làm việc
               </NavLink>
             </Menu.Item>
 
-            <Menu.Item key="works-chedule">
+            <Menu.Item className='pl-custom-sidebar' key="works-chedule">
               <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/lich-lam-viec`}>
                 Lịch làm việc
               </NavLink>
@@ -448,13 +189,13 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
           openKeys={openKey}
           onOpenChange={onOpenChanges}
         >
-          <SubMenu key="exam" title="Quản lý đào tạo" icon={<FeatherIcon icon="settings" />}>
-            <Menu.Item key="exam-list">
-              <NavLink onClick={toggleCollapsed} to={`${path}/novaup/status-data`}>
+          <SubMenu key="exam" title=" - Quản lý đào tạo">
+            <Menu.Item className='pl-custom-sidebar' key="exam-list">
+              <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-de`}>
                 Danh sách đề
               </NavLink>
             </Menu.Item>
-            <Menu.Item key="exam-add">
+            <Menu.Item className='pl-custom-sidebar'   key="exam-add">
               <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/tao-de`}>
                 Tạo đề
               </NavLink>
@@ -464,13 +205,13 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
       </SubMenu>
       {/* Tuyển dụng   */}
       {/* Tuyển dụng */}
-      {/* <SubMenu key="tuyendung" icon={!topMenu && <FeatherIcon icon="home" />} title="Tuyển dụng">
+      <SubMenu style={{ display:'none' }} key="tuyendung" icon={!topMenu && <FeatherIcon icon="home" />} title="Tuyển dụng">
         <Menu.Item key="nvu-home">
           <NavLink onClick={toggleCollapsed} to={`${path}/tuyen-dung`}>
             Chỉ tiêu tuyển dụng
           </NavLink>
         </Menu.Item>
-      </SubMenu> */}
+      </SubMenu>
       {/* end tuyển dụng   */}
       {/**/}
       {/* work */}
@@ -500,7 +241,9 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
           ))}
       </SubMenu>
       {/**/}
-      <SubMenu key="layout" icon={!topMenu && <FeatherIcon icon="layout" />} title="Layouts">
+      {/* start d-none */}
+      <SubMenu style={{ display:'none' }}>
+      <SubMenu className='d-none' key="layout" icon={!topMenu && <FeatherIcon icon="layout" />} title="Layouts">
         <Menu.Item key="light">
           <NavLink
             onClick={() => {
@@ -1317,11 +1060,6 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
             Gallery 1
           </NavLink>
         </Menu.Item>
-        {/* <Menu.Item key="two">
-          <NavLink onClick={toggleCollapsed} to={`${path}/gallery/two`}>
-            Gallery 2
-          </NavLink>
-        </Menu.Item> */}
       </SubMenu>
       <Menu.Item
         icon={
@@ -1475,6 +1213,7 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
           Coming Soon
         </NavLink>
       </Menu.Item>
+      </SubMenu>
     </Menu>
   );
 }

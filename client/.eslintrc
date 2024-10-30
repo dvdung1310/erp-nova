@@ -44,6 +44,8 @@
     "jsx-a11y/no-static-element-interactions": "off",
     "jsx-a11y/label-has-associated-control": "off",
     "no-unsafe-optional-chaining": "off",
+    "prefer-template": "off",
+    "react/jsx-curly-brace-presence": "off",
     "react/jsx-filename-extension": [
       0,
       {
