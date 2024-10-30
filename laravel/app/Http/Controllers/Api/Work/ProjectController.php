@@ -178,7 +178,9 @@ class ProjectController extends Controller
             }
             $user_id = auth()->user()->id;
             $role_id = auth()->user()->role_id;
-            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2) {
+            $group = Group::where('group_id', $project->group_id)->first();
+            $leader_id = $group->leader_id;
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2 && $leader_id != $user_id) {
                 return response()->json([
                     'error' => true,
                     'message' => 'Bạn không có quyền thực hiện hành động này',
@@ -205,6 +207,7 @@ class ProjectController extends Controller
             $create_by_user_id = auth()->user()->id;
             $notifications = [];
             $members = ProjectMember::where('project_id', $project_id)->pluck('user_id')->toArray();
+            $members[] = $leader_id;
             if (!empty($members)) {
                 foreach ($members as $user_id) {
                     if ($user_id != $create_by_user_id) {
@@ -268,7 +271,9 @@ class ProjectController extends Controller
             }
             $user_id = auth()->user()->id;
             $role_id = auth()->user()->role_id;
-            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2) {
+            $group = Group::where('group_id', $project->group_id)->first();
+            $leader_id = $group->leader_id;
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2 && $leader_id != $user_id) {
                 return response()->json([
                     'error' => true,
                     'message' => 'Bạn không có quyền thực hiện hành động này',
@@ -294,6 +299,7 @@ class ProjectController extends Controller
             $create_by_user_id = auth()->user()->id;
             $notifications = [];
             $members = ProjectMember::where('project_id', $project_id)->pluck('user_id')->toArray();
+            $members[] = $leader_id;
             if (!empty($members)) {
                 foreach ($members as $user_id) {
                     if ($user_id != $create_by_user_id) {
@@ -369,7 +375,9 @@ class ProjectController extends Controller
             }
             $user_id = auth()->user()->id;
             $role_id = auth()->user()->role_id;
-            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2) {
+            $group = Group::where('group_id', $project->group_id)->first();
+            $leader_id = $group->leader_id;
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2 && $leader_id != $user_id) {
                 return response()->json([
                     'error' => true,
                     'message' => 'Bạn không có quyền thực hiện hành động này',
@@ -515,7 +523,9 @@ class ProjectController extends Controller
             }
             $user_id = auth()->user()->id;
             $role_id = auth()->user()->role_id;
-            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2) {
+            $group = Group::where('group_id', $project->group_id)->first();
+            $leader_id = $group->leader_id;
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2 && $leader_id != $user_id) {
                 return response()->json([
                     'error' => true,
                     'message' => 'Bạn không có quyền thực hiện hành động này',
@@ -541,6 +551,7 @@ class ProjectController extends Controller
             $create_by_user_id = auth()->user()->id;
             $notifications = [];
             $members = ProjectMember::where('project_id', $project_id)->pluck('user_id')->toArray();
+            $members[] = $leader_id;
             if (!empty($members)) {
                 foreach ($members as $user_id) {
                     if ($user_id != $create_by_user_id) {
@@ -605,7 +616,9 @@ class ProjectController extends Controller
             }
             $user_id = auth()->user()->id;
             $role_id = auth()->user()->role_id;
-            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2) {
+            $group = Group::where('group_id', $project->group_id)->first();
+            $leader_id = $group->leader_id;
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2 && $leader_id != $user_id) {
                 return response()->json([
                     'error' => true,
                     'message' => 'Bạn không có quyền thực hiện hành động này',
@@ -631,6 +644,7 @@ class ProjectController extends Controller
             $create_by_user_id = auth()->user()->id;
             $notifications = [];
             $members = ProjectMember::where('project_id', $project_id)->pluck('user_id')->toArray();
+            $members[] = $leader_id;
             if (!empty($members)) {
                 foreach ($members as $user_id) {
                     if ($user_id != $create_by_user_id) {
@@ -910,6 +924,102 @@ class ProjectController extends Controller
                 'data' => null
             ], 400);
         }
+
+    }
+
+    public function updateLeader(Request $request, $project_id)
+    {
+        try {
+            $project = Project::find($project_id);
+            if (!$project) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Project not found',
+                    'data' => null
+                ], 404);
+            }
+            $user_id = auth()->user()->id;
+            $role_id = auth()->user()->role_id;
+            $group = Group::where('group_id', $project->group_id)->first();
+            $leader_id = $group->leader_id;
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2 && $leader_id != $user_id) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Bạn không có quyền thực hiện hành động này',
+                    'data' => $role_id
+                ], 403);
+            }
+            $validatedData = $request->validate([
+                'leader_id' => 'required',
+            ]);
+            $project->update($validatedData);
+            //
+            $projectResponse = Project::with('projectMembers.user')
+                ->withCount([
+                    'tasks as total_tasks',
+                    'tasks as completed_tasks' => function ($query) {
+                        $query->where('task_status', 2);
+                    }
+                ])
+                ->find($project_id);
+            // Send notification to all members
+            $pathname = $request->input('pathname');
+            $pathname = $pathname ? $pathname : '/groups/' . $project->group_id;
+            $createByUserName = auth()->user()->name;
+            $create_by_user_id = auth()->user()->id;
+            $notifications = [];
+            $members[] = $leader_id;
+            if (!empty($members)) {
+                foreach ($members as $user_id) {
+                    if ($user_id != $create_by_user_id) {
+                        $notifications[] = [
+                            'user_id' => $user_id,
+                            'project_id' => $project->project_id,
+                            'notification_title' => $createByUserName . ' Đã thêm bạn làm người phụ trách của dự án: ' . $project->project_name,
+                            'notification_link' => $this->ClientUrl . $pathname,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
+                    }
+                }
+            }
+
+            Notification::insert($notifications);
+            $devices = Devices::whereIn('user_id', $members)
+                ->where('user_id', '!=', $create_by_user_id)
+                ->get();
+            $devices = $devices->map(function ($device) {
+                return json_decode($device->endpoint, true);
+            })->filter()->values()->toArray();
+            $projectName = $project->project_name;
+            if (!empty($notifications)) {
+                $payload = [
+                    'members' => $members,
+                    'devices' => $devices,
+                    'createByUserName' => $createByUserName,
+                    'projectName' => $projectName,
+                    'notification' => $notifications[0],
+                    'createByUserId' => $create_by_user_id,
+                    'pathname' => $pathname,
+                ];
+                Http::post($this->nodeUrl . '/update-leader-project', $payload);
+            }
+            //
+            return response()->json([
+                'error' => false,
+                'message' => 'Project updated successfully',
+                'data' => $projectResponse
+            ],  200);
+
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+
 
     }
 

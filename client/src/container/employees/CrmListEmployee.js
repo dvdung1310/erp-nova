@@ -5,7 +5,7 @@ import moment from 'moment';
 import { Cards } from '../../components/cards/frame/cards-frame';
 import { Main } from '../styled';
 import { getEmployees, createEmployees, deleteEmployees, updateEmployees, storeEmployees } from '../../apis/employees/employee';
-import { UserCard } from '../../container/pages/style';
+import { UserCard } from '../pages/style';
 
 const EmployeeFile = lazy(() => import('./CrmEmployeeFile'));
 const { Option } = Select;

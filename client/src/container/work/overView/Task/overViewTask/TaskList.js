@@ -23,16 +23,14 @@ import {
     TextField,
 } from "@mui/material";
 import {Modal, Form, Input, Button, Spin, Badge, Typography, List} from 'antd';
-// import {Popover, Form, Input, Badge, List, Avatar, Button} from 'antd';
 import {AnimatePresence, motion} from "framer-motion";
 import {MdDelete, MdOutlineDateRange} from "react-icons/md";
 import Avatar from "../../../../../components/Avatar/Avatar";
-import {CiCircleInfo, CiCirclePlus} from "react-icons/ci";
+import { CiCirclePlus} from "react-icons/ci";
 import moment from "moment";
-import {FaCommentAlt} from "react-icons/fa";
 import {GoComment} from "react-icons/go";
 import MessageComponent from "./MessageComponent";
-import {IoIosAdd, IoIosAddCircleOutline} from "react-icons/io";
+import {IoIosAdd} from "react-icons/io";
 import {PiEyeThin} from "react-icons/pi";
 import FeatherIcon from "feather-icons-react";
 
@@ -58,6 +56,7 @@ const stableSort = (array, comparator) => {
 };
 
 const TaskList = (props) => {
+    const [form] = Form.useForm();
     const {listUser, tasks, setTasks} = props;
     const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
     const params = useParams()
@@ -383,6 +382,7 @@ const TaskList = (props) => {
     const handleCreateTask = async () => {
         try {
             setLoadingCreate(true);
+            console.log(dataCreateTask)
             if (!dataCreateTask.task_name || !dataCreateTask.task_start_date || !dataCreateTask.task_end_date) {
                 toast.error('Vui lòng nhập đầy đủ thông tin', {
                     position: "top-right", autoClose: 1000
@@ -400,7 +400,7 @@ const TaskList = (props) => {
             }
             const res = await createTask(payload)
             if (res.error) {
-                toast.error(res.message, {
+                toast.error(res?.message, {
                     position: "top-right", autoClose: 1000
                 });
                 setLoadingCreate(false);
@@ -418,9 +418,10 @@ const TaskList = (props) => {
                 task_start_date: '',
                 task_end_date: '',
             })
+            form.resetFields();
         } catch (error) {
             setLoadingCreate(false);
-            toast.error(error.response.data.message, {
+            toast.error(error?.response?.data?.message, {
                 position: "top-right", autoClose: 1000
             });
             console.log(error);
@@ -922,7 +923,7 @@ const TaskList = (props) => {
                 title="Thêm mới công việc"
                 footer={null}
             >
-                <Form layout="vertical">
+                <Form layout="vertical" form={form}>
                     <div className="row">
                         <div className="col-md-12">
                             <Form.Item
@@ -934,7 +935,7 @@ const TaskList = (props) => {
                                     className="form-control fs-5"
                                     id="input1"
                                     name="task_name"
-                                    value={dataCreateTask.task_name}
+                                    value={dataCreateTask.task_name || ''}
                                     onChange={handleChange}
                                     placeholder="Nhập tên công việc"
                                 />

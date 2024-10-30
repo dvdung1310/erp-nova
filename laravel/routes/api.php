@@ -84,9 +84,9 @@ Route::group(['middleware' => 'api'], function () {
     Route::resource('nvrecruittarget', NvRecruitTargetController::class);
     Route::resource('nvrecruitnews ', NvRecruitNewsController::class);
     Route::resource('nvrecruitcandidates', NvRecruitCandidatesController::class);
-    Route::get('showEmployeeFile/{employee_id}',[NvEmployeeController::class,'showEmployeeFile']);
-    Route::delete('/nvrecruitnews/{id}', [NvRecruitNewsController::class,'destroy']);
-    Route::put('/nvrecruitnews/{id}', [NvRecruitNewsController::class,'update']);
+    Route::get('showEmployeeFile/{employee_id}', [NvEmployeeController::class, 'showEmployeeFile']);
+    Route::delete('/nvrecruitnews/{id}', [NvRecruitNewsController::class, 'destroy']);
+    Route::put('/nvrecruitnews/{id}', [NvRecruitNewsController::class, 'update']);
     // Route::delete('/nvrecruitcandidates/{nvrecruitcandidates}', [NvRecruitCandidatesController::class,'destroy']);
 });
 // work
@@ -106,6 +106,7 @@ Route::prefix('projects')->group(function () {
     Route::put('update/{project_id}', [ProjectController::class, 'update'])->middleware(MiddlewareLoginLeader::class);
     Route::get('get-by-ceo', [ProjectController::class, 'getProjectByCeo'])->middleware(MiddlewareLoginCeo::class);
     Route::post('member-join-project/{project_id}', [ProjectController::class, 'memberJoinProject'])->middleware(MiddlewareLoginLeader::class);
+    Route::put('update-leader/{project_id}', [ProjectController::class, 'updateLeader'])->middleware(middlewareLogin::class);
     Route::put('update-name/{project_id}', [ProjectController::class, 'updateNameAndDescription'])->middleware(middlewareLogin::class);
     Route::put('update-status/{project_id}', [ProjectController::class, 'updateStatus'])->middleware(middlewareLogin::class);
     Route::put('update-members/{project_id}', [ProjectController::class, 'updateMembers'])->middleware(middlewareLogin::class);
