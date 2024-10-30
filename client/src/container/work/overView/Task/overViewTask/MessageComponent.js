@@ -11,6 +11,7 @@ import {createAxios} from "../../../../../utility/createAxios";
 import {Button, Modal, Spin} from 'antd';
 import {MdAttachFile} from "react-icons/md";
 import {FaRegFileLines} from "react-icons/fa6";
+import {getItem} from "../../../../../utility/localStorageControl";
 
 const MessageComponent = ({handleCloseComment, task}) => {
     const {pathname} = useLocation();
@@ -20,8 +21,7 @@ const MessageComponent = ({handleCloseComment, task}) => {
     const [text, setText] = useState('');
     const [loading, setLoading] = useState(false);
     const [loadingSend, setLoadingSend] = useState(false);
-    const token = localStorage.getItem('token');
-    const user_id = localStorage.getItem('user_id');
+    const user_id = getItem('user_id')
     const [currentImage, setCurrentImage] = useState(null);
     const [showImage, setShowImage] = useState(false);
     const instanceAxios = createAxios();
@@ -45,7 +45,7 @@ const MessageComponent = ({handleCloseComment, task}) => {
         } catch (error) {
             setLoading(false)
             toast.error('Lỗi khi lấy dữ liệu công việc', {
-                position: "bottom-right", autoClose: 1000
+                position: "top-right", autoClose: 1000
             });
             console.log(error);
         }
@@ -68,7 +68,7 @@ const MessageComponent = ({handleCloseComment, task}) => {
             const res = await createComment(payload)
             if (res.error) {
                 toast.error(res?.message, {
-                    position: "bottom-right",
+                    position: "top-right",
                     autoClose: 1000
                 })
                 return;
@@ -79,7 +79,7 @@ const MessageComponent = ({handleCloseComment, task}) => {
         } catch (error) {
             setLoadingSend(false);
             toast.error(error?.response?.data?.message, {
-                position: "bottom-right",
+                position: "top-right",
                 autoClose: 1000
             })
             console.log(error);
@@ -120,7 +120,7 @@ const MessageComponent = ({handleCloseComment, task}) => {
             console.log(response);
             if (response.error) {
                 toast.error('Lỗi khi gửi bình luận', {
-                    position: "bottom-right", autoClose: 1000
+                    position: "top-right", autoClose: 1000
                 });
                 return;
             }
@@ -131,7 +131,7 @@ const MessageComponent = ({handleCloseComment, task}) => {
             setLoading(false);
             console.log(error);
             toast.error(error.response?.data?.message, {
-                position: "bottom-right", autoClose: 1000
+                position: "top-right", autoClose: 1000
             })
         }
 
@@ -175,11 +175,12 @@ const MessageComponent = ({handleCloseComment, task}) => {
                                                 initial={{opacity: 0, y: 20}}
                                                 animate={{opacity: 1, y: 0}}
                                                 style={{
-                                                    willChange: 'inherit', backfaceVisibility: 'inherit'
+                                                    willChange: 'inherit', backfaceVisibility: 'inherit',
+                                                    marginLeft: item?.user?.id === user_id ? 'auto' : '0'
                                                 }} // Đưa phần tử lên layer mới
                                                 title={item?.user?.name}
                                                 transition={{duration: 0.3, ease: "easeInOut"}}
-                                                className={`w-100 d-flex align-items-center ${item?.user?.id === user_id ? 'justify-content-end' : 'justify-content-start'}`}>
+                                                className={`w-100 d-flex align-items-center`}>
                                                 {/* eslint-disable-next-line no-unsafe-optional-chaining */}
                                                 <Avatar width={30} height={30} name={item?.user?.name}
                                                         imageUrl={item?.user?.avatar ? URL_LARAVEL + item?.user?.avatar : ''}/>

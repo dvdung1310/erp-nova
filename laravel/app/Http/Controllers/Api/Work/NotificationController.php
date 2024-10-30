@@ -12,8 +12,9 @@ class NotificationController extends Controller
     public function getNotificationByUserId()
     {
         try {
-            $user_id = auth()->guard('api')->user()->id;
+            $user_id = auth()->user()->id;
             $notifications = Notification::where('user_id', $user_id)
+                ->orderBy('notification_status', 'asc')
                 ->orderBy('created_at', 'desc')
                 ->get();
             return response()->json([

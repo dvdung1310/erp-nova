@@ -56,7 +56,9 @@ const MainWord = () => {
     }, [role_id, state])
 
     return (
-        <div className='home-page'>
+        <div className='home-page' style={{
+            minHeight: '100vh'
+        }}>
             <div className='content'>
                 <ProjectHeader>
                     <PageHeader
@@ -67,7 +69,7 @@ const MainWord = () => {
                                     (role_id === 1 || role_id === 2) ? 'Danh sách nhóm' :
                                         ''
                         }
-                        buttons={[
+                        buttons={role_id && (role_id === 1 || role_id === 2) && [
                             <Button onClick={() => setShowModal(true)} key="1" type="primary" size="default">
                                 <FeatherIcon icon="plus" size={16}/> Tạo nhóm mới
                             </Button>,
@@ -93,7 +95,8 @@ const MainWord = () => {
                                 <List
                                     listProject={listProject}
                                     listUser={listUser}/>}
-                            {role_id && (role_id === 1 || role_id === 2) && <ListGroupComponent listGroup={listGroup} listUser={listUser}/>}
+                            {role_id && (role_id === 1 || role_id === 2) &&
+                                <ListGroupComponent listGroup={listGroup} listUser={listUser}/>}
                         </div>
                     </>}
                 </div>

@@ -123,7 +123,7 @@ Route::prefix('tasks')->group(function () {
 
     //
     Route::post('create', [TaskController::class, 'create'])->middleware(MiddlewareLoginLeader::class);
-    Route::get('get-task-unfinished-by-user.js-id', [TaskController::class, 'getTaskUnfinishedByUserId'])->middleware(middlewareLogin::class);
+    Route::get('get-task-unfinished-by-user-id', [TaskController::class, 'getTaskUnfinishedByUserId'])->middleware(middlewareLogin::class);
     Route::delete('delete/{task_id}', [TaskController::class, 'delete'])->middleware(MiddlewareLoginLeader::class);
     Route::get('get-task-by-project-id/{project_id}', [TaskController::class, 'getTaskByProjectId'])->middleware(middlewareLogin::class);
     Route::put('update-name/{task_id}', [TaskController::class, 'updateName'])->middleware(middlewareLogin::class);

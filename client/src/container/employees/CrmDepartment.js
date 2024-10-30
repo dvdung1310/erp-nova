@@ -113,7 +113,7 @@ function StatusCustomerTable() {
       dataIndex: 'department_id',
       key: 'team',
       render: (department_id, record) => (
-        <NavLink to={`${path}/teams/${department_id}`}>{record.department_name}</NavLink>
+        <NavLink to={`${path}/teams/${department_id}`}>{record?.department_name}</NavLink>
       ),
     },
     {
@@ -139,7 +139,9 @@ function StatusCustomerTable() {
                   Thêm phòng ban
                 </Button>
                 {loading ? (
-                  <Spin tip="Loading..." />
+                    <div className='spin'>
+                    <Spin />
+                    </div>
                 ) : (
                   <Table
                     className="table-responsive"

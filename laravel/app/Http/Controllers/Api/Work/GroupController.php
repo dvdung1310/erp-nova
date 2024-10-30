@@ -70,9 +70,7 @@ class GroupController extends Controller
                         ->with('leader') // Assuming there is a relationship defined in the Group.js model
                         ->select('group_id', 'group_name', 'color', 'leader_id', 'group_description')
                         ->first();
-                    if (!$group->parent_group_id) {
-                        Http::post($this->nodeUrl . '/change-group');
-                    }
+              
 
                     return response([
                         'message' => 'Group created successfully',
@@ -95,9 +93,7 @@ class GroupController extends Controller
                 ->with('leader') // Assuming there is a relationship defined in the Group.js model
                 ->select('group_id', 'group_name', 'color', 'leader_id', 'group_description')
                 ->first();
-            if (!$group->parent_group_id) {
-                Http::post($this->nodeUrl . '/change-group');
-            }
+         
 
             return response([
                 'message' => 'Group created successfully',
@@ -206,12 +202,10 @@ class GroupController extends Controller
 
                     // Delete the group
                     $group->delete();
-                    if (!$group->parent_group_id) {
-                        Http::post($this->nodeUrl . '/change-group');
-                    }
+                 
 
                     return response([
-                        'message' => 'Group.js deleted successfully',
+                        'message' => 'Group deleted successfully',
                         'data' => null,
                         'error' => false
                     ], 200);
@@ -251,9 +245,7 @@ class GroupController extends Controller
 
             // Delete the group
             $group->delete();
-            if (!$group->parent_group_id) {
-                Http::post($this->nodeUrl . '/change-group');
-            }
+           
 
             return response([
                 'message' => 'Group.js deleted successfully',

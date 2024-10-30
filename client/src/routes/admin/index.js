@@ -1,4 +1,4 @@
-import React, {Suspense, lazy} from 'react';
+import React, {Suspense, lazy, useEffect} from 'react';
 import {Spin} from 'antd';
 import {Switch, Route, useRouteMatch} from 'react-router-dom';
 
@@ -14,7 +14,10 @@ import Novaup from "./Novaup";
 import Employees from "./employees";
 import withAdminLayout from '../../layout/withAdminLayout';
 import Work from "./work";
+import {urlBase64ToUint8Array} from "../../utility/utility";
+import {registerDevice} from "../../apis/work/user";
 import Recruit from "./Recruit";
+import {getItem} from "../../utility/localStorageControl";
 
 const Projects = lazy(() => import('./projects'));
 const Calendars = lazy(() => import('../../container/Calendar'));
@@ -32,9 +35,65 @@ const Calendar = lazy(() => import('../../container/calendar/Calendar'));
 const Kanban = lazy(() => import('../../container/kanban/Index'));
 const Task = lazy(() => import('../../container/task/Index'));
 // const Recruit = lazy(() => import('../../container/task/Index'));
+import {io} from "socket.io-client";
+import {useDispatch} from "react-redux";
+import {socketConnect, socketDisconnect} from '../../redux/users/actionCreator';
 
 function Admin() {
     const {path} = useRouteMatch();
+    const publicVapidKey = 'BFRuISHeTPNFMZv_7-PndFq72gEqCd8tvf1YX7mTYyuXkOa3vdBxtvzxaj3B1B8AsYy0rG1Mg4DsFS51glqBFSM';
+    const user_id = getItem('user_id');
+    const dispatch = useDispatch();
+
+    async function send() {
+        try {
+            // Đăng ký Service Worker
+            const register = await navigator.serviceWorker.register('/sw.js', {
+                scope: '/'
+            });
+            console.log('Service Worker Registered');
+
+            // Đăng ký Push
+            const subscription = await register.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+            });
+            const payload = {
+                endpoint: subscription
+            }
+            console.log('Push Registered');
+            // Gửi Subscription đến Server
+
+            await registerDevice(payload);
+        } catch (e) {
+            console.log(e);
+        }
+        console.log('Push Sent');
+    }
+
+    useEffect(() => {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(() => {
+                    send();
+                })
+                .catch(error => {
+                    console.error('Service Worker đăng ký thất bại', error);
+                });
+        }
+        const socketConnection = io(process.env.REACT_APP_NODE_SERVER, {
+            auth: {
+                user_id,
+            },
+        });
+        if (socketConnection) {
+            dispatch(socketConnect(socketConnection));
+        }
+        return () => {
+            socketConnection.disconnect();
+            dispatch(socketDisconnect(null));
+        }
+    }, []);
 
     return (
         <Switch>

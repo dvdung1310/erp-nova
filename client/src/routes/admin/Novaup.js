@@ -1,13 +1,13 @@
 import {Route, Switch, useRouteMatch} from "react-router-dom";
-import React, {lazy} from "react";
+import React, {lazy, memo} from "react";
 
 const Dashboard = lazy(() => import('../../container/Novaup'));
- const StatusData = lazy(() => import('../../container/Novaup/StatusData'));
- const DataSource = lazy(() => import('../../container/Novaup/DataSource'));
- const Customer = lazy(() => import('../../container/Novaup/Customer'));
- const Room = lazy(() => import('../../container/Novaup/Room'));
+const StatusData = lazy(() => import('../../container/Novaup/StatusData'));
+const DataSource = lazy(() => import('../../container/Novaup/DataSource'));
+const Customer = lazy(() => import('../../container/Novaup/Customer'));
+const Room = lazy(() => import('../../container/Novaup/Room'));
 
-function NovaupRoutes() {
+const NovaupRoutes = memo(() => {
     const {path} = useRouteMatch();
     console.log(path);
     return (
@@ -19,6 +19,6 @@ function NovaupRoutes() {
             <Route path={`${path}/room`} component={Room}/>
         </Switch>
     );
-}
+});
 
 export default NovaupRoutes;
