@@ -41,10 +41,18 @@ class ProjectController extends Controller
                 'project_end_date' => 'required',
             ]);
             $create_by_user_id = auth()->user()->id;
-
-
-            $project = Project::create(array_merge($validatedData, ['create_by_user_id' => $create_by_user_id]));
+            $leader_id = $request->leader_id ? $request->leader_id : $create_by_user_id;
+            $project = Project::create(array_merge($validatedData, ['create_by_user_id' => $create_by_user_id], ['leader_id' => $leader_id]));
             $project_id = $project->project_id;
+
+            $membersData[] = [
+                'project_id' => $project_id,
+                'user_id' => $leader_id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+
+            ProjectMember::insert($membersData);
             $projectResponse = Project::with('projectMembers.user')
                 ->withCount([
                     'tasks as total_tasks',
@@ -163,6 +171,15 @@ class ProjectController extends Controller
                     'data' => null
                 ], 404);
             }
+            $user_id = auth()->user()->id;
+            $role_id = auth()->user()->role_id;
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Bạn không có quyền thực hiện hành động này',
+                    'data' => $role_id
+                ], 403);
+            }
             $validatedData = $request->validate([
                 'project_name' => 'required|max:255',
                 'project_description' => 'nullable|string',
@@ -243,6 +260,15 @@ class ProjectController extends Controller
                     'message' => 'Project not found',
                     'data' => null
                 ], 404);
+            }
+            $user_id = auth()->user()->id;
+            $role_id = auth()->user()->role_id;
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Bạn không có quyền thực hiện hành động này',
+                    'data' => $role_id
+                ], 403);
             }
             $validatedData = $request->validate([
                 'project_status' => 'required',
@@ -335,6 +361,15 @@ class ProjectController extends Controller
                     'message' => 'Project not found',
                     'data' => null
                 ], 404);
+            }
+            $user_id = auth()->user()->id;
+            $role_id = auth()->user()->role_id;
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Bạn không có quyền thực hiện hành động này',
+                    'data' => $role_id
+                ], 403);
             }
             $members = $request->members;
             $projectMembers = ProjectMember::where('project_id', $project_id)->pluck('user_id')->toArray();
@@ -473,6 +508,15 @@ class ProjectController extends Controller
                     'data' => null
                 ], 404);
             }
+            $user_id = auth()->user()->id;
+            $role_id = auth()->user()->role_id;
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Bạn không có quyền thực hiện hành động này',
+                    'data' => $role_id
+                ], 403);
+            }
             $validatedData = $request->validate([
                 'project_start_date' => 'required',
             ]);
@@ -554,6 +598,15 @@ class ProjectController extends Controller
                     'data' => null
                 ], 404);
             }
+            $user_id = auth()->user()->id;
+            $role_id = auth()->user()->role_id;
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Bạn không có quyền thực hiện hành động này',
+                    'data' => $role_id
+                ], 403);
+            }
             $validatedData = $request->validate([
                 'project_end_date' => 'required',
             ]);
@@ -633,6 +686,15 @@ class ProjectController extends Controller
                     'message' => 'Project not found',
                     'data' => null
                 ], 404);
+            }
+            $user_id = auth()->user()->id;
+            $role_id = auth()->user()->role_id;
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Bạn không có quyền thực hiện hành động này',
+                    'data' => $role_id
+                ], 403);
             }
             $projectResponse = Project::with('projectMembers.user')
                 ->withCount([

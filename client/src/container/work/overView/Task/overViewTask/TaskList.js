@@ -366,7 +366,7 @@ const TaskList = (props) => {
                 setShowModalConfirm(false);
                 return;
             }
-            setTasks(tasks.filter((task) => task?.task_id?.toString() !== task_id))
+            setTasks(tasks.filter((task) => task?.task_id?.toString() !== task_id?.toString()))
             setLoadingDelete(false);
             toast.success('Thực hiện xóa công việc thành công', {
                 position: "top-right", autoClose: 1000
@@ -654,8 +654,8 @@ const TaskList = (props) => {
                                         <Spin/>
                                     ) : (
                                         <div className='d-flex align-items-center'>
-                                            <span className='me-1'>Thêm công việc</span>
                                             <IoIosAdd size={24}/>
+                                            <span className='me-1'>Thêm công việc</span>
                                         </div>
                                     )}
                                 </Button>
@@ -1016,12 +1016,14 @@ const TaskList = (props) => {
                 <Typography>Bạn có chắc chắn muốn xóa nhóm này không?</Typography>
                 <div className='d-flex justify-content-center' style={{marginTop: '16px'}}>
                     <Button
-                        type="ghost"
-                        style={{minWidth: '300px',
-                        backgroundColor: '#ff0000'
+                        type=""
+                        style={{
+                            minWidth: '300px',
+                            backgroundColor: '#ff0000',
+                            color: 'fff',
+                            fontWeight: '600'
                         }}
                         onClick={() => handleDeleteTask(taskSelected)}
-                        className='btn btn-danger bg-danger text-white fs-4'
                     >
                         {loadingDelete ? <Spin/> : 'Xác nhận xóa'}
                     </Button>

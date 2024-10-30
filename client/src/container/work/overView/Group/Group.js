@@ -13,6 +13,7 @@ const Group = () => {
     const [loading, setLoading] = useState(false);
     const [listGroup, setListGroup] = useState([]);
     const [listUser, setListUser] = useState([]);
+    const [currentGroup, setCurrentGroup] = useState({});
 
     // lấy dữ liệu group
     const fetchAPi = async () => {
@@ -23,6 +24,7 @@ const Group = () => {
                 getAllUsers()
             ]);
             setListGroup(groups?.data);
+            setCurrentGroup(groups?.data?.currentGroup)
             setListUser(users?.data);
             setLoading(false);
         } catch (e) {
@@ -91,7 +93,7 @@ const Group = () => {
                         <Spin/>
                     </div> :
                     <div>
-                        <Project listGroup={listGroup?.groups} group_id={id} listProject={listGroup?.projects}
+                        <Project currentGroup={currentGroup} listGroup={listGroup?.groups} group_id={id} listProject={listGroup?.projects}
                                  listUser={listUser}/>
                     </div>
             }

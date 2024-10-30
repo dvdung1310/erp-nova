@@ -12,7 +12,7 @@ import CreateGroup from "../Group/overViewGroup/CreateGroup";
 const List = lazy(() => import('./overViewProject/List'));
 const Grid = lazy(() => import('./overViewProject/Grid'));
 
-function Project({listProject, listUser, group_id, listGroup}) {
+function Project({listProject, listUser, group_id, listGroup, currentGroup}) {
     const [state, setState] = useState({
         visible: false,
         visible_group: false,
@@ -51,8 +51,8 @@ function Project({listProject, listUser, group_id, listGroup}) {
                 <ProjectHeader>
                     <PageHeader
                         ghost
-                        title="Danh sách nhóm làm việc"
-                        subTitle={<>{listGroup?.length} Nhóm</>}
+                        title={currentGroup?.group_name}
+                        subTitle={<>{listGroup?.length} Nhóm con</>}
                         buttons={[
                             <Button onClick={showModalGroup} key="1" type="primary" size="default">
                                 <FeatherIcon icon="plus" size={16}/> Tạo nhóm

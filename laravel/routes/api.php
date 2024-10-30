@@ -104,12 +104,12 @@ Route::prefix('projects')->group(function () {
     Route::put('update/{project_id}', [ProjectController::class, 'update'])->middleware(MiddlewareLoginLeader::class);
     Route::get('get-by-ceo', [ProjectController::class, 'getProjectByCeo'])->middleware(MiddlewareLoginCeo::class);
     Route::post('member-join-project/{project_id}', [ProjectController::class, 'memberJoinProject'])->middleware(MiddlewareLoginLeader::class);
-    Route::put('update-name/{project_id}', [ProjectController::class, 'updateNameAndDescription'])->middleware(MiddlewareLoginLeader::class);
-    Route::put('update-status/{project_id}', [ProjectController::class, 'updateStatus'])->middleware(MiddlewareLoginLeader::class);
-    Route::put('update-members/{project_id}', [ProjectController::class, 'updateMembers'])->middleware(MiddlewareLoginLeader::class);
-    Route::put('update-start-date/{project_id}', [ProjectController::class, 'updateStartDate'])->middleware(MiddlewareLoginLeader::class);
-    Route::put('update-end-date/{project_id}', [ProjectController::class, 'updateEndDate'])->middleware(MiddlewareLoginLeader::class);
-    Route::delete('delete/{project_id}', [ProjectController::class, 'delete'])->middleware(MiddlewareLoginLeader::class);
+    Route::put('update-name/{project_id}', [ProjectController::class, 'updateNameAndDescription'])->middleware(middlewareLogin::class);
+    Route::put('update-status/{project_id}', [ProjectController::class, 'updateStatus'])->middleware(middlewareLogin::class);
+    Route::put('update-members/{project_id}', [ProjectController::class, 'updateMembers'])->middleware(middlewareLogin::class);
+    Route::put('update-start-date/{project_id}', [ProjectController::class, 'updateStartDate'])->middleware(middlewareLogin::class);
+    Route::put('update-end-date/{project_id}', [ProjectController::class, 'updateEndDate'])->middleware(middlewareLogin::class);
+    Route::delete('delete/{project_id}', [ProjectController::class, 'delete'])->middleware(middlewareLogin::class);
     Route::get('get-all', [ProjectController::class, 'getAllProjects'])->middleware(middlewareLogin::class);
     Route::get('get-project-by-user-id', [ProjectController::class, 'getProjectByUserId'])->middleware(middlewareLogin::class);
     Route::get('get-project-by-group-id/{group_id}', [ProjectController::class, 'getProjectsByGroupId'])->middleware(middlewareLogin::class);

@@ -30,6 +30,7 @@ function CrmEmployees() {
         setLoading(true);
         try {
             const res = await getEmployees();
+            console.log(res)
             if (!res.error) {
                 setDataSource(res.data);
             } else {
@@ -84,7 +85,7 @@ function CrmEmployees() {
             } else {
                 // Thêm mới nhân viên
                 response = await storeEmployees(values);
-                setDataSource((prev) => [...prev, response.data.data]);
+                setDataSource((prev) => [...prev, response.data.data?.data]);
                 message.success('Thêm nhân sự thành công!');
             }
             // Đóng modal và làm mới dữ liệu
@@ -99,11 +100,11 @@ function CrmEmployees() {
     const handleDelete = async (id) => {
         try {
             const res = await deleteEmployees(id);
-            if (res.success) {
-                setDataSource((prev) => prev.filter((item) => item.employeeId !== id));
-                message.success('Xóa nhân sự thành công!');
-            } else {
+            if (res.error) {
                 message.error(res.message || 'Xóa nhân sự thất bại.');
+            } else {
+                setDataSource((prev) => prev.filter((item) => item.employee_id !== id));
+                message.success('Xóa nhân sự thành công!');
             }
         } catch (error) {
             message.error(error.message || 'Xóa nhân sự thất bại.');
@@ -294,7 +295,7 @@ function CrmEmployees() {
                     <Form.Item
                         label="Vị trí"
                         name="level_id"
-                        rules={[{required: true, message: 'Vui lòng chọn vị trí!'}]}
+                        // rules={[{required: true, message: 'Vui lòng chọn vị trí!'}]}
                     >
                         <Select placeholder="Chọn vị trí">
                             {employeeLevels.map(level => (

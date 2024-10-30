@@ -20,6 +20,7 @@ class Project extends Model
         'project_start_date',
         'project_end_date',
         'create_by_user_id',
+        'leader_id',
     ];
 
     public function projectMembers()
