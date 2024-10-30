@@ -140,10 +140,12 @@ class GroupController extends Controller
                     $query->where('task_status', 2);
                 }])
                 ->get();
+           $currentGroup = Group::where('group_id', $parent_group_id)->first();
             return response([
                 'data' => [
                     'groups' => $groups,
-                    'projects' => $project
+                    'projects' => $project,
+                    'currentGroup' => $currentGroup
                 ],
                 'error' => false,
                 'message' => 'Groups fetched successfully'

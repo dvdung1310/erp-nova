@@ -301,6 +301,16 @@ class TaskController extends Controller
                     'data' => null
                 ], 404);
             }
+            $project = Project::find($task->project_id);
+            $user_id = auth()->user()->id;
+            $role_id = auth()->user()->role_id;
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Bạn không có quyền thực hiện hành động này',
+                    'data' => $role_id
+                ], 403);
+            }
 
             // Delete related task members
             TaskMember::where('task_id', $task_id)->delete();
@@ -368,6 +378,7 @@ class TaskController extends Controller
             $task->update($validatedData);
 //
             $members = $task->users->pluck('id');
+
             $pathname = $request->input('pathname');
             $createByUserName = auth()->user()->name;
             $create_by_user_id = auth()->user()->id;

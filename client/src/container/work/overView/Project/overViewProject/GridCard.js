@@ -187,7 +187,7 @@ function GridCard({value, listUser}) {
                                     </div>
                                     <div className='action-item' onClick={() => handleEditClick('delete', value)}>
                                         <MdDelete color='red' size={30} className='icon-delete'/>
-                                        <span>Xóa dự án</span>
+                                        <span>Xóa nhóm</span>
                                     </div>
                                 </div>
                             }
