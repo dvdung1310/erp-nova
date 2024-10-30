@@ -228,6 +228,11 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
                         Phòng ban
                     </NavLink>
                 </Menu.Item>
+                <Menu.Item key="nvu-nc">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-nhanh-su`}>
+                        Nhân sự New
+                    </NavLink>
+                </Menu.Item>
                 <Menu
                     mode={!topMenu || window.innerWidth <= 991 ? 'inline' : 'horizontal'}
                     theme={darkMode ? 'dark' : 'light'}
@@ -412,6 +417,11 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
             Phòng ban
           </NavLink>
         </Menu.Item>
+        <Menu.Item key="nvu-nhansu">
+          <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-nhanh-su`}>
+            Nhân sự new
+          </NavLink>
+        </Menu.Item>
         <Menu
           mode={!topMenu || window.innerWidth <= 991 ? 'inline' : 'horizontal'}
           theme={darkMode ? 'dark' : 'light'}
@@ -454,13 +464,13 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
       </SubMenu>
       {/* Tuyển dụng   */}
       {/* Tuyển dụng */}
-      <SubMenu key="tuyendung" icon={!topMenu && <FeatherIcon icon="home" />} title="Tuyển dụng">
+      {/* <SubMenu key="tuyendung" icon={!topMenu && <FeatherIcon icon="home" />} title="Tuyển dụng">
         <Menu.Item key="nvu-home">
           <NavLink onClick={toggleCollapsed} to={`${path}/tuyen-dung`}>
             Chỉ tiêu tuyển dụng
           </NavLink>
         </Menu.Item>
-      </SubMenu>
+      </SubMenu> */}
       {/* end tuyển dụng   */}
       {/**/}
       {/* work */}
