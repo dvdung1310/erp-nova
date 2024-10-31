@@ -152,9 +152,7 @@ const MessageComponent = ({handleCloseComment, task}) => {
                     <div className="card-header d-flex justify-content-between align-items-center">
                         <span>{task?.task_name}</span>
                         {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus */}
-                        <span role="button"
-                              onClick={handleCloseComment}
-                              className='btn-close border rounded-circle'></span>
+                       <Button type='primary' style={{borderRadius: '10px'}} onClick={handleCloseComment}>X</Button>
                     </div>
                     <div className="card-body">
                         <div className="comment">

@@ -58,7 +58,7 @@ class ProjectController extends Controller
             ];
 
             ProjectMember::insert($membersData);
-            $projectResponse = Project::with('projectMembers.user')
+            $projectResponse = Project::with(['projectMembers.user','leader'])
                 ->withCount([
                     'tasks as total_tasks',
                     'tasks as completed_tasks' => function ($query) {
@@ -111,7 +111,7 @@ class ProjectController extends Controller
             }
             ProjectMember::insert($membersData);
             $project->update($validatedData);
-            $projectResponse = Project::with('projectMembers.user')->find($project_id);
+            $projectResponse = Project::with(['projectMembers.user','leader'])->find($project_id);
 
             // Send notification to all members
             $pathname = $request->input('pathname');
@@ -192,7 +192,7 @@ class ProjectController extends Controller
                 'project_description' => 'nullable|string',
             ]);
             $project->update($validatedData);
-            $projectResponse = Project::with('projectMembers.user')
+            $projectResponse = Project::with(['projectMembers.user', 'leader'])
                 ->withCount([
                     'tasks as total_tasks',
                     'tasks as completed_tasks' => function ($query) {
@@ -284,7 +284,7 @@ class ProjectController extends Controller
                 'project_status' => 'required',
             ]);
             $project->update($validatedData);
-            $projectResponse = Project::with('projectMembers.user')
+            $projectResponse = Project::with(['projectMembers.user','leader'])
                 ->withCount([
                     'tasks as total_tasks',
                     'tasks as completed_tasks' => function ($query) {
@@ -399,7 +399,7 @@ class ProjectController extends Controller
                 ];
             }
             ProjectMember::insert($membersData);
-            $projectResponse = Project::with('projectMembers.user')
+            $projectResponse = Project::with(['projectMembers.user','leader'])
                 ->withCount([
                     'tasks as total_tasks',
                     'tasks as completed_tasks' => function ($query) {
@@ -536,7 +536,7 @@ class ProjectController extends Controller
                 'project_start_date' => 'required',
             ]);
             $project->update($validatedData);
-            $projectResponse = Project::with('projectMembers.user')
+            $projectResponse = Project::with(['projectMembers.user', 'leader'])
                 ->withCount([
                     'tasks as total_tasks',
                     'tasks as completed_tasks' => function ($query) {
@@ -629,7 +629,7 @@ class ProjectController extends Controller
                 'project_end_date' => 'required',
             ]);
             $project->update($validatedData);
-            $projectResponse = Project::with('projectMembers.user')
+            $projectResponse = Project::with(['projectMembers.user', 'leader'])
                 ->withCount([
                     'tasks as total_tasks',
                     'tasks as completed_tasks' => function ($query) {
@@ -715,7 +715,7 @@ class ProjectController extends Controller
                     'data' => $role_id
                 ], 403);
             }
-            $projectResponse = Project::with('projectMembers.user')
+            $projectResponse = Project::with(['projectMembers.user', 'leader'])
                 ->withCount([
                     'tasks as total_tasks',
                     'tasks as completed_tasks' => function ($query) {
@@ -954,7 +954,7 @@ class ProjectController extends Controller
             ]);
             $project->update($validatedData);
             //
-            $projectResponse = Project::with('projectMembers.user')
+            $projectResponse = Project::with(['projectMembers.user', 'leader'])
                 ->withCount([
                     'tasks as total_tasks',
                     'tasks as completed_tasks' => function ($query) {
@@ -964,11 +964,11 @@ class ProjectController extends Controller
                 ->find($project_id);
             // Send notification to all members
             $pathname = $request->input('pathname');
-            $pathname = $pathname ? $pathname : '/groups/' . $project->group_id;
+            $pathname = $pathname ? $pathname : '/lam-viec/' . $project->group_id;
             $createByUserName = auth()->user()->name;
             $create_by_user_id = auth()->user()->id;
             $notifications = [];
-            $members[] = $leader_id;
+            $members[] = $validatedData['leader_id'];
             if (!empty($members)) {
                 foreach ($members as $user_id) {
                     if ($user_id != $create_by_user_id) {
@@ -1009,7 +1009,7 @@ class ProjectController extends Controller
                 'error' => false,
                 'message' => 'Project updated successfully',
                 'data' => $projectResponse
-            ],  200);
+            ], 200);
 
 
         } catch (\Exception $e) {

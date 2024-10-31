@@ -1,6 +1,6 @@
 import React, {Suspense, lazy, useEffect} from 'react';
 import {Spin} from 'antd';
-import {Switch, Route, useRouteMatch} from 'react-router-dom';
+import {Switch, Route, useRouteMatch, useHistory} from 'react-router-dom';
 
 import Dashboard from './dashboard';
 import Ecommerce from './ecommerce';
@@ -17,7 +17,7 @@ import Work from "./work";
 import {urlBase64ToUint8Array} from "../../utility/utility";
 import {registerDevice} from "../../apis/work/user";
 import Recruit from "./Recruit";
-import {getItem} from "../../utility/localStorageControl";
+import {getItem, removeItem} from "../../utility/localStorageControl";
 
 const Projects = lazy(() => import('./projects'));
 const Calendars = lazy(() => import('../../container/Calendar'));
@@ -38,11 +38,13 @@ const Task = lazy(() => import('../../container/task/Index'));
 import {io} from "socket.io-client";
 import {useDispatch} from "react-redux";
 import {socketConnect, socketDisconnect} from '../../redux/users/actionCreator';
+import {toast} from "react-toastify";
 
 function Admin() {
     const {path} = useRouteMatch();
     const publicVapidKey = 'BFRuISHeTPNFMZv_7-PndFq72gEqCd8tvf1YX7mTYyuXkOa3vdBxtvzxaj3B1B8AsYy0rG1Mg4DsFS51glqBFSM';
     const user_id = getItem('user_id');
+    const history = useHistory();
     const dispatch = useDispatch();
 
     async function send() {
@@ -65,10 +67,10 @@ function Admin() {
             // Gửi Subscription đến Server
 
             await registerDevice(payload);
+            console.log('Push Sent');
         } catch (e) {
             console.log(e);
         }
-        console.log('Push Sent');
     }
 
     useEffect(() => {

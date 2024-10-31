@@ -68,7 +68,7 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
       overflowedIndicator={<FeatherIcon icon="more-vertical" />}
       openKeys={openKeys}
     >
-      <SubMenu key="dashboard" icon={!topMenu && <FeatherIcon icon="home" />} title="Dashboard">
+      <SubMenu style={{display: 'none'}} key="dashboard" icon={!topMenu && <FeatherIcon icon="home" />} title="Dashboard">
         <Menu.Item key="home">
           <NavLink onClick={toggleCollapsed} to={`${path}`}>
             Social Media

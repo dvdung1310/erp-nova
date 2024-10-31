@@ -83,7 +83,16 @@ class TaskController extends Controller
             $user_id = auth()->user()->id;
             $role_id = auth()->user()->role_id;
             $tasks = [];
-            if ($role_id != 5) {
+            $project = Project::find($project_id);
+            if (!$project) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Project not found',
+                    'data' => null
+                ], 404);
+            }
+            $leader_id = $project->leader_id;
+            if ($role_id != 5 || $user_id == $leader_id) {
                 $tasks = Task::where('project_id', $project_id)
                     ->with(['users' => function ($query) {
                         $query->select('users.id', 'users.name', 'users.email', 'users.avatar');
@@ -489,7 +498,7 @@ class TaskController extends Controller
             $user_id = auth()->user()->id;
             $role_id = auth()->user()->role_id;
             $project = Project::find($task->project_id);
-            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2 && !in_array($user_id, $project->members->pluck('id')->toArray())) {
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2) {
                 return response()->json([
                     'error' => true,
                     'message' => 'Bạn không có quyền thực hiện hành động này',

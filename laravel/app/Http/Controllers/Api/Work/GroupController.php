@@ -70,7 +70,7 @@ class GroupController extends Controller
                         ->with('leader') // Assuming there is a relationship defined in the Group.js model
                         ->select('group_id', 'group_name', 'color', 'leader_id', 'group_description')
                         ->first();
-              
+
 
                     return response([
                         'message' => 'Group created successfully',
@@ -93,7 +93,7 @@ class GroupController extends Controller
                 ->with('leader') // Assuming there is a relationship defined in the Group.js model
                 ->select('group_id', 'group_name', 'color', 'leader_id', 'group_description')
                 ->first();
-         
+
 
             return response([
                 'message' => 'Group created successfully',
@@ -135,12 +135,12 @@ class GroupController extends Controller
                 ->select('group_id', 'group_name', 'color', 'leader_id', 'group_description')
                 ->get();
             $project = Project::where('group_id', $parent_group_id)
-                ->with(['projectMembers.user'])
+                ->with(['projectMembers.user', 'leader'])
                 ->withCount(['tasks as total_tasks', 'tasks as completed_tasks' => function ($query) {
                     $query->where('task_status', 2);
                 }])
                 ->get();
-           $currentGroup = Group::where('group_id', $parent_group_id)->first();
+            $currentGroup = Group::where('group_id', $parent_group_id)->first();
             return response([
                 'data' => [
                     'groups' => $groups,
@@ -204,7 +204,7 @@ class GroupController extends Controller
 
                     // Delete the group
                     $group->delete();
-                 
+
 
                     return response([
                         'message' => 'Group deleted successfully',
@@ -247,7 +247,7 @@ class GroupController extends Controller
 
             // Delete the group
             $group->delete();
-           
+
 
             return response([
                 'message' => 'Group.js deleted successfully',

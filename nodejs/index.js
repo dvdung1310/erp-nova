@@ -273,7 +273,6 @@ app.post('/update-add-members-project', (req, res) => {
 app.post('/update-leader-project', (req, res) => {
     try {
         const {devices, createByUserName, notification, createByUserId, projectName, pathname, members} = req.body;
-        console.log(members, devices)
         const payload = JSON.stringify({
             title: 'THông báo mới',
             body: `${createByUserName} thêm bạn làm người phụ trách của dự án: ${projectName}`,

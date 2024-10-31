@@ -64,9 +64,9 @@ function ProjectLists({listProject, listUser = []}) {
     const [showModalUpdateStartDate, setShowModalUpdateStartDate] = useState(false);
     const [showModalUpdateEndDate, setShowModalUpdateEndDate] = useState(false);
     const [showModalConfirm, setShowModalConfirm] = useState(false);
-   const handleShowModalUpdateLeader = () => {
+    const handleShowModalUpdateLeader = () => {
         setShowModalUpdateLeader(true);
-   }
+    }
 
     const handleShowModalUpdateName = () => {
         setShowModalUpdateName(true);
@@ -103,7 +103,7 @@ function ProjectLists({listProject, listUser = []}) {
 
     const handleSearchChange = (e) => setSearchTerm(e.target.value);
 
-    const handleSelectMember = (member)    => {
+    const handleSelectMember = (member) => {
         // Add the member if it's not already selected
         if (!selectedMembers.some((selected) => selected.email === member.email)) {
             setSelectedMembers([...selectedMembers, member]);
@@ -528,6 +528,7 @@ function ProjectLists({listProject, listUser = []}) {
                 project_name,
                 project_status,
                 project_members,
+                leader,
                 success,
                 project_start_date,
                 project_end_date,
@@ -597,6 +598,22 @@ function ProjectLists({listProject, listUser = []}) {
                         </ul>
                     </ProjectListAssignees>
                 ),
+                // leader: (
+                //     <div className='d-flex align-items-center'
+                //          style={{
+                //              marginLeft: '-10px',
+                //              cursor: 'default'
+                //          }}
+                //          title={leader?.name}
+                //     >
+                //         <li key={index}>
+                //             <Avatar width={30} height={30}
+                //                     name={leader?.name}
+                //                     imageUrl={leader?.avatar ? `${LARAVEL_SERVER}${leader?.avatar}` : ""}
+                //             />
+                //         </li>
+                //     </div>
+                // ),
                 project_status: <Tag style={{
                     padding: "4px 8px",
                     backgroundColor: checkStatus(project_status)?.color,
@@ -691,6 +708,11 @@ function ProjectLists({listProject, listUser = []}) {
             dataIndex: 'project_members',
             key: 'project_members',
         },
+        // {
+        //     title: 'Người phụ trách',
+        //     dataIndex: 'leader',
+        //     key: 'leader',
+        // },
         {
             title: 'Trạng thái',
             dataIndex: 'project_status',

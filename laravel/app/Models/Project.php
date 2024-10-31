@@ -47,4 +47,8 @@ class Project extends Model
     {
         return $this->belongsTo(User::class, 'create_by_user_id');
     }
+    public function leader()
+    {
+        return $this->belongsTo(User::class, 'leader_id');
+    }
 }

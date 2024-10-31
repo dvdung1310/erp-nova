@@ -42,8 +42,8 @@ function NotificationBox() {
 
         if (socketConnection) {
             socketConnection.off('notification');
-            socketConnection.on('notification', (data) => {
-                getNotify();
+            socketConnection.on('notification', async (data) => {
+                await getNotify();
                 toast.warn('Bạn có thông báo mới', {
                     position: "top-right",
                     autoClose: 1000,
