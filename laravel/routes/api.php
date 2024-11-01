@@ -39,10 +39,13 @@ Route::group([
     Route::post('/login', [AuthController::class, 'login'])->name('login');
     Route::post('/logout', [AuthController::class, 'logout'])->middleware(middlewareLogin::class)->name('logout');
     Route::post('/refresh', [AuthController::class, 'refresh'])->name('refresh');
-    Route::post('/me', [AuthController::class, 'me'])->middleware(middlewareLogin::class)->name('me');
+    Route::get('/me', [AuthController::class, 'me'])->middleware(middlewareLogin::class)->name('me');
+    Route::post('/update-profile', [AuthController::class, 'updateProfile'])->middleware(middlewareLogin::class);
+    Route::put('/change-password', [AuthController::class, 'changePassword'])->middleware(middlewareLogin::class);
     Route::get('get-all', [AuthController::class, 'getAllUser'])->middleware(middlewareLogin::class);
-    Route::post('/check-token', [AuthController::class, 'checkToken'])->middleware(middlewareLogin::class);
+
 });
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 
 Route::group(['middleware' => 'api'], function () {
     Route::post('/store-exams', [ExamController::class, 'store']);
@@ -124,16 +127,16 @@ Route::prefix('tasks')->group(function () {
     Route::get('get-message-by-task/{task_id}', [MessageController::class, 'getMessageByTask'])->middleware(middlewareLogin::class);
 
     //
-    Route::post('create', [TaskController::class, 'create'])->middleware(MiddlewareLoginLeader::class);
+    Route::post('create', [TaskController::class, 'create'])->middleware(middlewareLogin::class);
     Route::get('get-task-unfinished-by-user-id', [TaskController::class, 'getTaskUnfinishedByUserId'])->middleware(middlewareLogin::class);
-    Route::delete('delete/{task_id}', [TaskController::class, 'delete'])->middleware(MiddlewareLoginLeader::class);
+    Route::delete('delete/{task_id}', [TaskController::class, 'delete'])->middleware(middlewareLogin::class);
     Route::get('get-task-by-project-id/{project_id}', [TaskController::class, 'getTaskByProjectId'])->middleware(middlewareLogin::class);
     Route::put('update-name/{task_id}', [TaskController::class, 'updateName'])->middleware(middlewareLogin::class);
     Route::put('update-status/{task_id}', [TaskController::class, 'updateStatus'])->middleware(middlewareLogin::class);
     Route::put('update-priority/{task_id}', [TaskController::class, 'updatePriority'])->middleware(middlewareLogin::class);
-    Route::put('update-start-date/{task_id}', [TaskController::class, 'updateStartDate'])->middleware(MiddlewareLoginLeader::class);
-    Route::put('update-end-date/{task_id}', [TaskController::class, 'updateEndDate'])->middleware(MiddlewareLoginLeader::class);
-    Route::put('update-members/{task_id}', [TaskController::class, 'updateMember'])->middleware(MiddlewareLoginLeader::class);
+    Route::put('update-start-date/{task_id}', [TaskController::class, 'updateStartDate'])->middleware(middlewareLogin::class);
+    Route::put('update-end-date/{task_id}', [TaskController::class, 'updateEndDate'])->middleware(middlewareLogin::class);
+    Route::put('update-members/{task_id}', [TaskController::class, 'updateMember'])->middleware(middlewareLogin::class);
 });
 // devices
 Route::prefix('devices')->group(function () {

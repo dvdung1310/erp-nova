@@ -61,7 +61,6 @@ const Main = Styled.div`
         padding: 0px 15px;
     }
     @media only screen and (max-width: 991px){
-        min-height: 580px;
     }
     .w-100{
         width: 100%;

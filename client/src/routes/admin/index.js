@@ -106,7 +106,7 @@ function Admin() {
                     </div>
                 }
             >
-                <Route path={path} component={Dashboard}/>
+                <Route path={path} component={Work}/>
                 <Route path={`${path}/dashboard`} component={Dashboard}/>
                 <Route path={`${path}/ecommerce`} component={Ecommerce}/>
                 <Route path={`${path}`} component={Pages}/>

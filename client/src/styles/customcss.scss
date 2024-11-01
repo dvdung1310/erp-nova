@@ -3,6 +3,9 @@
   padding: 20px !important;
 }
 
+.ant-layout-content {
+}
+
 .ant-modal-content {
   padding: 30px !important;
 }
@@ -31,6 +34,7 @@
 @media only screen and (max-width: 450px) {
   .ant-modal-content {
     padding: 10px !important;
+    min-width: 200px;
   }
   .ant-modal-body {
     padding: 10px !important;
@@ -70,9 +74,25 @@
   }
   .form-add-members {
     min-width: 100% !important;
+
     .ant-list-item {
       flex-direction: row;
       padding: 10px 0;
     }
   }
+  .ant-col {
+    width: 100%;
+  }
 }
+.text-danger {
+    color: #d32f2f;
+}
+//.text-warning {
+//    color: #ed6c02;
+//}
+//.text-info{
+//    color: #0288d1;
+//}
+//.text-success {
+//    color: #2e7d32;
+//}

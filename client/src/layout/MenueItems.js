@@ -101,7 +101,7 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
         </Menu.Item>
       </SubMenu>
       {/* novaup */}
-      <SubMenu key="novaup" icon={!topMenu && <FeatherIcon icon="home" />} title="Novaup">
+      <SubMenu style={{display: 'none'}} key="novaup" icon={!topMenu && <FeatherIcon icon="home" />} title="Novaup">
         <Menu.Item key="nvu-home">
           <NavLink onClick={toggleCollapsed} to={`${path}/novaup`}>
             Dashboard
@@ -152,56 +152,67 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
 
       {/* Quản lý nhân sự */}
       <SubMenu key="employees" icon={!topMenu && <FeatherIcon icon="users" />} title="Quản lý nhân sự">
-        <Menu.Item key="nvu-home">
-          <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su`}>
-            Nhân sự
+        <Menu.Item className='pl-custom-sidebar' key="store-works-chedule">
+          <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/dang-ki/lich-lam-viec`}>
+            Đăng kí lịch làm việc
           </NavLink>
         </Menu.Item>
-        <Menu.Item key="nvu-department">
-          <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/phong-ban`}>
-            Phòng ban
-          </NavLink>
-        </Menu.Item>
-        <Menu.Item key="nvu-nhansu"> <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-nhanh-su`}> Nhân sự new </NavLink> </Menu.Item>
-        <Menu
-          mode={!topMenu || window.innerWidth <= 991 ? 'inline' : 'horizontal'}
-          theme={darkMode ? 'dark' : 'light'}
-          openKeys={openKey}
-          onOpenChange={onOpenChanges}
-        >
-          <SubMenu key="work-schedule" title=" - Chấm công">
-            <Menu.Item className='pl-custom-sidebar' key="store-works-chedule">
-              <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/dang-ki/lich-lam-viec`}>
-                Đăng kí lịch làm việc
-              </NavLink>
-            </Menu.Item>
 
-            <Menu.Item className='pl-custom-sidebar' key="works-chedule">
-              <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/lich-lam-viec`}>
-                Lịch làm việc
-              </NavLink>
-            </Menu.Item>
-          </SubMenu>
-        </Menu>
-        <Menu
-          mode={!topMenu || window.innerWidth <= 991 ? 'inline' : 'horizontal'}
-          theme={darkMode ? 'dark' : 'light'}
-          openKeys={openKey}
-          onOpenChange={onOpenChanges}
-        >
-          <SubMenu key="exam" title=" - Quản lý đào tạo">
-            <Menu.Item className='pl-custom-sidebar' key="exam-list">
-              <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-de`}>
-                Danh sách đề
-              </NavLink>
-            </Menu.Item>
-            <Menu.Item className='pl-custom-sidebar'   key="exam-add">
-              <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/tao-de`}>
-                Tạo đề
-              </NavLink>
-            </Menu.Item>
-          </SubMenu>
-        </Menu>
+        <Menu.Item className='pl-custom-sidebar' key="works-chedule">
+          <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/lich-lam-viec`}>
+            Lịch làm việc
+          </NavLink>
+        </Menu.Item>
+        {/*<Menu.Item key="nvu-home">*/}
+        {/*  <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su`}>*/}
+        {/*    Nhân sự*/}
+        {/*  </NavLink>*/}
+        {/*</Menu.Item>*/}
+        {/*<Menu.Item key="nvu-department">*/}
+        {/*  <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/phong-ban`}>*/}
+        {/*    Phòng ban*/}
+        {/*  </NavLink>*/}
+        {/*</Menu.Item>*/}
+        {/*<Menu.Item key="nvu-nhansu"> <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-nhanh-su`}> Nhân sự new </NavLink> </Menu.Item>*/}
+        {/*<Menu*/}
+        {/*  mode={!topMenu || window.innerWidth <= 991 ? 'inline' : 'horizontal'}*/}
+        {/*  theme={darkMode ? 'dark' : 'light'}*/}
+        {/*  openKeys={openKey}*/}
+        {/*  onOpenChange={onOpenChanges}*/}
+        {/*>*/}
+        {/*  <SubMenu key="work-schedule" title=" - Chấm công">*/}
+        {/*    <Menu.Item className='pl-custom-sidebar' key="store-works-chedule">*/}
+        {/*      <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/dang-ki/lich-lam-viec`}>*/}
+        {/*        Đăng kí lịch làm việc*/}
+        {/*      </NavLink>*/}
+        {/*    </Menu.Item>*/}
+
+        {/*    <Menu.Item className='pl-custom-sidebar' key="works-chedule">*/}
+        {/*      <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/lich-lam-viec`}>*/}
+        {/*        Lịch làm việc*/}
+        {/*      </NavLink>*/}
+        {/*    </Menu.Item>*/}
+        {/*  </SubMenu>*/}
+        {/*</Menu>*/}
+        {/*<Menu*/}
+        {/*  mode={!topMenu || window.innerWidth <= 991 ? 'inline' : 'horizontal'}*/}
+        {/*  theme={darkMode ? 'dark' : 'light'}*/}
+        {/*  openKeys={openKey}*/}
+        {/*  onOpenChange={onOpenChanges}*/}
+        {/*>*/}
+        {/*  <SubMenu key="exam" title=" - Quản lý đào tạo">*/}
+        {/*    <Menu.Item className='pl-custom-sidebar' key="exam-list">*/}
+        {/*      <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-de`}>*/}
+        {/*        Danh sách đề*/}
+        {/*      </NavLink>*/}
+        {/*    </Menu.Item>*/}
+        {/*    <Menu.Item className='pl-custom-sidebar'   key="exam-add">*/}
+        {/*      <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/tao-de`}>*/}
+        {/*        Tạo đề*/}
+        {/*      </NavLink>*/}
+        {/*    </Menu.Item>*/}
+        {/*  </SubMenu>*/}
+        {/*</Menu>*/}
       </SubMenu>
       {/* Tuyển dụng   */}
       {/* Tuyển dụng */}

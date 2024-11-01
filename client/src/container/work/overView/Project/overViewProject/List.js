@@ -440,12 +440,19 @@ function ProjectLists({listProject, listUser = []}) {
                 setLoadingUpdate(false);
                 return;
             }
+            if (listUserData?.some(user => user.email === dataJoinProject?.email_to)) {
+                toast.warn('Người dùng đã tồn tại trong dự án', {
+                    position: "top-right",
+                    autoClose: 1000,
+                })
+                setLoadingUpdate(false);
+                return;
+            }
             const payload = {
                 email_to: dataJoinProject?.email_to,
                 message: dataJoinProject?.message,
                 pathname
             }
-            console.log(payload)
             const res = await joinProject(payload, selectedProject?.project_id);
             if (res.error) {
                 toast.error(res?.message, {
@@ -598,22 +605,22 @@ function ProjectLists({listProject, listUser = []}) {
                         </ul>
                     </ProjectListAssignees>
                 ),
-                // leader: (
-                //     <div className='d-flex align-items-center'
-                //          style={{
-                //              marginLeft: '-10px',
-                //              cursor: 'default'
-                //          }}
-                //          title={leader?.name}
-                //     >
-                //         <li key={index}>
-                //             <Avatar width={30} height={30}
-                //                     name={leader?.name}
-                //                     imageUrl={leader?.avatar ? `${LARAVEL_SERVER}${leader?.avatar}` : ""}
-                //             />
-                //         </li>
-                //     </div>
-                // ),
+                leader: (
+                    <div className='d-flex align-items-center'
+                         style={{
+                             marginLeft: '-10px',
+                             cursor: 'default'
+                         }}
+                         title={leader?.name}
+                    >
+                        <li key={index}>
+                            <Avatar width={30} height={30}
+                                    name={leader?.name}
+                                    imageUrl={leader?.avatar ? `${LARAVEL_SERVER}${leader?.avatar}` : ""}
+                            />
+                        </li>
+                    </div>
+                ),
                 project_status: <Tag style={{
                     padding: "4px 8px",
                     backgroundColor: checkStatus(project_status)?.color,
@@ -708,11 +715,11 @@ function ProjectLists({listProject, listUser = []}) {
             dataIndex: 'project_members',
             key: 'project_members',
         },
-        // {
-        //     title: 'Người phụ trách',
-        //     dataIndex: 'leader',
-        //     key: 'leader',
-        // },
+        {
+            title: 'Người phụ trách',
+            dataIndex: 'leader',
+            key: 'leader',
+        },
         {
             title: 'Trạng thái',
             dataIndex: 'project_status',

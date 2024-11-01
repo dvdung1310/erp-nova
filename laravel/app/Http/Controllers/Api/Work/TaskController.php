@@ -495,17 +495,6 @@ class TaskController extends Controller
             $project = Project::find($task->project_id);
             $leader_id = $project->leader_id;
             $members[] = $leader_id;
-            $user_id = auth()->user()->id;
-            $role_id = auth()->user()->role_id;
-            $project = Project::find($task->project_id);
-            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2) {
-                return response()->json([
-                    'error' => true,
-                    'message' => 'Bạn không có quyền thực hiện hành động này',
-                    'data' => $role_id
-                ], 403);
-            }
-
             $task->update($validatedData);
 
             //

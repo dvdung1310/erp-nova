@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Work;
 
 use App\Http\Controllers\Controller;
+use App\Mail\ForgotPasswordMail;
 use App\Mail\InviteUserMail;
 use App\Models\Devices;
 use App\Models\Group;
