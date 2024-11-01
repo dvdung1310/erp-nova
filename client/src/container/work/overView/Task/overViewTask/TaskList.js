@@ -1,5 +1,5 @@
 import {useLocation, useParams} from "react-router-dom";
-import React, {useEffect, useState} from "react";
+import React, { useState} from "react";
 import {checkStatus} from "../../../../../utility/checkValue";
 import {
     createTask, deleteTask, updateEndDateTask, updateMemberTask, updateNameTask, updateStartDateTask, updateStatusTask
@@ -22,19 +22,18 @@ import {
     TableSortLabel,
     TextField,
 } from "@mui/material";
-import {Modal, Form, Input, Button, Spin, Badge, Typography, List} from 'antd';
-// import {Popover, Form, Input, Badge, List, Avatar, Button} from 'antd';
+import {Modal, Form, Input, Button, Spin, Badge, Typography, List, } from 'antd';
 import {AnimatePresence, motion} from "framer-motion";
 import {MdDelete, MdOutlineDateRange} from "react-icons/md";
 import Avatar from "../../../../../components/Avatar/Avatar";
-import {CiCircleInfo, CiCirclePlus} from "react-icons/ci";
+import { CiCirclePlus} from "react-icons/ci";
 import moment from "moment";
-import {FaCommentAlt} from "react-icons/fa";
 import {GoComment} from "react-icons/go";
 import MessageComponent from "./MessageComponent";
-import {IoIosAdd, IoIosAddCircleOutline} from "react-icons/io";
+import {IoIosAdd} from "react-icons/io";
 import {PiEyeThin} from "react-icons/pi";
 import FeatherIcon from "feather-icons-react";
+//
 
 const getComparator = (order, orderBy) => {
     return (a, b) => {
@@ -58,6 +57,7 @@ const stableSort = (array, comparator) => {
 };
 
 const TaskList = (props) => {
+    const [form] = Form.useForm();
     const {listUser, tasks, setTasks} = props;
     const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
     const params = useParams()
@@ -383,6 +383,7 @@ const TaskList = (props) => {
     const handleCreateTask = async () => {
         try {
             setLoadingCreate(true);
+            console.log(dataCreateTask)
             if (!dataCreateTask.task_name || !dataCreateTask.task_start_date || !dataCreateTask.task_end_date) {
                 toast.error('Vui lòng nhập đầy đủ thông tin', {
                     position: "top-right", autoClose: 1000
@@ -398,9 +399,10 @@ const TaskList = (props) => {
                 "task_end_date": dataCreateTask.task_end_date,
                 "members": []
             }
+            console.log(payload)
             const res = await createTask(payload)
             if (res.error) {
-                toast.error(res.message, {
+                toast.error(res?.message, {
                     position: "top-right", autoClose: 1000
                 });
                 setLoadingCreate(false);
@@ -418,9 +420,10 @@ const TaskList = (props) => {
                 task_start_date: '',
                 task_end_date: '',
             })
+            form.resetFields();
         } catch (error) {
             setLoadingCreate(false);
-            toast.error(error.response.data.message, {
+            toast.error(error?.response?.data?.message, {
                 position: "top-right", autoClose: 1000
             });
             console.log(error);
@@ -444,18 +447,6 @@ const TaskList = (props) => {
     const sortedTasks = stableSort(tasks, getComparator(order, orderBy));
 
     //
-    const getStatusClass = (status) => {
-        switch (status) {
-            case '0' :
-                return 'bg-warning'; // Pending
-            case '1':
-                return 'bg-info'; // In Progress
-            case '2':
-                return 'bg-success'; // Completed
-            default:
-                return 'bg-warning'; // Default
-        }
-    };
     return (<div>
             <TableContainer component={Paper}>
                 <Table>
@@ -518,11 +509,16 @@ const TaskList = (props) => {
                                     willChange: 'inherit', backfaceVisibility: 'inherit'
                                 }} // Đưa phần tử lên layer mới
                             >
-                                <TableCell className="table-cell">
+                                <TableCell className="table-cell" style={{
+                                    minWidth: '50px'
+                                }}>
                                     {index + 1}
                                 </TableCell>
                                 <TableCell
                                     className="table-cell"
+                                    style={{
+                                        textAlign: 'left'
+                                    }}
                                     onClick={(event) => handleNameClick(event, task)}
                                 >
                                     {task?.task_name || '....'}
@@ -572,7 +568,7 @@ const TaskList = (props) => {
                                             <span className='text-danger'>
                                                                 Quá hạn {Math.floor((new Date(task.task_date_update_status_completed) - new Date(task.task_end_date)) / (1000 * 60 * 60 * 24))} ngày
                                                             </span>) : new Date(task.task_date_update_status_completed) < new Date(task.task_end_date) ? (
-                                            <span className='text-info'>
+                                            <span className='text-success'>
                                                                 hoàn thành sớm {Math.floor((new Date(task.task_end_date) - new Date(task.task_date_update_status_completed)) / (1000 * 60 * 60 * 24))} ngày
                                                             </span>) : (<span className='text-success'>
                                                                 hoàn thành đúng hạn
@@ -641,13 +637,15 @@ const TaskList = (props) => {
 
 
                                 <Button
+
                                     type="default"
                                     onClick={handleConfirmCreateTask}
                                     style={{
                                         marginTop: '10px',
                                         minWidth: '150px',
                                         borderColor: '#d9d9d9',
-                                        color: '#595959'
+                                        color: '#fff',
+                                        backgroundColor: 'rgb(89 89 89)'
                                     }}
                                 >
                                     {loadingCreate ? (
@@ -922,7 +920,7 @@ const TaskList = (props) => {
                 title="Thêm mới công việc"
                 footer={null}
             >
-                <Form layout="vertical">
+                <Form layout="vertical" form={form}>
                     <div className="row">
                         <div className="col-md-12">
                             <Form.Item
@@ -934,7 +932,7 @@ const TaskList = (props) => {
                                     className="form-control fs-5"
                                     id="input1"
                                     name="task_name"
-                                    value={dataCreateTask.task_name}
+                                    value={dataCreateTask.task_name || ''}
                                     onChange={handleChange}
                                     placeholder="Nhập tên công việc"
                                 />
@@ -968,10 +966,10 @@ const TaskList = (props) => {
                                 <Input
                                     type="date"
                                     className="form-control fs-5"
+                                    id="input4"
                                     name="task_start_date"
                                     value={dataCreateTask.task_start_date}
                                     onChange={handleChange}
-                                    id="input3"
                                 />
                             </Form.Item>
                         </div>

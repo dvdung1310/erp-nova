@@ -207,6 +207,7 @@ function CreateGroup({visible, onCancel, group_id, listUser = [], admin = false}
                                     </List.Item>
                                 )}
                             />
+
                         </Form.Item>
                     </Form>
                 </BasicFormWrapper>

@@ -270,6 +270,31 @@ app.post('/update-add-members-project', (req, res) => {
         console.log(error);
     }
 })
+app.post('/update-leader-project', (req, res) => {
+    try {
+        const {devices, createByUserName, notification, createByUserId, projectName, pathname, members} = req.body;
+        const payload = JSON.stringify({
+            title: 'THông báo mới',
+            body: `${createByUserName} thêm bạn làm người phụ trách của dự án: ${projectName}`,
+            data: {
+                url: `${CLIENT_URL}${pathname}`
+            }
+        });
+        // Gửi thông báo đến các client
+        sendNotificationSocket(notification, members, createByUserId);
+        // Gửi thông báo đến các thiết bị
+        devices.forEach(subscription => {
+            webpush.sendNotification(subscription, payload).catch(error => {
+                console.error('Lỗi khi gửi thông báo:', error);
+                res.status(500).json({message: "Lỗi khi gửi thông báo"});
+            });
+        });
+        res.status(200).json({message: "Update project success"});
+    } catch (error) {
+        res.status(500).json({message: "Lỗi khi gửi thông báo"});
+        console.log(error);
+    }
+})
 // task
 app.post('/update-name-task', (req, res) => {
     try {

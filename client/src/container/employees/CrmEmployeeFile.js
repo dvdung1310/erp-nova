@@ -97,6 +97,7 @@ function CrmEmployees() {
       const formData = new FormData();
 
       // Append form data
+      // eslint-disable-next-line no-restricted-syntax
       for (const key in values) {
         if (values[key] instanceof moment) {
           formData.append(key, values[key].format('YYYY-MM-DD'));

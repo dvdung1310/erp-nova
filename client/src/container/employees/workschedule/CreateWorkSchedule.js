@@ -1,9 +1,9 @@
-import { Row, Col, Checkbox, Card, Button, message } from "antd"; // Thêm message từ antd
-import { useState, useEffect } from "react";
-import { ToastContainer, toast } from 'react-toastify';
-import { useHistory } from 'react-router-dom';
+import {Row, Col, Checkbox, Card, Button, message} from "antd"; // Thêm message từ antd
+import {useState, useEffect} from "react";
+import {toast} from "react-toastify";
+import {useHistory} from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
-import { saveWorkSchedule, getWorkScheduleForWeekByUserId } from '../../../apis/employees/index';
+import {saveWorkSchedule, getWorkScheduleForWeekByUserId} from '../../../apis/employees/index';
 import '../style.css';
 
 const CreateWorkSchedule = () => {
@@ -21,7 +21,7 @@ const CreateWorkSchedule = () => {
             const day = new Date(current.getFullYear(), current.getMonth(), firstDayOfWeek + i);
             const formattedDate = day.toLocaleDateString('en-GB'); // Định dạng dd-mm-yyyy
             weekDays.push({
-                dayName: day.toLocaleDateString('vi-VN', { weekday: 'long' }),
+                dayName: day.toLocaleDateString('vi-VN', {weekday: 'long'}),
                 date: formattedDate,
             });
         }
@@ -48,7 +48,7 @@ const CreateWorkSchedule = () => {
                 if (day.morning) checkedValues.push("morning");
                 if (day.afternoon) checkedValues.push("afternoon");
                 if (day.evening) checkedValues.push("evening");
-                initialCheckboxValues[day.date] = checkedValues; 
+                initialCheckboxValues[day.date] = checkedValues;
             });
             console.log(initialCheckboxValues);
             setCheckboxValues(initialCheckboxValues);
@@ -65,7 +65,11 @@ const CreateWorkSchedule = () => {
         // console.log('ngày hết hạn :' ,mondayMorningDeadline);
         if (now > mondayMorningDeadline) {
             setIsRegistrationClosed(true);
-            toast.warning('Đã hết hạn đăng ký lịch làm việc!'); 
+            toast.warn('Đã hết hạn đăng ký lịch làm việc cho tuần này', {
+                autoClose: 1000,
+                position: 'top-right'
+            });
+
         } else {
             setIsRegistrationClosed(false);
         }
@@ -143,7 +147,6 @@ const CreateWorkSchedule = () => {
                     </Col>
                 </Row>
             </Card>
-            <ToastContainer />
         </div>
     );
 };

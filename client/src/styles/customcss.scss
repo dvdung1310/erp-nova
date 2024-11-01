@@ -1,0 +1,98 @@
+.form-add-members {
+  min-width: 400px;
+  padding: 20px !important;
+}
+
+.ant-layout-content {
+}
+
+.ant-modal-content {
+  padding: 30px !important;
+}
+
+.custom-badge .ant-badge-count {
+  background-color: #ff4d4f; /* Custom background color */
+  color: #fff; /* Custom text color */
+  font-size: 12px; /* Custom font size */
+  border-radius: 12px; /* Custom border radius */
+  padding: 0; /* Custom padding */
+  box-shadow: 0 0 0 1px #fff; /* Custom box shadow */
+}
+
+.ant-scroll-number-only {
+  height: initial !important;
+}
+
+.ant-dropdown {
+  z-index: 500 !important;
+}
+
+.sc-bXCLTC {
+  min-height: 0 !important;
+}
+
+@media only screen and (max-width: 450px) {
+  .ant-modal-content {
+    padding: 10px !important;
+    min-width: 200px;
+  }
+  .ant-modal-body {
+    padding: 10px !important;
+  }
+  .ant-list-item {
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+  }
+
+  .ant-list-item-meta {
+    padding: 0;
+    width: 100%;
+    align-items: center;
+  }
+
+  .ant-list-item-meta-avatar {
+    margin-bottom: 8px;
+  }
+
+  .ant-list-item-meta-title {
+    font-size: 16px;
+  }
+
+  .ant-list-item-meta-description {
+    font-size: 14px;
+  }
+  .message-component {
+    .comment {
+      .message {
+        height: 300px !important;
+      }
+    }
+  }
+  .ant-col-xs-12 {
+    display: flex;
+  }
+  .form-add-members {
+    min-width: 100% !important;
+
+    .ant-list-item {
+      flex-direction: row;
+      padding: 10px 0;
+    }
+  }
+  .ant-col {
+    width: 100%;
+  }
+}
+.text-danger {
+    color: #d32f2f;
+}
+//.text-warning {
+//    color: #ed6c02;
+//}
+//.text-info{
+//    color: #0288d1;
+//}
+//.text-success {
+//    color: #2e7d32;
+//}

@@ -250,14 +250,14 @@ const ThemeLayout = (WrappedComponent) => {
                           <FeatherIcon icon="search" />
                           <FeatherIcon icon="x" />
                         </Link>
-                        <div className={`${activeSearch ? 'topMenu-search-form show' : 'topMenu-search-form'}`}>
-                          <form action="">
-                            <span className="search-icon">
-                              <FeatherIcon icon="search" />
-                            </span>
-                            <input type="text" name="search" />
-                          </form>
-                        </div>
+                        {/*<div className={`${activeSearch ? 'topMenu-search-form show' : 'topMenu-search-form'}`}>*/}
+                        {/*  <form action="">*/}
+                        {/*    <span className="search-icon">*/}
+                        {/*      <FeatherIcon icon="search" />*/}
+                        {/*    </span>*/}
+                        {/*    <input type="text" name="search" />*/}
+                        {/*  </form>*/}
+                        {/*</div>*/}
                         <AuthInfo />
                       </div>
                     </TopMenuSearch>
@@ -283,7 +283,7 @@ const ThemeLayout = (WrappedComponent) => {
                 <Col md={0} sm={24} xs={24}>
                   <div className="small-screen-headerRight">
                     <SmallScreenSearch hide={searchHide} darkMode={darkMode}>
-                      <HeaderSearch rtl={rtl} />
+                      {/*<HeaderSearch rtl={rtl} />*/}
                     </SmallScreenSearch>
                     <SmallScreenAuthInfo hide={hide} darkMode={darkMode}>
                       <AuthInfo rtl={rtl} />
@@ -323,18 +323,18 @@ const ThemeLayout = (WrappedComponent) => {
                   {/* eslint-disable-next-line react/jsx-props-no-spreading */}
                   <WrappedComponent {...this.props} />
                   <Footer className="admin-footer" style={footerStyle}>
-                    <Row>
-                      <Col md={12} xs={24}>
-                        <span className="admin-footer__copyright">2023 © SovWare</span>
-                      </Col>
-                      <Col md={12} xs={24}>
-                        <div className="admin-footer__links">
-                          <NavLink to="#">About 2</NavLink>
-                          <NavLink to="#">Team</NavLink>
-                          <NavLink to="#">Contact</NavLink>
-                        </div>
-                      </Col>
-                    </Row>
+                    {/*<Row>*/}
+                    {/*  <Col md={12} xs={24}>*/}
+                    {/*    <span className="admin-footer__copyright">2023 © SovWare</span>*/}
+                    {/*  </Col>*/}
+                    {/*  <Col md={12} xs={24}>*/}
+                    {/*    <div className="admin-footer__links">*/}
+                    {/*      <NavLink to="#">About 2</NavLink>*/}
+                    {/*      <NavLink to="#">Team</NavLink>*/}
+                    {/*      <NavLink to="#">Contact</NavLink>*/}
+                    {/*    </div>*/}
+                    {/*  </Col>*/}
+                    {/*</Row>*/}
                   </Footer>
                 </Content>
               </Layout>

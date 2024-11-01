@@ -198,7 +198,7 @@ const ListGroupComponent = ({listGroup, listUser = []}) => {
                                                                     <MdDelete color='red' size={30}
 
                                                                               className='icon-delete'/>
-                                                                    <span>Xóa dự án</span>
+                                                                    <span>Xóa nhóm</span>
                                                                 </div>
                                                             </div>
                                                         }

@@ -31,11 +31,12 @@ import {Modal} from "../../../../../components/modals/antd-modals";
 import {BasicFormWrapper} from "../../../../styled";
 import {
     deleteProject, joinProject,
-    updateEndDateProject, updateMemberProject,
+    updateEndDateProject, updateLeaderProject, updateMemberProject,
     updateNameProject,
     updateStartDateProject, updateStatusProject
 } from "../../../../../apis/work/project";
 import {toast} from "react-toastify";
+import {FaUserTie} from "react-icons/fa";
 
 const dateFormat = 'MM/DD/YYYY';
 
@@ -54,13 +55,19 @@ function ProjectLists({listProject, listUser = []}) {
     });
     const [selectedProject, setSelectedProject] = useState(null);
     const [loadingUpdate, setLoadingUpdate] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     //
+    const [showModalUpdateLeader, setShowModalUpdateLeader] = useState(false);
     const [showModalUpdateName, setShowModalUpdateName] = useState(false);
     const [showModalUpdateStatus, setShowModalUpdateStatus] = useState(false);
     const [showModalUpdateMembers, setShowModalUpdateMembers] = useState(false);
     const [showModalUpdateStartDate, setShowModalUpdateStartDate] = useState(false);
     const [showModalUpdateEndDate, setShowModalUpdateEndDate] = useState(false);
     const [showModalConfirm, setShowModalConfirm] = useState(false);
+    const handleShowModalUpdateLeader = () => {
+        setShowModalUpdateLeader(true);
+    }
+
     const handleShowModalUpdateName = () => {
         setShowModalUpdateName(true);
     }
@@ -91,6 +98,7 @@ function ProjectLists({listProject, listUser = []}) {
         });
     };
     const [selectedMembers, setSelectedMembers] = useState([]);
+    const [selectedLeader, setSelectedLeader] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
 
     const handleSearchChange = (e) => setSearchTerm(e.target.value);
@@ -111,6 +119,10 @@ function ProjectLists({listProject, listUser = []}) {
             member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             member.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
+    const handleSelectLeader = (member) => {
+        // Add the member if it's not already selected
+        setSelectedLeader(member);
+    };
 
     const handleCancel = () => {
         setShowModalUpdateName(false);
@@ -119,6 +131,7 @@ function ProjectLists({listProject, listUser = []}) {
         setShowModalUpdateStartDate(false);
         setShowModalUpdateEndDate(false);
         setShowModalConfirm(false);
+        setShowModalUpdateLeader(false);
     }
     //
     const {projects} = state;
@@ -179,8 +192,14 @@ function ProjectLists({listProject, listUser = []}) {
                 break;
             case 'delete':
                 setSelectedProject(value);
-
                 handleShowModalConfirm();
+                break;
+            case 'leader':
+                setSelectedProject(value);
+                setSelectedLeader({
+                    id: value?.leader_id,
+                });
+                handleShowModalUpdateLeader();
                 break;
             default:
                 break;
@@ -413,8 +432,16 @@ function ProjectLists({listProject, listUser = []}) {
     const handleJoinProject = async () => {
         try {
             setLoadingUpdate(true);
-            if(!dataJoinProject?.email_to){
+            if (!dataJoinProject?.email_to) {
                 toast.warn('Vui lòng nhập email', {
+                    position: "top-right",
+                    autoClose: 1000,
+                })
+                setLoadingUpdate(false);
+                return;
+            }
+            if (listUserData?.some(user => user.email === dataJoinProject?.email_to)) {
+                toast.warn('Người dùng đã tồn tại trong dự án', {
                     position: "top-right",
                     autoClose: 1000,
                 })
@@ -426,7 +453,6 @@ function ProjectLists({listProject, listUser = []}) {
                 message: dataJoinProject?.message,
                 pathname
             }
-            console.log(payload)
             const res = await joinProject(payload, selectedProject?.project_id);
             if (res.error) {
                 toast.error(res?.message, {
@@ -461,6 +487,43 @@ function ProjectLists({listProject, listUser = []}) {
             console.log(e);
         }
     }
+    const handleUpdateLeader = async () => {
+        try {
+            setLoadingUpdate(true);
+            const payload = {
+                leader_id: selectedLeader?.id,
+                pathname
+            }
+            const res = await updateLeaderProject(payload, selectedProject?.project_id);
+            if (res.error) {
+                toast.error(res?.message, {
+                    position: "top-right",
+                    autoClose: 1000,
+                })
+                setLoadingUpdate(false);
+                return;
+            }
+            toast.success('Cập nhật người phụ trách dự án thành công', {
+                position: "top-right",
+                autoClose: 1000,
+            });
+            form.resetFields();
+            handleCancel();
+            history.push(pathname, {
+                key: 'updateProject',
+                data: res?.data
+            });
+
+            setLoadingUpdate(false);
+        } catch (e) {
+            setLoadingUpdate(false);
+            toast.error(e?.response?.data?.message, {
+                position: "top-right",
+                autoClose: 1000,
+            })
+            console.log(e);
+        }
+    }
 
     //
     const dataSource = [];
@@ -472,6 +535,7 @@ function ProjectLists({listProject, listUser = []}) {
                 project_name,
                 project_status,
                 project_members,
+                leader,
                 success,
                 project_start_date,
                 project_end_date,
@@ -541,6 +605,22 @@ function ProjectLists({listProject, listUser = []}) {
                         </ul>
                     </ProjectListAssignees>
                 ),
+                leader: (
+                    <div className='d-flex align-items-center'
+                         style={{
+                             marginLeft: '-10px',
+                             cursor: 'default'
+                         }}
+                         title={leader?.name}
+                    >
+                        <li key={index}>
+                            <Avatar width={30} height={30}
+                                    name={leader?.name}
+                                    imageUrl={leader?.avatar ? `${LARAVEL_SERVER}${leader?.avatar}` : ""}
+                            />
+                        </li>
+                    </div>
+                ),
                 project_status: <Tag style={{
                     padding: "4px 8px",
                     backgroundColor: checkStatus(project_status)?.color,
@@ -579,6 +659,10 @@ function ProjectLists({listProject, listUser = []}) {
                                 <div className='action-item' onClick={() => handleEditClick('members', value)}>
                                     <MdGroups size={30} className='d-block ms-1 fs-4 text-secondary'/>
                                     <span>Thành viên</span>
+                                </div>
+                                <div className='action-item' onClick={() => handleEditClick('leader', value)}>
+                                    <FaUserTie size={30} className='d-block ms-1 fs-4 text-secondary'/>
+                                    <span>Người phụ trách</span>
                                 </div>
                                 <div className='action-item'
                                      onClick={() => handleEditClick('start_date', value)}>
@@ -630,6 +714,11 @@ function ProjectLists({listProject, listUser = []}) {
             title: 'Thành viên',
             dataIndex: 'project_members',
             key: 'project_members',
+        },
+        {
+            title: 'Người phụ trách',
+            dataIndex: 'leader',
+            key: 'leader',
         },
         {
             title: 'Trạng thái',
@@ -1003,6 +1092,75 @@ function ProjectLists({listProject, listUser = []}) {
                             {loadingUpdate ? <Spin/> : 'Gửi lời mời'}
                         </Button>
                     )}
+                </div>
+            </Modal>
+            {/*    modal update leader*/}
+            <Modal
+                onCancel={handleCancel}
+                title="Người phụ trách dự án"
+                visible={showModalUpdateLeader}
+                footer={[
+                    <div key="1" className="project-modal-footer">
+                        <Button size="default" type="primary" key="submit"
+                                onClick={handleUpdateLeader}
+                                style={{
+                                    backgroundColor: isLoading ? "#8c94ff" : "#5f63f2",
+                                    minWidth: '150px',
+                                }}
+                        >
+                            {isLoading ? <div>
+                                <Spin/>
+                            </div> : 'Cập nhật'}
+
+                        </Button>
+                    </div>,
+                ]}
+            >
+                <div className="project-modal">
+                    <BasicFormWrapper>
+                        <Form form={form} name="updateLeaderProject" onFinish={handleUpdateLeader}>
+                            <Form.Item style={{marginTop: '10px'}} name="leader" label="Chọn người phụ trách"
+                            >
+                                <Input
+                                    type="text"
+                                    placeholder="Tìm kiếm thành viên"
+                                    value={searchTerm}
+                                    onChange={handleSearchChange}
+                                    style={{marginBottom: '16px'}}
+                                />
+                                <List
+                                    itemLayout="horizontal"
+                                    style={{height: '200px', overflowY: 'auto'}}
+                                    dataSource={filteredMembers}
+                                    renderItem={(member) => (
+                                        <List.Item onClick={() => handleSelectLeader(member)}
+                                                   style={{cursor: 'pointer'}}>
+                                            <List.Item style={{
+                                                borderBottom: 'none',
+                                                padding: '4px 8px',
+                                            }}>
+                                                <input type="radio" value={member?.id}
+                                                       checked={member?.id === selectedLeader?.id}/>
+                                            </List.Item>
+                                            <List.Item.Meta
+                                                avatar={<Avatar width={40} height={40} name={member?.name}
+                                                                imageUrl={member?.avatar ? `${LARAVEL_SERVER}${member?.avatar}` : ''}/>}
+                                                title={member.name}
+                                                description={
+                                                    <>
+                                                        <small className="text-muted">{member.email}</small>
+                                                        <br/>
+                                                        <strong
+                                                            className="text-muted">{checkRole(member.role_id)}</strong>
+                                                    </>
+                                                }
+                                            />
+                                        </List.Item>
+                                    )}
+                                />
+                            </Form.Item>
+                        </Form>
+                    </BasicFormWrapper>
                 </div>
             </Modal>
         </Row>

@@ -33,11 +33,15 @@ const Avatar = ({name, imageUrl, width, height}) => {
                 imageUrl ? (
                     <img
                         src={imageUrl}
-                        width={width}
-                        height={height}
                         loading="lazy"
                         alt={name}
-                        className='overflow-hidden rounded-circle h-100 object-fit-cover'
+                        style={{
+                            borderRadius: '50%',
+                            objectFit: 'cover',
+                            overflow: 'hidden',
+                            width: `${width}px`,
+                            height: `${height}px`,
+                        }}
                     />
                 ) : (
                     name ? (

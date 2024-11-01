@@ -39,6 +39,17 @@ class TaskController extends Controller
                 'members' => 'nullable|array',
                 'members.*' => 'exists:users,id',
             ]);
+            $project = Project::find($validatedData['project_id']);
+            $user_id = auth()->user()->id;
+            $role_id = auth()->user()->role_id;
+
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Bạn không có quyền thực hiện hành động này',
+                    'data' => $role_id
+                ], 403);
+            }
             $create_by_user_id = auth()->user()->id;
             $task = Task::create(array_merge($validatedData, ['create_by_user_id' => $create_by_user_id]));
             $membersData = [];
@@ -72,7 +83,16 @@ class TaskController extends Controller
             $user_id = auth()->user()->id;
             $role_id = auth()->user()->role_id;
             $tasks = [];
-            if ($role_id != 5) {
+            $project = Project::find($project_id);
+            if (!$project) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Project not found',
+                    'data' => null
+                ], 404);
+            }
+            $leader_id = $project->leader_id;
+            if ($role_id != 5 || $user_id == $leader_id) {
                 $tasks = Task::where('project_id', $project_id)
                     ->with(['users' => function ($query) {
                         $query->select('users.id', 'users.name', 'users.email', 'users.avatar');
@@ -125,6 +145,16 @@ class TaskController extends Controller
                     'message' => 'Task not found',
                     'data' => null
                 ], 404);
+            }
+            $user_id = auth()->user()->id;
+            $role_id = auth()->user()->role_id;
+            $project = Project::find($task->project_id);
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Bạn không có quyền thực hiện hành động này',
+                    'data' => $role_id
+                ], 403);
             }
             $members = $request->members;
             $taskMembers = TaskMember::where('task_id', $task_id)->pluck('user_id')->toArray();
@@ -375,10 +405,21 @@ class TaskController extends Controller
             $validatedData = $request->validate([
                 'task_name' => 'nullable|string|max:255',
             ]);
-            $task->update($validatedData);
-//
             $members = $task->users->pluck('id');
-
+            $project = Project::find($task->project_id);
+            $leader_id = $project->leader_id;
+            $members[] = $leader_id;
+            $user_id = auth()->user()->id;
+            $role_id = auth()->user()->role_id;
+            $project = Project::find($task->project_id);
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2 && !in_array($user_id, $project->members->pluck('id')->toArray())) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Bạn không có quyền thực hiện hành động này',
+                    'data' => $role_id
+                ], 403);
+            }
+            $task->update($validatedData);
             $pathname = $request->input('pathname');
             $createByUserName = auth()->user()->name;
             $create_by_user_id = auth()->user()->id;
@@ -450,7 +491,10 @@ class TaskController extends Controller
             if ($validatedData['task_status'] == 2) {
                 $validatedData['task_date_update_status_completed'] = now();
             }
-
+            $members = $task->users->pluck('id');
+            $project = Project::find($task->project_id);
+            $leader_id = $project->leader_id;
+            $members[] = $leader_id;
             $task->update($validatedData);
 
             //
@@ -464,7 +508,7 @@ class TaskController extends Controller
             } elseif ($status == 2) {
                 $statusMessage = 'Hoàn thành';
             }
-            $members = $task->users->pluck('id');
+
             $pathname = $request->input('pathname');
             $createByUserName = auth()->user()->name;
             $create_by_user_id = auth()->user()->id;
@@ -536,10 +580,23 @@ class TaskController extends Controller
             $validatedData = $request->validate([
                 'task_start_date' => 'required',
             ]);
+            $members = $task->users->pluck('id');
+            $project = Project::find($task->project_id);
+            $leader_id = $project->leader_id;
+            $members[] = $leader_id;
+            $user_id = auth()->user()->id;
+            $role_id = auth()->user()->role_id;
+            $project = Project::find($task->project_id);
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Bạn không có quyền thực hiện hành động này',
+                    'data' => $role_id
+                ], 403);
+            }
             $task->update($validatedData);
 
             //
-            $members = $task->users->pluck('id');
             $pathname = $request->input('pathname');
             $createByUserName = auth()->user()->name;
             $create_by_user_id = auth()->user()->id;
@@ -609,11 +666,23 @@ class TaskController extends Controller
             $validatedData = $request->validate([
                 'task_end_date' => 'required',
             ]);
+            $members = $task->users->pluck('id');
+            $project = Project::find($task->project_id);
+            $leader_id = $project->leader_id;
+            $members[] = $leader_id;
+            $user_id = auth()->user()->id;
+            $role_id = auth()->user()->role_id;
+            $project = Project::find($task->project_id);
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Bạn không có quyền thực hiện hành động này',
+                    'data' => $role_id
+                ], 403);
+            }
             $task->update($validatedData);
 
             //
-
-            $members = $task->users->pluck('id');
             $pathname = $request->input('pathname');
             $createByUserName = auth()->user()->name;
             $create_by_user_id = auth()->user()->id;

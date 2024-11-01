@@ -83,20 +83,33 @@ export const updateMemberProject = async (data, id) => {
 export const joinProject = async (data, id) => {
     const token = getToken();
     const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/projects/member-join-project/${id}`, data, {
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        }}
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        }
     );
     return response.data;
 }
 export const getProjectByUserId = async () => {
     const token = getToken();
     const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/projects/get-project-by-user-id`, {
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        }}
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        }
+    );
+    return response.data;
+}
+export const updateLeaderProject = async (data, id) => {
+    const token = getToken();
+    const response = await instanceAxios.put(`${LARAVEL_SERVER}/api/projects/update-leader/${id}`, data, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        }
     );
     return response.data;
 }
