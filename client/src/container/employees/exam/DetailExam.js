@@ -6,7 +6,8 @@ import { Cards } from '../../../components/cards/frame/cards-frame';
 import { useParams } from 'react-router-dom';
 import AddQuestionView from './AddQuestionView';
 import './AddQuestionView.css'
-import { listQuestionAnswer, destroy, updateQuestion } from '../../../apis/employees/question';
+import { listQuestionAnswer, destroy, updateQuestion , questionName} from '../../../apis/employees/question';
+import TextEditor from "../../../components/TextEditor";
 
 const { Option } = Select;
 
@@ -18,6 +19,11 @@ const DetailExam = () => {
     const [currentQuestion, setCurrentQuestion] = useState(null);
     const { id: examId } = useParams();
     const [examName, setExamName] = useState('');
+    const [formData, setformData] = useState({});
+    const [text, setText] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [result, setResult] = useState("");
+    const [error, setError] = useState("");
 
     const fetchQuestions = async () => {
         try {
@@ -35,6 +41,32 @@ const DetailExam = () => {
         }
     };
 
+    const handleSubmitEditer = (e) => {
+        async function postInfo() {
+          setLoading(true);
+          try {
+            formData.text = text;
+            console.log(formData);
+            const response = await questionName(formData);
+            console.log(response);
+            const data = await response.json();
+            console.log(data);
+    
+            setLoading(false);
+    
+            setResult(data);
+          } catch (error) {
+            setError(error);
+          }
+        }
+    
+        e.preventDefault();
+        postInfo();
+      };
+
+
+
+
     useEffect(() => {
         fetchQuestions();
     }, [examId]);
@@ -49,7 +81,7 @@ const DetailExam = () => {
     };
 
     const showUpdateModal = (question) => {
-       
+
         setCurrentQuestion(question);
         const correctAnswerIndex = question.answers.findIndex(answer => answer.result === 1);
         const correctAnswer = correctAnswerIndex !== -1 ? String.fromCharCode(65 + correctAnswerIndex) : null;
@@ -156,15 +188,33 @@ const DetailExam = () => {
         },
     ];
 
+    if (result)
+        return (
+          <div className="App">
+            <div
+              className="editor"
+              dangerouslySetInnerHTML={{ __html: result.text }}
+            />
+          </div>
+        );
+
     return (
         <div>
             <Cards>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-                    <h2>Danh sách câu hỏi <span style={{ color:'#5F63F2' , fontSize:'25px' }}>{examName}</span></h2>
+                    <h2>Danh sách câu hỏi <span style={{ color: '#5F63F2', fontSize: '25px' }}>{examName}</span></h2>
                     <Button type="primary" onClick={showModal}>
                         Thêm Câu Hỏi
                     </Button>
                 </div>
+
+                <form method="post" onSubmit={handleSubmitEditer}>
+                    <h2>CKEditor with image</h2>
+                    <TextEditor initData="Helllo" setData={setText} />
+                    <button type="submit" className="btn btn-primary">
+                        Submit
+                    </button>
+                </form>
                 <Table
                     dataSource={questionsData}
                     columns={columns}

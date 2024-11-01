@@ -114,7 +114,8 @@ const CreateWorkSchedule = () => {
         <div>
             <Card>
                 <h2 className="text-center mb-25 font-bold">
-                    Đăng kí lịch làm việc <span style={{ fontSize: '25px', fontWeight: 'bolder' }}>Tuần {currentWeekOfMonth} của tháng {new Date().getMonth() + 1}</span>
+                    Đăng Kí Lịch Làm Việc
+                    {/* <span style={{ fontSize: '25px', fontWeight: 'bolder' }}>Tuần {currentWeekOfMonth} của tháng {new Date().getMonth() + 1}</span> */}
                 </h2>
                 <Row gutter={25}>
                     {currentWeek.map((day, index) => (

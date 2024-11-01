@@ -59,6 +59,8 @@ Route::group(['middleware' => 'api'], function () {
     Route::get('/list-question-answer/{id}', [QuestionController::class, 'getQuestionsWithAnswers']);
     Route::delete('/delete-question-answer/{id}', [QuestionController::class, 'DeleteQuestion']);
     Route::post('/update-question-answer', [QuestionController::class, 'UpdateQuestion']);
+
+    Route::post('/questionName', [QuestionController::class, 'questionName']);
     Route::post('/store-result-user', [ExamController::class, 'StoreResult']);
     Route::get('/get-exam-user/{id}', [ExamController::class, 'getExamUserResult']);
     Route::get('/list-exam-user/{id}', [ExamController::class, 'getListUserExam']);

@@ -113,7 +113,7 @@ const FullWorkSchedule = () => {
                   scheduleData.map((user, idx) => {
                     let totalDays = 0; // Biến tổng số ngày đã đăng ký
                     return (
-                      <tr key={idx} className="text-center">
+                      <tr key={idx} className="text-center table-row-hover">
                         <td className="border px-4 aa">{user.name}</td>
                         {week.map((date) => {
                           const schedule = user.schedule[date];
@@ -152,7 +152,7 @@ const FullWorkSchedule = () => {
             type="button"
             key={month}
             onClick={() => setSelectedMonth(month + 1)}
-            className={`mx-2  p-2 ${selectedMonth === month + 1 ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+            className={`mx-2  p-2 ${selectedMonth === month + 1 ? "bg-blue-500 active" : "bg-gray-200"}`}
           >
             Tháng {month + 1}
           </button>

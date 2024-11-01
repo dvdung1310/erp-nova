@@ -194,4 +194,25 @@ class QuestionController extends Controller
 
         return response()->json(['success' => 'Cập nhật câu hỏi thành công!'], 200);
     }
+
+    public function questionName(Request $request)
+    {
+        $htmlContent = $request->input('text');
+        $dom = new \DOMDocument();
+        @$dom->loadHTML($htmlContent, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        $images = $dom->getElementsByTagName('img');
+        foreach ($images as $image) {
+            $src = $image->getAttribute('src');
+            if (strpos($src, 'data:image') === 0) {
+                $imageData = explode(',', $src)[1];
+                $imageData = base64_decode($imageData);
+                $path = 'questions/' . uniqid() . '.png';
+                \Storage::disk('public')->put($path, $imageData);
+                $image->setAttribute('src', \Storage::disk('public')->url($path));
+            }
+        }
+        $updatedContent = $dom->saveHTML();
+        return $updatedContent;
+        return response()->json(['message' => 'Content saved successfully']);
+    }
 }
