@@ -1,4 +1,4 @@
-import {Row, Col, Checkbox, Card, Button, message} from "antd"; // Thêm message từ antd
+import {Row, Col, Checkbox, Card, Button, message} from "antd"; 
 import {useState, useEffect} from "react";
 import {toast} from "react-toastify";
 import {useHistory} from 'react-router-dom';

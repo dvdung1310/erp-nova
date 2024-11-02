@@ -43,12 +43,16 @@ const publicVapidKey = 'BFRuISHeTPNFMZv_7-PndFq72gEqCd8tvf1YX7mTYyuXkOa3vdBxtvzx
 const privateVapidKey = 'KVI4U3_fZMmKSZyP2zD0FKICW6pEIAnHralKjqthxzE';
 webpush.setVapidDetails('mailto:datkt.novaedu@gmail.com', publicVapidKey, privateVapidKey);
 // router
-const sendNotificationSocket = (notification, members, createByUserId) => {
+const sendNotificationSocket = (createByUserName, notification, members, createByUserId,) => {
+    const newNotification = {
+        ...notification,
+        createByUserName
+    }
     return members
         .filter(userId => userId !== createByUserId)
         .forEach(userId => {
             if (clients[userId]) {
-                io.to(clients[userId]).emit('notification', notification);
+                io.to(clients[userId]).emit('notification', newNotification);
             }
         });
 }
@@ -70,10 +74,10 @@ app.post('/change-group', (req, res) => {
     }
 })
 //user.js
-app.post('/update-avatar', (req, res) => {
+app.post('/update-profile', (req, res) => {
     try {
-        const {avatar, user_id} = req.body;
-        io.to(clients[user_id]).emit('update-avatar', avatar);
+        const {user, user_id} = req.body;
+        io.to(clients[user_id]).emit('update-profile', user);
         res.status(200).json({
             message: "Update avatar success"
         });
@@ -95,7 +99,7 @@ app.post('/update-name-project', (req, res) => {
         });
 
         // Gửi thông báo đến các client
-        sendNotificationSocket(notification, members, createByUserId);
+        sendNotificationSocket(createByUserName, notification, members, createByUserId);
 
         // Gửi thông báo đến các thiết bị
         const promises = devices.map(subscription =>
@@ -126,7 +130,7 @@ app.post('/update-status-project', (req, res) => {
             }
         });
         // Gửi thông báo đến các client
-        sendNotificationSocket(notification, members, createByUserId);
+        sendNotificationSocket(createByUserName, notification, members, createByUserId);
         // Gửi thông báo đến các thiết bị
         devices.forEach(subscription => {
             webpush.sendNotification(subscription, payload).catch(error => {
@@ -157,7 +161,7 @@ app.post('/update-start-date-project', (req, res) => {
             }
         });
         // Gửi thông báo đến các client
-        sendNotificationSocket(notification, members, createByUserId);
+        sendNotificationSocket(createByUserName, notification, members, createByUserId);
         // Gửi thông báo đến các thiết bị
         devices.forEach(subscription => {
             webpush.sendNotification(subscription, payload).catch(error => {
@@ -188,7 +192,7 @@ app.post('/update-end-date-project', (req, res) => {
             }
         });
         // Gửi thông báo đến các client
-        sendNotificationSocket(notification, members, createByUserId);
+        sendNotificationSocket(createByUserName, notification, members, createByUserId);
         // Gửi thông báo đến các thiết bị
         devices.forEach(subscription => {
             webpush.sendNotification(subscription, payload).catch(error => {
@@ -219,7 +223,7 @@ app.post('/update-remove-members-project', (req, res) => {
             }
         });
         // Gửi thông báo đến các client
-        sendNotificationSocket(notification, members, createByUserId);
+        sendNotificationSocket(createByUserName, notification, members, createByUserId);
         // Gửi thông báo đến các thiết bị
         devices.forEach(subscription => {
             webpush.sendNotification(subscription, payload).catch(error => {
@@ -250,7 +254,7 @@ app.post('/update-add-members-project', (req, res) => {
             }
         });
         // Gửi thông báo đến các client
-        sendNotificationSocket(notification, members, createByUserId);
+        sendNotificationSocket(createByUserName, notification, members, createByUserId);
         // Gửi thông báo đến các thiết bị
         devices.forEach(subscription => {
             webpush.sendNotification(subscription, payload).catch(error => {
@@ -281,7 +285,7 @@ app.post('/update-leader-project', (req, res) => {
             }
         });
         // Gửi thông báo đến các client
-        sendNotificationSocket(notification, members, createByUserId);
+        sendNotificationSocket(createByUserName, notification, members, createByUserId);
         // Gửi thông báo đến các thiết bị
         devices.forEach(subscription => {
             webpush.sendNotification(subscription, payload).catch(error => {
@@ -305,7 +309,7 @@ app.post('/update-name-task', (req, res) => {
             }
         });
         // Gửi thông báo đến các client
-        sendNotificationSocket(notification, members, createByUserId);
+        sendNotificationSocket(createByUserName, notification, members, createByUserId);
         // Gửi thông báo đến các thiết bị
         devices.forEach(subscription => {
             webpush.sendNotification(subscription, payload).catch(error => {
@@ -336,7 +340,7 @@ app.post('/update-add-members-task', (req, res) => {
             }
         });
         // Gửi thông báo đến các client
-        sendNotificationSocket(notification, members, createByUserId);
+        sendNotificationSocket(createByUserName, notification, members, createByUserId);
         // Gửi thông báo đến các thiết bị
         devices.forEach(subscription => {
             webpush.sendNotification(subscription, payload).catch(error => {
@@ -367,7 +371,7 @@ app.post('/update-remove-members-task', (req, res) => {
             }
         });
         // Gửi thông báo đến các client
-        sendNotificationSocket(notification, members, createByUserId);
+        sendNotificationSocket(createByUserName, notification, members, createByUserId);
         // Gửi thông báo đến các thiết bị
         devices.forEach(subscription => {
             webpush.sendNotification(subscription, payload).catch(error => {
@@ -398,7 +402,7 @@ app.post('/update-start-date-task', (req, res) => {
             }
         });
         // Gửi thông báo đến các client
-        sendNotificationSocket(notification, members, createByUserId);
+        sendNotificationSocket(createByUserName, notification, members, createByUserId);
         // Gửi thông báo đến các thiết bị
         devices.forEach(subscription => {
             webpush.sendNotification(subscription, payload).catch(error => {
@@ -429,7 +433,7 @@ app.post('/update-end-date-task', (req, res) => {
             }
         });
         // Gửi thông báo đến các client
-        sendNotificationSocket(notification, members, createByUserId);
+        sendNotificationSocket(createByUserName, notification, members, createByUserId);
         // Gửi thông báo đến các thiết bị
         devices.forEach(subscription => {
             webpush.sendNotification(subscription, payload).catch(error => {
@@ -462,7 +466,7 @@ app.post('/update-status-task', (req, res) => {
             }
         });
         // Gửi thông báo đến các client
-        sendNotificationSocket(notification, members, createByUserId);
+        sendNotificationSocket(createByUserName, notification, members, createByUserId);
         // Gửi thông báo đến các thiết bị
         devices.forEach(subscription => {
             webpush.sendNotification(subscription, payload).catch(error => {
@@ -502,7 +506,7 @@ app.post('/create-comment-task', (req, res) => {
             }
         });
         // Gửi thông báo đến các client
-        sendNotificationSocket(notification, members, createByUserId);
+        sendNotificationSocket(createByUserName, notification, members, createByUserId);
         // Gửi thông báo đến các thiết bị
         devices.forEach(subscription => {
             webpush.sendNotification(subscription, payload).catch(error => {

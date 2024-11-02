@@ -175,6 +175,12 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
               </NavLink>
             </Menu.Item>
 
+
+        <Menu.Item className='pl-custom-sidebar' key="work-confimation">
+          <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/xac-nhan-cong`}>
+            Xác nhận công
+          </NavLink>
+        </Menu.Item>
         {/*<Menu.Item key="nvu-home">*/}
         {/*  <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su`}>*/}
         {/*    Nhân sự*/}

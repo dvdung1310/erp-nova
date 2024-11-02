@@ -86,8 +86,8 @@ const MainWord = () => {
                                 <>
                                     {
                                         tasks.length > 0 ?
-                                            <TaskList listUser={[]} tasks={tasks} setTasks={setTasks}/>
-                                            : <div className='text-center mt-5'>Không có công việc nào</div>
+                                            <TaskList listUser={[]} tasks={tasks} setTasks={setTasks} isHome/>
+                                            : <div className='text-center mt-5'>Không có công việc nào cần làm</div>
                                     }
                                 </>
                             }
