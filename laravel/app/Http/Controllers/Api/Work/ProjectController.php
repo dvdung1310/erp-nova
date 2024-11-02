@@ -59,7 +59,7 @@ class ProjectController extends Controller
             ];
 
             ProjectMember::insert($membersData);
-            $projectResponse = Project::with(['projectMembers.user','leader'])
+            $projectResponse = Project::with(['projectMembers.user', 'leader'])
                 ->withCount([
                     'tasks as total_tasks',
                     'tasks as completed_tasks' => function ($query) {
@@ -112,7 +112,7 @@ class ProjectController extends Controller
             }
             ProjectMember::insert($membersData);
             $project->update($validatedData);
-            $projectResponse = Project::with(['projectMembers.user','leader'])->find($project_id);
+            $projectResponse = Project::with(['projectMembers.user', 'leader'])->find($project_id);
 
             // Send notification to all members
             $pathname = $request->input('pathname');
@@ -124,7 +124,8 @@ class ProjectController extends Controller
                     $notifications[] = [
                         'user_id' => $user_id,
                         'project_id' => $project->project_id,
-                        'notification_title' => $createByUserName . 'Đã cập nhật dự án: ' . $project->project_name,
+                        'create_by_user_id' => $create_by_user_id,
+                        'notification_title' => 'Đã cập nhật dự án: ' . $project->project_name,
                         'notification_link' => $this->ClientUrl . $pathname,
                         'created_at' => now(),
                         'updated_at' => now(),
@@ -209,13 +210,15 @@ class ProjectController extends Controller
             $notifications = [];
             $members = ProjectMember::where('project_id', $project_id)->pluck('user_id')->toArray();
             $members[] = $leader_id;
+            $members = array_unique($members->toArray());
             if (!empty($members)) {
                 foreach ($members as $user_id) {
                     if ($user_id != $create_by_user_id) {
                         $notifications[] = [
                             'user_id' => $user_id,
                             'project_id' => $project->project_id,
-                            'notification_title' => $createByUserName . ' Đã cập nhật tên dự án: ' . $project->project_name,
+                            'create_by_user_id' => $create_by_user_id,
+                            'notification_title' => ' Đã cập nhật tên dự án: ' . $project->project_name,
                             'notification_link' => $this->ClientUrl . $pathname,
                             'created_at' => now(),
                             'updated_at' => now(),
@@ -285,7 +288,7 @@ class ProjectController extends Controller
                 'project_status' => 'required',
             ]);
             $project->update($validatedData);
-            $projectResponse = Project::with(['projectMembers.user','leader'])
+            $projectResponse = Project::with(['projectMembers.user', 'leader'])
                 ->withCount([
                     'tasks as total_tasks',
                     'tasks as completed_tasks' => function ($query) {
@@ -301,13 +304,15 @@ class ProjectController extends Controller
             $notifications = [];
             $members = ProjectMember::where('project_id', $project_id)->pluck('user_id')->toArray();
             $members[] = $leader_id;
+            $members = array_unique($members->toArray());
             if (!empty($members)) {
                 foreach ($members as $user_id) {
                     if ($user_id != $create_by_user_id) {
                         $notifications[] = [
                             'user_id' => $user_id,
                             'project_id' => $project->project_id,
-                            'notification_title' => $createByUserName . ' Đã cập nhật trạng thái của dự án: ' . $project->project_name,
+                            'create_by_user_id' => $create_by_user_id,
+                            'notification_title' => ' Đã cập nhật trạng thái của dự án: ' . $project->project_name,
                             'notification_link' => $this->ClientUrl . $pathname,
                             'created_at' => now(),
                             'updated_at' => now(),
@@ -400,7 +405,7 @@ class ProjectController extends Controller
                 ];
             }
             ProjectMember::insert($membersData);
-            $projectResponse = Project::with(['projectMembers.user','leader'])
+            $projectResponse = Project::with(['projectMembers.user', 'leader'])
                 ->withCount([
                     'tasks as total_tasks',
                     'tasks as completed_tasks' => function ($query) {
@@ -427,7 +432,8 @@ class ProjectController extends Controller
                         $notifications[] = [
                             'user_id' => $user_id,
                             'project_id' => $project_id,
-                            'notification_title' => $createByUserName . ' Đã thêm bạn vào dự án ' . $project->project_name,
+                            'create_by_user_id' => $create_by_user_id,
+                            'notification_title' => ' Đã thêm bạn vào dự án ' . $project->project_name,
                             'notification_link' => $this->ClientUrl . $pathname,
                             'created_at' => now(),
                             'updated_at' => now(),
@@ -441,7 +447,8 @@ class ProjectController extends Controller
                         $notifications[] = [
                             'user_id' => $user_id,
                             'project_id' => $project_id,
-                            'notification_title' => $createByUserName . ' Đã xóa bạn khỏi dự án ' . $project->project_name,
+                            'create_by_user_id' => $create_by_user_id,
+                            'notification_title' => ' Đã xóa bạn khỏi dự án ' . $project->project_name,
                             'notification_link' => $this->ClientUrl . $pathname,
                             'created_at' => now(),
                             'updated_at' => now(),
@@ -553,13 +560,15 @@ class ProjectController extends Controller
             $notifications = [];
             $members = ProjectMember::where('project_id', $project_id)->pluck('user_id')->toArray();
             $members[] = $leader_id;
+            $members = array_unique($members->toArray());
             if (!empty($members)) {
                 foreach ($members as $user_id) {
                     if ($user_id != $create_by_user_id) {
                         $notifications[] = [
                             'user_id' => $user_id,
                             'project_id' => $project->project_id,
-                            'notification_title' => $createByUserName . ' Đã cập nhật ngày bắt đầu của dự án: ' . $project->project_name,
+                            'create_by_user_id' => $create_by_user_id,
+                            'notification_title' => ' Đã cập nhật ngày bắt đầu của dự án: ' . $project->project_name,
                             'notification_link' => $this->ClientUrl . $pathname,
                             'created_at' => now(),
                             'updated_at' => now(),
@@ -646,13 +655,15 @@ class ProjectController extends Controller
             $notifications = [];
             $members = ProjectMember::where('project_id', $project_id)->pluck('user_id')->toArray();
             $members[] = $leader_id;
+            $members = array_unique($members->toArray());
             if (!empty($members)) {
                 foreach ($members as $user_id) {
                     if ($user_id != $create_by_user_id) {
                         $notifications[] = [
                             'user_id' => $user_id,
                             'project_id' => $project->project_id,
-                            'notification_title' => $createByUserName . ' Đã cập nhật ngày kết thúc của dự án: ' . $project->project_name,
+                            'create_by_user_id' => $create_by_user_id,
+                            'notification_title' => ' Đã cập nhật ngày kết thúc của dự án: ' . $project->project_name,
                             'notification_link' => $this->ClientUrl . $pathname,
                             'created_at' => now(),
                             'updated_at' => now(),
@@ -893,7 +904,8 @@ class ProjectController extends Controller
             $notifications[] = [
                 'user_id' => $newUser->id ?? $userExit->id,
                 'project_id' => $project->project_id, // Corrected key
-                'notification_title' => $createByUserName . ' đã mời bạn tham gia dự án: ' . $project->project_name,
+                'create_by_user_id' => $user->id,
+                'notification_title' => ' đã mời bạn tham gia dự án: ' . $project->project_name,
                 'notification_link' => $this->ClientUrl . $pathname,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -976,7 +988,8 @@ class ProjectController extends Controller
                         $notifications[] = [
                             'user_id' => $user_id,
                             'project_id' => $project->project_id,
-                            'notification_title' => $createByUserName . ' Đã thêm bạn làm người phụ trách của dự án: ' . $project->project_name,
+                            'create_by_user_id' => $create_by_user_id,
+                            'notification_title' => ' Đã thêm bạn làm người phụ trách của dự án: ' . $project->project_name,
                             'notification_link' => $this->ClientUrl . $pathname,
                             'created_at' => now(),
                             'updated_at' => now(),

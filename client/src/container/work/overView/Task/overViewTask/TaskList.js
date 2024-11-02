@@ -1,5 +1,5 @@
 import {useLocation, useParams} from "react-router-dom";
-import React, { useState} from "react";
+import React, {useState} from "react";
 import {checkStatus} from "../../../../../utility/checkValue";
 import {
     createTask, deleteTask, updateEndDateTask, updateMemberTask, updateNameTask, updateStartDateTask, updateStatusTask
@@ -22,11 +22,11 @@ import {
     TableSortLabel,
     TextField,
 } from "@mui/material";
-import {Modal, Form, Input, Button, Spin, Badge, Typography, List, } from 'antd';
+import {Modal, Form, Input, Button, Spin, Badge, Typography, List,} from 'antd';
 import {AnimatePresence, motion} from "framer-motion";
-import {MdDelete, MdOutlineDateRange} from "react-icons/md";
+import {MdCheck, MdDelete, MdOutlineDateRange} from "react-icons/md";
 import Avatar from "../../../../../components/Avatar/Avatar";
-import { CiCirclePlus} from "react-icons/ci";
+import {CiCirclePlus} from "react-icons/ci";
 import moment from "moment";
 import {GoComment} from "react-icons/go";
 import MessageComponent from "./MessageComponent";
@@ -58,7 +58,7 @@ const stableSort = (array, comparator) => {
 
 const TaskList = (props) => {
     const [form] = Form.useForm();
-    const {listUser, tasks, setTasks} = props;
+    const {listUser, tasks, setTasks, isHome} = props;
     const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
     const params = useParams()
     const {id} = params;
@@ -140,13 +140,16 @@ const TaskList = (props) => {
         setTaskName(task.task_name);
     };
     const handleUserClick = (event, task) => {
+        if (isHome) {
+            return;
+        }
         setSelectedUser(task.users || []);
         setUserAnchorEl(event.currentTarget);
         setSelectedTask(task);
         setSelectedMembers(task.users || []);
     }
     const handleStatusClick = (event, task) => {
-        if (task?.task_status?.toString() !== '2') {
+        if (task?.task_status?.toString() !== '3') {
             setStatusAnchorEl(event.currentTarget);
             setSelectedTask(task);
             setSelectedStatus(task.task_status);
@@ -531,7 +534,8 @@ const TaskList = (props) => {
                                         style={{fontSize: '12px'}}
                                         label={checkStatus(task.task_status).status}
                                         className="chip-status"
-                                        color={task.task_status?.toString() === '2' ? 'success' : task.task_status?.toString() === '1' ? 'info' : task.task_status?.toString() === '0' ? 'warning' : 'warning'}
+                                        icon={task.task_status?.toString() === '3' ? <MdCheck/> : null}
+                                        color={(task.task_status?.toString() === '2' || task.task_status?.toString() === '3')  ? 'success' : task.task_status?.toString() === '1' ? 'info' : task.task_status?.toString() === '0' ? 'warning' : 'warning'}
                                     />
                                     {new Date(task.task_end_date) < new Date() && task.task_status?.toString() !== '2' && (
                                         <Chip label="Quá hạn" style={{fontSize: '12px'}}
@@ -635,28 +639,32 @@ const TaskList = (props) => {
                         <tr>
                             <TableCell colSpan={6}>
 
+                                {
+                                    !isHome && (
+                                        <Button
 
-                                <Button
+                                            type="default"
+                                            onClick={handleConfirmCreateTask}
+                                            style={{
+                                                marginTop: '10px',
+                                                minWidth: '150px',
+                                                borderColor: '#d9d9d9',
+                                                color: '#fff',
+                                                backgroundColor: 'rgb(89 89 89)'
+                                            }}
+                                        >
+                                            {loadingCreate ? (
+                                                <Spin/>
+                                            ) : (
+                                                <div className='d-flex align-items-center'>
+                                                    <IoIosAdd size={24}/>
+                                                    <span className='me-1'>Thêm công việc</span>
+                                                </div>
+                                            )}
+                                        </Button>
+                                    )
+                                }
 
-                                    type="default"
-                                    onClick={handleConfirmCreateTask}
-                                    style={{
-                                        marginTop: '10px',
-                                        minWidth: '150px',
-                                        borderColor: '#d9d9d9',
-                                        color: '#fff',
-                                        backgroundColor: 'rgb(89 89 89)'
-                                    }}
-                                >
-                                    {loadingCreate ? (
-                                        <Spin/>
-                                    ) : (
-                                        <div className='d-flex align-items-center'>
-                                            <IoIosAdd size={24}/>
-                                            <span className='me-1'>Thêm công việc</span>
-                                        </div>
-                                    )}
-                                </Button>
                             </TableCell>
                         </tr>
                     </TableBody>
@@ -676,7 +684,21 @@ const TaskList = (props) => {
                     }}
                 >
                     <Typography sx={{p: 2}}>Cập nhật trạng thái công việc</Typography>
+                    {loadingUpdate && <div style={{
+                        position: 'absolute',
+                        left: '0',
+                        right: '0',
+                        top: '0',
+                        bottom: '0',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: '2',
+                        background: 'rgba(255, 255, 255, 0.5)',
 
+                    }}>
+                        <Spin/>
+                    </div> }
                     <FormControl component="fieldset" sx={{padding: 2}}>
                         <RadioGroup value={selectedStatus} onChange={handleStatusChange}>
                             <FormControlLabel value="0" control={<Radio/>}
@@ -685,6 +707,8 @@ const TaskList = (props) => {
                                               label="Đang làm (0% < Tiến độ hoàn thành < 100%)"/>
                             <FormControlLabel value="2" control={<Radio/>}
                                               label="Hoàn thành (Tiến độ hoàn thành = 100%)"/>
+                            <FormControlLabel value="3" control={<Radio/>}
+                                              label="Xác nhận hoàn thành (leader xác nhận)"/>
                         </RadioGroup>
                     </FormControl>
                 </Popover>

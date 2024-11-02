@@ -14,6 +14,7 @@ class NotificationController extends Controller
         try {
             $user_id = auth()->user()->id;
             $notifications = Notification::where('user_id', $user_id)
+                ->with('createByUser') // Assuming the relationship is defined in the Notification model
                 ->orderBy('notification_status', 'asc')
                 ->orderBy('created_at', 'desc')
                 ->get();

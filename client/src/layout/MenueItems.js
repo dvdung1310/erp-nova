@@ -149,7 +149,13 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
         </Menu>
       </SubMenu>
       {/* end novaup   */}
-
+      {/*home*/}
+      <Menu.Item key="home" icon={<FeatherIcon icon="home" /> }>
+        <NavLink to={`${path}`}>
+          Trang chủ
+        </NavLink>
+      </Menu.Item>
+      {/*end home*/}
       {/* Quản lý nhân sự */}
       <SubMenu key="employees" icon={!topMenu && <FeatherIcon icon="users" />} title="Quản lý nhân sự">
         <Menu.Item className='pl-custom-sidebar' key="store-works-chedule">

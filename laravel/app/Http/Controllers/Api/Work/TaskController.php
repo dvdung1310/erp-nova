@@ -62,6 +62,17 @@ class TaskController extends Controller
                 ];
             }
             TaskMember::insert($membersData);
+            // create message
+            $message = Message::create([
+                'text' => 'Tạo công việc ' . $task->task_name,
+                'message_type' => 3,
+                'message_by_user_id' => $create_by_user_id,
+            ]);
+            MessageTask::create([
+                'message_id' => $message->message_id,
+                'task_id' => $task->task_id,
+            ]);
+            //
             return response()->json([
                 'error' => false,
                 'message' => 'task created successfully',
@@ -172,7 +183,15 @@ class TaskController extends Controller
             }
             TaskMember::insert($membersData);
             $taskResponse = Task::with('users')->find($task_id);
-
+            $message = Message::create([
+                'text' => 'Cập nhật thành viên công việc ',
+                'message_type' => 3,
+                'message_by_user_id' => $user_id,
+            ]);
+            MessageTask::create([
+                'message_id' => $message->message_id,
+                'task_id' => $task->task_id,
+            ]);
             //
             $pathname = $request->input('pathname');
             $createByUserName = auth()->user()->name;
@@ -185,7 +204,8 @@ class TaskController extends Controller
                         $notifications[] = [
                             'user_id' => $user_id,
                             'task_id' => $task_id,
-                            'notification_title' => $createByUserName . ' Đã thêm bạn vào công việc ' . $task->task_name,
+                            'create_by_user_id' => $create_by_user_id,
+                            'notification_title' => ' Đã thêm bạn vào công việc ' . $task->task_name,
                             'notification_link' => $this->ClientUrl . $pathname,
                             'created_at' => now(),
                             'updated_at' => now(),
@@ -199,7 +219,8 @@ class TaskController extends Controller
                         $notifications[] = [
                             'user_id' => $user_id,
                             'task_id' => $task_id,
-                            'notification_title' => $createByUserName . ' Đã xóa bạn khỏi công việc ' . $task->task_name,
+                            'create_by_user_id' => $create_by_user_id,
+                            'notification_title' => ' Đã xóa bạn khỏi công việc ' . $task->task_name,
                             'notification_link' => $this->ClientUrl . $pathname,
                             'created_at' => now(),
                             'updated_at' => now(),
@@ -354,7 +375,6 @@ class TaskController extends Controller
             // Retrieve file URLs from Message table
             $fileUrls = Message::whereIn('message_id', $messageIds)->pluck('file_url');
             $imageUrls = Message::whereIn('message_id', $messageIds)->pluck('image_url');
-
             foreach ($imageUrls as $imageUrl) {
                 // Remove the leading slash if present
                 $array = explode('/', $imageUrl);
@@ -409,6 +429,7 @@ class TaskController extends Controller
             $project = Project::find($task->project_id);
             $leader_id = $project->leader_id;
             $members[] = $leader_id;
+            $members = array_unique($members->toArray());
             $user_id = auth()->user()->id;
             $role_id = auth()->user()->role_id;
             $project = Project::find($task->project_id);
@@ -420,6 +441,17 @@ class TaskController extends Controller
                 ], 403);
             }
             $task->update($validatedData);
+            // insert comment
+            $message = Message::create([
+                'text' => 'Cập nhật tên công việc ',
+                'message_type' => 3,
+                'message_by_user_id' => $user_id,
+            ]);
+            MessageTask::create([
+                'message_id' => $message->message_id,
+                'task_id' => $task->task_id,
+            ]);
+            //
             $pathname = $request->input('pathname');
             $createByUserName = auth()->user()->name;
             $create_by_user_id = auth()->user()->id;
@@ -429,7 +461,8 @@ class TaskController extends Controller
                     $notifications[] = [
                         'user_id' => $user_id,
                         'task_id' => $task_id,
-                        'notification_title' => $createByUserName . ' Đã cập nhật tên công việc: ' . $task->task_name,
+                        'create_by_user_id' => $create_by_user_id,
+                        'notification_title' => ' Đã cập nhật tên công việc: ' . $task->task_name,
                         'notification_link' => $this->ClientUrl . $pathname,
                         'created_at' => now(),
                         'updated_at' => now(),
@@ -485,16 +518,30 @@ class TaskController extends Controller
                 ], 404);
             }
             $validatedData = $request->validate([
-                'task_status' => 'required|in:0,1,2',
+                'task_status' => 'required|in:0,1,2,3',
             ]);
 
             if ($validatedData['task_status'] == 2) {
                 $validatedData['task_date_update_status_completed'] = now();
             }
+            if ($validatedData['task_status'] == 3) {
+                $user_id = auth()->user()->id;
+                $role_id = auth()->user()->role_id;
+                $project = Project::find($task->project_id);
+                if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2) {
+                    return response()->json([
+                        'error' => true,
+                        'message' => 'Bạn không có quyền thực hiện hành động này',
+                        'data' => $role_id
+                    ], 403);
+                }
+            }
             $members = $task->users->pluck('id');
             $project = Project::find($task->project_id);
             $leader_id = $project->leader_id;
             $members[] = $leader_id;
+            $members = array_unique($members->toArray());
+            $oldStatus = $task->task_status;
             $task->update($validatedData);
 
             //
@@ -508,7 +555,25 @@ class TaskController extends Controller
             } elseif ($status == 2) {
                 $statusMessage = 'Hoàn thành';
             }
-
+            $oldStatusMessage = '';
+            if ($oldStatus == 0) {
+                $oldStatusMessage = 'Đang chờ';
+            } elseif ($oldStatus == 1) {
+                $oldStatusMessage = 'Đang làm';
+            } elseif ($oldStatus == 2) {
+                $oldStatusMessage = 'Hoàn thành';
+            }
+            // insert comment
+            $status = $request->input('task_status');
+            $message = Message::create([
+                'text' => 'Cập nhật trạng thái công việc ' . $task->task_name . ' (' . $oldStatusMessage . ') ' . 'thành' . ' (' . $statusMessage . ')',
+                'message_type' => 3,
+                'message_by_user_id' => auth()->user()->id,
+            ]);
+            MessageTask::create([
+                'message_id' => $message->message_id,
+                'task_id' => $task->task_id,
+            ]);
             $pathname = $request->input('pathname');
             $createByUserName = auth()->user()->name;
             $create_by_user_id = auth()->user()->id;
@@ -518,7 +583,8 @@ class TaskController extends Controller
                     $notifications[] = [
                         'user_id' => $user_id,
                         'task_id' => $task_id,
-                        'notification_title' => $createByUserName . ' Đã cập nhật tên công việc: ' . $task->task_name . '(' . $statusMessage . ')',
+                        'create_by_user_id' => $create_by_user_id,
+                        'notification_title' => ' Đã cập nhật tên công việc: ' . $task->task_name . '(' . $statusMessage . ')',
                         'notification_link' => $this->ClientUrl . $pathname,
                         'created_at' => now(),
                         'updated_at' => now(),
@@ -584,6 +650,7 @@ class TaskController extends Controller
             $project = Project::find($task->project_id);
             $leader_id = $project->leader_id;
             $members[] = $leader_id;
+            $members = array_unique($members->toArray());
             $user_id = auth()->user()->id;
             $role_id = auth()->user()->role_id;
             $project = Project::find($task->project_id);
@@ -595,7 +662,16 @@ class TaskController extends Controller
                 ], 403);
             }
             $task->update($validatedData);
-
+            // insert comment
+            $message = Message::create([
+                'text' => 'Cập nhật ngày bắt đầu công việc',
+                'message_type' => 3,
+                'message_by_user_id' => auth()->user()->id,
+            ]);
+            MessageTask::create([
+                'message_id' => $message->message_id,
+                'task_id' => $task->task_id,
+            ]);
             //
             $pathname = $request->input('pathname');
             $createByUserName = auth()->user()->name;
@@ -606,7 +682,8 @@ class TaskController extends Controller
                     $notifications[] = [
                         'user_id' => $user_id,
                         'task_id' => $task_id,
-                        'notification_title' => $createByUserName . ' Đã cập nhật ngày bắt đầu công việc: ' . $task->task_name,
+                        'create_by_user_id' => $create_by_user_id,
+                        'notification_title' => ' Đã cập nhật ngày bắt đầu công việc: ' . $task->task_name,
                         'notification_link' => $this->ClientUrl . $pathname,
                         'created_at' => now(),
                         'updated_at' => now(),
@@ -670,6 +747,7 @@ class TaskController extends Controller
             $project = Project::find($task->project_id);
             $leader_id = $project->leader_id;
             $members[] = $leader_id;
+            $members = array_unique($members->toArray());
             $user_id = auth()->user()->id;
             $role_id = auth()->user()->role_id;
             $project = Project::find($task->project_id);
@@ -681,7 +759,16 @@ class TaskController extends Controller
                 ], 403);
             }
             $task->update($validatedData);
-
+            // insert comment
+            $message = Message::create([
+                'text' => 'Cập nhật ngày kết thúc công việc',
+                'message_type' => 3,
+                'message_by_user_id' => auth()->user()->id,
+            ]);
+            MessageTask::create([
+                'message_id' => $message->message_id,
+                'task_id' => $task->task_id,
+            ]);
             //
             $pathname = $request->input('pathname');
             $createByUserName = auth()->user()->name;
@@ -692,7 +779,8 @@ class TaskController extends Controller
                     $notifications[] = [
                         'user_id' => $user_id,
                         'task_id' => $task_id,
-                        'notification_title' => $createByUserName . ' Đã cập nhật ngày kết thúc công việc: ' . $task->task_name,
+                        'create_by_user_id' => $create_by_user_id,
+                        'notification_title' => ' Đã cập nhật ngày kết thúc công việc: ' . $task->task_name,
                         'notification_link' => $this->ClientUrl . $pathname,
                         'created_at' => now(),
                         'updated_at' => now(),

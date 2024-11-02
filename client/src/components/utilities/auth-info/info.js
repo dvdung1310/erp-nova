@@ -27,6 +27,7 @@ function AuthInfo() {
     const [showModalConfirm, setShowModalConfirm] = useState(false);
     const [loading, setLoading] = useState(false);
     const [profile, setProfile] = useState({})
+    const socketConnection = useSelector(state => state?.userSocket?.socketConnection);
     const fetchProfile = async () => {
         try {
             const res = await getProfile();
@@ -44,6 +45,14 @@ function AuthInfo() {
     useEffect(() => {
         fetchProfile()
     }, [])
+    useEffect(() => {
+        if (socketConnection) {
+            socketConnection.on('update-profile', async (data) => {
+                console.log(data)
+               setProfile(data)
+            })
+        }
+    }, [socketConnection]);
     const showModalConfirmLogout = () => {
         setShowModalConfirm(true);
     }

@@ -1,13 +1,16 @@
 export const checkStatus = (status = 0) => {
     const arr = [{
         status: 'Đang chờ',
-        color: '#ffc107'
+        color: '#ed6c02'
     }, {
         status: 'Đang làm',
-        color: '#1890ff'
+        color: '#0288d1'
     }, {
         status: 'Hoàn thành',
-        color: '#52c41a'
+        color: '#2e7d32'
+    }, {
+        status: 'Hoàn thành',
+        color: '#2e7d32'
     }]
     return arr[status];
 }
