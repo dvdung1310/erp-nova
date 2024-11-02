@@ -9,6 +9,7 @@ use App\Models\CrmDepartmentTeamModel;
 use App\Models\CrmEmployeeFileModel;
 use App\Models\CrmEmployeeLevelModel;
 use App\Models\CrmEmployeeModel;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class NvEmployeeController extends Controller
@@ -20,7 +21,20 @@ class NvEmployeeController extends Controller
     {
         try {
             $employee = CrmEmployeeModel::join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
+<<<<<<< HEAD
+                ->leftjoin('crm_department_team', 'crm_employee.team_id', '=', 'crm_department_team.team_id')
+                ->join('crm_employee_level', 'crm_employee.level_id', '=', 'crm_employee_level.level_id')
+                ->leftjoin('users','crm_employee.account_id','=','users.id')
+                ->select(
+                    'crm_employee.*',
+                    'crm_department.department_name',
+                    'crm_department_team.team_name',
+                    'crm_employee_level.level_name',
+                    'users.avatar'
+                )
+=======
                 ->select('crm_employee.*', 'crm_department.department_name')
+>>>>>>> f378fbe849fe34d4f48eaafcd1d55f9ea706b263
                 ->get();
 
             return response()->json([
@@ -73,20 +87,65 @@ class NvEmployeeController extends Controller
     public function store(Request $request)
     {
         try {
-            CrmEmployeeModel::create($request->all());
+            $employee_name = $request->employee_name;
+            $employee_email = $request->employee_email;
+            $employee_email_nova = $request->employee_email_nova;
+    
+            // Kiểm tra nếu `employee_email` hoặc `employee_email_nova` đã tồn tại trong bảng `User`
+            $existingUser = User::where('email', $employee_email)
+                                ->orWhere('email', $employee_email_nova)
+                                ->first();
+                                
+            if ($existingUser) {
+                // Trả về lỗi nếu email đã tồn tại
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Email đã tồn tại trong hệ thống.',
+                    'data' => []
+                ]);
+            }
+    
+            $user = new User();
+            $user['name'] = $employee_name;
+            $user['email'] = $employee_email;
+            $user['password'] = bcrypt(123456);
+            $user->save();
+    
+            $user_id = $user->id;
+    
+            $employee = new CrmEmployeeModel();
+            $employee['employee_name'] = $employee_name;
+            $employee['employee_email'] = $employee_email;
+            $employee['employee_email_nova'] = $employee_email_nova;
+            $employee['employee_phone'] = $request->employee_phone;
+            $employee['employee_address'] = $request->employee_address;
+            $employee['employee_identity'] = $request->employee_identity;
+            $employee['employee_bank_number'] = $request->employee_bank_number;
+            $employee['department_id'] = $request->department_id;
+            $employee['team_id'] = $request->team_id;
+            $employee['level_id'] = $request->level_id;
+            $employee['employee_status'] = $request->employee_status;
+            $employee['account_id'] = $user_id;
+            $employee->save();
+    
             return response()->json([
                 'error' => false,
-                'message' => 'Customers retrieved successfully.',
+                'message' => 'Nhân viên được thêm thành công.',
                 'data' => CrmEmployeeModel::paginate(10)
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
+<<<<<<< HEAD
+                'message' => 'Không thể thêm nhân viên. Lỗi: ' . $e->getMessage(),
+=======
                 'message' => 'No customers found.' . $e->getMessage(),
+>>>>>>> f378fbe849fe34d4f48eaafcd1d55f9ea706b263
                 'data' => []
             ]);
         }
     }
+    
 
     /**
      * Display the specified resource.

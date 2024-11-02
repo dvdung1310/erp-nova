@@ -169,6 +169,12 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
             Lịch làm việc
           </NavLink>
         </Menu.Item>
+        <Menu.Item className='pl-custom-sidebar' key="works-dayoff">
+              <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/nghi-phep`}>
+                Đăng ký nghỉ phép
+              </NavLink>
+            </Menu.Item>
+
         {/*<Menu.Item key="nvu-home">*/}
         {/*  <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su`}>*/}
         {/*    Nhân sự*/}

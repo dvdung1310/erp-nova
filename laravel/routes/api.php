@@ -93,6 +93,9 @@ Route::group(['middleware' => 'api'], function () {
     Route::delete('/nvrecruitnews/{id}', [NvRecruitNewsController::class, 'destroy']);
     Route::put('/nvrecruitnews/{id}', [NvRecruitNewsController::class, 'update']);
     // Route::delete('/nvrecruitcandidates/{nvrecruitcandidates}', [NvRecruitCandidatesController::class,'destroy']);
+    //danh sách đơn xin nghỉ của nhân viên
+    Route::get('/getemployeedayoff',[NvEmployeeDayOffController::class,'getemployeedayoff'])->middleware(middlewareLogin::class);
+    Route::post('/storeemployeedayoff',[NvEmployeeDayOffController::class,'storeemployeedayoff']);
 });
 // work
 //groups

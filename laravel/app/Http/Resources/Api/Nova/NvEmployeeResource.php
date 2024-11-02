@@ -31,6 +31,7 @@ class NvEmployeeResource extends JsonResource
             'department_name' => $this->department_name, 
             'team_name' => $this->team_name, 
             'level_name' => $this->level_name, 
+            'avatar' => $this->avatar, 
             'created_at' => $this->created_at, 
             'updated_at' => $this->updated_at, 
             

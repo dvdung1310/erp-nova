@@ -1,6 +1,8 @@
 const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
+import {getToken} from "../../utility/localStorageControl";
 import axios from 'axios';
-
+import {createAxios} from "../../utility/createAxios";
+const instanceAxios = createAxios();
 export const getEmployees = async (data) => {
   const response = await axios.get(`${LARAVEL_SERVER}/api/nvemployee`);
   return response.data;
@@ -75,5 +77,29 @@ export const editEmployeesFile = async (id) => {
 
 export const deleteEmployeesFile = async (id) => {
   const response = await axios.delete(`${LARAVEL_SERVER}/api/nvemployeefile/${id}`);
+  return response.data;
+};
+//xin nghỉ phép
+export const getemployeedayoff = async () => {
+  const token = getToken();
+  const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/getemployeedayoff`,{
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+  }
+  });
+  return response.data;
+};
+export const getAllUsers = async () => {
+  const token = getToken();
+  const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/auth/get-all`, {
+      headers: {
+          'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`
+      }
+  });
+  return response.data;
+}
+export const saveemployeedayoff = async (data) => {
+  const response = await axios.post(`${LARAVEL_SERVER}/api/storeemployeedayoff`,data);
   return response.data;
 };
