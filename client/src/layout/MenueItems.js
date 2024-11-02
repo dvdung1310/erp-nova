@@ -153,16 +153,17 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
       {/* Quản lý nhân sự */}
       <SubMenu key="employees" icon={!topMenu && <FeatherIcon icon="users" />} title="Quản lý nhân sự">
         <Menu.Item key="nvu-home">
-          <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su`}>
+          {/* <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su`}>
             Nhân sự
-          </NavLink>
+          </NavLink> */}
+           <Menu.Item key="nvu-nhansu"> <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-nhanh-su`}> Nhân sự </NavLink> </Menu.Item>
         </Menu.Item>
         <Menu.Item key="nvu-department">
           <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/phong-ban`}>
             Phòng ban
           </NavLink>
         </Menu.Item>
-        <Menu.Item key="nvu-nhansu"> <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-nhanh-su`}> Nhân sự new </NavLink> </Menu.Item>
+        {/* <Menu.Item key="nvu-nhansu"> <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-nhanh-su`}> Nhân sự new </NavLink> </Menu.Item> */}
         <Menu
           mode={!topMenu || window.innerWidth <= 991 ? 'inline' : 'horizontal'}
           theme={darkMode ? 'dark' : 'light'}
@@ -179,6 +180,11 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
             <Menu.Item className='pl-custom-sidebar' key="works-chedule">
               <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/lich-lam-viec`}>
                 Lịch làm việc
+              </NavLink>
+            </Menu.Item>
+            <Menu.Item className='pl-custom-sidebar' key="works-dayoff">
+              <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/nghi-phep`}>
+                Đăng ký nghỉ phép
               </NavLink>
             </Menu.Item>
           </SubMenu>

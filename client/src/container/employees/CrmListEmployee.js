@@ -4,9 +4,16 @@ import { Row, Col, Spin, message, Popconfirm, Button, Modal, Form, Input, Select
 import moment from 'moment';
 import { Cards } from '../../components/cards/frame/cards-frame';
 import { Main } from '../styled';
-import { getEmployees, createEmployees, deleteEmployees, updateEmployees, storeEmployees } from '../../apis/employees/employee';
+import { DeleteOutlined, FormOutlined, PhoneOutlined, MailOutlined,SnippetsOutlined } from '@ant-design/icons';
+import {
+  getEmployees,
+  createEmployees,
+  deleteEmployees,
+  updateEmployees,
+  storeEmployees,
+} from '../../apis/employees/employee';
 import { UserCard } from '../../container/pages/style';
-
+ 
 const EmployeeFile = lazy(() => import('./CrmEmployeeFile'));
 const { Option } = Select;
 
@@ -20,7 +27,7 @@ function CrmEmployees() {
   const [departments, setDepartments] = useState([]);
   const [departmentTeams, setDepartmentTeams] = useState([]);
   const [employeeLevels, setEmployeeLevels] = useState([]);
-
+  const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
   // Fetch employees data
   const fetchData = async () => {
     setLoading(true);
@@ -32,7 +39,7 @@ function CrmEmployees() {
         message.error(res.message);
       }
     } catch (error) {
-      message.error("Có lỗi xảy ra khi tải dữ liệu nhân sự.");
+      message.error('Có lỗi xảy ra khi tải dữ liệu nhân sự.');
     } finally {
       setLoading(false);
     }
@@ -50,7 +57,7 @@ function CrmEmployees() {
         message.error(res.message);
       }
     } catch (error) {
-      message.error("Không thể tải dữ liệu tạo mới.");
+      message.error('Không thể tải dữ liệu tạo mới.');
     }
   };
 
@@ -128,11 +135,14 @@ function CrmEmployees() {
                     {dataSource.map((employee) => (
                       <Col xs={24} sm={12} md={8} lg={6} key={employee.employee_id}>
                         <UserCard>
-                          <div className="card user-card">
+                          <div className="card user-card" style={{ boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)',padding:'5px',borderRadius:'5px'}}>
                             <Cards headless>
                               <figure>
                                 {/* Use default image if imgUrl is not available */}
-                                {/* <img src={employee.imgUrl || require('../../../static/img/users/1.png')} alt={employee.employee_name} /> */}
+                                <img
+                                  src={employee.avatar ? LARAVEL_SERVER + employee.avatar :  require('../../static/img/users/1.png')}
+                                  alt={employee.employee_name}
+                                />
                                 {/* <img src='' alt={employee.employee_name} /> */}
                               </figure>
                               <figcaption>
@@ -140,8 +150,34 @@ function CrmEmployees() {
                                   <h6 className="card__name">{employee.employee_name}</h6>
                                   <p className="card__designation">{employee.level_name}</p>
                                 </div>
+                                <div style={{ textAlign: 'left',marginBottom: '20px' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    <PhoneOutlined style={{ marginRight: '8px', color: '#1890ff' }} />
+                                    <p style={{ margin: 0 }}>
+                                       {employee.employee_phone}
+                                    </p>
+                                  </div>
+                                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    {/* <MailOutlined style={{ marginRight: '8px', color: '#1890ff' }} /> */}
+                                    <MailOutlined style={{ marginRight: '8px', color: '#1890ff' }} />
+                                    <p style={{ margin: 0 }}>
+                                       {employee.employee_email}
+                                    </p>
+                                  </div>
+                                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    <SnippetsOutlined  style={{ marginRight: '8px', color: '#1890ff' }} />
+                                    <NavLink
+                                      to={`/admin/nhan-su/ho-so/${employee.employee_id}`}
+                                      style={{ color: 'inherit', textDecoration: 'none' }}
+                                    >
+                                      Hồ sơ
+                                    </NavLink>
+                                  </div>
+                                </div>
                                 <div className="card__actions">
-                                  <Button type="link" onClick={() => handleOpenModal(employee)}>Edit</Button>
+                                  <Button type="link" onClick={() => handleOpenModal(employee)}>
+                                    <FormOutlined />
+                                  </Button>
                                   <Popconfirm
                                     title="Bạn có chắc muốn xóa nhân sự này không?"
                                     onConfirm={() => handleDelete(employee.employee_id)}
@@ -149,7 +185,7 @@ function CrmEmployees() {
                                     cancelText="No"
                                   >
                                     <Button type="link" danger>
-                                      Delete
+                                      <DeleteOutlined />
                                     </Button>
                                   </Popconfirm>
                                 </div>
@@ -173,7 +209,7 @@ function CrmEmployees() {
       </Switch>
 
       <Modal
-        title={editingEmployee ? 'Edit Employee' : 'Add New Employee'}
+        title={editingEmployee ? 'Cập nhật nhân viên' : 'Thêm mới nhân viên'}
         visible={isModalVisible}
         onOk={handleModalOk}
         onCancel={() => setIsModalVisible(false)}
@@ -207,17 +243,10 @@ function CrmEmployees() {
           >
             <Input />
           </Form.Item>
-          <Form.Item
-            label="Địa chỉ"
-            name="employee_address"
-          >
+          <Form.Item label="Địa chỉ" name="employee_address">
             <Input />
           </Form.Item>
-          <Form.Item
-            label="CMND"
-            name="employee_identity"
-            rules={[{ required: true, message: 'Vui lòng nhập CMND!' }]}
-          >
+          <Form.Item label="CMND" name="employee_identity" rules={[{ required: true, message: 'Vui lòng nhập CMND!' }]}>
             <Input />
           </Form.Item>
           <Form.Item
@@ -233,33 +262,25 @@ function CrmEmployees() {
             rules={[{ required: true, message: 'Vui lòng chọn phòng ban!' }]}
           >
             <Select placeholder="Chọn phòng ban">
-              {departments.map(department => (
+              {departments.map((department) => (
                 <Option key={department.department_id} value={department.department_id}>
                   {department.department_name}
                 </Option>
               ))}
             </Select>
           </Form.Item>
-          <Form.Item
-            label="Team"
-            name="team_id"
-            rules={[{ required: true, message: 'Vui lòng chọn team!' }]}
-          >
+          <Form.Item label="Team" name="team_id" rules={[{ required: true, message: 'Vui lòng chọn team!' }]}>
             <Select placeholder="Chọn team">
-              {departmentTeams.map(team => (
+              {departmentTeams.map((team) => (
                 <Option key={team.team_id} value={team.team_id}>
                   {team.team_name}
                 </Option>
               ))}
             </Select>
           </Form.Item>
-          <Form.Item
-            label="Vị trí"
-            name="level_id"
-            rules={[{ required: true, message: 'Vui lòng chọn vị trí!' }]}
-          >
+          <Form.Item label="Vị trí" name="level_id" rules={[{ required: true, message: 'Vui lòng chọn vị trí!' }]}>
             <Select placeholder="Chọn vị trí">
-              {employeeLevels.map(level => (
+              {employeeLevels.map((level) => (
                 <Option key={level.level_id} value={level.level_id}>
                   {level.level_name}
                 </Option>
