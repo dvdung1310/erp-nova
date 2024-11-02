@@ -99,7 +99,8 @@ function CrmEmployeeDayOff() {
         day_off_start: formData.day_off_start,
         day_off_end: formData.day_off_end,
         manager_id: members,
-        employee_id:formData.employee_id, // Assuming this is managed properly
+        employee_id:formData.employee_id,
+        pathName:'/admin/nhan-su/don-nghi-phep/'
       };
   
       const response = await saveemployeedayoff(data); // Call your API function
@@ -135,6 +136,14 @@ function CrmEmployeeDayOff() {
       key: 'day_off_end',
       render: (text) => moment(text).format('DD/MM/YYYY'), // Format to 'day/month/year'
   },
+  {
+    title: 'Hồ sơ',
+    dataIndex: 'off_id',
+    key: 'file',
+    render: (off_id) => (
+        <NavLink to={`/admin/nhan-su/don-nghi-phep/${off_id}`}>Hồ sơ</NavLink>
+    ),
+},
     {
       title: 'Trạng thái',
       dataIndex: 'off_status',

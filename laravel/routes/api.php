@@ -96,6 +96,8 @@ Route::group(['middleware' => 'api'], function () {
     //danh sách đơn xin nghỉ của nhân viên
     Route::get('/getemployeedayoff',[NvEmployeeDayOffController::class,'getemployeedayoff'])->middleware(middlewareLogin::class);
     Route::post('/storeemployeedayoff',[NvEmployeeDayOffController::class,'storeemployeedayoff']);
+    Route::get('getdayoffdetail/{off_id}',[NvEmployeeDayOffController::class,'getdayoffdetail']);
+    Route::put('updatestatusdayoff/{off_id}/{off_status}',[NvEmployeeDayOffController::class,'updatestatusdayoff']);
 });
 // work
 //groups

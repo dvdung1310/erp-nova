@@ -21,7 +21,6 @@ class NvEmployeeController extends Controller
     {
         try {
             $employee = CrmEmployeeModel::join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
-<<<<<<< HEAD
                 ->leftjoin('crm_department_team', 'crm_employee.team_id', '=', 'crm_department_team.team_id')
                 ->join('crm_employee_level', 'crm_employee.level_id', '=', 'crm_employee_level.level_id')
                 ->leftjoin('users','crm_employee.account_id','=','users.id')
@@ -32,9 +31,6 @@ class NvEmployeeController extends Controller
                     'crm_employee_level.level_name',
                     'users.avatar'
                 )
-=======
-                ->select('crm_employee.*', 'crm_department.department_name')
->>>>>>> f378fbe849fe34d4f48eaafcd1d55f9ea706b263
                 ->get();
 
             return response()->json([
@@ -136,11 +132,7 @@ class NvEmployeeController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
-<<<<<<< HEAD
                 'message' => 'Không thể thêm nhân viên. Lỗi: ' . $e->getMessage(),
-=======
-                'message' => 'No customers found.' . $e->getMessage(),
->>>>>>> f378fbe849fe34d4f48eaafcd1d55f9ea706b263
                 'data' => []
             ]);
         }
@@ -263,6 +255,7 @@ class NvEmployeeController extends Controller
     {
         try {
             $files = CrmEmployeeFileModel::where('employee_id', $employee_id)->get();
+        
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
