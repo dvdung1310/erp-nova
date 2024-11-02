@@ -12,7 +12,7 @@ import {
   updateEmployees,
   storeEmployees,
 } from '../../apis/employees/employee';
-import { UserCard } from '../../container/pages/style';
+import { UserCard } from '../pages/style';
  
 const EmployeeFile = lazy(() => import('./CrmEmployeeFile'));
 const { Option } = Select;
@@ -96,6 +96,7 @@ function CrmEmployees() {
         message.success('Thêm nhân sự thành công!');
       }
       setIsModalVisible(false);
+      form.resetFields();
       fetchData(); // Refetch data after submission
     } catch (error) {
       console.error('Error:', error);

@@ -116,8 +116,8 @@ function ProjectLists({listProject, listUser = []}) {
     };
     const filteredMembers = listUserData?.filter(
         (member) =>
-            member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            member.email.toLowerCase().includes(searchTerm.toLowerCase())
+            member?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            member?.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
     const handleSelectLeader = (member) => {
         // Add the member if it's not already selected
@@ -466,6 +466,7 @@ function ProjectLists({listProject, listUser = []}) {
                 position: "top-right",
                 autoClose: 1000,
             });
+            setListUser([...listUserData, res?.data]);
             form.resetFields();
             setDataJoinProject({
                 email_to: '',

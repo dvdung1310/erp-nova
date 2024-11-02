@@ -110,6 +110,8 @@ function CrmEmployeeDayOff() {
       } else {
         message.error(response.message);
       }
+      form.resetFields();
+      setSelectedMembers([]); // Reset selected members
     } catch (error) {
       console.error("Error submitting form:", error);
       message.error("Please fill in all required fields.");

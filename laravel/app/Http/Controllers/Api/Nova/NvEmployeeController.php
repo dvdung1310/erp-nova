@@ -21,10 +21,9 @@ class NvEmployeeController extends Controller
     {
         try {
             $employee = CrmEmployeeModel::join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
-<<<<<<< HEAD
                 ->leftjoin('crm_department_team', 'crm_employee.team_id', '=', 'crm_department_team.team_id')
                 ->join('crm_employee_level', 'crm_employee.level_id', '=', 'crm_employee_level.level_id')
-                ->leftjoin('users','crm_employee.account_id','=','users.id')
+                ->leftjoin('users', 'crm_employee.account_id', '=', 'users.id')
                 ->select(
                     'crm_employee.*',
                     'crm_department.department_name',
@@ -32,9 +31,7 @@ class NvEmployeeController extends Controller
                     'crm_employee_level.level_name',
                     'users.avatar'
                 )
-=======
                 ->select('crm_employee.*', 'crm_department.department_name')
->>>>>>> f378fbe849fe34d4f48eaafcd1d55f9ea706b263
                 ->get();
 
             return response()->json([
@@ -90,12 +87,12 @@ class NvEmployeeController extends Controller
             $employee_name = $request->employee_name;
             $employee_email = $request->employee_email;
             $employee_email_nova = $request->employee_email_nova;
-    
+
             // Kiểm tra nếu `employee_email` hoặc `employee_email_nova` đã tồn tại trong bảng `User`
             $existingUser = User::where('email', $employee_email)
-                                ->orWhere('email', $employee_email_nova)
-                                ->first();
-                                
+                ->orWhere('email', $employee_email_nova)
+                ->first();
+
             if ($existingUser) {
                 // Trả về lỗi nếu email đã tồn tại
                 return response()->json([
@@ -104,15 +101,15 @@ class NvEmployeeController extends Controller
                     'data' => []
                 ]);
             }
-    
+
             $user = new User();
             $user['name'] = $employee_name;
             $user['email'] = $employee_email;
             $user['password'] = bcrypt(123456);
             $user->save();
-    
+
             $user_id = $user->id;
-    
+
             $employee = new CrmEmployeeModel();
             $employee['employee_name'] = $employee_name;
             $employee['employee_email'] = $employee_email;
@@ -127,7 +124,7 @@ class NvEmployeeController extends Controller
             $employee['employee_status'] = $request->employee_status;
             $employee['account_id'] = $user_id;
             $employee->save();
-    
+
             return response()->json([
                 'error' => false,
                 'message' => 'Nhân viên được thêm thành công.',
@@ -136,16 +133,12 @@ class NvEmployeeController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
-<<<<<<< HEAD
                 'message' => 'Không thể thêm nhân viên. Lỗi: ' . $e->getMessage(),
-=======
-                'message' => 'No customers found.' . $e->getMessage(),
->>>>>>> f378fbe849fe34d4f48eaafcd1d55f9ea706b263
                 'data' => []
             ]);
         }
     }
-    
+
 
     /**
      * Display the specified resource.

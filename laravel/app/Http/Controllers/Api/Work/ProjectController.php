@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Work;
 use App\Http\Controllers\Controller;
 use App\Mail\ForgotPasswordMail;
 use App\Mail\InviteUserMail;
+use App\Models\CrmEmployeeModel;
 use App\Models\Devices;
 use App\Models\Group;
 use App\Models\Message;
@@ -885,6 +886,8 @@ class ProjectController extends Controller
             ]);
 
             $userExit = User::where('email', $validated['email_to'])->first();
+
+
             $newUser = null;
             if (!$userExit) {
                 $newUser = User::create([
@@ -893,9 +896,17 @@ class ProjectController extends Controller
                     'password' => bcrypt('123456'), // You should generate a secure password or send a password reset link
                 ]);
             }
+            $employeeExit = CrmEmployeeModel::where('employee_email', $validated['email_to'])->first();
+            if (!$employeeExit) {
+                $employee = CrmEmployeeModel::create([
+                    'employee_name' => $validated['email_to'],
+                    'employee_email' => $validated['email_to'],
+                    'account_id' => $newUser->id ?? $userExit->id,
+                ]);
+            }
             $user = auth()->user();
             $pathname = $request->input('pathname');
-            $pathname = $pathname ? $pathname : '/groups/' . $project->group_id;
+            $pathname = $pathname ? $pathname : '/lam-viec/nhom-lam-viec/' . $project->group_id;
             $link = $this->ClientUrl . $pathname;
             // add notification
             $createByUserName = auth()->user()->name;

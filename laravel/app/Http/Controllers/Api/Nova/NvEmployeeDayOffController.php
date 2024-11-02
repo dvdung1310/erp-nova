@@ -206,13 +206,11 @@ class NvEmployeeDayOffController extends Controller
     try {
         $list_manager = $request->manager_id; // This should be an array of IDs
         // Check if it's not an array and convert it to an array
-        if (!is_array($list_manager)) {
-            $list_manager = explode(',', $list_manager); // Convert from string to array if needed
-        }
-        
+
         // Convert the array of manager IDs into a comma-separated string
-        $manager_ids = implode(',', $list_manager);
-        
+
+        $manager_ids = json_encode($list_manager);
+
         $data = new CrmEmployeeDayOffModel();
         $data->off_title = $request->off_title;
         $data->off_content = $request->off_content;
@@ -238,5 +236,5 @@ class NvEmployeeDayOffController extends Controller
         ]);
     }
 }
-    
+
 }
