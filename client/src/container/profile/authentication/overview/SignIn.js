@@ -1,6 +1,6 @@
 import React, {useCallback, useState} from 'react';
 import {Form, Input, Button, Spin} from 'antd';
-import {useHistory} from "react-router-dom";
+import {NavLink, useHistory} from "react-router-dom";
 import Cookies from 'js-cookie';
 import {toast} from 'react-toastify';
 import {AuthWrapper} from './style';
@@ -25,7 +25,7 @@ function SignIn() {
             setItem('role_id', res?.data?.role_id)
             setItem('user_id', res?.data?.user_id)
             Cookies.set('logedIn', true);
-            history.push('/admin');
+            history.push('/admin/lam-viec');
             window.location.reload();
             toast.success('Đăng nhập thành công', {
                 position: "top-right",
@@ -34,7 +34,7 @@ function SignIn() {
             setLoading(false)
         } catch (error) {
             setLoading(false)
-            toast.error('Đăng nhập thất bại', {
+            toast.error(error?.response?.data?.message, {
                 position: "top-right",
                 autoClose: 1000,
             });
@@ -55,7 +55,9 @@ function SignIn() {
                     >
                         <Input placeholder="Email"/>
                     </Form.Item>
-                    <Form.Item name="password" label="Mật khẩu">
+                    <Form.Item name="password" label="Mật khẩu"
+                               rules={[{message: 'Vui lòng nhập mật khẩu', required: true}]}
+                    >
                         <Input.Password placeholder="Mật khẩu"/>
                     </Form.Item>
                     <Form.Item className='d-flex justify-content-center'>
@@ -69,6 +71,12 @@ function SignIn() {
                             </div> : 'Đăng nhập'}
                         </Button>
                     </Form.Item>
+                    <div className='d-flex justify-content-center'>
+                        <NavLink className="forgot-pass-link" to="/quen-mat-khau">
+                            Quên mật khẩu?
+                        </NavLink>
+                    </div>
+
                 </Form>
             </div>
         </AuthWrapper>

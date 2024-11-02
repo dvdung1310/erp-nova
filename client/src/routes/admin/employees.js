@@ -15,6 +15,7 @@ const DepartmentTeam = lazy(() => import('../../container/employees/CrmDepartmen
 const EmployeeFile = lazy(() => import('../../container/employees/CrmEmployeeFile'));
 const ListEmployee = lazy(() => import('../../container/employees/CrmListEmployee'));
 const CrmEmployeeDayOff = lazy(() => import('../../container/employees/CrmEmployeeDayOff'));
+const EmployeesInformation = lazy(() => import('../../container/employees/EmployeesInformation'));
 function Employees() {
     const {path} = useRouteMatch();
     return (
@@ -34,6 +35,7 @@ function Employees() {
             <Route path={`${path}/lam-bai-thi/:id`} component={StartExam} />
             <Route path={`${path}/ket-qua-bai-thi/:id`} component={ResultExam} />
             <Route path={`${path}/nghi-phep`} component={CrmEmployeeDayOff} />
+            <Route path={`${path}/thong-tin`} component={EmployeesInformation}/>
         </Switch>
     );
 }

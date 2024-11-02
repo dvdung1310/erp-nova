@@ -7,6 +7,7 @@ use App\Models\Devices;
 use App\Models\Message;
 use App\Models\MessageTask;
 use App\Models\Notification;
+use App\Models\Project;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -103,11 +104,13 @@ class MessageController extends Controller
                 ->first();
             // Thông báo cho các thành viên khác trong task
             $members = $task->users->pluck('id');
+            $project = Project::find($task->project_id);
+            $leader_id = $project->leader_id;
+            $members[] = $leader_id;
             $pathname = $request->input('pathname');
             $createByUserName = auth()->user()->name;
             $create_by_user_id = auth()->user()->id;
             $notifications = [];
-
             if ($request->text) {
                 $content = Str::limit($request->text, 20, '...');
             } elseif ($request->image_url) {

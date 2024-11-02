@@ -23,11 +23,8 @@ function FrontendRoutes() {
           </div>
         }
       >
-        <Route exact path="/forgotPassword" component={ForgotPass} />
-        <Route exact path="/register" component={SignUp} />
+        <Route exact path="/quen-mat-khau" component={ForgotPass} />
         <Route exact path="/" component={Login} />
-        <Route exact path="/fbRegister" component={FbSignUp} />
-        <Route exact path="/fbSignIn" component={FbLogin} />
         <Route exact path="*" component={NotFound} />
       </Suspense>
     </Switch>

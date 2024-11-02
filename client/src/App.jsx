@@ -17,7 +17,7 @@ import ProtectedRoute from './components/utilities/protectedRoute';
 import 'antd/dist/antd.less';
 import '@mui/material/styles';
 import '@mui/material/Tooltip';
-import './styles/customcss.css'
+import './styles/customcss.scss'
 import 'react-toastify/dist/ReactToastify.css';
 
 const {theme} = config;

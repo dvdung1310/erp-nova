@@ -53,3 +53,20 @@ export const updateQuestion = async (formData) => {
     }
 };
 
+export const questionName = async (formData) => {
+    try {
+        const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/questionName`, formData, {
+            method: "POST",
+            mode: "cors",
+            headers: {
+            "Content-Type": "application/json",
+             },
+          body: JSON.stringify(formData),
+        });
+        return response;
+    } catch (error) {
+        console.error('Error saving question:', error.response ? error.response.data : error.message);
+        throw error;
+    }
+};
+

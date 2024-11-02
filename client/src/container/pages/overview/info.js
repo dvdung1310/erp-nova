@@ -28,7 +28,6 @@ function Info() {
               <Heading className="form-title" as="h4">
                 Personal Information
               </Heading>
-
               <figure className="photo-upload align-center-v">
                 <img src={require('../../../static/img/avatar/profileImage.png')} alt="" />
                 <figcaption>

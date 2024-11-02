@@ -152,9 +152,7 @@ const MessageComponent = ({handleCloseComment, task}) => {
                     <div className="card-header d-flex justify-content-between align-items-center">
                         <span>{task?.task_name}</span>
                         {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus */}
-                        <span role="button"
-                              onClick={handleCloseComment}
-                              className='btn-close border rounded-circle'></span>
+                        <Button type='primary' style={{borderRadius: '10px'}} onClick={handleCloseComment}>X</Button>
                     </div>
                     <div className="card-body">
                         <div className="comment">
@@ -184,14 +182,18 @@ const MessageComponent = ({handleCloseComment, task}) => {
                                                 {/* eslint-disable-next-line no-unsafe-optional-chaining */}
                                                 <Avatar width={30} height={30} name={item?.user?.name}
                                                         imageUrl={item?.user?.avatar ? URL_LARAVEL + item?.user?.avatar : ''}/>
-                                                <p className={`${item?.user?.id === user_id ? 'bg-primary' : 'bg-secondary'} ms-1 text-white rounded p-2 mb-1`}>
-                                                    {item.text ? item.text : item?.file_url ?
+                                                <p className={`${item?.user?.id === user_id ? 'bg-primary' : 'bg-secondary'} ms-1 text-white rounded p-2 mb-1`}
+                                                   style={{
+                                                       backgroundColor: item?.user?.id === user_id ? '#e5efff' : '#fff',
+                                                   }}
+                                                >
+                                                    {item.text ? <span style={{color: '#000', fontSize: '16px'}}>{item.text}</span>  : item?.file_url ?
                                                         // eslint-disable-next-line no-unsafe-optional-chaining
                                                         <a href={URL_LARAVEL + item?.file_url}
                                                            style={{textDecoration: "none"}} download title="Tải xuống">
                                                             <span className='text-white d-flex align-items-center'>
                                                                 <FaRegFileLines size={30} color="black"/>
-                                                                <span className='ms-2 mt-0'>
+                                                                <span className='ms-2 mt-0' style={{color: '#0068ff'}}>
                                                                     {item?.file_url?.split('/').pop()}
                                                                 </span>
                                                             </span>
@@ -202,7 +204,7 @@ const MessageComponent = ({handleCloseComment, task}) => {
                                                              src={URL_LARAVEL + item?.image_url}
                                                              onClick={() => handleShowImage(URL_LARAVEL + item?.image_url)}
                                                              alt=""/>}
-                                                    <span>{moment(item?.created_at).format('DD/MM/YYYY HH:mm')}</span>
+                                                    <i style={{color: '#000', fontSize: '10px', float: 'right'}}>{moment(item?.created_at).format('DD/MM/YYYY HH:mm')}</i>
                                                 </p>
                                             </motion.div>
                                         )) : <p>Không có bình luận nào</p>
@@ -210,15 +212,15 @@ const MessageComponent = ({handleCloseComment, task}) => {
 
                             </div>
                         </div>
-                        <div className="input-group mt-3">
+                        <div className="input-group mt-3" style={{borderTop: '1px solid #ccc'}}>
                             <form onSubmit={handleSendComment} action=""
-                            style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                width: '100%',
-                                marginBottom: '10px'
-                            }}
+                                  style={{
+                                      display: 'flex',
+                                      justifyContent: 'space-between',
+                                      alignItems: 'center',
+                                      width: '100%',
+                                      margin: '10px 0'
+                                  }}
                             >
                                 <div className="form-group me-3">
                                     <label htmlFor="fileInput"
@@ -248,11 +250,11 @@ const MessageComponent = ({handleCloseComment, task}) => {
                                 </div>
                                 <Button type='primary'
                                         htmlType='submit'
-                                style={{
-                                    height: '100%',
-                                    padding: '10px 30px',
-                                    margin: '0 10px'
-                                }}
+                                        style={{
+                                            height: '100%',
+                                            padding: '10px 30px',
+                                            margin: '0 10px'
+                                        }}
                                 >
                                     {
                                         loadingSend ? <div>

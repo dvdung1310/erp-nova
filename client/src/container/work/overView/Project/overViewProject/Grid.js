@@ -43,7 +43,7 @@ function Grid({listGroup, listUser}) {
             ) : (
                 <Col md={24}>
                     <Cards headless>
-                        <Heading>Chưa có nhóm làm việc nào</Heading>
+                        <Heading className='m-0' as='h6'>Chưa có nhóm làm việc nào</Heading>
                     </Cards>
                 </Col>
             )}

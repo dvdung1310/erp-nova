@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {Form, Input, Select, Col, Row, DatePicker, Spin} from 'antd';
+import {Form, Input, Select, Col, Row, DatePicker, Spin, List} from 'antd';
 import propTypes from 'prop-types';
 import {Button} from '../../../../../components/buttons/buttons';
 import {Modal} from '../../../../../components/modals/antd-modals';
@@ -8,10 +8,14 @@ import {BasicFormWrapper} from '../../../../styled';
 import {useHistory, useLocation, useParams} from "react-router-dom";
 import {toast} from "react-toastify";
 import {createProject} from "../../../../../apis/work/project";
+import Avatar from "../../../../../components/Avatar/Avatar";
+import {checkRole} from "../../../../../utility/checkValue";
 
 const dateFormat = 'MM/DD/YYYY';
 
-function CreateProject({visible, onCancel, group_id}) {
+function CreateProject({visible, onCancel, group_id, listUser = []}) {
+    const [listUserData, setListUser] = useState(listUser);
+    const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
     const location = useLocation();
     const {pathname} = location;
     const [isLoading, setIsLoading] = useState(false);
@@ -34,7 +38,22 @@ function CreateProject({visible, onCancel, group_id}) {
             unmounted = true;
         };
     }, [visible]);
+    ///
+    const [selectedMembers, setSelectedMembers] = useState({});
+    const [searchTerm, setSearchTerm] = useState('');
+    const handleSearchChange = (e) => setSearchTerm(e.target.value);
 
+    const filteredMembers = listUserData && listUserData.filter(
+        (member) =>
+            member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            member.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const handleSelectMember = (member) => {
+        // Add the member if it's not already selected
+        setSelectedMembers(member);
+    };
+///
     const handleOk = async () => {
         try {
             setIsLoading(true);
@@ -69,6 +88,7 @@ function CreateProject({visible, onCancel, group_id}) {
                 project_start_date: data?.project_start_date?.format('YYYY-MM-DD'),
                 project_end_date: data?.project_end_date?.format('YYYY-MM-DD'),
                 group_id,
+                leader_id: selectedMembers?.id,
                 pathname
             }
             const res = await createProject(payload);
@@ -77,6 +97,8 @@ function CreateProject({visible, onCancel, group_id}) {
                     position: "top-right",
                     autoClose: 1000,
                 });
+                setIsLoading(false);
+                return;
             }
             toast.success('Tạo dự án thành công', {
                 position: "top-right",
@@ -90,6 +112,10 @@ function CreateProject({visible, onCancel, group_id}) {
             });
             setIsLoading(false);
         } catch (e) {
+            toast.error('Tạo dự án thất bại', {
+                position: "top-right",
+                autoClose: 1000,
+            })
             setIsLoading(false)
             console.log(e);
         }
@@ -150,6 +176,44 @@ function CreateProject({visible, onCancel, group_id}) {
                                 </Form.Item>
                             </Col>
                         </Row>
+                        <Form.Item style={{marginTop: '10px'}} name="leader" label="Chọn người phụ trách"
+                        >
+                            <Input
+                                type="text"
+                                placeholder="Tìm kiếm thành viên"
+                                value={searchTerm}
+                                onChange={handleSearchChange}
+                                style={{marginBottom: '16px'}}
+                            />
+                            <List
+                                itemLayout="horizontal"
+                                style={{height: '200px', overflowY: 'auto'}}
+                                dataSource={filteredMembers}
+                                renderItem={(member) => (
+                                    <List.Item onClick={() => handleSelectMember(member)} style={{cursor: 'pointer'}}>
+                                        <List.Item style={{
+                                            borderBottom: 'none',
+                                            padding: '4px 8px',
+                                        }}>
+                                            <input type="radio" value={member?.id}
+                                                   checked={member?.id === selectedMembers?.id}/>
+                                        </List.Item>
+                                        <List.Item.Meta
+                                            avatar={<Avatar width={40} height={40} name={member?.name}
+                                                            imageUrl={member?.avatar ? `${LARAVEL_SERVER}${member?.avatar}` : ''}/>}
+                                            title={member.name}
+                                            description={
+                                                <>
+                                                    <small className="text-muted">{member.email}</small>
+                                                    <br/>
+                                                    <strong className="text-muted">{checkRole(member.role_id)}</strong>
+                                                </>
+                                            }
+                                        />
+                                    </List.Item>
+                                )}
+                            />
+                        </Form.Item>
                     </Form>
                 </BasicFormWrapper>
             </div>

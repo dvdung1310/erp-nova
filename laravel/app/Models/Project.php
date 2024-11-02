@@ -20,6 +20,7 @@ class Project extends Model
         'project_start_date',
         'project_end_date',
         'create_by_user_id',
+        'leader_id',
     ];
 
     public function projectMembers()
@@ -45,5 +46,9 @@ class Project extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'create_by_user_id');
+    }
+    public function leader()
+    {
+        return $this->belongsTo(User::class, 'leader_id');
     }
 }

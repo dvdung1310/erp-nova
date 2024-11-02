@@ -21,6 +21,7 @@ class NvEmployeeController extends Controller
     {
         try {
             $employee = CrmEmployeeModel::join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
+<<<<<<< HEAD
                 ->leftjoin('crm_department_team', 'crm_employee.team_id', '=', 'crm_department_team.team_id')
                 ->join('crm_employee_level', 'crm_employee.level_id', '=', 'crm_employee_level.level_id')
                 ->leftjoin('users','crm_employee.account_id','=','users.id')
@@ -31,12 +32,15 @@ class NvEmployeeController extends Controller
                     'crm_employee_level.level_name',
                     'users.avatar'
                 )
+=======
+                ->select('crm_employee.*', 'crm_department.department_name')
+>>>>>>> f378fbe849fe34d4f48eaafcd1d55f9ea706b263
                 ->get();
-            
+
             return response()->json([
                 'error' => false,
-                'message' => 'Customers retrieved successfully.',
-                'data' =>  $employee
+                'message' => 'Customers get successfully.',
+                'data' => $employee
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -71,7 +75,7 @@ class NvEmployeeController extends Controller
             // Bắt lỗi và trả về thông báo lỗi
             return response()->json([
                 'error' => true,
-                'message' => 'An error occurred: '. $e->getMessage(),
+                'message' => 'An error occurred: ' . $e->getMessage(),
                 'data' => []
             ]);
         }
@@ -132,7 +136,11 @@ class NvEmployeeController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
+<<<<<<< HEAD
                 'message' => 'Không thể thêm nhân viên. Lỗi: ' . $e->getMessage(),
+=======
+                'message' => 'No customers found.' . $e->getMessage(),
+>>>>>>> f378fbe849fe34d4f48eaafcd1d55f9ea706b263
                 'data' => []
             ]);
         }
@@ -159,7 +167,7 @@ class NvEmployeeController extends Controller
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                'data' =>  $employee
+                'data' => $employee
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -190,7 +198,7 @@ class NvEmployeeController extends Controller
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                'data' =>  $employee
+                'data' => $employee
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -216,7 +224,7 @@ class NvEmployeeController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
-                'message' => 'No customers found.'.$e->getMessage(),
+                'message' => 'No customers found.' . $e->getMessage(),
                 'data' => []
             ]);
         }
@@ -228,11 +236,19 @@ class NvEmployeeController extends Controller
     public function destroy(CrmEmployeeModel $nvemployee)
     {
         try {
+            $nvemployee = CrmEmployeeModel::find($nvemployee->employee_id);
+            if (!$nvemployee) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'No customers found.',
+                    'data' => []
+                ]);
+            }
             $nvemployee->delete();
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-               
+
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -242,14 +258,16 @@ class NvEmployeeController extends Controller
             ]);
         }
     }
-    public function showEmployeeFile($employee_id){
+
+    public function showEmployeeFile($employee_id)
+    {
         try {
-            $files = CrmEmployeeFileModel::where('employee_id',$employee_id)->get();
+            $files = CrmEmployeeFileModel::where('employee_id', $employee_id)->get();
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
-                'data'=>$files
-               
+                'data' => $files
+
             ]);
         } catch (\Exception $e) {
             return response()->json([

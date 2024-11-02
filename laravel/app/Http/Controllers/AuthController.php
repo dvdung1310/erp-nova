@@ -3,24 +3,33 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Mail\ForgotPasswordMail;
+use App\Mail\InviteUserMail;
+use App\Models\Devices;
 use App\Models\User;
-use http\Env\Request;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 use function Laravel\Prompts\error;
+use Illuminate\Support\Str;
 
 // Import the Validator facade
 
 
 class AuthController extends Controller
 {
+    protected $nodeUrl;
+    protected $ClientUrl;
 
-    /**
-     * Register a User.
-     *
-     * @return JsonResponse
-     */
-    public function register()
+    public function __construct()
+    {
+        $this->nodeUrl = env('NODE_URL');
+        $this->ClientUrl = env('CLIENT_URL');
+    }
+
+    public function register(): JsonResponse
     {
         try {
             $validator = Validator::make(request()->all(), [
@@ -58,18 +67,12 @@ class AuthController extends Controller
 
     }
 
-
-    /**
-     * Get a JWT via given credentials.
-     *
-     * @return JsonResponse
-     */
-    public function login()
+    public function login(): JsonResponse
     {
         try {
             $validator = Validator::make(request()->all(), [
                 'email' => 'required|email',
-                'password' => 'required|string|min:6',
+                'password' => 'required|string',
             ]);
 
             if ($validator->fails()) {
@@ -109,12 +112,7 @@ class AuthController extends Controller
         }
     }
 
-    /**
-     * Get the authenticated User.
-     *
-     * @return JsonResponse
-     */
-    public function me()
+    public function me(): JsonResponse
     {
         return response()->json([
             'data' => auth()->user(),
@@ -123,28 +121,105 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * Log the user.js out (Invalidate the token).
-     *
-     * @return JsonResponse
-     */
+    public function changePassword(Request $request)
+    {
+        try {
+
+            $validatedData = $request->validate([
+                'old_password' => 'required',
+                'new_password' => 'required'
+            ]);
+
+            $user = auth()->user();
+            if (!auth()->attempt(['email' => $user->email, 'password' => $request->old_password])) {
+                return response([
+                    'message' => 'Old password is incorrect',
+                    'error' => true,
+                    'data' => null
+                ], 400);
+            }
+            $user->update(['password' => bcrypt($request->new_password)]);
+            return response([
+                'message' => 'Password updated successfully',
+                'error' => false,
+                'data' => null
+            ]);
+        } catch (\Exception $e) {
+            return response([
+                'message' => 'Error: ' . $e->getMessage(),
+                'error' => true,
+                'data' => null
+            ], 400);
+        }
+
+
+    }
+
+    public function updateProfile(Request $request)
+    {
+        try {
+            $request->validate([
+                'name' => 'required|max:55',
+                'email' => 'email|required',
+                'phone' => 'required|string',
+            ]);
+            $avatar = $request->input('avatar') || $request->file('avatar');
+            $user = auth()->user();
+            if ($avatar) {
+                $request->validate([
+                    'avatar' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
+                ]);
+                $avatarName = time() . '.' . $request->avatar->extension();
+
+                // Lưu ảnh vào disk 'public'
+                $avatarPath = $request->avatar->storeAs('avatars', $avatarName, 'public');
+
+                // Lấy url của ảnh
+                $url_avatar = Storage::url($avatarPath);
+                // Cập nhật avatar trong database
+                $user->avatar = $url_avatar;
+            }
+            $user->name = $request->input('name');
+            $user->email = $request->input('email');
+            $user->phone = $request->input('phone');
+            $user->save();
+
+            return response([
+                'message' => 'User updated successfully',
+                'error' => false,
+                'data' => $user
+            ]);
+        } catch (\Exception $e) {
+            return response([
+                'message' => 'Error: ' . $e->getMessage(),
+                'error' => true,
+                'data' => null
+            ], 400);
+        }
+
+    }
+
     public function logout()
     {
         try {
+            $user_id = auth()->user()->id;
+            $device = Devices::where('user_id', $user_id)->first();
+            if ($device) {
+                $device->delete();
+            }
             auth()->logout();
             auth()->invalidate(true); // Thêm token vào danh sách đen
-
             return response()->json(['message' => 'Successfully logged out']);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Failed to log out, please try again.'], 500);
+            return response()->json([
+                'message' => 'Error: ' . $e->getMessage(),
+                'error' => true,
+                'data' => null
+
+            ], 500);
         }
     }
 
-    /**
-     * Refresh a token.
-     *
-     * @return JsonResponse
-     */
     public function refresh()
     {
         return response()->json([
@@ -155,13 +230,6 @@ class AuthController extends Controller
         // return $this->respondWithToken(auth()->refresh());
     }
 
-    /**
-     * Get the token array structure.
-     *
-     * @param string $token
-     *
-     * @return JsonResponse
-     */
     protected function respondWithToken($token)
     {
         return response()->json([
@@ -190,14 +258,39 @@ class AuthController extends Controller
 
     }
 
-    public function checkToken()
+    public function forgotPassword(Request $request)
     {
         try {
-            return [
-                'message' => 'Token valid',
+            $validated = $request->validate([
+                'email' => 'required|email',
+            ]);
+            $user = User::where('email', $request->email)->first();
+            if (!$user) {
+                return response([
+                    'message' => 'Email không tồn tại !!',
+                    'error' => true,
+                    'data' => null
+                ], 400);
+            }
+
+
+            $newPassword = Str::random(10);
+            $user->update(['password' => bcrypt($newPassword)]);
+            $link = $this->ClientUrl;
+            // Send email
+            $inviteData = [
+                'link' => $link,
+                'password' => $newPassword,
+                'shared_at' => now(),
+            ];
+
+            // Send the email
+            Mail::to($validated['email'])->send(new ForgotPasswordMail($inviteData));
+            return response([
+                'message' => 'New password sent to your email',
                 'error' => false,
                 'data' => null
-            ];
+            ]);
         } catch (\Exception $e) {
             return response([
                 'message' => 'Error: ' . $e->getMessage(),
