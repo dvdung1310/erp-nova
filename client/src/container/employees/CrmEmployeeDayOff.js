@@ -136,14 +136,6 @@ function CrmEmployeeDayOff() {
       key: 'day_off_end',
       render: (text) => moment(text).format('DD/MM/YYYY'), // Format to 'day/month/year'
   },
-  {
-    title: 'Hồ sơ',
-    dataIndex: 'off_id',
-    key: 'file',
-    render: (off_id) => (
-        <NavLink to={`/admin/nhan-su/don-nghi-phep/${off_id}`}>Hồ sơ</NavLink>
-    ),
-},
     {
       title: 'Trạng thái',
       dataIndex: 'off_status',
