@@ -9,6 +9,7 @@ use App\Models\Devices;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
@@ -165,6 +166,13 @@ class AuthController extends Controller
             ]);
             $avatar = $request->input('avatar') || $request->file('avatar');
             $user = auth()->user();
+            // xóa ảnh cũ
+            if($user->avatar && $avatar){
+                $array = explode('/', $user->avatar);
+                $avatar = array_pop($array);
+                Storage::disk('public_avatars')->delete($avatar);
+            }
+            //
             if ($avatar) {
                 $request->validate([
                     'avatar' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
@@ -182,8 +190,13 @@ class AuthController extends Controller
             $user->name = $request->input('name');
             $user->email = $request->input('email');
             $user->phone = $request->input('phone');
-            $user->save();
 
+            $user->save();
+            $payload = [
+                'user'=> $user,
+                'user_id' => $user->id
+            ];
+            Http::post($this->nodeUrl . '/update-profile', $payload);
             return response([
                 'message' => 'User updated successfully',
                 'error' => false,

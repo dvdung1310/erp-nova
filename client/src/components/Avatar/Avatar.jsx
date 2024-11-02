@@ -36,6 +36,7 @@ const Avatar = ({name, imageUrl, width, height}) => {
                         loading="lazy"
                         alt={name}
                         style={{
+                            display: 'block',
                             borderRadius: '50%',
                             objectFit: 'cover',
                             overflow: 'hidden',

@@ -12,7 +12,9 @@ import 'moment/locale/vi';
 import {toast} from "react-toastify";
 import PropTypes from "prop-types";
 import {AtbdTopDropdwon} from "./auth-info-style";
+
 moment.locale('vi');
+
 function NotificationBox() {
     const [activeTab, setActiveTab] = useState('recent');
     const [notification, setNotification] = useState([]);
@@ -47,11 +49,12 @@ function NotificationBox() {
         if (socketConnection) {
             socketConnection.off('notification');
             socketConnection.on('notification', async (data) => {
-                await getNotify();
-                toast.warn(data?.notification_title, {
+                console.log(data)
+                toast.warn(`${data?.createByUserName} ${data?.notification_title}`, {
                     position: "top-right",
                     autoClose: 1000,
                 })
+                await getNotify();
             });
         }
     }, [socketConnection]);
@@ -75,7 +78,7 @@ function NotificationBox() {
                         autoClose: 1000,
                     });
                 }
-               await getNotify();
+                await getNotify();
 
                 setActiveTab('recent');
                 history.push(pathname);
@@ -172,32 +175,32 @@ function NotificationBox() {
                 renderTrackVertical={renderTrackVertical}
             >
                 <ul className="atbd-top-dropdwon__nav notification-list">
-                    {notificationRender?.length>0 ?
+                    {notificationRender?.length > 0 ?
                         notificationRender?.map((notification, index) => (
-                        // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
-                        <li key={index} onClick={() => handleUpdateStatusNotification(notification)}>
-                            <div>
-                                <div className="atbd-top-dropdwon__content notifications">
-                                    <div className="notification-icon bg-primary">
-                                        <FeatherIcon icon="hard-drive"/>
-                                    </div>
-                                    <div className="notification-content d-flex">
-                                        <div className="notification-text">
-                                            <Heading as="h5">
-                                                {notification?.notification_title}
-                                            </Heading>
-                                            <p> {moment(notification?.created_at).fromNow()} &nbsp;
-                                                {moment(notification?.created_at).format('HH:mm DD/MM/YYYY')}</p>
+                            // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
+                            <li key={index} onClick={() => handleUpdateStatusNotification(notification)}>
+                                <div>
+                                    <div className="atbd-top-dropdwon__content notifications">
+                                        <div className="notification-icon bg-primary">
+                                            <FeatherIcon icon="hard-drive"/>
                                         </div>
-                                        <div className="notification-status">
-                                            {notification?.notification_status === 0 && <Badge dot/>}
+                                        <div className="notification-content d-flex">
+                                            <div className="notification-text">
+                                                <Heading as="h5">
+                                                    {`${notification?.create_by_user?.name} ${notification?.notification_title}`}
+                                                </Heading>
+                                                <p> {moment(notification?.created_at).fromNow()} &nbsp;
+                                                    {moment(notification?.created_at).format('HH:mm DD/MM/YYYY')}</p>
+                                            </div>
+                                            <div className="notification-status">
+                                                {notification?.notification_status === 0 && <Badge dot/>}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </li>
-                    ))
-                    : <>
+                            </li>
+                        ))
+                        : <>
                             <Heading as="h5">
                                 Không có thông báo mới
                             </Heading>
@@ -210,7 +213,7 @@ function NotificationBox() {
 
     return (
         <div className="notification">
-            <Popover placement="bottomLeft" content={content} action="click" >
+            <Popover placement="bottomLeft" content={content} action="click">
                 <Badge
                     count={notificationUnread?.length > 9 ? '9+' : notificationUnread?.length}
                     offset={[-8, -5]} className="custom-badge">

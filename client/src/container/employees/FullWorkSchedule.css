@@ -57,7 +57,7 @@
 }
 
 .table-row-hover:hover {
-  background-color: #000;
+  background-color: rgba(0, 0, 0, 0.5);
   color: #fff;
 }
 
@@ -66,5 +66,5 @@
 }
 
 .table-row-hover {
-  transition: all 0.4s ease;
+  transition: all 0.2s ease;
 }

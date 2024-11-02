@@ -17,7 +17,7 @@ class Task extends Model
         'task_name',
         'task_description',
         'task_priority', // 0: low, 1: medium, 2: high
-        'task_status', // 0: not started, 1: in progress, 2: completed
+        'task_status', // 0: not started, 1: in progress, 2: completed 3: leader confrimed
         'task_start_date',
         'task_end_date',
         'create_by_user_id',
@@ -41,6 +41,7 @@ class Task extends Model
     {
         return $this->hasMany(TaskMember::class, 'task_id');
     }
+
     public function project()
     {
         return $this->belongsTo(Project::class, 'project_id');

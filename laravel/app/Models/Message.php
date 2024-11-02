@@ -16,7 +16,7 @@ class Message extends Model
         'message_id',
         'text',
         'image_url',
-        'message_type', // 0: text, 1: image, 2: file
+        'message_type', // 0: text, 1: image, 2: file, 3: task
         'file_url',
         'message_by_user_id',
         'created_at',

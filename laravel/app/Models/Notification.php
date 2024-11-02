@@ -14,6 +14,7 @@ class Notification extends Model
     public $incrementing = true;
     protected $fillable = [
         'user_id',
+        'create_by_user_id',
         'task_id',
         'project_id',
         'notification_status', // 0 = unread, 1 = read
@@ -23,5 +24,9 @@ class Notification extends Model
     protected $attributes = [
         'notification_status' => 0,
     ];
+    public function createByUser()
+    {
+        return $this->belongsTo(User::class, 'create_by_user_id');
+    }
 
 }

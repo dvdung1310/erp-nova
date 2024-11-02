@@ -174,38 +174,65 @@ const MessageComponent = ({handleCloseComment, task}) => {
                                                 animate={{opacity: 1, y: 0}}
                                                 style={{
                                                     willChange: 'inherit', backfaceVisibility: 'inherit',
-                                                    marginLeft: item?.user?.id === user_id ? 'auto' : '0'
+                                                    marginLeft: (item?.user?.id === user_id && item?.message_type !== 3) ? 'auto' : '0'
                                                 }} // Đưa phần tử lên layer mới
                                                 title={item?.user?.name}
                                                 transition={{duration: 0.3, ease: "easeInOut"}}
                                                 className={`w-100 d-flex align-items-center`}>
-                                                {/* eslint-disable-next-line no-unsafe-optional-chaining */}
-                                                <Avatar width={30} height={30} name={item?.user?.name}
-                                                        imageUrl={item?.user?.avatar ? URL_LARAVEL + item?.user?.avatar : ''}/>
-                                                <p className={`${item?.user?.id === user_id ? 'bg-primary' : 'bg-secondary'} ms-1 text-white rounded p-2 mb-1`}
-                                                   style={{
-                                                       backgroundColor: item?.user?.id === user_id ? '#e5efff' : '#fff',
-                                                   }}
-                                                >
-                                                    {item.text ? <span style={{color: '#000', fontSize: '16px'}}>{item.text}</span>  : item?.file_url ?
-                                                        // eslint-disable-next-line no-unsafe-optional-chaining
-                                                        <a href={URL_LARAVEL + item?.file_url}
-                                                           style={{textDecoration: "none"}} download title="Tải xuống">
+                                                {
+                                                    item?.message_type === 3 ? <>
+                                                       <span style={{
+                                                           color: 'gray',
+                                                           fontSize: '12px',
+                                                           opacity: '0.6',
+                                                           textAlign: 'center',
+                                                           width: '100%',
+                                                           display: 'block',
+                                                           margin: '10px 0'
+                                                       }}>
+                                                            <strong>{item?.user?.name}</strong>: {item?.text} lúc {moment(item?.created_at).format('HH:mm [ngày] DD/MM/YYYY')}
+                                                        </span>
+                                                        </> :
+                                                        <>
+                                                            <Avatar width={30} height={30} name={item?.user?.name}
+                                                                    imageUrl={item?.user?.avatar ? URL_LARAVEL + item?.user?.avatar : ''}/>
+                                                            <p className={`${item?.user?.id === user_id ? 'bg-primary' : 'bg-secondary'} ms-1 text-white rounded p-2 mb-1`}
+                                                               style={{
+                                                                   backgroundColor: item?.user?.id === user_id ? '#e5efff' : '#fff',
+                                                               }}
+                                                            >
+                                                                {item.message_type === 0 ? <span style={{
+                                                                    color: '#000',
+                                                                    fontSize: '16px'
+                                                                }}>{item.text}</span> : item?.message_type === 1 ?
+                                                                    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions,no-unsafe-optional-chaining
+                                                                    <img style={{width: '200px'}}
+                                                                         src={URL_LARAVEL + item?.image_url}
+                                                                         onClick={() => handleShowImage(URL_LARAVEL + item?.image_url)}
+                                                                         alt=""/>
+                                                                    : item?.message_type === 2 &&
+                                                                    // eslint-disable-next-line no-unsafe-optional-chaining
+                                                                    <a href={URL_LARAVEL + item?.file_url}
+                                                                       style={{textDecoration: "none"}} download
+                                                                       title="Tải xuống">
                                                             <span className='text-white d-flex align-items-center'>
                                                                 <FaRegFileLines size={30} color="black"/>
                                                                 <span className='ms-2 mt-0' style={{color: '#0068ff'}}>
                                                                     {item?.file_url?.split('/').pop()}
                                                                 </span>
                                                             </span>
-                                                        </a>
-                                                        :
-                                                        // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions,no-unsafe-optional-chaining
-                                                        <img style={{width: '200px'}}
-                                                             src={URL_LARAVEL + item?.image_url}
-                                                             onClick={() => handleShowImage(URL_LARAVEL + item?.image_url)}
-                                                             alt=""/>}
-                                                    <i style={{color: '#000', fontSize: '10px', float: 'right'}}>{moment(item?.created_at).format('DD/MM/YYYY HH:mm')}</i>
-                                                </p>
+                                                                    </a>
+                                                                }
+                                                                <i style={{
+                                                                    color: '#000',
+                                                                    fontSize: '10px',
+                                                                    float: 'right'
+                                                                }}>{moment(item?.created_at).format('DD/MM/YYYY HH:mm')}</i>
+                                                            </p>
+                                                        </>
+                                                }
+                                                {/* eslint-disable-next-line no-unsafe-optional-chaining */}
+
                                             </motion.div>
                                         )) : <p>Không có bình luận nào</p>
                                 }

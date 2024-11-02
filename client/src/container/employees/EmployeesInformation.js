@@ -11,6 +11,7 @@ const EmployeesInformation = () => {
     const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
     const [loading, setLoading] = useState(false);
     const [loadingPassword, setLoadingPassword] = useState(false);
+    const [loadingUpdate, setLoadingUpdate] = useState(false);
     const [user, setUser] = useState({});
     const [imagePreview, setImagePreview] = useState(null);
     const [avatar, setAvatar] = useState(null);
@@ -42,7 +43,7 @@ const EmployeesInformation = () => {
                 new_password: data.new_password
             }
             const res = await changePassword(payload);
-            if(res.error) {
+            if (res.error) {
                 toast.error(res.error, {
                     position: "bottom-right", autoClose: 1000,
                 })
@@ -103,7 +104,7 @@ const EmployeesInformation = () => {
     }
     const handleUpdate = async () => {
         try {
-            setLoading(true);
+            setLoadingUpdate(true);
             const name = form.getFieldValue('name');
             const email = form.getFieldValue('email');
             const phone = form.getFieldValue('phone');
@@ -115,14 +116,26 @@ const EmployeesInformation = () => {
                 formData.append('avatar', avatar);
             }
             const res = await updateProfile(formData);
+            if (res.error) {
+                toast.error(res?.message, {
+                    autoClose: 1000,
+                    position: 'top-right'
+                });
+                setLoadingUpdate(false);
+                return;
+            }
             toast.success('Cập nhật thông tin thành công', {
                 autoClose: 1000,
                 position: 'top-right'
             });
-            fetchUser();
-            setLoading(false);
+            form.setFieldsValue({
+                name: res.data.name,
+                email: res.data.email,
+                phone: res.data.phone,
+            });
+            setLoadingUpdate(false);
         } catch (error) {
-            setLoading(false);
+            setLoadingUpdate(false);
             toast.error('Đã có lỗi xảy ra', {
                 autoClose: 1000,
                 position: 'top-right'
@@ -144,7 +157,7 @@ const EmployeesInformation = () => {
                         <Col xl={16} md={16} xs={24}>
                             <figure className="photo-upload align-center-v">
                                 <input type="file" hidden name='avatar' id='avatar' onChange={handleImageChange}/>
-                                <label htmlFor="avatar">
+                                <label htmlFor="avatar" style={{cursor: "pointer"}}>
                                     <Avatar name={user?.name}
                                             imageUrl={imagePreview || (user.avatar ? `${LARAVEL_SERVER}${user?.avatar}` : '')}
                                             width={120}
@@ -180,8 +193,10 @@ const EmployeesInformation = () => {
 
                                         <Form.Item>
                                             <div className="add-user-bottom text-right d-flex justify-content-between">
-                                                <Button htmlType="submit" type="primary">
-                                                    Cập nhật
+                                                <Button htmlType="submit" type="primary" style={{minWidth: '100px'}}>
+                                                    {
+                                                        loadingUpdate ? <Spin/> : 'Cập nhật'
+                                                    }
                                                 </Button>
                                                 {/* eslint-disable-next-line react/button-has-type */}
                                                 <button className='ant-btn ant-btn-primary sc-esYiGF fZPPvY'

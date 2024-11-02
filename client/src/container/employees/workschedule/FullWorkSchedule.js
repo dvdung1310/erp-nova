@@ -124,7 +124,7 @@ const FullWorkSchedule = () => {
                                             scheduleData.map((user, idx) => {
                                                 let totalDays = 0; // Biến tổng số ngày đã đăng ký
                                                 return (
-                                                    <tr key={idx} className="text-center">
+                                                    <tr key={idx} className="text-center table-row-hover ">
                                                         <td className="border px-4 aa">{user.name}</td>
                                                         {week.map((date) => {
                                                             const schedule = user.schedule[date];

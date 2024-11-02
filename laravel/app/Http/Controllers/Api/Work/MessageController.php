@@ -47,7 +47,7 @@ class MessageController extends Controller
 
             if ($request->image_url) {
                 $request->validate([
-                    'image_url' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                    'image_url' => 'image|mimes:jpeg,png,jpg,gif,svg|max:10240',
                 ]);
                 $image_url = time() . '.' . $request->image_url->extension();
 
@@ -60,7 +60,7 @@ class MessageController extends Controller
             }
             if ($request->file_url) {
                 $request->validate([
-                    'file_url' => 'mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,zip,rar|max:2048',
+                    'file_url' => 'mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,zip,rar|max:10240',
                 ]);
                 $file_url = rand(1000, 9999) . '_' . $request->file_url->getClientOriginalName();
 
@@ -107,6 +107,7 @@ class MessageController extends Controller
             $project = Project::find($task->project_id);
             $leader_id = $project->leader_id;
             $members[] = $leader_id;
+            $members = array_unique($members->toArray());
             $pathname = $request->input('pathname');
             $createByUserName = auth()->user()->name;
             $create_by_user_id = auth()->user()->id;
@@ -125,7 +126,8 @@ class MessageController extends Controller
                     $notifications[] = [
                         'user_id' => $user_id,
                         'task_id' => $task_id,
-                        'notification_title' => $createByUserName . ' Đã thêm bình luận công việc: ' . $task->task_name . '"' . $content . '"',
+                        'create_by_user_id' => $create_by_user_id,
+                        'notification_title' =>' Đã thêm bình luận công việc: ' . $task->task_name . '"' . $content . '"',
                         'notification_link' => $this->ClientUrl . $pathname,
                         'created_at' => now(),
                         'updated_at' => now(),
@@ -175,7 +177,7 @@ class MessageController extends Controller
     {
         try {
             $messages = MessageTask::where('task_id', $task_id)
-                ->with(['message.user']) // Eager load the user.js relationship
+                ->with(['message.user']) // Eager load the user relationship
                 ->get()
                 ->pluck('message');
             return response()->json([

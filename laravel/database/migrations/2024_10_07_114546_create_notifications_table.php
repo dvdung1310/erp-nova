@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->unsignedInteger('project_id')->nullable();
             $table->unsignedInteger('task_id')->nullable();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('create_by_user_id')->constrained('users')->onDelete('cascade');
             $table->tinyInteger('notification_status')->default(0); // 0 = unread, 1 = read
             $table->text('notification_title');
             $table->text('notification_link');
