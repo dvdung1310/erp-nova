@@ -99,7 +99,8 @@ function CrmEmployeeDayOff() {
         day_off_start: formData.day_off_start,
         day_off_end: formData.day_off_end,
         manager_id: members,
-        employee_id:formData.employee_id, // Assuming this is managed properly
+        employee_id:formData.employee_id,
+        pathName:'/admin/nhan-su/don-nghi-phep/'
       };
   
       const response = await saveemployeedayoff(data); // Call your API function

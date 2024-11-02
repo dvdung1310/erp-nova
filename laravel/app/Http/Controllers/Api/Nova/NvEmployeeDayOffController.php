@@ -235,6 +235,41 @@ class NvEmployeeDayOffController extends Controller
             'data' => []
         ]);
     }
+
+}
+public function getdayoffdetail($off_id){
+   
+    try {
+        $data = CrmEmployeeDayOffModel::where('off_id',$off_id)->first();
+        return response()->json([
+            'error' => false,
+            'message' => 'Customers retrieved successfully.',
+            'data' =>$data
+        ]);
+    } catch (\Throwable $th) {
+        return response()->json([
+            'error' => true,
+            'message' => 'No customers found.' . $th,
+            'data' => []
+        ]);
+    }
+}
+public function updatestatusdayoff($off_id,$off_status){
+    try {
+        $data = CrmEmployeeDayOffModel::where('off_id',$off_id)->update(['off_status'=>$off_status]);
+        $off = CrmEmployeeDayOffModel::where('off_id',$off_id)->first();
+        return response()->json([
+            'error' => false,
+            'message' => 'Customers retrieved successfully.',
+            'data' =>$off
+        ]);
+    } catch (\Throwable $th) {
+        return response()->json([
+            'error' => true,
+            'message' => 'No customers found.' . $th,
+            'data' => []
+        ]);
+    }
 }
 
 }

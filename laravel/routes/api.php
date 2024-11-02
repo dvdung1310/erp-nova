@@ -29,7 +29,7 @@ use App\Http\Controllers\Api\Nova\NvDepartmentController;
 use App\Http\Controllers\Api\Nova\NvRecruitNewsController;
 use App\Http\Controllers\Api\Nova\QuestionController;
 use App\Http\Controllers\Api\Nova\WorkScheduleController;
-
+use App\Http\Controllers\Api\Nova\WorkConfirmationController;
 
 Route::group([
     'middleware' => 'api',
@@ -69,6 +69,14 @@ Route::group(['middleware' => 'api'], function () {
     Route::get('/list-exam-user/{id}', [ExamController::class, 'getListUserExam']);
 });
 
+// xác nhận công
+Route::group(['middleware' => 'api', 'prefix' => 'work-confirmations'], function () {
+    Route::post('/store', [WorkConfirmationController::class, 'store']);
+    Route::get('/', [WorkConfirmationController::class, 'index']); 
+    Route::get('detail/{id}', [WorkConfirmationController::class, 'detailworkconfirmation']); 
+    Route::get('delete_detail/{id}', [WorkConfirmationController::class, 'deleteDetailworkconfirmation']); 
+});
+
 
 Route::group(['middleware' => 'api'], function () {
     Route::resource('nvucustomer', NvuCustomerController::class);
@@ -96,6 +104,8 @@ Route::group(['middleware' => 'api'], function () {
     //danh sách đơn xin nghỉ của nhân viên
     Route::get('/getemployeedayoff',[NvEmployeeDayOffController::class,'getemployeedayoff'])->middleware(middlewareLogin::class);
     Route::post('/storeemployeedayoff',[NvEmployeeDayOffController::class,'storeemployeedayoff']);
+    Route::get('getdayoffdetail/{off_id}',[NvEmployeeDayOffController::class,'getdayoffdetail']);
+    Route::put('updatestatusdayoff/{off_id}/{off_status}',[NvEmployeeDayOffController::class,'updatestatusdayoff']);
 });
 // work
 //groups

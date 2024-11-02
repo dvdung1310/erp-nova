@@ -23,7 +23,7 @@ class NvEmployeeController extends Controller
             $employee = CrmEmployeeModel::join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
                 ->leftjoin('crm_department_team', 'crm_employee.team_id', '=', 'crm_department_team.team_id')
                 ->join('crm_employee_level', 'crm_employee.level_id', '=', 'crm_employee_level.level_id')
-                ->leftjoin('users', 'crm_employee.account_id', '=', 'users.id')
+                ->leftjoin('users','crm_employee.account_id','=','users.id')
                 ->select(
                     'crm_employee.*',
                     'crm_department.department_name',
@@ -31,7 +31,6 @@ class NvEmployeeController extends Controller
                     'crm_employee_level.level_name',
                     'users.avatar'
                 )
-                ->select('crm_employee.*', 'crm_department.department_name')
                 ->get();
 
             return response()->json([

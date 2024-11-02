@@ -103,3 +103,12 @@ export const saveemployeedayoff = async (data) => {
   const response = await axios.post(`${LARAVEL_SERVER}/api/storeemployeedayoff`,data);
   return response.data;
 };
+export const getdayoffdetail = async (id) => {
+  const response = await axios.get(`${LARAVEL_SERVER}/api/getdayoffdetail/${id}`);
+  return response.data;
+};
+
+export const updatestatusdayoff = async (id, status) => {
+  const response = await axios.put(`${LARAVEL_SERVER}/api/updatestatusdayoff/${id}/${status}`);
+  return response.data;
+};
