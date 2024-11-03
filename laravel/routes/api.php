@@ -72,9 +72,9 @@ Route::group(['middleware' => 'api'], function () {
 // xác nhận công
 Route::group(['middleware' => 'api', 'prefix' => 'work-confirmations'], function () {
     Route::post('/store', [WorkConfirmationController::class, 'store']);
-    Route::get('/', [WorkConfirmationController::class, 'index']); 
-    Route::get('detail/{id}', [WorkConfirmationController::class, 'detailworkconfirmation']); 
-    Route::get('delete_detail/{id}', [WorkConfirmationController::class, 'deleteDetailworkconfirmation']); 
+    Route::get('/', [WorkConfirmationController::class, 'index']);
+    Route::get('detail/{id}', [WorkConfirmationController::class, 'detailworkconfirmation']);
+    Route::get('delete_detail/{id}', [WorkConfirmationController::class, 'deleteDetailworkconfirmation']);
 });
 
 
@@ -102,10 +102,10 @@ Route::group(['middleware' => 'api'], function () {
     Route::put('/nvrecruitnews/{id}', [NvRecruitNewsController::class, 'update']);
     // Route::delete('/nvrecruitcandidates/{nvrecruitcandidates}', [NvRecruitCandidatesController::class,'destroy']);
     //danh sách đơn xin nghỉ của nhân viên
-    Route::get('/getemployeedayoff',[NvEmployeeDayOffController::class,'getemployeedayoff'])->middleware(middlewareLogin::class);
-    Route::post('/storeemployeedayoff',[NvEmployeeDayOffController::class,'storeemployeedayoff']);
-    Route::get('getdayoffdetail/{off_id}',[NvEmployeeDayOffController::class,'getdayoffdetail']);
-    Route::put('updatestatusdayoff/{off_id}/{off_status}',[NvEmployeeDayOffController::class,'updatestatusdayoff']);
+    Route::get('/getemployeedayoff', [NvEmployeeDayOffController::class, 'getemployeedayoff'])->middleware(middlewareLogin::class);
+    Route::post('/storeemployeedayoff', [NvEmployeeDayOffController::class, 'storeemployeedayoff']);
+    Route::get('getdayoffdetail/{off_id}', [NvEmployeeDayOffController::class, 'getdayoffdetail']);
+    Route::put('updatestatusdayoff/{off_id}/{off_status}', [NvEmployeeDayOffController::class, 'updatestatusdayoff'])->middleware(MiddlewareLoginLeader::class);
 });
 // work
 //groups

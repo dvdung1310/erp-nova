@@ -526,6 +526,72 @@ app.post('/create-comment-task', (req, res) => {
         console.log(error);
     }
 })
+//employee
+app.post('/new-day-off', (req, res) => {
+    try {
+        const {
+            devices,
+            createByUserName,
+            notification,
+            createByUserId,
+            pathname,
+            members
+        } = req.body;
+        const payload = JSON.stringify({
+            title: 'THông báo mới',
+            body: `${createByUserName} Đã gửi một đề xuất nghỉ phép`,
+            data: {
+                url: `${CLIENT_URL}${pathname}`
+            }
+        });
+        // Gửi thông báo đến các client
+        sendNotificationSocket(createByUserName, notification, members, createByUserId);
+        // Gửi thông báo đến các thiết bị
+        devices.forEach(subscription => {
+            webpush.sendNotification(subscription, payload).catch(error => {
+                console.error('Lỗi khi gửi thông báo:', error);
+                res.status(500).json({message: "Lỗi khi gửi thông báo"});
+            });
+        });
+        res.status(200).json({message: "New day off success"});
+    } catch (error) {
+        res.status(500).json({message: "Lỗi khi gửi thông báo"});
+        console.log(error);
+    }
+})
+app.post('/update-day-off', (req, res) => {
+    try {
+        const {
+            devices,
+            createByUserName,
+            notification,
+            createByUserId,
+            pathname,
+            members,
+            statusMessage
+        } = req.body;
+        const payload = JSON.stringify({
+            title: 'THông báo mới',
+            body: `${createByUserName} Đã xem xét đề xuất nghỉ phép của bạn (${statusMessage})`,
+            data: {
+                url: `${CLIENT_URL}${pathname}`
+            }
+        });
+        // Gửi thông báo đến các client
+        sendNotificationSocket(createByUserName, notification, members, createByUserId);
+        // Gửi thông báo đến các thiết bị
+        devices.forEach(subscription => {
+            webpush.sendNotification(subscription, payload).catch(error => {
+                console.error('Lỗi khi gửi thông báo:', error);
+                res.status(500).json({message: "Lỗi khi gửi thông báo"});
+            });
+        });
+        res.status(200).json({message: "Update day off success"});
+    } catch (error) {
+        res.status(500).json({message: "Lỗi khi gửi thông báo"});
+        console.log(error);
+    }
+})
 // define route
 app.get('/', (req, res) => {
     res.send(`
