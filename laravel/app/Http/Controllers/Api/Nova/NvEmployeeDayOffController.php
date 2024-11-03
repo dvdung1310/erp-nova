@@ -378,5 +378,28 @@ class NvEmployeeDayOffController extends Controller
             ]);
         }
     }
+    public function listdayoff($employee_id) {
+        try {
+            $user_id= CrmEmployeeModel::where('employee_id', $employee_id)
+            ->pluck('account_id')
+            ->first();
+            $data = CrmEmployeeDayOffModel::join('crm_employee','crm_employee_day_off.employee_id','=','crm_employee.employee_id')
+            ->leftjoin('crm_department','crm_employee.department_id','=','crm_department.department_id')
+            ->select('crm_employee_day_off.*','crm_employee.employee_name','crm_department.department_name')
+            ->whereJsonContains('crm_employee_day_off.manager_id', $user_id)
+            ->get();
+            return response()->json([
+                'error' => false,
+                'message' => 'Customers retrieved successfully.',
+                'data' => $data
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'error' => true,
+                'message' => 'No customers found.' . $th,
+                'data' => []
+            ]);
+        }
+    }
 
 }

@@ -21,9 +21,11 @@ class NvEmployeeDayOffResource extends JsonResource
             'day_off_start' => $this->day_off_start,
             'day_off_end' => $this->day_off_end,
             'manager_id' => $this->manager_id, 
+            'employee_id' => $this->employee_id, 
             'off_status' => $this->off_status, 
             'created_at' => $this->created_at, 
             'updated_at' => $this->updated_at, 
+            'employee_name' => $this->employee_name, 
             'department_name' => $this->department_name, 
         ];
     }

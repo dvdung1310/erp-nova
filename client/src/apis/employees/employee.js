@@ -125,3 +125,7 @@ export const updatestatusdayoff = async (id, status) => {
     });
     return response.data;
 };
+export const listdayoff = async (id) => {
+    const response = await axios.get(`${LARAVEL_SERVER}/api/listdayoff/${id}`);
+    return response.data;
+};
