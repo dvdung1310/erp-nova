@@ -866,12 +866,17 @@ class TaskController extends Controller
             $tasks = Task::whereHas('users', function ($query) use ($user_id) {
                 $query->where('users.id', $user_id);
             })
-                ->with(['users' => function ($query) {
-                    $query->select('users.id', 'users.name', 'users.email', 'users.avatar');
-                }])
+                ->with([
+                    'users' => function ($query) {
+                        $query->select('users.id', 'users.name', 'users.email', 'users.avatar');
+                    },
+                    'project' => function ($query) {
+                        $query->select('work_projects.project_id', 'work_projects.project_name'); // Adjust the fields as needed
+                    }
+                ])
                 ->where('task_status', '!=', 2)
+                ->orderBy('project_id')
                 ->get();
-
             return response()->json([
                 'error' => false,
                 'message' => 'Tasks found',

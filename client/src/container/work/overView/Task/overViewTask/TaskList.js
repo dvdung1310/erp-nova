@@ -525,6 +525,12 @@ const TaskList = (props) => {
                                     onClick={(event) => handleNameClick(event, task)}
                                 >
                                     {task?.task_name || '....'}
+                                    {isHome && (
+                                        <>
+                                            <br/>
+                                            <span><strong>Dự án:</strong> {task?.project?.project_name}</span>
+                                        </>
+                                    )}
                                 </TableCell>
                                 <TableCell
                                     onClick={(event) => handleStatusClick(event, task)}
