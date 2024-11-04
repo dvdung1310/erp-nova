@@ -554,6 +554,8 @@ class TaskController extends Controller
                 $statusMessage = 'Đang làm';
             } elseif ($status == 2) {
                 $statusMessage = 'Hoàn thành';
+            } elseif ($status == 3) {
+                $statusMessage = 'Leader đã xác nhận';
             }
             $oldStatusMessage = '';
             if ($oldStatus == 0) {

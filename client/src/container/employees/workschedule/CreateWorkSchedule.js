@@ -60,7 +60,7 @@ const CreateWorkSchedule = () => {
     const checkRegistrationDeadline = () => {
         const now = new Date();
         const firstDayOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay() + 1);
-        const mondayMorningDeadline = new Date(firstDayOfWeek.getFullYear(), firstDayOfWeek.getMonth(), firstDayOfWeek.getDate(), 9, 0, 0); // 9h sáng thứ 2
+        const mondayMorningDeadline = new Date(firstDayOfWeek.getFullYear(), firstDayOfWeek.getMonth(), firstDayOfWeek.getDate(), 21, 0, 0); // 9h sáng thứ 2
         // console.log('ngay hien tại :' ,now);
         // console.log('ngày hết hạn :' ,mondayMorningDeadline);
         if (now > mondayMorningDeadline) {
