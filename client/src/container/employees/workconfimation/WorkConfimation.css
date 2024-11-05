@@ -2,3 +2,7 @@
     font-size: 25px;
     font-weight: bold;
 }
+
+.ant-modal{
+    width: 40% !important;
+}

@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Row, Col, Input, Card, Button, Modal, Table, Typography, Spin , Avatar ,Form ,Badge , List } from 'antd';
+import { Row, Col, Input, Card, Button, Modal, Table, Typography, Spin  ,Form ,Badge , List } from 'antd';
+import Avatar from "../../../components/Avatar/Avatar";
 import {toast} from "react-toastify";
 import FeatherIcon from 'feather-icons-react';
 import 'react-toastify/dist/ReactToastify.css';
 import { useParams } from 'react-router-dom';
-import { detailWorkConfimation , deleteDetailWorkConfimation } from '../../../apis/employees/workconfimation';
+import { detailWorkConfimation , deleteDetailWorkConfimation , storeWorkConfimationManager , updateDetailWorkConfimation} from '../../../apis/employees/workconfimation';
 import {getAllUsers} from '../../../apis/employees/employee';
 const { Title, Text } = Typography;
 const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
 import {checkRole, checkStatus} from '../../../utility/checkValue';
+import './WorkConfimation.css';
 
 const DetailWorkConfimation = () => {
     const { id: workConfirmationId } = useParams();
@@ -70,22 +72,18 @@ const DetailWorkConfimation = () => {
         fetchData();
     }, [workConfirmationId]);
 
-    // Search functionality
+  
     const handleSearchChange = (e) => setSearchTerm(e.target.value);
 
     const handleSelectMember = (member) => {
-        // Add the member if it's not already selected
         if (!selectedMembers.some((selected) => selected.email === member.email)) {
             setSelectedMembers([...selectedMembers, member]);
         }
     };
 
     const handleRemoveMember = (email) => {
-        // Remove the member by email
         setSelectedMembers(selectedMembers.filter((member) => member.email !== email));
     };
-
-    // Hàm xử lý thay đổi input trong bảng chi tiết công việc
     const handleInputChange = (index, field, value) => {
         const updatedDetails = [...data.work_confirmation_details];
         updatedDetails[index][field] = value;
@@ -103,11 +101,22 @@ const DetailWorkConfimation = () => {
         const formData = await form.validateFields();
         const data = {
             workConfirmationId: formData.workConfirmationId,
+            list_members : members,
             };
-
-        console.log('members' , members);
-        console.log('link', `admin/nhan-su/chi-tiet-xac-nhan-cong/${data.workConfirmationId}`);
+        const response = await storeWorkConfimationManager(data);
+        toast.success(response.message);
     }
+
+    const handleUpdateRow = async (index) => {
+        const updatedDetail = data.work_confirmation_details[index];
+        try {
+            const response = await updateDetailWorkConfimation(updatedDetail);
+            toast.success(response.message);
+            fetchData(); // Tải lại dữ liệu sau khi cập nhật
+        } catch (error) {
+            toast.error('Cập nhật không thành công');
+        }
+    };
 
     const columns = [
         { title: 'STT', dataIndex: 'stt',width:60, render: (_, __, index) => <Text>{index + 1}</Text> },
@@ -169,11 +178,12 @@ const DetailWorkConfimation = () => {
 
         {
             title: 'Chức năng',
+            width: 180,
             key: 'action',
-            render: (_, record) => (
+            render: (_, __, index) => (
                 <>
-                    <Button type="primary" style={{ marginRight: 8 }}>Sửa</Button>
-                    <Button type="danger" onClick={() => handleDelete(record.id)}>Xóa</Button>
+                    <Button type="primary" onClick={() => handleUpdateRow(index)} style={{ marginRight: 8 }}>Sửa</Button>
+                    <Button type="danger" onClick={() => handleDelete(data.work_confirmation_details[index].id)}>Xóa</Button>
                 </>
             ),
         },
@@ -208,7 +218,7 @@ const DetailWorkConfimation = () => {
                             <Text strong>Bộ phận: <span className='ms-2' style={{ fontSize:'18px' , marginLeft:'15px' }}>{data.department_name}</span></Text>
                         </Col>
                         <Col span={16}>
-                            <Text strong>Chức vụ: <span className='ms-2' style={{ fontSize:'18px' , marginLeft:'15px' }}>{data.role_name}</span></Text>
+                            <Text strong>Chức vụ: <span className='ms-2' style={{ fontSize:'18px' , marginLeft:'15px' }}>{data.level_name}</span></Text>
                         </Col>
                     </Row>
                 </div>
@@ -290,25 +300,19 @@ const DetailWorkConfimation = () => {
                                 dataSource={filteredMembers}
                                 renderItem={(member) => (
                                     <List.Item onClick={() => handleSelectMember(member)} style={{cursor: 'pointer'}}>
-                                        <List.Item.Meta
-                                            avatar={
-                                                <Avatar
-                                                    width={40}
-                                                    height={40}
-                                                    name={member?.name}
-                                                    src={member?.avatar ? `${LARAVEL_SERVER}${member?.avatar}` : ''}
-                                                />
-                                            }
-                                            title={member.name}
-                                            description={
-                                                <>
-                                                    <small className="text-muted">{member?.email}</small>
-                                                    <br/>
-                                                    <strong className="text-muted">{checkRole(member?.role_id)}</strong>
-                                                </>
-                                            }
-                                        />
-                                    </List.Item>
+                                    <List.Item.Meta
+                                        avatar={<Avatar width={40} height={40} name={member?.name}
+                                                        imageUrl={member?.avatar ? `${LARAVEL_SERVER}${member?.avatar}` : ''}/>}
+                                        title={member.name}
+                                        description={
+                                            <>
+                                                <small className="text-muted">{member?.email}</small>
+                                                <br/>
+                                                <strong className="text-muted">{checkRole(member?.role_id)}</strong>
+                                            </>
+                                        }
+                                    />
+                                </List.Item>
                                 )}
                             />
                         </>

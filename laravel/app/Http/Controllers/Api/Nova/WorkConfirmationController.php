@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Nova;
 use App\Http\Controllers\Controller;
 use App\Models\CrmEmployeeModel;
 use App\Models\CrmDepartmentModel;
+use App\Models\CrmEmployeeLevelModel;
 use App\Models\Role;
 use App\Models\EmployeeWorkConfirmation;
 use App\Models\EmployeeWorkConfirmationDetails;
@@ -51,6 +52,29 @@ class WorkConfirmationController extends Controller
         );
     }
 
+    public function storeWorkConfirmationManager(Request $request)
+    {
+        $request->validate([
+            'confirmations.workConfirmationId' => 'required|integer|exists:employee_work_confirmation,id',
+            'confirmations.list_members' => 'required|array',
+        ]);
+
+        $confirmations = $request->confirmations;
+        $list_members = json_encode($confirmations['list_members']);
+        $EmployeeWorkConfirmation = EmployeeWorkConfirmation::find($confirmations['workConfirmationId']);
+
+        if ($EmployeeWorkConfirmation) {
+            $EmployeeWorkConfirmation->manager_id = $list_members; // Lưu danh sách members
+            $EmployeeWorkConfirmation->save();
+
+            return response()->json(['message' => 'Hoàn Thành gửi xác nhận công'], 200);
+        } else {
+            return response()->json(['message' => 'Có lỗi xảy ra'], 404);
+        }
+    }
+
+
+
     public function detailWorkConfirmation($id)
     {
         $employeeWorkConfirmation = EmployeeWorkConfirmation::with(['employee', 'details'])
@@ -63,13 +87,13 @@ class WorkConfirmationController extends Controller
         // phòng ban 
         $department_name = CrmDepartmentModel::where('department_id', $employeeWorkConfirmation->employee->department_id)->pluck('department_name')->first();
         // chức vụ
-        $role_id = User::where('id', Auth::id())->pluck('role_id')->first();
-        $role_name = Role::where('id', $role_id)->pluck('name')->first();
+        $employee = CrmEmployeeModel::where('account_id', Auth::id())->first();
+        $level_name = CrmEmployeeLevelModel::where('level_id', $employee->level_id)->pluck('level_name')->first();
         $result = [
             'employee_name' => $employeeWorkConfirmation->employee->employee_name,
             'employee_id' => $employeeWorkConfirmation->employee->employee_id,
             'department_name' => $department_name,
-            'role_name' => $role_name,
+            'level_name' => $level_name,
             'work_confirmation_details' => $employeeWorkConfirmation->details->map(function ($detail) {
                 return [
                     'id' => $detail->id,
@@ -98,5 +122,16 @@ class WorkConfirmationController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => 'Lỗi trong quá trình xóa dữ liệu!', 'error' => $e->getMessage()], 500);
         }
+    }
+
+    public function updateDetailWorkConfimation(Request $request){
+       return 2;
+    }
+
+    public function listWorkConfimationUser()
+    {
+        $employee = CrmEmployeeModel::where('account_id', Auth::id())->first();
+        $listWork = EmployeeWorkConfirmation::where('employee_id', $employee->employee_id)->get();
+        return response()->json($listWork);
     }
 }

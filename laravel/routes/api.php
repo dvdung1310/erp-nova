@@ -72,9 +72,12 @@ Route::group(['middleware' => 'api'], function () {
 // xác nhận công
 Route::group(['middleware' => 'api', 'prefix' => 'work-confirmations'], function () {
     Route::post('/store', [WorkConfirmationController::class, 'store']);
+    Route::post('/manager-store', [WorkConfirmationController::class, 'storeWorkConfirmationManager']);
     Route::get('/', [WorkConfirmationController::class, 'index']);
     Route::get('detail/{id}', [WorkConfirmationController::class, 'detailworkconfirmation']);
     Route::get('delete_detail/{id}', [WorkConfirmationController::class, 'deleteDetailworkconfirmation']);
+    Route::get('update_detail', [WorkConfirmationController::class, 'updateDetailWorkConfimation']);
+    Route::get('listbyuser', [WorkConfirmationController::class, 'listWorkConfimationUser']);
 });
 
 
