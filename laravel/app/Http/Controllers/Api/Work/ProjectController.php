@@ -211,7 +211,7 @@ class ProjectController extends Controller
             $notifications = [];
             $members = ProjectMember::where('project_id', $project_id)->pluck('user_id')->toArray();
             $members[] = $leader_id;
-            $members = array_unique($members->toArray());
+            $members = array_unique($members);
             if (!empty($members)) {
                 foreach ($members as $user_id) {
                     if ($user_id != $create_by_user_id) {
@@ -305,7 +305,7 @@ class ProjectController extends Controller
             $notifications = [];
             $members = ProjectMember::where('project_id', $project_id)->pluck('user_id')->toArray();
             $members[] = $leader_id;
-            $members = array_unique($members->toArray());
+            $members = array_unique($members);
             if (!empty($members)) {
                 foreach ($members as $user_id) {
                     if ($user_id != $create_by_user_id) {
@@ -561,7 +561,7 @@ class ProjectController extends Controller
             $notifications = [];
             $members = ProjectMember::where('project_id', $project_id)->pluck('user_id')->toArray();
             $members[] = $leader_id;
-            $members = array_unique($members->toArray());
+            $members = array_unique($members);
             if (!empty($members)) {
                 foreach ($members as $user_id) {
                     if ($user_id != $create_by_user_id) {
@@ -656,7 +656,7 @@ class ProjectController extends Controller
             $notifications = [];
             $members = ProjectMember::where('project_id', $project_id)->pluck('user_id')->toArray();
             $members[] = $leader_id;
-            $members = array_unique($members->toArray());
+            $members = array_unique($members);
             if (!empty($members)) {
                 foreach ($members as $user_id) {
                     if ($user_id != $create_by_user_id) {

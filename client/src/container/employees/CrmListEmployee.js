@@ -4,7 +4,7 @@ import { Row, Col, Spin, message, Popconfirm, Button, Modal, Form, Input, Select
 import moment from 'moment';
 import { Cards } from '../../components/cards/frame/cards-frame';
 import { Main } from '../styled';
-import { DeleteOutlined, FormOutlined, PhoneOutlined, MailOutlined,SnippetsOutlined } from '@ant-design/icons';
+import { DeleteOutlined, FormOutlined, PhoneOutlined, MailOutlined, SnippetsOutlined } from '@ant-design/icons';
 import {
   getEmployees,
   createEmployees,
@@ -13,7 +13,7 @@ import {
   storeEmployees,
 } from '../../apis/employees/employee';
 import { UserCard } from '../pages/style';
- 
+
 const EmployeeFile = lazy(() => import('./CrmEmployeeFile'));
 const { Option } = Select;
 
@@ -108,39 +108,46 @@ function CrmEmployees() {
   const handleDelete = async (id) => {
     try {
       const res = await deleteEmployees(id);
-      if (res.success) {
         setDataSource((prev) => prev.filter((item) => item.employee_id !== id)); // Remove deleted employee
         message.success('Xóa nhân sự thành công!');
-      } else {
-        message.error(res.message || 'Xóa nhân sự thất bại.');
-      }
+     
     } catch (error) {
       message.error(error.message || 'Xóa nhân sự thất bại.');
     }
   };
   return (
-    <Main>
+    <Main style={{ background: '#fff' }}>
       <Switch>
         <Route exact path={path}>
           <Row gutter={15}>
             <Col xs={24}>
-              <Cards title="Danh sách nhân sự">
-                <Button type="primary" onClick={() => handleOpenModal()} style={{ marginBottom: 16 }}>
-                  Thêm mới nhân sự
-                </Button>
+              <div style={{ marginTop: '30px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h3>DANH SÁCH NHÂN SỰ</h3>
+                  <Button type="primary" onClick={() => handleOpenModal()} style={{ marginBottom: 16 }}>
+                    Thêm mới nhân sự
+                  </Button>
+                </div>
                 {loading ? (
                   <Spin tip="Loading..." />
                 ) : (
-                  <Row gutter={16}>
+                  <Row gutter={16} style={{marginTop:'30px'}}>
                     {dataSource.map((employee) => (
                       <Col xs={24} sm={12} md={8} lg={6} key={employee.employee_id}>
                         <UserCard>
-                          <div className="card user-card" style={{ boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)',padding:'5px',borderRadius:'5px'}}>
+                          <div
+                            className="card user-card"
+                            style={{ boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)', padding: '5px', borderRadius: '5px', marginBottom:'15px' }}
+                          >
                             <Cards headless>
                               <figure>
                                 {/* Use default image if imgUrl is not available */}
                                 <img
-                                  src={employee.avatar ? LARAVEL_SERVER + employee.avatar :  require('../../static/img/users/1.png')}
+                                  src={
+                                    employee.avatar
+                                      ? LARAVEL_SERVER + employee.avatar
+                                      : require('../../static/img/users/1.png')
+                                  }
                                   alt={employee.employee_name}
                                 />
                                 {/* <img src='' alt={employee.employee_name} /> */}
@@ -148,24 +155,20 @@ function CrmEmployees() {
                               <figcaption>
                                 <div className="card__content">
                                   <h6 className="card__name">{employee.employee_name}</h6>
-                                  <p className="card__designation">{employee.level_name}</p>
+                                  <p className="card__designation">{employee.level_name}-{employee.department_name}</p>
                                 </div>
-                                <div style={{ textAlign: 'left',marginBottom: '20px' }}>
+                                <div style={{ textAlign: 'left', marginBottom: '20px' }}>
                                   <div style={{ display: 'flex', alignItems: 'center' }}>
                                     <PhoneOutlined style={{ marginRight: '8px', color: '#1890ff' }} />
-                                    <p style={{ margin: 0 }}>
-                                       {employee.employee_phone}
-                                    </p>
+                                    <p style={{ margin: 0 }}>{employee.employee_phone}</p>
                                   </div>
                                   <div style={{ display: 'flex', alignItems: 'center' }}>
                                     {/* <MailOutlined style={{ marginRight: '8px', color: '#1890ff' }} /> */}
                                     <MailOutlined style={{ marginRight: '8px', color: '#1890ff' }} />
-                                    <p style={{ margin: 0 }}>
-                                       {employee.employee_email}
-                                    </p>
+                                    <p style={{ margin: 0 }}>{employee.employee_email}</p>
                                   </div>
                                   <div style={{ display: 'flex', alignItems: 'center' }}>
-                                    <SnippetsOutlined  style={{ marginRight: '8px', color: '#1890ff' }} />
+                                    <SnippetsOutlined style={{ marginRight: '8px', color: '#1890ff' }} />
                                     <NavLink
                                       to={`/admin/nhan-su/ho-so/${employee.employee_id}`}
                                       style={{ color: 'inherit', textDecoration: 'none' }}
@@ -197,7 +200,7 @@ function CrmEmployees() {
                     ))}
                   </Row>
                 )}
-              </Cards>
+              </div>
             </Col>
           </Row>
         </Route>
@@ -269,7 +272,7 @@ function CrmEmployees() {
               ))}
             </Select>
           </Form.Item>
-          <Form.Item label="Team" name="team_id" rules={[{ required: true, message: 'Vui lòng chọn team!' }]}>
+          <Form.Item label="Team" name="team_id">
             <Select placeholder="Chọn team">
               {departmentTeams.map((team) => (
                 <Option key={team.team_id} value={team.team_id}>

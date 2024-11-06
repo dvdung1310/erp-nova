@@ -268,12 +268,13 @@ const ThemeLayout = (WrappedComponent) => {
 
                 <Col md={0} sm={18} xs={12}>
                   <div className="mobile-action">
-                    <Link className="btn-search" onClick={handleSearchHide} to="#">
-                      {searchHide ? <FeatherIcon icon="search" /> : <FeatherIcon icon="x" />}
-                    </Link>
-                    <Link className="btn-auth" onClick={onShowHide} to="#">
-                      <FeatherIcon icon="more-vertical" />
-                    </Link>
+                    <AuthInfo rtl={rtl} />
+                    {/*<Link className="btn-search" onClick={handleSearchHide} to="#">*/}
+                    {/*  {searchHide ? <FeatherIcon icon="search" /> : <FeatherIcon icon="x" />}*/}
+                    {/*</Link>*/}
+                    {/*<Link className="btn-auth" onClick={onShowHide} to="#">*/}
+                    {/*  <FeatherIcon icon="more-vertical" />*/}
+                    {/*</Link>*/}
                   </div>
                 </Col>
               </Row>

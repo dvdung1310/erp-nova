@@ -2,7 +2,7 @@ self.addEventListener('push', event => {
     const data = event.data.json();
     const options = {
         body: data.body,
-        icon: '/logo192.png', // Đường dẫn đến icon của thông báo
+        icon: '/logo.jpg', // Đường dẫn đến icon của thông báo
         data: {
             url: data.data.url // URL chứa trong payload để mở khi nhấn
         }

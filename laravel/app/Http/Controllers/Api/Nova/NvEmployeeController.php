@@ -23,7 +23,7 @@ class NvEmployeeController extends Controller
             $employee = CrmEmployeeModel::join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
                 ->leftjoin('crm_department_team', 'crm_employee.team_id', '=', 'crm_department_team.team_id')
                 ->join('crm_employee_level', 'crm_employee.level_id', '=', 'crm_employee_level.level_id')
-                ->leftjoin('users','crm_employee.account_id','=','users.id')
+                ->leftjoin('users', 'crm_employee.account_id', '=', 'users.id')
                 ->select(
                     'crm_employee.*',
                     'crm_department.department_name',
@@ -99,36 +99,36 @@ class NvEmployeeController extends Controller
                     'message' => 'Email đã tồn tại trong hệ thống.',
                     'data' => []
                 ]);
+            } else {
+
+                $user = new User();
+                $user['name'] = $employee_name;
+                $user['email'] = $employee_email;
+                $user['password'] = bcrypt(123456);
+                $user['role_id'] = $request->level_id;
+                $user->save();
+                $user_id = $user->id;
+                $employee = new CrmEmployeeModel();
+                $employee['employee_name'] = $employee_name;
+                $employee['employee_email'] = $employee_email;
+                $employee['employee_email_nova'] = $employee_email_nova;
+                $employee['employee_phone'] = $request->employee_phone;
+                $employee['employee_address'] = $request->employee_address;
+                $employee['employee_identity'] = $request->employee_identity;
+                $employee['employee_bank_number'] = $request->employee_bank_number;
+                $employee['department_id'] = $request->department_id;
+                $employee['team_id'] = $request->team_id;
+                $employee['level_id'] = $request->level_id;
+                $employee['employee_status'] = $request->employee_status;
+                $employee['account_id'] = $user_id;
+                $employee->save();
+
+                return response()->json([
+                    'error' => false,
+                    'message' => 'Nhân viên được thêm thành công.',
+                    'data' => CrmEmployeeModel::paginate(10)
+                ]);
             }
-
-            $user = new User();
-            $user['name'] = $employee_name;
-            $user['email'] = $employee_email;
-            $user['password'] = bcrypt(123456);
-            $user->save();
-
-            $user_id = $user->id;
-
-            $employee = new CrmEmployeeModel();
-            $employee['employee_name'] = $employee_name;
-            $employee['employee_email'] = $employee_email;
-            $employee['employee_email_nova'] = $employee_email_nova;
-            $employee['employee_phone'] = $request->employee_phone;
-            $employee['employee_address'] = $request->employee_address;
-            $employee['employee_identity'] = $request->employee_identity;
-            $employee['employee_bank_number'] = $request->employee_bank_number;
-            $employee['department_id'] = $request->department_id;
-            $employee['team_id'] = $request->team_id;
-            $employee['level_id'] = $request->level_id;
-            $employee['employee_status'] = $request->employee_status;
-            $employee['account_id'] = $user_id;
-            $employee->save();
-
-            return response()->json([
-                'error' => false,
-                'message' => 'Nhân viên được thêm thành công.',
-                'data' => CrmEmployeeModel::paginate(10)
-            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
@@ -229,6 +229,7 @@ class NvEmployeeController extends Controller
     {
         try {
             $nvemployee = CrmEmployeeModel::find($nvemployee->employee_id);
+            $user_id = $nvemployee->account_id;
             if (!$nvemployee) {
                 return response()->json([
                     'error' => true,
@@ -237,10 +238,11 @@ class NvEmployeeController extends Controller
                 ]);
             }
             $nvemployee->delete();
+            $delete_user = User::where('id',$user_id)->delete();
             return response()->json([
-                'error' => false,
-                'message' => 'Customers retrieved successfully.',
-
+                'error' => false, // Đã sửa thành true
+                'message' => 'Xóa nhân sự thành công!',
+                'employee_id' => $nvemployee
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -268,6 +270,5 @@ class NvEmployeeController extends Controller
                 'data' => []
             ]);
         }
-
     }
 }

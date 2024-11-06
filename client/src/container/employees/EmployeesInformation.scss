@@ -36,3 +36,12 @@
     align-items: stretch;
   }
 }
+
+.edit-label {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: pointer;
+  font-weight: 600;
+}

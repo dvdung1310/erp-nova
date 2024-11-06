@@ -149,7 +149,7 @@ const EmployeesInformation = () => {
                 <Spin/>
             </div> : (
                 <div style={{marginBottom: '20px'}}>
-                    <Row justify="center" gutter={[16, 16]}>
+                    <Row justify="center" gutter={[16, 16]} style={{marginLeft: '0', marginRight: '0'}}>
                         <Col span={24}>
                             <h1 className='info' style={{textAlign: 'center', fontSize: '24px', margin: '20px 0'}}>Thông
                                 tin tài khoản</h1>
@@ -157,11 +157,13 @@ const EmployeesInformation = () => {
                         <Col xl={16} md={16} xs={24}>
                             <figure className="photo-upload align-center-v">
                                 <input type="file" hidden name='avatar' id='avatar' onChange={handleImageChange}/>
-                                <label htmlFor="avatar" style={{cursor: "pointer"}}>
+                                <label htmlFor="avatar" style={{cursor: "pointer", position: 'relative'}}>
                                     <Avatar name={user?.name}
                                             imageUrl={imagePreview || (user.avatar ? `${LARAVEL_SERVER}${user?.avatar}` : '')}
                                             width={120}
                                             height={120}/>
+                                    <div className='edit-label'>Sửa
+                                    </div>
                                 </label>
                             </figure>
                         </Col>

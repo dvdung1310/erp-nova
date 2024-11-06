@@ -525,6 +525,12 @@ const TaskList = (props) => {
                                     onClick={(event) => handleNameClick(event, task)}
                                 >
                                     {task?.task_name || '....'}
+                                    {isHome && (
+                                        <>
+                                            <br/>
+                                            <span><strong>Dự án:</strong> {task?.project?.project_name}</span>
+                                        </>
+                                    )}
                                 </TableCell>
                                 <TableCell
                                     onClick={(event) => handleStatusClick(event, task)}
@@ -535,12 +541,13 @@ const TaskList = (props) => {
                                         label={checkStatus(task.task_status).status}
                                         className="chip-status"
                                         icon={task.task_status?.toString() === '3' ? <MdCheck/> : null}
-                                        color={(task.task_status?.toString() === '2' || task.task_status?.toString() === '3')  ? 'success' : task.task_status?.toString() === '1' ? 'info' : task.task_status?.toString() === '0' ? 'warning' : 'warning'}
+                                        color={(task.task_status?.toString() === '2' || task.task_status?.toString() === '3') ? 'success' : task.task_status?.toString() === '1' ? 'info' : task.task_status?.toString() === '0' ? 'warning' : 'warning'}
                                     />
-                                    {new Date(task.task_end_date) < new Date() && task.task_status?.toString() !== '2' && (
+                                    {new Date(task.task_end_date) < new Date() && (task.task_status?.toString() !== '2' && task.task_status?.toString() !== '3') && (
                                         <Chip label="Quá hạn" style={{fontSize: '12px'}}
                                               className="chip-status ms-1"
-                                              color="error"/>)}
+                                              color="error"/>
+                                    )}
                                 </TableCell>
 
                                 <TableCell className="table-cell">
@@ -698,7 +705,7 @@ const TaskList = (props) => {
 
                     }}>
                         <Spin/>
-                    </div> }
+                    </div>}
                     <FormControl component="fieldset" sx={{padding: 2}}>
                         <RadioGroup value={selectedStatus} onChange={handleStatusChange}>
                             <FormControlLabel value="0" control={<Radio/>}

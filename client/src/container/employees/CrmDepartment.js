@@ -6,8 +6,7 @@ import { Row, Col, Table, Spin, message, Button, Modal, Form, Input, Select } fr
 import { PageHeader } from '../../components/page-headers/page-headers';
 import { Cards } from '../../components/cards/frame/cards-frame';
 import { Main } from '../styled';
-import API_ENDPOINTS from '../../apis/crm';
-
+import {getDepartment,storeDepartment,updateDepartment} from '../../apis/employees/employee';
 const { Option } = Select;
 
 // Lazy load DepartmentTeam component
@@ -27,9 +26,9 @@ function StatusCustomerTable() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(API_ENDPOINTS.departments);
+        const response = await getDepartment();
         if (!response.data.error) {
-          setDataSource(response.data.data);
+          setDataSource(response.data);
         } else {
           message.error(response.data.message);
         }
@@ -50,10 +49,9 @@ function StatusCustomerTable() {
   const handleAddModalOk = async () => {
     try {
       const newDepartment = await form.validateFields();
-      const response = await axios.post(API_ENDPOINTS.departments, newDepartment);
-
+      const response = await storeDepartment(newDepartment);
       if (!response.data.error) {
-        setDataSource((prevData) => [...prevData, response.data.data]);
+        setDataSource((prevData) => [...prevData, response.data]);
         message.success('Department added successfully');
       } else {
         message.error(response.data.message);
@@ -79,8 +77,7 @@ function StatusCustomerTable() {
   const handleModalOk = async () => {
     try {
       const updatedDepartment = form.getFieldsValue();
-      await axios.put(`${API_ENDPOINTS.departments}/${currentItem.department_id}`, updatedDepartment);
-
+      await updateDepartment(updatedDepartment,currentItem.department_id);
       message.success('Department updated successfully');
       setDataSource((prevData) =>
         prevData.map((item) =>
