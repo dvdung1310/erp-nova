@@ -18,6 +18,8 @@ const CrmEmployeeDayOff = lazy(() => import('../../container/employees/CrmEmploy
 const CrmEmployeeDayOffDetail = lazy(() => import('../../container/employees/CrmEmployeeDayOffDetail'));
 const EmployeesInformation = lazy(() => import('../../container/employees/EmployeesInformation'));
 const ListWorkConfirmation = lazy(() => import('../../container/employees/workconfimation/ListWorkConfirmation'));
+const CheckWorkConfirmation = lazy(() => import('../../container/employees/workconfimation/CheckWorkConfirmation'));
+const ManagerCheckWorkConfirmation = lazy(() => import('../../container/employees/workconfimation/ManagerCheckWorkConfirmation'));
 const CreateWorkConfimation = lazy(() => import('../../container/employees/workconfimation/CreateWorkConfimation'));
 const DetailWorkConfimation = lazy(() => import('../../container/employees/workconfimation/DetailWorkConfimation'));
 function Employees() {
@@ -42,6 +44,8 @@ function Employees() {
             <Route path={`${path}/don-nghi-phep/:id`} component={CrmEmployeeDayOffDetail} />
             <Route path={`${path}/thong-tin`} component={EmployeesInformation}/>
             <Route path={`${path}/danh-sach-xac-nhan-cong`} component={ListWorkConfirmation}/>
+            <Route path={`${path}/kiem-tra-danh-sach-xac-nhan-cong`} component={CheckWorkConfirmation}/>
+            <Route path={`${path}/quan-ly-check-xac-nhan-cong/:id`} component={ManagerCheckWorkConfirmation}/>
             <Route path={`${path}/xac-nhan-cong`} component={CreateWorkConfimation}/>
             <Route path={`${path}/chi-tiet-xac-nhan-cong/:id`} component={DetailWorkConfimation}/>
         </Switch>

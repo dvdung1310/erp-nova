@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Table, Pagination, Tag, Avatar } from 'antd';
-import { Link } from 'react-router-dom';
+import { Row, Col, Table, Button, Tag, Avatar , Tooltip ,Spin , Modal } from 'antd';
+import { useHistory } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { Cards } from '../../../components/cards/frame/cards-frame';
-import { ProjectPagination, ProjectList } from './style';
-import { listWorkConfimationUser } from '../../../apis/employees/workconfimation';
+import { ProjectList } from './style';
+import { listWorkConfimationUser , deleteWorkConfimation } from '../../../apis/employees/workconfimation';
+const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
+import './WorkConfimation.css';
+
 
 function ListWorkConfirmation() {
   const [state, setState] = useState({
@@ -11,41 +16,57 @@ function ListWorkConfirmation() {
     current: 1,
     pageSize: 10,
   });
+  const [loading, setLoading] = useState(false);
+
+  const history = useHistory();
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const response = await listWorkConfimationUser();
+      setState((prevState) => ({
+        ...prevState,
+        confirmations: response || [],
+      }));
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching work confirmations:', error);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await listWorkConfimationUser();
-        setState((prevState) => ({
-          ...prevState,
-          confirmations: response || [],
-        }));
-      } catch (error) {
-        console.error('Error fetching work confirmations:', error);
-      }
-    };
-
     fetchData();
   }, []);
 
-  const { confirmations, current, pageSize } = state;
+  const { confirmations } = state;
 
-  const onShowSizeChange = (current, pageSize) => {
-    setState({ ...state, current, pageSize });
-  };
-
-  const onHandleChange = (current) => {
-    setState({ ...state, current });
-  };
+  const handleDelete = (id) => {
+    Modal.confirm({
+        title: `Bạn có chắc chắn muốn xóa xác nhận công ?`,
+        content: 'Hành động này không thể hoàn tác!',
+        okText: 'Xóa',
+        okType: 'danger',
+        cancelText: 'Hủy',
+        onOk: async () => {
+            try {
+              const delete_workconfirmation = deleteWorkConfimation(id);
+              toast.success('Hoàn thành xóa xác nhận công');
+              fetchData();
+            } catch (error) {
+              toast.error('Lỗi xóa xác nhận công');
+            }
+        },
+    });
+};
 
   const getStatusTag = (status) => {
     switch (status) {
       case 0:
-        return <Tag color="gray">Chưa duyệt</Tag>;
+        return <Tag color="gray">Đang chờ</Tag>;
       case 1:
         return <Tag color="green">Đã duyệt</Tag>;
       case 2:
-        return <Tag color="red">Không duyệt</Tag>;
+        return <Tag color="red">Từ chối</Tag>;
       default:
         return null;
     }
@@ -58,15 +79,28 @@ function ListWorkConfirmation() {
     status: getStatusTag(confirmation.status),
     invitedAvatars: (
       <Avatar.Group>
-        {[1, 2, 3].map((id) => (
-          <Avatar key={id} src={`https://randomuser.me/api/portraits/men/${id}.jpg`} />
+        {confirmation.managers && confirmation.managers.map((manager) => (
+          <Tooltip key={manager.id} title={manager.name}>
+          <Avatar
+            src={manager?.avatar ? `${LARAVEL_SERVER}${manager?.avatar}` : ''}
+            alt={manager.name}
+            description={manager.name}
+          >
+            {manager.name ? manager.name.split(" ").pop()[0] : 'U'}
+          </Avatar>
+        </Tooltip>
         ))}
       </Avatar.Group>
     ),
     action: (
       <>
-        <Link to={`/confirmation/details/${confirmation.id}`}>Chi tiết</Link> |{' '}
-        <Link to={`/confirmation/delete/${confirmation.id}`}>Xóa</Link>
+        <Button style={{marginRight:'15px'}} type="primary" onClick={() => history.push(`/admin/nhan-su/chi-tiet-xac-nhan-cong/${confirmation.id}`)}>Chi tiết</Button>
+        {
+          confirmation.status === 0 && 
+          <Button type="danger" onClick={() =>handleDelete(confirmation.id)}>Xóa</Button>
+        }
+        
+
       </>
     ),
   }));
@@ -100,7 +134,20 @@ function ListWorkConfirmation() {
   ];
 
   return (
-    <Row gutter={25}>
+    <div className="list-work-confirmation">
+            {
+                loading ? <div className='spin'>
+                    <Spin/>
+                </div> : (
+                    <>
+   
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+                    <h2>Danh sách xác nhận công <span style={{ color: '#5F63F2', fontSize: '25px' }}></span></h2>
+                    <Button type="primary" onClick={() => history.push(`/admin/nhan-su/xac-nhan-cong`)}>
+                        Thêm xác nhận công
+                    </Button>
+    </div>
+    <Row gutter={25} className='table-xacnhancong'>
       <Col xs={24}>
         <Cards headless>
           <ProjectList>
@@ -110,19 +157,15 @@ function ListWorkConfirmation() {
           </ProjectList>
         </Cards>
       </Col>
-      <Col xs={24} className="pb-30">
-        <ProjectPagination>
-          <Pagination
-            onChange={onHandleChange}
-            showSizeChanger
-            onShowSizeChange={onShowSizeChange}
-            current={current}
-            pageSize={pageSize}
-            total={confirmations.length}
-          />
-        </ProjectPagination>
-      </Col>
     </Row>
+
+    <Button type="primary" onClick={() => history.push(`/admin/nhan-su/kiem-tra-danh-sach-xac-nhan-cong`)}>
+        Xác nhận công cho nhân viên
+    </Button>
+    
+    </>
+                )}
+        </div>
   );
 }
 

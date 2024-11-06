@@ -76,7 +76,10 @@ Route::group(['middleware' => 'api', 'prefix' => 'work-confirmations'], function
     Route::get('/', [WorkConfirmationController::class, 'index']);
     Route::get('detail/{id}', [WorkConfirmationController::class, 'detailworkconfirmation']);
     Route::get('delete_detail/{id}', [WorkConfirmationController::class, 'deleteDetailworkconfirmation']);
-    Route::get('update_detail', [WorkConfirmationController::class, 'updateDetailWorkConfimation']);
+    Route::get('delete_workconfirmation/{id}', [WorkConfirmationController::class, 'deleteworkconfirmation']);
+    Route::get('list_employee', [WorkConfirmationController::class, 'getEmployeeConfirmations']);
+    Route::post('update_detail', [WorkConfirmationController::class, 'updateDetailWorkConfimation']);
+    Route::post('update_status/{id}/{status}', [WorkConfirmationController::class, 'updateStatus']);
     Route::get('listbyuser', [WorkConfirmationController::class, 'listWorkConfimationUser']);
 });
 

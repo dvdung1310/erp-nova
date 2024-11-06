@@ -42,6 +42,7 @@ export const listWorkConfimationUser = async () => {
         const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/work-confirmations/listbyuser`, {
             headers: {
                 'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
             },
         });
         return response.data;
@@ -82,10 +83,53 @@ export const deleteDetailWorkConfimation = async (id) => {
     }
 };
 
-export const updateDetailWorkConfimation = async (formData) => {
-    console.log('aa',formData);
+export const deleteWorkConfimation = async (id) => {
     try {
-        const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/work-confirmations/update_detail/`, { confirmations: formData }, {
+        const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/work-confirmations/delete_workconfirmation/${id}`, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error saving work storeWorkConfimation:', error.response ? error.response.data : error.message);
+        throw error;
+    }
+};
+
+export const updateDetailWorkConfimation = async (formData) => {
+    try {
+        const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/work-confirmations/update_detail/`, { detailconfirmations: formData }, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error saving work storeWorkConfimation:', error.response ? error.response.data : error.message);
+        throw error;
+    }
+};
+
+
+export const listEmployee = async () => {
+    try {
+        const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/work-confirmations/list_employee`, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error saving work storeWorkConfimation:', error.response ? error.response.data : error.message);
+        throw error;
+    }
+};
+
+export const updateStatus = async (id,status) => {
+    try {
+        const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/work-confirmations/update_status/${id}/${status}`, {
             headers: {
                 'Content-Type': 'application/json',
             },

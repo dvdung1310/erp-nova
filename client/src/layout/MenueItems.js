@@ -177,7 +177,7 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
 
 
                 <Menu.Item className='pl-custom-sidebar' key="work-confimation">
-                    <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/xac-nhan-cong`}>
+                    <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-xac-nhan-cong`}>
                         Xác nhận công
                     </NavLink>
                 </Menu.Item>
@@ -242,6 +242,15 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
                 </Menu.Item>
             </SubMenu>
             {/* end tuyển dụng   */}
+
+            {/* Module quản lý đề xuất  */}
+            <SubMenu style={{ display:'none' }} key="dexuat" icon={!topMenu && <FeatherIcon icon="airplay" />} title="Quản lý đề xuất">
+                <Menu.Item className='pl-custom-sidebar' key="de-xuat">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/de-xuat/danh-sach`}>
+                       Danh sách đề xuất
+                    </NavLink>
+                </Menu.Item>
+            </SubMenu>
             {/**/}
             {/* work */}
             <SubMenu key="work" icon={!topMenu && <FeatherIcon icon="briefcase" />} title="Làm việc">

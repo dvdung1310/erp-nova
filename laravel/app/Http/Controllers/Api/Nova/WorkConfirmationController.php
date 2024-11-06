@@ -90,6 +90,8 @@ class WorkConfirmationController extends Controller
         $employee = CrmEmployeeModel::where('account_id', Auth::id())->first();
         $level_name = CrmEmployeeLevelModel::where('level_id', $employee->level_id)->pluck('level_name')->first();
         $result = [
+            'work_confirmation_id' => $id,
+            'status' => $employeeWorkConfirmation->status,
             'employee_name' => $employeeWorkConfirmation->employee->employee_name,
             'employee_id' => $employeeWorkConfirmation->employee->employee_id,
             'department_name' => $department_name,
@@ -124,14 +126,72 @@ class WorkConfirmationController extends Controller
         }
     }
 
-    public function updateDetailWorkConfimation(Request $request){
-       return 2;
+    public function updateDetailWorkConfimation(Request $request)
+    {
+        $detail = EmployeeWorkConfirmationDetails::find($request->detailconfirmations['id']);
+        $detail->work_date = $request->detailconfirmations['id'];
+        $detail->time = $request->detailconfirmations['time'];
+        $detail->work_date = $request->detailconfirmations['work_date'];
+        $detail->work_number = $request->detailconfirmations['work_number'];
+        $detail->work_content = $request->detailconfirmations['work_content'];
+        $detail->reason = $request->detailconfirmations['reason'];
+        $detail->save();
+        return response()->json(['message' => 'Hoàn thành cập nhật xác nhận công'], 200);
     }
 
     public function listWorkConfimationUser()
     {
         $employee = CrmEmployeeModel::where('account_id', Auth::id())->first();
         $listWork = EmployeeWorkConfirmation::where('employee_id', $employee->employee_id)->get();
+
+        foreach ($listWork as $work) {
+            if ($work->manager_id) {
+                $managerIds = json_decode($work->manager_id);
+                $managers = User::whereIn('id', $managerIds)->get(['id', 'name', 'avatar']);
+                $work->managers = $managers;
+            } else {
+                $work->managers = [];
+            }
+        }
+
         return response()->json($listWork);
+    }
+
+    public function deleteworkconfirmation($id)
+    {
+        try {
+            $detail = EmployeeWorkConfirmation::find($id);
+            if ($detail) {
+                $detail->delete();
+                return response()->json(['message' => 'Xóa dữ liệu thành công!'], 200);
+            } else {
+                return response()->json(['message' => 'Dữ liệu không tồn tại!'], 404);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Lỗi trong quá trình xóa dữ liệu!', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+
+    public function getEmployeeConfirmations()
+    {
+        $confirmations = EmployeeWorkConfirmation::whereJsonContains('manager_id', Auth::id())
+            ->get(['id', 'employee_id', 'created_at', 'updated_at', 'status']);
+            $confirmations = $confirmations->map(function ($confirmation) {
+            $employee = CrmEmployeeModel::where('employee_id', $confirmation->employee_id)->first();
+            $user = User::where('id', $employee->account_id)->first();
+            $confirmation->employee_name = $employee ? $employee->employee_name : null;
+            $confirmation->avatar = $user ? $user->avatar : null;
+            return $confirmation;
+        });
+
+        return response()->json($confirmations);
+    }
+
+    public function updateStatus($id,$status){
+        $confirmations = EmployeeWorkConfirmation::find($id);
+        $confirmations->status = $status;
+        $confirmations->save();
+        return response()->json(['message' => 'Hoàn thành xác nhận công'], 200);
     }
 }
