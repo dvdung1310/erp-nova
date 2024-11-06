@@ -4,8 +4,7 @@ import axios from 'axios';
 import { Row, Col, Table, Spin, message, Button, Modal, Form, Input, Select } from 'antd';
 import { Cards } from '../../components/cards/frame/cards-frame';
 import { Main } from '../styled';
-import API_ENDPOINTS from '../../apis/crm';
-
+import {getdepartmentteam,storeDepartmentTeam,updateDepartmentTeam} from '../../apis/employees/employee';
 const { Option } = Select;
 
 function CrmDepartmentTeam() {
@@ -19,20 +18,18 @@ function CrmDepartmentTeam() {
 
   // Fetch data from the API
   const fetchData = async () => {
+    setLoading(true);
     try {
-      const response = await axios.get(`${API_ENDPOINTS.departments}/${departmentId}`);
-      if (!response.data.error) {
-        if (response.data.data.length === 0) {
-          message.warning('No data found for this department.');
+        const res = await getdepartmentteam(departmentId);
+        if (!res.error) {
+            setDataSource(res.data);
+        } else {
+            message.error(res.message);
         }
-        setDataSource(response.data.data);
-      } else {
-        message.error(response.data.message);
-      }
-    } catch (err) {
-      message.error('An error occurred while fetching data.');
+    } catch (error) {
+        message.error("Có lỗi xảy ra khi tải dữ liệu nhân sự.");
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   };
 
@@ -49,9 +46,9 @@ function CrmDepartmentTeam() {
   const handleAddModalOk = async () => {
     try {
       const newItem = await form.validateFields();
-      const response = await axios.post(API_ENDPOINTS.departmentTeam, newItem);
+      const response = await storeDepartmentTeam(newItem);
       if (!response.data.error) {
-        setDataSource([...dataSource, response.data.data]);
+        setDataSource([...dataSource, response.data]);
         message.success('Status added successfully');
       } else {
         message.error(response.data.message);
@@ -76,7 +73,7 @@ function CrmDepartmentTeam() {
   const handleModalOk = async () => {
     try {
       const updatedItem = form.getFieldsValue();
-      await axios.put(`${API_ENDPOINTS.departments}/${currentItem.team_id}`, updatedItem);
+      const response = await updateDepartmentTeam(updatedItem,currentItem.team_id);
       message.success('Updated successfully');
       setDataSource((prevData) =>
         prevData.map((item) =>
@@ -123,7 +120,7 @@ function CrmDepartmentTeam() {
         <Col xs={24}>
           <Cards title="Danh sách Team">
             <Button type="primary" onClick={handleAddNew} style={{ marginBottom: 16 }}>
-              Add New Status
+              Thêm mới
             </Button>
             {loading ? (
               <Spin tip="Loading..." />
