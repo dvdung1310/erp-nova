@@ -5,7 +5,13 @@ import {createAxios} from "../../utility/createAxios";
 
 const instanceAxios = createAxios();
 export const getEmployees = async (data) => {
-    const response = await axios.get(`${LARAVEL_SERVER}/api/nvemployee`);
+    const token = getToken();
+    const response = await axios.get(`${LARAVEL_SERVER}/api/nvemployee`,{
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
     return response.data;
 };
 export const createEmployees = async (data) => {
@@ -127,5 +133,30 @@ export const updatestatusdayoff = async (id, status) => {
 };
 export const listdayoff = async (id) => {
     const response = await axios.get(`${LARAVEL_SERVER}/api/listdayoff/${id}`);
+    return response.data;
+};
+//Phòng ban
+export const getdepartmentteam = async (id) => {
+    const response = await axios.get(`${LARAVEL_SERVER}/api/getdepartmentteam/${id}`);
+    return response.data;
+};
+export const storeDepartmentTeam = async (data) => {
+    const response = await axios.post(`${LARAVEL_SERVER}/api/nvdepartmentteam`,data);
+    return response.data;
+};
+export const updateDepartmentTeam = async (data,id) => {
+    const response = await axios.put(`${LARAVEL_SERVER}/api/nvdepartmentteam/${id}`,data);
+    return response.data;
+};
+export const getDepartment = async (data) => {
+    const response = await axios.get(`${LARAVEL_SERVER}/api/nvdepartment`);
+    return response.data;
+};
+export const storeDepartment = async (data) => {
+    const response = await axios.post(`${LARAVEL_SERVER}/api/nvdepartment`,data);
+    return response.data;
+};
+export const updateDepartment = async (data,id) => {
+    const response = await axios.put(`${LARAVEL_SERVER}/api/nvdepartment/${id}`,data);
     return response.data;
 };

@@ -208,7 +208,7 @@ function CrmEmployees() {
                   <Table
                     className="table-responsive"
                     pagination={false}
-                    dataSource={dataSource}
+                    dataSource={Array.isArray(dataSource) ? dataSource : []}
                     columns={columns}
                     rowKey="file_id"
                   />

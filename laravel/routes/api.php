@@ -72,9 +72,15 @@ Route::group(['middleware' => 'api'], function () {
 // xác nhận công
 Route::group(['middleware' => 'api', 'prefix' => 'work-confirmations'], function () {
     Route::post('/store', [WorkConfirmationController::class, 'store']);
+    Route::post('/manager-store', [WorkConfirmationController::class, 'storeWorkConfirmationManager']);
     Route::get('/', [WorkConfirmationController::class, 'index']);
     Route::get('detail/{id}', [WorkConfirmationController::class, 'detailworkconfirmation']);
     Route::get('delete_detail/{id}', [WorkConfirmationController::class, 'deleteDetailworkconfirmation']);
+    Route::get('delete_workconfirmation/{id}', [WorkConfirmationController::class, 'deleteworkconfirmation']);
+    Route::get('list_employee', [WorkConfirmationController::class, 'getEmployeeConfirmations']);
+    Route::post('update_detail', [WorkConfirmationController::class, 'updateDetailWorkConfimation']);
+    Route::post('update_status/{id}/{status}', [WorkConfirmationController::class, 'updateStatus']);
+    Route::get('listbyuser', [WorkConfirmationController::class, 'listWorkConfimationUser']);
 });
 
 
@@ -106,7 +112,14 @@ Route::group(['middleware' => 'api'], function () {
     Route::post('/storeemployeedayoff', [NvEmployeeDayOffController::class, 'storeemployeedayoff']);
     Route::get('getdayoffdetail/{off_id}', [NvEmployeeDayOffController::class, 'getdayoffdetail']);
     Route::put('updatestatusdayoff/{off_id}/{off_status}', [NvEmployeeDayOffController::class, 'updatestatusdayoff'])->middleware(MiddlewareLoginLeader::class);
+<<<<<<< HEAD
     Route::get('listdayoff/{employee_id}', [NvEmployeeDayOffController::class, 'listdayoff']);
+=======
+    Route::get('listdayoff/{employee_id}',[NvEmployeeDayOffController::class,'listdayoff']);
+    //Department Team
+    Route::get('getdepartmentteam/{department_id}',[NvDepartmentTeamController::class,'getdepartmentteam']);
+    Route::get('nvemployee',[ NvEmployeeController::class,'index'])->middleware(middlewareLogin::class);
+>>>>>>> fb60b7eacde42ea1a24a5da82dcc0d7375be62a1
 });
 // work
 //groups

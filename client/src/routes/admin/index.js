@@ -12,6 +12,7 @@ import Axios from './axios';
 import Gallery from './gallery';
 import Novaup from "./Novaup";
 import Employees from "./employees";
+import Propose from "./propose";
 import withAdminLayout from '../../layout/withAdminLayout';
 import Work from "./work";
 import {urlBase64ToUint8Array} from "../../utility/utility";
@@ -132,6 +133,7 @@ function Admin() {
                 {/**/}
                 <Route path={`${path}/novaup`} component={Novaup}/>
                 <Route path={`${path}/nhan-su`} component={Employees}/>
+                <Route path={`${path}/de-xuat`} component={Propose}/>
                 <Route path={`${path}/lam-viec`} component={Work}/>
                 <Route path={`${path}/tuyen-dung`} component={Recruit}/>
             </Suspense>

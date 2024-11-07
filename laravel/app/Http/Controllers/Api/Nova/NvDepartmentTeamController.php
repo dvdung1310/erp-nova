@@ -27,10 +27,10 @@ class NvDepartmentTeamController extends Controller
                 'message' => 'Customers retrieved successfully.',
                 'data' =>  $team
             ]);
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             return response()->json([
                 'error' => true,
-                'message' => 'No customers found.',
+                'message' => 'No customers found.'.$th,
                 'data' => []
             ]);
         }
@@ -51,7 +51,7 @@ class NvDepartmentTeamController extends Controller
                 'message' => 'Departments retrieved successfully.',
                 'data' => $department
             ]);
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             // Bắt lỗi và trả về thông báo lỗi
             return response()->json([
                 'error' => true,
@@ -80,7 +80,7 @@ class NvDepartmentTeamController extends Controller
                 'message' => 'Customers retrieved successfully.',
                 'data' => $data
             ]);
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             return response()->json([
                 'error' => true,
                 'message' => 'No customers found.' . $th,
@@ -100,7 +100,7 @@ class NvDepartmentTeamController extends Controller
                 'message' => 'Customers retrieved successfully.',
                 'data' => $nvdepartmentteam
             ]);
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             return response()->json([
                 'error' => true,
                 'message' => 'No customers found.' . $th,
@@ -108,7 +108,6 @@ class NvDepartmentTeamController extends Controller
             ]);
         }
     }
-
     /**
      * Show the form for editing the specified resource.
      */
@@ -120,7 +119,7 @@ class NvDepartmentTeamController extends Controller
                 'message' => 'Customers retrieved successfully.',
                 'data' => $nvdepartmentteam
             ]);
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             return response()->json([
                 'error' => true,
                 'message' => 'No customers found.' . $th,
@@ -128,7 +127,6 @@ class NvDepartmentTeamController extends Controller
             ]);
         }
     }
-
     /**
      * Update the specified resource in storage.
      */
@@ -141,7 +139,7 @@ class NvDepartmentTeamController extends Controller
                 'message' => 'Customers retrieved successfully.',
                 'data' => CrmDepartmentTeamModel::paginate(10)
             ]);
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             return response()->json([
                 'error' => true,
                 'message' => 'No customers found.',
@@ -162,7 +160,23 @@ class NvDepartmentTeamController extends Controller
                 'message' => 'Customers retrieved successfully.',
                 'data' => CrmDepartmentTeamModel::paginate(10)
             ]);
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
+            return response()->json([
+                'error' => true,
+                'message' => 'No customers found.' . $th,
+                'data' => []
+            ]);
+        }
+    }
+    public function getdepartmentteam($department_id){
+        try {
+            $department_team = CrmDepartmentTeamModel::where('department_id',$department_id)->get();
+            return response()->json([
+                'error' => false,
+                'message' => 'Customers retrieved successfully.',
+                'data' => $department_team
+            ]);
+        } catch (\Exception $th) {
             return response()->json([
                 'error' => true,
                 'message' => 'No customers found.' . $th,
