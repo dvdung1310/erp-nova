@@ -1,8 +1,16 @@
 import {useLocation, useParams} from "react-router-dom";
 import React, {useState} from "react";
 import {checkStatus} from "../../../../../utility/checkValue";
+import RichTextEditor from 'react-rte';
 import {
-    createTask, deleteTask, updateEndDateTask, updateMemberTask, updateNameTask, updateStartDateTask, updateStatusTask
+    createTask,
+    deleteTask,
+    updateDescriptionTask,
+    updateEndDateTask,
+    updateMemberTask,
+    updateNameTask,
+    updateStartDateTask,
+    updateStatusTask
 } from "../../../../../apis/work/task";
 import {toast} from "react-toastify";
 import {
@@ -22,7 +30,19 @@ import {
     TableSortLabel,
     TextField,
 } from "@mui/material";
-import {Modal, Form, Input, Button, Spin, Badge, Typography, List,} from 'antd';
+import {
+    Modal,
+    Form,
+    Input,
+    Spin,
+    Badge,
+    Typography,
+    List,
+    DatePicker,
+    TimePicker,
+    Button,
+    Space
+} from 'antd';
 import {AnimatePresence, motion} from "framer-motion";
 import {MdCheck, MdDelete, MdOutlineDateRange} from "react-icons/md";
 import Avatar from "../../../../../components/Avatar/Avatar";
@@ -34,6 +54,7 @@ import {IoIosAdd} from "react-icons/io";
 import {PiEyeThin} from "react-icons/pi";
 import FeatherIcon from "feather-icons-react";
 //
+import dayjs from 'dayjs';
 
 const getComparator = (order, orderBy) => {
     return (a, b) => {
@@ -57,6 +78,22 @@ const stableSort = (array, comparator) => {
 };
 
 const TaskList = (props) => {
+    //
+    const [selectedOption, setSelectedOption] = useState('datetime');
+    const [startDate, setStartDate] = useState();
+    const [startTime, setStartTime] = useState();
+    const [endDate, setEndDate] = useState();
+    const [endTime, setEndTime] = useState();
+
+    const handleOptionChange = (event) => {
+        setEndTime('')
+        setStartTime('')
+        setSelectedOption(event.target.value);
+    };
+    const [editorState, setEditorState] = useState(RichTextEditor.createEmptyValue());
+    const handleChangeEditer = (value) => {
+        setEditorState(value);
+    };
     const [form] = Form.useForm();
     const {listUser, tasks, setTasks, isHome} = props;
     const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
@@ -80,8 +117,15 @@ const TaskList = (props) => {
     const [startDateAnchorEl, setStartDateAnchorEl] = useState(null);
     const [endDateAnchorEl, setEndDateAnchorEl] = useState(null);
     const [task_name, setTaskName] = useState('')
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
+
+    const [showModalUpdateDescription, setShowModalUpdateDescription] = useState(false);
+    const handleShowModalUpdateDescription = () => {
+        setShowModalUpdateDescription(true);
+        setEditorState(selectedTask?.task_description ? RichTextEditor.createValueFromString(selectedTask.task_description, 'html') : RichTextEditor.createEmptyValue());
+    }
+    const handleCloseModalUpdateDescription = () => {
+        setShowModalUpdateDescription(false);
+    }
     //
     const [showComment, setShowComment] = useState(false);
     const handleCloseComment = () => {
@@ -91,8 +135,6 @@ const TaskList = (props) => {
     const [dataCreateTask, setDataCreateTask] = useState({
         task_name: '',
         task_description: '',
-        task_start_date: '',
-        task_end_date: '',
     });
     const handleChange = (e) => {
         setDataCreateTask({
@@ -183,6 +225,32 @@ const TaskList = (props) => {
         setStartDateAnchorEl(null);
         setEndDateAnchorEl(null);
     };
+    const handleupdateDescription = async () => {
+        if (selectedTask) {
+            try {
+                setLoadingUpdate(true);
+                const payload = {
+                    task_description: editorState.toString('html'),
+                    pathname
+                }
+                const res = await updateDescriptionTask(payload, selectedTask.task_id)
+                setTasks(tasks.map((task) => task.task_id === selectedTask.task_id ? res.data : task))
+                toast.success('Thực hiện cập nhật tên công việc thành công', {
+                    position: "top-right", autoClose: 1000
+                })
+                handleCloseModalUpdateDescription()
+                setShowModalInfo(false);
+                setLoadingUpdate(false);
+            } catch (error) {
+                setLoadingUpdate(false);
+                toast.error('Đã xảy ra lỗi', {
+                    autoClose: 1000,
+                    position: 'top-right'
+                })
+                console.log(error);
+            }
+        }
+    }
 
     const handleNameSave = async (e) => {
         e.preventDefault()
@@ -201,9 +269,10 @@ const TaskList = (props) => {
                 setLoadingUpdate(false);
             } catch (error) {
                 setLoadingUpdate(false);
-                toast.error(error.response.data.message, {
-                    position: "top-right", autoClose: 1000
-                });
+                toast.error('Đã xảy ra lỗi', {
+                    autoClose: 1000,
+                    position: 'top-right'
+                })
                 console.log(error);
             }
             handleClose()
@@ -230,12 +299,14 @@ const TaskList = (props) => {
                 toast.success('Thực hiện cập nhật ngày bắt đầu công việc thành công', {
                     position: "top-right", autoClose: 1000
                 })
+                setStartDate('')
                 setLoadingUpdate(false);
             } catch (error) {
                 setLoadingUpdate(false);
-                toast.error(error.response.data.message, {
-                    position: "top-right", autoClose: 1000
-                });
+                toast.error('Đã xảy ra lỗi', {
+                    autoClose: 1000,
+                    position: 'top-right'
+                })
                 console.log(error);
             }
             handleClose();
@@ -262,12 +333,14 @@ const TaskList = (props) => {
                 toast.success('Thực hiện cập nhật ngày kết thúc công việc thành công', {
                     position: "top-right", autoClose: 1000
                 })
+                setEndDate('')
                 setLoadingUpdate(false);
             } catch (error) {
                 setLoadingUpdate(false);
-                toast.error(error.response.data.message, {
-                    position: "top-right", autoClose: 1000
-                });
+                toast.error('Đã xảy ra lỗi', {
+                    autoClose: 1000,
+                    position: 'top-right'
+                })
                 console.log(error);
             }
             // eslint-disable-next-line no-use-before-define
@@ -304,9 +377,10 @@ const TaskList = (props) => {
                 setLoadingUpdate(false);
             } catch (error) {
                 setLoadingUpdate(false);
-                toast.error(error.response.data.message, {
-                    position: "top-right", autoClose: 1000
-                });
+                toast.error('Đã xảy ra lỗi', {
+                    autoClose: 1000,
+                    position: 'top-right'
+                })
                 console.log(error);
             }
             handleClose();
@@ -330,9 +404,10 @@ const TaskList = (props) => {
                 setLoadingUpdate(false);
             } catch (error) {
                 setLoadingUpdate(false);
-                toast.error(error.response.data.message, {
-                    position: "top-right", autoClose: 1000
-                });
+                toast.error('Đã xảy ra lỗi', {
+                    autoClose: 1000,
+                    position: 'top-right'
+                })
                 console.log(error);
             }
             handleClose();
@@ -341,6 +416,10 @@ const TaskList = (props) => {
     };
     //confirm create task
     const handleConfirmCreateTask = () => {
+        setStartDate('')
+        setStartTime('')
+        setEndDate('')
+        setEndTime('')
         setShowModalCreate(true);
     }
     const handleCloseCreateTask = () => {
@@ -377,32 +456,40 @@ const TaskList = (props) => {
             setShowModalConfirm(false);
         } catch (error) {
             setLoadingDelete(false);
-            toast.error(error.response.data.message, {
-                position: "top-right", autoClose: 1000
-            });
+            toast.error('Đã xảy ra lỗi', {
+                autoClose: 1000,
+                position: 'top-right'
+            })
             console.log(error);
         }
     }
     const handleCreateTask = async () => {
         try {
             setLoadingCreate(true);
-            console.log(dataCreateTask)
-            if (!dataCreateTask.task_name || !dataCreateTask.task_start_date || !dataCreateTask.task_end_date) {
+            if (!dataCreateTask.task_name || !editorState.toString('html') || !startDate || !endDate) {
                 toast.error('Vui lòng nhập đầy đủ thông tin', {
                     position: "top-right", autoClose: 1000
                 });
                 setLoadingCreate(false);
                 return;
             }
+            const task_start_date = startTime
+                ? startDate.set({hour: startTime.hour(), minute: startTime.minute()})
+                : startDate.set({hour: 8, minute: 0});
+
+            const task_start_date_value = task_start_date.format('YYYY-MM-DD HH:mm:ss');
+            const task_end_date = endTime
+                ? endDate.set({hour: endTime.hour(), minute: endTime.minute()})
+                : endDate.set({hour: 23, minute: 59});
+            const task_end_date_value = task_end_date.format('YYYY-MM-DD HH:mm:ss');
             const payload = {
                 "project_id": id,
                 "task_name": dataCreateTask.task_name,
-                "task_description": dataCreateTask.task_description,
-                "task_start_date": dataCreateTask.task_start_date,
-                "task_end_date": dataCreateTask.task_end_date,
+                "task_description": editorState.toString('html'),
+                "task_start_date": task_start_date_value,
+                "task_end_date": task_end_date_value,
                 "members": []
             }
-            console.log(payload)
             const res = await createTask(payload)
             if (res.error) {
                 toast.error(res?.message, {
@@ -415,20 +502,19 @@ const TaskList = (props) => {
             toast.success('Thực hiện tạo công việc thành công', {
                 position: "top-right", autoClose: 1000
             })
-            setLoadingCreate(false);
             setShowModalCreate(false);
             setDataCreateTask({
                 task_name: '',
-                task_description: '',
-                task_start_date: '',
-                task_end_date: '',
             })
+            setEditorState(RichTextEditor.createEmptyValue());
             form.resetFields();
+            setLoadingCreate(false);
         } catch (error) {
             setLoadingCreate(false);
-            toast.error(error?.response?.data?.message, {
-                position: "top-right", autoClose: 1000
-            });
+            toast.error('Đã xảy ra lỗi', {
+                autoClose: 1000,
+                position: 'top-right'
+            })
             console.log(error);
         }
     };
@@ -450,6 +536,8 @@ const TaskList = (props) => {
     const sortedTasks = stableSort(tasks, getComparator(order, orderBy));
 
     //
+    const endOfToday = new Date();
+    endOfToday.setHours(23, 59, 59, 999);
     return (<div>
             <TableContainer component={Paper}>
                 <Table>
@@ -500,147 +588,160 @@ const TaskList = (props) => {
                     </TableHead>
                     <TableBody>
                         <AnimatePresence>
-                            {sortedTasks.length > 0 && sortedTasks?.map((task, index) => (<motion.tr
-                                key={task.task_id}
-                                initial={{opacity: 0, y: -10, z: 0}} // Start animation
-                                animate={{opacity: 1, y: 0, z: 0}}   // End animation
-                                exit={{opacity: 0, y: 10, z: 0}}     // Animation when removed
-                                layout                          // Automatically animate position changes
-                                transition={{duration: 0.5}}   // Adjust animation speed
-                                whileHover={{background: '#f1f2f4'}}     // Hover animation
-                                style={{
-                                    willChange: 'inherit', backfaceVisibility: 'inherit'
-                                }} // Đưa phần tử lên layer mới
-                            >
-                                <TableCell className="table-cell" style={{
-                                    minWidth: '50px'
-                                }}>
-                                    {index + 1}
-                                </TableCell>
-                                <TableCell
-                                    className="table-cell"
-                                    style={{
-                                        textAlign: 'left'
-                                    }}
-                                    onClick={(event) => handleNameClick(event, task)}
-                                >
-                                    {task?.task_name || '....'}
-                                    {isHome && (
-                                        <>
-                                            <br/>
-                                            <span><strong>Dự án:</strong> {task?.project?.project_name}</span>
-                                        </>
-                                    )}
-                                </TableCell>
-                                <TableCell
-                                    onClick={(event) => handleStatusClick(event, task)}
-                                    className={`table-cell ${task.task_status?.toString() !== '0' ? 'table-cell-clickable' : ''}`}
-                                >
-                                    <Chip
-                                        style={{fontSize: '12px'}}
-                                        label={checkStatus(task.task_status).status}
-                                        className="chip-status"
-                                        icon={task.task_status?.toString() === '3' ? <MdCheck/> : null}
-                                        color={(task.task_status?.toString() === '2' || task.task_status?.toString() === '3') ? 'success' : task.task_status?.toString() === '1' ? 'info' : task.task_status?.toString() === '0' ? 'warning' : 'warning'}
-                                    />
-                                    {new Date(task.task_end_date) < new Date() && (task.task_status?.toString() !== '2' && task.task_status?.toString() !== '3') && (
-                                        <Chip label="Quá hạn" style={{fontSize: '12px'}}
-                                              className="chip-status ms-1"
-                                              color="error"/>
-                                    )}
-                                </TableCell>
+                            {sortedTasks.length > 0 && sortedTasks?.map((task, index) => {
+                                    const endDate = new Date(task.task_end_date);
+                                    const now = new Date();
+                                    const diffTime = endDate - now;
+                                    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                                    const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+                                    return (
+                                        <motion.tr
+                                            key={task.task_id}
+                                            initial={{opacity: 0, y: -10, z: 0}} // Start animation
+                                            animate={{opacity: 1, y: 0, z: 0}}   // End animation
+                                            exit={{opacity: 0, y: 10, z: 0}}     // Animation when removed
+                                            layout                          // Automatically animate position changes
+                                            transition={{duration: 0.5}}   // Adjust animation speed
+                                            whileHover={{background: '#f1f2f4'}}     // Hover animation
+                                            style={{
+                                                willChange: 'inherit', backfaceVisibility: 'inherit'
+                                            }} // Đưa phần tử lên layer mới
+                                        >
+                                            <TableCell className="table-cell" style={{
+                                                minWidth: '50px'
+                                            }}>
+                                                {index + 1}
+                                            </TableCell>
+                                            <TableCell
+                                                className="table-cell"
+                                                style={{
+                                                    textAlign: 'left'
+                                                }}
+                                                onClick={(event) => handleNameClick(event, task)}
+                                            >
+                                                {task?.task_name || '....'}
+                                                {isHome && (
+                                                    <>
+                                                        <br/>
+                                                        <span><strong>Dự án:</strong> {task?.project?.project_name}</span>
+                                                    </>
+                                                )}
+                                            </TableCell>
+                                            <TableCell
+                                                onClick={(event) => handleStatusClick(event, task)}
+                                                className={`table-cell ${task.task_status?.toString() !== '0' ? 'table-cell-clickable' : ''}`}
+                                            >
+                                                <Chip
+                                                    style={{fontSize: '12px'}}
+                                                    label={checkStatus(task.task_status).status}
+                                                    className="chip-status"
+                                                    icon={task.task_status?.toString() === '3' ? <MdCheck/> : null}
+                                                    color={(task.task_status?.toString() === '2' || task.task_status?.toString() === '3') ? 'success' : task.task_status?.toString() === '1' ? 'info' : task.task_status?.toString() === '0' ? 'warning' : 'warning'}
+                                                />
+                                                {new Date(task.task_end_date) < new Date() && (task.task_status?.toString() !== '2' && task.task_status?.toString() !== '3') && (
+                                                    <Chip label="Quá hạn" style={{fontSize: '12px'}}
+                                                          className="chip-status ms-1"
+                                                          color="error"/>
+                                                )}
+                                            </TableCell>
 
-                                <TableCell className="table-cell">
-                                    {/* eslint-disable-next-line no-restricted-globals */}
-                                    {isNaN(Math.floor((new Date(task.task_end_date) - new Date(task.task_start_date)) / (1000 * 60 * 60 * 24))) ? '' : `${Math.floor((new Date(task.task_end_date) - new Date(task.task_start_date)) / (1000 * 60 * 60 * 24))} Ngày`}
-                                </TableCell>
-                                <TableCell className="table-cell"
-                                           onClick={(event) => handleStartDateClick(event, task)}>
-                                    <div className='d-flex align-items-center justify-content-center'>
-                                        {moment(task?.task_start_date).format('DD-MM-YYYY')}
-                                        <MdOutlineDateRange
-                                            size={16}
-                                            className='d-block ms-1 fs-4 text-secondary'/>
-                                    </div>
-                                </TableCell>
-                                <TableCell className="table-cell"
-                                           onClick={(event) => handleEndDateClick(event, task)}>
-                                    <div className='d-flex align-items-center justify-content-center'>
-                                        {moment(task?.task_end_date).format('DD-MM-YYYY')}
-                                        <MdOutlineDateRange
-                                            size={16}
-                                            className='d-block ms-1 fs-4 text-secondary'/>
-                                    </div>
-                                </TableCell>
-                                <TableCell className="table-cell">
+                                            <TableCell className="table-cell">
+                                                {/* eslint-disable-next-line no-restricted-globals */}
+                                                {isNaN(Math.floor((new Date(task.task_end_date) - new Date(task.task_start_date)) / (1000 * 60 * 60 * 24))) ? '' : `${Math.floor((new Date(task.task_end_date) - new Date(task.task_start_date)) / (1000 * 60 * 60 * 24))} Ngày`}
+                                            </TableCell>
+                                            <TableCell className="table-cell"
+                                                       onClick={(event) => handleStartDateClick(event, task)}>
+                                                <div className='d-flex align-items-center justify-content-center'>
+                                                    {moment(task?.task_start_date).format('DD-MM-YYYY HH:mm')}
+                                                    <MdOutlineDateRange
+                                                        size={16}
+                                                        className='d-block ms-1 fs-4 text-secondary'/>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="table-cell"
+                                                       onClick={(event) => handleEndDateClick(event, task)}>
+                                                <div className='d-flex align-items-center justify-content-center'>
+                                                    {moment(task?.task_end_date).format('DD-MM-YYYY HH:mm')}
+                                                    <MdOutlineDateRange
+                                                        size={16}
+                                                        className='d-block ms-1 fs-4 text-secondary'/>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="table-cell">
 
-                                    {task.task_date_update_status_completed && (<>
-                                        {new Date(task.task_date_update_status_completed) > new Date(task.task_end_date) ? (
-                                            <span className='text-danger'>
+                                                {task.task_date_update_status_completed && (<>
+                                                    {new Date(task.task_date_update_status_completed) > new Date(task.task_end_date) ? (
+                                                        <span className='text-danger'>
                                                                 Quá hạn {Math.floor((new Date(task.task_date_update_status_completed) - new Date(task.task_end_date)) / (1000 * 60 * 60 * 24))} ngày
                                                             </span>) : new Date(task.task_date_update_status_completed) < new Date(task.task_end_date) ? (
-                                            <span className='text-success'>
+                                                        <span className='text-success'>
                                                                 hoàn thành sớm {Math.floor((new Date(task.task_end_date) - new Date(task.task_date_update_status_completed)) / (1000 * 60 * 60 * 24))} ngày
                                                             </span>) : (<span className='text-success'>
                                                                 hoàn thành đúng hạn
                                                             </span>)}
-                                    </>)}
-                                    {!task.task_date_update_status_completed && (<>
-                                        {new Date() > new Date(task.task_end_date) ? <span className='text-danger'>
-                                                            Quá hạn {Math.floor((new Date() - new Date(task.task_end_date)) / (1000 * 60 * 60 * 24))} ngày
-                                                        </span> : <span className='text-warning'>
-                                                            còn&nbsp;{(Math.floor((new Date(task.task_end_date) - new Date()) / (1000 * 60 * 60 * 24)))}&nbsp;ngày
-                                                        </span>}
-                                    </>)}
-                                </TableCell>
-                                <TableCell className="table-cell"
-                                           onClick={(event) => handleUserClick(event, task)}
-                                >
+                                                </>)}
+                                                {!task.task_date_update_status_completed && (<>
+                                                    {diffDays < 0 ? (
+                                                        <span className='text-danger'>
+    {(Math.abs(diffDays) >= 1 && Math.abs(diffHours) >= 24) ? `Quá hạn ${Math.abs(diffDays)} ngày` : `Quá hạn ${Math.abs(diffHours)} giờ`}
+</span>
+                                                    ) : (
+                                                        <span className='text-warning'>
+        {diffDays === 0 ? `còn ${Math.abs(diffHours)} giờ` : `còn ${diffDays} ngày`}
+    </span>
+                                                    )}
+                                                </>)}
+                                            </TableCell>
+                                            <TableCell className="table-cell"
+                                                       onClick={(event) => handleUserClick(event, task)}
+                                            >
 
-                                    <div className='d-flex align-items-center'>
-                                        {task?.users?.length > 0 && task.users.map((user) => (<div
-                                            key={user.id}
-                                            title={user.name}
-                                            style={{
-                                                marginLeft: '-8px', fontSize: '16px'
-                                            }}>
-                                            <Avatar width={30} height={30} name={user.name}
-                                                    imageUrl={user.avatar ? LARAVEL_SERVER + user.avatar : ''}
-                                                    key={user.id}/>
-                                        </div>))}
-                                        <CiCirclePlus size={30} style={{opacity: '0.2'}}/>
-                                    </div>
+                                                <div className='d-flex align-items-center'>
+                                                    {task?.users?.length > 0 && task.users.map((user) => (<div
+                                                        key={user.id}
+                                                        title={user.name}
+                                                        style={{
+                                                            marginLeft: '-8px', fontSize: '16px'
+                                                        }}>
+                                                        <Avatar width={30} height={30} name={user.name}
+                                                                imageUrl={user.avatar ? LARAVEL_SERVER + user.avatar : ''}
+                                                                key={user.id}/>
+                                                    </div>))}
+                                                    <CiCirclePlus size={30} style={{opacity: '0.2'}}/>
+                                                </div>
 
-                                </TableCell>
-                                <TableCell className="table-cell">
-                                    <div className='d-flex justify-content-center' style={{
-                                        gap: '10px'
-                                    }}>
-                                        <div className='btn p-1'
-                                             title='Chi tiết'
-                                             onClick={(event) => handleInfoClick(event, task)}
-                                        >
-                                            <PiEyeThin color='gray' size={30} className='icon-delete'/>
-                                        </div>
-                                        {/* eslint-disable-next-line react/button-has-type */}
-                                        <div className='btn p-1'
-                                             title='Bình luận'
-                                             onClick={(event) => handleCommentClick(event, task)}
-                                        >
-                                            <GoComment color='gray' size={30} className='icon-delete'/>
-                                        </div>
-                                        {/* eslint-disable-next-line react/button-has-type */}
-                                        <div className='btn p-1'
-                                             title='Xóa công việc'
-                                             onClick={() => handleShowModalConfirm(task.task_id)}
-                                        >
-                                            <MdDelete color='red' size={30} className='icon-delete'/>
-                                        </div>
-                                    </div>
-                                    {/* eslint-disable-next-line react/button-has-type */}
+                                            </TableCell>
+                                            <TableCell className="table-cell">
+                                                <div className='d-flex justify-content-center' style={{
+                                                    gap: '10px'
+                                                }}>
+                                                    <div className='btn p-1'
+                                                         title='Chi tiết'
+                                                         onClick={(event) => handleInfoClick(event, task)}
+                                                    >
+                                                        <PiEyeThin color='gray' size={30} className='icon-delete'/>
+                                                    </div>
+                                                    {/* eslint-disable-next-line react/button-has-type */}
+                                                    <div className='btn p-1'
+                                                         title='Bình luận'
+                                                         onClick={(event) => handleCommentClick(event, task)}
+                                                    >
+                                                        <GoComment color='gray' size={30} className='icon-delete'/>
+                                                    </div>
+                                                    {/* eslint-disable-next-line react/button-has-type */}
+                                                    <div className='btn p-1'
+                                                         title='Xóa công việc'
+                                                         onClick={() => handleShowModalConfirm(task.task_id)}
+                                                    >
+                                                        <MdDelete color='red' size={30} className='icon-delete'/>
+                                                    </div>
+                                                </div>
+                                                {/* eslint-disable-next-line react/button-has-type */}
 
-                                </TableCell>
-                            </motion.tr>))}
+                                            </TableCell>
+                                        </motion.tr>)
+                                }
+                            )}
                         </AnimatePresence>
 
                         <tr>
@@ -774,7 +875,7 @@ const TaskList = (props) => {
                     <div style={{padding: '16px'}}>
                         <TextField
                             label="Start Date"
-                            type="date"
+                            type="datetime-local"
                             value={startDate}
                             autoFocus
                             onChange={(e) => setStartDate(e.target.value)}
@@ -812,7 +913,7 @@ const TaskList = (props) => {
                     <div style={{padding: '16px'}}>
                         <TextField
                             label="End Date"
-                            type="date"
+                            type="datetime-local"
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
                             fullWidth
@@ -950,6 +1051,7 @@ const TaskList = (props) => {
                 centered
                 title="Thêm mới công việc"
                 footer={null}
+                className='modal-task'
             >
                 <Form layout="vertical" form={form}>
                     <div className="row">
@@ -958,6 +1060,7 @@ const TaskList = (props) => {
                                 label="Tên công việc"
                                 className="form-label fs-4"
                                 name="task_name"
+                                rules={[{required: true, message: 'Vui lòng nhập tên công việc'}]}
                             >
                                 <Input
                                     className="form-control fs-5"
@@ -974,55 +1077,76 @@ const TaskList = (props) => {
                                 label="Mô tả công việc"
                                 className="form-label fs-4"
                                 name="task_description"
+                                rules={[{required: true, message: 'Vui lòng nhập mô tả công việc'}]}
                             >
-                                <Input.TextArea
-                                    rows={2}
-                                    className="form-control fs-5"
-                                    name="task_description"
-                                    value={dataCreateTask.task_description}
-                                    onChange={handleChange}
-                                    id="input2"
-                                    placeholder="Nhập mô tả"
-                                />
+                                <div className="group">
+                                    <RichTextEditor
+                                        className='custom-rich-text-editor'
+                                        placeholder="Nhập mô tả công việc"
+                                        name={'task_description'}
+                                        value={editorState}
+                                        onChange={handleChangeEditer}/>
+                                </div>
                             </Form.Item>
                         </div>
                     </div>
                     <div className="row mt-3">
-                        <div className="col-md-6">
-                            <Form.Item
-                                label="Ngày bắt đầu"
-                                className="form-label fs-4"
-                                name="task_start_date"
-                            >
-                                <Input
-                                    type="date"
-                                    className="form-control fs-5"
-                                    id="input4"
-                                    name="task_start_date"
-                                    value={dataCreateTask.task_start_date}
-                                    onChange={handleChange}
-                                />
-                            </Form.Item>
-                        </div>
-                        <div className="col-md-6">
-                            <Form.Item
-                                label="Ngày kết thúc"
-                                className="form-label fs-4"
-                                name="task_end_date"
-                            >
-                                <Input
-                                    type="date"
-                                    className="form-control fs-5"
-                                    id="input4"
-                                    name="task_end_date"
-                                    value={dataCreateTask.task_end_date}
-                                    onChange={handleChange}
-                                />
-                            </Form.Item>
+                        <div>
+                            <h4>Tiến độ công việc <span style={{color: 'red'}}>*</span></h4>
+                            <FormControl component="fieldset">
+                                <RadioGroup value={selectedOption} onChange={handleOptionChange}
+                                            style={{flexDirection: 'row'}}>
+                                    <FormControlLabel value="datetime" control={<Radio/>}
+                                                      label="Ngày và giờ (mặc định)"/>
+                                    <FormControlLabel value="date" control={<Radio/>} label="Chỉ nhập ngày"/>
+                                </RadioGroup>
+                            </FormControl>
+
+                            <Space direction="vertical" size="small" style={{width: '100%', marginTop: '20px'}}>
+                                <div style={{display: 'flex', alignItems: 'center'}}>
+                                    <label>Bắt đầu:</label>
+                                    {
+                                        selectedOption === 'datetime' && (
+                                            <TimePicker
+                                                value={startTime}
+                                                onChange={(time) => setStartTime(time)}
+                                                format="HH:mm"
+                                                style={{width: '20%'}}
+                                            />
+                                        )
+                                    }
+                                    <DatePicker
+                                        value={startDate}
+                                        onChange={(date) => setStartDate(date)}
+                                        format="DD/MM/YYYY"
+                                        style={{width: '40%', marginLeft: '10px'}}
+                                    />
+                                </div>
+
+                                <div style={{display: 'flex', alignItems: 'center', marginTop: '10px'}}>
+                                    <label>Kết thúc:</label>
+                                    {
+                                        selectedOption === 'datetime' && (
+                                            <TimePicker
+                                                value={endTime}
+                                                onChange={(time) => setEndTime(time)}
+                                                format="HH:mm"
+                                                style={{width: '20%'}}
+                                            />
+                                        )
+                                    }
+                                    <DatePicker
+                                        value={endDate}
+                                        onChange={(date) => setEndDate(date)}
+                                        format="DD/MM/YYYY"
+                                        style={{width: '40%', marginLeft: '10px'}}
+                                    />
+                                </div>
+                            </Space>
                         </div>
                     </div>
                 </Form>
-                <div className='d-flex justify-content-center'>
+                <div className='d-flex justify-content-center' style={{marginTop: '20px'}}>
                     <Button
                         type="primary"
                         style={{minWidth: '300px'}}
@@ -1076,7 +1200,10 @@ const TaskList = (props) => {
                                         việc:</strong> {selectedTask?.task_name?.trim() || 'Không có tên công việc'}
                                 </Typography.Title>
                                 <Typography.Paragraph className="fs-5">
-                                    <strong>Mô tả:</strong> {selectedTask?.task_description?.trim() || 'Không có mô tả'}
+                                    <strong>Mô tả:</strong> <Button onClick={handleShowModalUpdateDescription}>Cập
+                                    nhật</Button> <br/>
+                                    <span
+                                        dangerouslySetInnerHTML={{__html: selectedTask?.task_description?.trim() || 'Không có mô tả'}}/>
                                 </Typography.Paragraph>
                                 <Typography.Paragraph className="fs-5">
                                     <strong>Ngày bắt
@@ -1118,6 +1245,34 @@ const TaskList = (props) => {
                             </div>
                         </div>
                     )}
+                </div>
+            </Modal>
+            {/*modal update description*/}
+            <Modal
+                className='modal-task'
+                visible={showModalUpdateDescription}
+                onCancel={handleCloseModalUpdateDescription}
+                centered
+                title="Cập nhật mô tả công việc"
+                footer={null}
+            >
+                <div className="group">
+                    <RichTextEditor
+                        className='custom-rich-text-editor'
+                        placeholder="Nhập mô tả công việc"
+                        name={'task_description'}
+                        value={editorState}
+                        onChange={handleChangeEditer}/>
+                </div>
+                <div className='d-flex justify-content-center' style={{marginTop: '20px'}}>
+                    <Button
+                        type="primary"
+                        style={{minWidth: '300px'}}
+                        onClick={handleupdateDescription}
+                        className='btn btn-primary bg-primary text-white fs-4'
+                    >
+                        {loadingUpdate ? <Spin/> : 'Lưu'}
+                    </Button>
                 </div>
             </Modal>
 

@@ -23,8 +23,8 @@ use Illuminate\Support\Facades\Storage;
 
 class ProjectController extends Controller
 {
-    protected $nodeUrl;
-    protected $ClientUrl;
+    protected mixed $nodeUrl;
+    protected mixed $ClientUrl;
 
     public function __construct()
     {
@@ -141,13 +141,18 @@ class ProjectController extends Controller
                 return json_decode($device->endpoint, true);
             })->filter()->values()->toArray();
             $projectName = $project->project_name;
+            $notification = Notification::where('project_id', $project_id)
+                ->where('create_by_user_id', $create_by_user_id)
+                ->with('createByUser')
+                ->latest()
+                ->first();
             if (!empty($notifications)) {
                 $payload = [
                     'members' => $request->members,
                     'devices' => $devices,
                     'createByUserName' => $createByUserName,
                     'projectName' => $projectName,
-                    'notification' => $notifications[0],
+                    'notification' => $notification,
                     'createByUserId' => $create_by_user_id,
                     'pathname' => $pathname,
                 ];
@@ -236,13 +241,18 @@ class ProjectController extends Controller
                 return json_decode($device->endpoint, true);
             })->filter()->values()->toArray();
             $projectName = $project->project_name;
+            $notification = Notification::where('project_id', $project_id)
+                ->where('create_by_user_id', $create_by_user_id)
+                ->with('createByUser')
+                ->latest()
+                ->first();
             if (!empty($notifications)) {
                 $payload = [
                     'members' => $members,
                     'devices' => $devices,
                     'createByUserName' => $createByUserName,
                     'projectName' => $projectName,
-                    'notification' => $notifications[0],
+                    'notification' => $notification,
                     'createByUserId' => $create_by_user_id,
                     'pathname' => $pathname,
                 ];
@@ -340,13 +350,18 @@ class ProjectController extends Controller
             } elseif ($status == 2) {
                 $statusMessage = 'Hoàn thành';
             }
+            $notification = Notification::where('project_id', $project_id)
+                ->where('create_by_user_id', $create_by_user_id)
+                ->with('createByUser')
+                ->latest()
+                ->first();
             if (!empty($notifications)) {
                 $payload = [
                     'members' => $members,
                     'devices' => $devices,
                     'createByUserName' => $createByUserName,
                     'projectName' => $projectName,
-                    'notification' => $notifications[0],
+                    'notification' => $notification,
                     'statusMessage' => $statusMessage,
                     'createByUserId' => $create_by_user_id,
                     'pathname' => $pathname,
@@ -469,12 +484,17 @@ class ProjectController extends Controller
 
                 if (!empty($notifications)) {
                     $projectName = $project->project_name;
+                    $notification = Notification::where('project_id', $project_id)
+                        ->where('create_by_user_id', $create_by_user_id)
+                        ->with('createByUser')
+                        ->latest()
+                        ->first();
                     $payload = [
                         'members' => $membersToAdd,
                         'devices' => $devices,
                         'createByUserName' => $createByUserName,
                         'projectName' => $projectName,
-                        'notification' => $notifications[0],
+                        'notification' => $notification,
                         'createByUserId' => $create_by_user_id,
                         'pathname' => $pathname,
                     ];
@@ -491,12 +511,17 @@ class ProjectController extends Controller
 
                 if (!empty($notifications)) {
                     $projectName = $project->project_name;
+                    $notification = Notification::where('project_id', $project_id)
+                        ->where('create_by_user_id', $create_by_user_id)
+                        ->with('createByUser')
+                        ->latest()
+                        ->first();
                     $payload = [
                         'members' => $membersToRemove,
                         'devices' => $devices,
                         'createByUserName' => $createByUserName,
                         'projectName' => $projectName,
-                        'notification' => $notifications[0],
+                        'notification' => $notification,
                         'createByUserId' => $create_by_user_id,
                         'pathname' => $pathname,
                     ];
@@ -587,12 +612,17 @@ class ProjectController extends Controller
             })->filter()->values()->toArray();
             $projectName = $project->project_name;
             if (!empty($notifications)) {
+                $notification = Notification::where('project_id', $project_id)
+                    ->where('create_by_user_id', $create_by_user_id)
+                    ->with('createByUser')
+                    ->latest()
+                    ->first();
                 $payload = [
                     'members' => $members,
                     'devices' => $devices,
                     'createByUserName' => $createByUserName,
                     'projectName' => $projectName,
-                    'notification' => $notifications[0],
+                    'notification' => $notification,
                     'createByUserId' => $create_by_user_id,
                     'pathname' => $pathname,
                 ];
@@ -682,12 +712,17 @@ class ProjectController extends Controller
             })->filter()->values()->toArray();
             $projectName = $project->project_name;
             if (!empty($notifications)) {
+                $notification = Notification::where('project_id', $project_id)
+                    ->where('create_by_user_id', $create_by_user_id)
+                    ->with('createByUser')
+                    ->latest()
+                    ->first();
                 $payload = [
                     'members' => $members,
                     'devices' => $devices,
                     'createByUserName' => $createByUserName,
                     'projectName' => $projectName,
-                    'notification' => $notifications[0],
+                    'notification' => $notification,
                     'createByUserId' => $create_by_user_id,
                     'pathname' => $pathname,
                 ];
@@ -1018,12 +1053,17 @@ class ProjectController extends Controller
             })->filter()->values()->toArray();
             $projectName = $project->project_name;
             if (!empty($notifications)) {
+                $notification = Notification::where('project_id', $project_id)
+                    ->where('create_by_user_id', $create_by_user_id)
+                    ->with('createByUser')
+                    ->latest()
+                    ->first();
                 $payload = [
                     'members' => $members,
                     'devices' => $devices,
                     'createByUserName' => $createByUserName,
                     'projectName' => $projectName,
-                    'notification' => $notifications[0],
+                    'notification' => $notification,
                     'createByUserId' => $create_by_user_id,
                     'pathname' => $pathname,
                 ];

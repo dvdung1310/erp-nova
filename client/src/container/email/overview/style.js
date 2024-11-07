@@ -1,7 +1,10 @@
 import Styled from 'styled-components';
-import { Table } from 'antd';
+import {Table} from 'antd';
 
 const Style = Styled(Table)`
+ thead {
+    display: none;
+  }
   margin-bottom: 30px;  
   .ant-table{
     padding-bottom: 30px;
@@ -10,15 +13,15 @@ const Style = Styled(Table)`
       th,
       td{
         &:first-child{
-          ${({ theme }) => (theme.rtl ? 'padding-right' : 'padding-left')}: 30px;
+          ${({theme}) => (theme.rtl ? 'padding-right' : 'padding-left')}: 30px;
         }
         &:last-child{
-          ${({ theme }) => (!theme.rtl ? 'padding-right' : 'padding-left')}: 30px;
+          ${({theme}) => (!theme.rtl ? 'padding-right' : 'padding-left')}: 30px;
         }
       }
     }
     .ant-table-selection-extra{
-      /* ${({ theme }) => (theme.rtl ? 'right: 15px;' : 'left: -15px;')} */
+      /* ${({theme}) => (theme.rtl ? 'right: 15px;' : 'left: -15px;')} */
       right: 15px;
     }
   }
@@ -27,24 +30,24 @@ const Style = Styled(Table)`
       >th{
         background: #fff;
         &:first-child{
-          ${({ theme }) => (!theme.rtl ? 'padding-right' : 'padding-left')}: 20px;
+          ${({theme}) => (!theme.rtl ? 'padding-right' : 'padding-left')}: 20px;
           border-top-left-radius: 10px !important;
         }
         &:last-child{
           border-top-right-radius: 10px !important;
         }
         .ant-table-selection-extra{
-          ${({ theme }) => (!theme.rtl ? 'right' : 'left')}: -25px
+          ${({theme}) => (!theme.rtl ? 'right' : 'left')}: -25px
         }
         .ant-dropdown-trigger{
           svg{
             width: 20px;
-            color: ${({ theme }) => theme['gray-solid']};
+            color: ${({theme}) => theme['gray-solid']};
           }
         }
         .email-top-search{
           display: flex;
-          justify-content: ${({ theme }) => (theme.rtl ? 'flex-start' : 'flex-end')};
+          justify-content: ${({theme}) => (theme.rtl ? 'flex-start' : 'flex-end')};
           align-items: center;
           min-width: 350px;
           @media only screen and (max-width: 575px){
@@ -61,20 +64,20 @@ const Style = Styled(Table)`
             .ant-select-selection-search-input{
               text-align: right;
               border-radius: 24px;
-              background: ${({ theme }) => theme['bg-color-normal']};
+              background: ${({theme}) => theme['bg-color-normal']};
               border: 0 none;
               input{
                 height: 44px !important;
-                background: ${({ theme }) => theme['bg-color-normal']};
+                background: ${({theme}) => theme['bg-color-normal']};
                 &:placeholder{
-                  color: ${({ theme }) => theme['extra-light-color']};
+                  color: ${({theme}) => theme['extra-light-color']};
                 }
               }
               .ant-input-suffix{
-                ${({ theme }) => (!theme.rtl ? 'margin-right' : 'margin-left')}: 0;
+                ${({theme}) => (!theme.rtl ? 'margin-right' : 'margin-left')}: 0;
                 .anticon-search{
                   svg{
-                    color: ${({ theme }) => theme['gray-solid']};
+                    color: ${({theme}) => theme['gray-solid']};
                   }
                 }
               }
@@ -86,9 +89,9 @@ const Style = Styled(Table)`
           .email-extra{
             line-height: 1;
             a{
-              color: ${({ theme }) => theme['gray-solid']};
+              color: ${({theme}) => theme['gray-solid']};
               &:not(:last-child){
-                ${({ theme }) => (theme.rtl ? 'margin-left' : 'margin-right')}: 25px;
+                ${({theme}) => (theme.rtl ? 'margin-left' : 'margin-right')}: 25px;
               }
             }
           }
@@ -96,13 +99,13 @@ const Style = Styled(Table)`
             display: inline-block
             font-size: 14px;
             font-weight: 400;
-            color: ${({ theme }) => theme['light-color']};
+            color: ${({theme}) => theme['light-color']};
             @media only screen and (max-width: 575px){
               display: none;
             }
           }
           .pagination-slider{
-            margin: ${({ theme }) => (theme.rtl ? '0 15px 0 20px' : '0 20px 0 15px')};
+            margin: ${({theme}) => (theme.rtl ? '0 15px 0 20px' : '0 20px 0 15px')};
             .btn-paging{
               display: inline-flex;
               height: 30px;
@@ -111,10 +114,10 @@ const Style = Styled(Table)`
               align-items: center;
               justify-content: center;
               &:hover{
-                background: ${({ theme }) => theme['primary-color']}10;
+                background: ${({theme}) => theme['primary-color']}10;
               }
               svg{
-                color: ${({ theme }) => theme['light-color']};
+                color: ${({theme}) => theme['light-color']};
               }
             }
           }
@@ -127,21 +130,21 @@ const Style = Styled(Table)`
   .ant-table-tbody{
     .ant-table-cell{
       white-space: normal !important;
-      text-align: ${({ theme }) => (theme.rtl ? 'right' : 'left')};
+      text-align: ${({theme}) => (theme.rtl ? 'right' : 'left')};
     }
     >tr{
       &:hover{
-        box-shadow: 0 15px 40px ${({ theme }) => theme['gray-solid']}20;
+        box-shadow: 0 15px 40px ${({theme}) => theme['gray-solid']}20;
         h1{
           font-weight: 600;
-          color: ${({ theme }) => theme['dark-color']};
+          color: ${({theme}) => theme['dark-color']};
           a{
-            color: ${({ theme }) => theme['dark-color']};
+            color: ${({theme}) => theme['dark-color']};
           }
         }
         .email-time{
           font-weight: 500;
-          color: ${({ theme }) => theme['dark-color']};
+          color: ${({theme}) => theme['dark-color']};
         }
         >td{
           background: #fff !important;
@@ -165,7 +168,7 @@ const Style = Styled(Table)`
       >td{
         padding: 15px 16px;
         &:last-child{
-          text-align: ${({ theme }) => (!theme.rtl ? 'right' : 'left')};
+          text-align: ${({theme}) => (!theme.rtl ? 'right' : 'left')};
         }
         .ant-checkbox-wrapper{
           margin-top: 5px;
@@ -173,7 +176,7 @@ const Style = Styled(Table)`
         .email-time{
           font-size: 13px;
           font-weight: 400;
-          color: ${({ theme }) => theme['gray-color']};
+          color: ${({theme}) => theme['gray-color']};
         }
       }
     }
@@ -183,7 +186,7 @@ const Style = Styled(Table)`
   }
   .ant-table-thead > tr:first-child > th:last-child {
     border-top-right-radius: 4px;
-    text-align: ${({ theme }) => (!theme.rtl ? 'right' : 'left')};
+    text-align: ${({theme}) => (!theme.rtl ? 'right' : 'left')};
   }
   .ant-pagination-item {
     display: none;
@@ -191,13 +194,13 @@ const Style = Styled(Table)`
   .ant-table-pagination.ant-pagination {
     position: absolute;
     z-index: 1;
-    ${({ theme }) => (!theme.rtl ? 'right' : 'left')}: 0;
+    ${({theme}) => (!theme.rtl ? 'right' : 'left')}: 0;
   }
   
 `;
 
-const small = ({ rtl }) => {
-  return `
+const small = ({rtl}) => {
+    return `
     max-width: 600px;
     width: 100%;
     position: fixed;
@@ -215,8 +218,8 @@ const small = ({ rtl }) => {
 `;
 };
 
-const big = ({ rtl }) => {
-  return `
+const big = ({rtl}) => {
+    return `
   max-width: 1200px;
   width: 100%;
   position: fixed;
@@ -228,49 +231,49 @@ const big = ({ rtl }) => {
 };
 
 const MailBox = Styled.div`
-  ${({ size, theme }) => size === 'small' && small(theme)}
-  ${({ size, theme }) => size === 'big' && big(theme)}
+  ${({size, theme}) => size === 'small' && small(theme)}
+  ${({size, theme}) => size === 'big' && big(theme)}
 
   background: #fff;
   z-index: 999;
   border-radius: 10px;
   box-shadow: 0 10px 50px #9299B830;
   @media only screen and (max-width: 575px){
-    ${({ theme }) => (!theme.rtl ? 'right' : 'left')}: 0;
+    ${({theme}) => (!theme.rtl ? 'right' : 'left')}: 0;
   }
   .reply-inner{
     width: 100%;
-    border-bottom: 1px solid ${({ theme }) => theme['border-color-light']} !important;
+    border-bottom: 1px solid ${({theme}) => theme['border-color-light']} !important;
   }
   input{
     border: 0 none;
-    border-bottom: 1px solid ${({ theme }) => theme['border-color-light']};
+    border-bottom: 1px solid ${({theme}) => theme['border-color-light']};
   }
   .react-tagsinput{
-    ${({ theme }) => (theme.rtl ? 'padding-right' : 'padding-left')}: 0;
+    ${({theme}) => (theme.rtl ? 'padding-right' : 'padding-left')}: 0;
     border: 0 none;
     input{
       border: 0 none;
     }
     input::placeholder{
-      color: ${({ theme }) => theme['light-color']};
+      color: ${({theme}) => theme['light-color']};
     }
     .react-tagsinput-tag{
       padding: 5px 16px;
       border: 0 none;
       border-radius: 16px;
-      color: ${({ theme }) => theme['gray-color']};
-      background: ${({ theme }) => theme['bg-color-normal']};
+      color: ${({theme}) => theme['gray-color']};
+      background: ${({theme}) => theme['bg-color-normal']};
       .react-tagsinput-remove{
-        ${({ theme }) => (theme.rtl ? 'padding-right' : 'padding-left')}: 8px;
-        color: ${({ theme }) => theme['light-color']};
+        ${({theme}) => (theme.rtl ? 'padding-right' : 'padding-left')}: 8px;
+        color: ${({theme}) => theme['light-color']};
       }
     }
   }
   .ant-upload-list{
     position: absolute;
     bottom: 15%;
-    ${({ theme }) => (theme.rtl ? 'right' : 'left')}: 25px;
+    ${({theme}) => (theme.rtl ? 'right' : 'left')}: 25px;
     width: 95%;    
   }
   input{
@@ -280,7 +283,7 @@ const MailBox = Styled.div`
     }
   }
   input::placeholder{
-    color: ${({ theme }) => theme['light-color']};
+    color: ${({theme}) => theme['light-color']};
   }
 
   .header {
@@ -290,7 +293,7 @@ const MailBox = Styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: ${({ theme }) => theme['dark-color']};
+    background: ${({theme}) => theme['dark-color']};
     p {
       margin: 0;
       padding: 0;
@@ -301,7 +304,7 @@ const MailBox = Styled.div`
         opacity: .70;
       }
       svg:first-child {
-        ${({ theme }) => (!theme.rtl ? 'margin-right' : 'margin-left')}: 20px;
+        ${({theme}) => (!theme.rtl ? 'margin-right' : 'margin-left')}: 20px;
       }
     }
   }
@@ -325,8 +328,8 @@ const MailBox = Styled.div`
       }
       .mail-cc{
         position: absolute;
-        ${({ theme }) => (!theme.rtl ? 'right' : 'left')}: 30px;
-        color: ${({ theme }) => theme['light-color']};
+        ${({theme}) => (!theme.rtl ? 'right' : 'left')}: 30px;
+        color: ${({theme}) => theme['light-color']};
       }
       .DraftEditor-root{
         font-size: 14px;
@@ -351,7 +354,7 @@ const MailBox = Styled.div`
     }
   }
   .footer {
-    border-top: 1px solid ${({ theme }) => theme['border-color-light']};
+    border-top: 1px solid ${({theme}) => theme['border-color-light']};
     padding: 20px 0 30px;
     margin: 0 30px 0;
     display: flex;
@@ -360,10 +363,10 @@ const MailBox = Styled.div`
     .left{
       button,
       a{
-        ${({ theme }) => (!theme.rtl ? 'margin-right' : 'margin-left')}: 20px;
+        ${({theme}) => (!theme.rtl ? 'margin-right' : 'margin-left')}: 20px;
         line-height: 1;
         svg{
-          color: ${({ theme }) => theme['light-color']};
+          color: ${({theme}) => theme['light-color']};
         }
       }
       .ant-upload {
@@ -376,7 +379,7 @@ const MailBox = Styled.div`
           height: 25px;
           line-height: 2.5;
           z-index: 10;
-          background: ${({ theme }) => theme['bg-color-normal']};
+          background: ${({theme}) => theme['bg-color-normal']};
           .ant-upload-list-item-name{
             font-size: 13px;
           }
@@ -389,7 +392,7 @@ const MailBox = Styled.div`
     .right{
       line-height: 1;
       a{
-        color: ${({ theme }) => theme['light-color']};
+        color: ${({theme}) => theme['light-color']};
       }
     }
   }
@@ -407,18 +410,18 @@ const EmailNav = Styled.nav`
           background: transparent;
           a{
             background: transparent;
-            color: ${({ theme }) => theme['primary-color']} !important;
+            color: ${({theme}) => theme['primary-color']} !important;
           }
         }
         a{
-          color: ${({ theme }) => theme['light-color']} !important;
+          color: ${({theme}) => theme['light-color']} !important;
           transition: .3s;
           &:hover{
             background: transparent;
             svg,
             i,
             span{
-              color: ${({ theme }) => theme['primary-color']};
+              color: ${({theme}) => theme['primary-color']};
             }
           }
         }
@@ -429,18 +432,18 @@ const EmailNav = Styled.nav`
         align-items: center;
         transition: 0.3s ease;
         border-radius: 4px;
-        color: ${({ theme }) => theme['gray-color']};
+        color: ${({theme}) => theme['gray-color']};
         svg{
           min-width: 18px;
-          ${({ theme }) => (!theme.rtl ? 'margin-right' : 'margin-left')}: 20px;
-          color: ${({ theme }) => theme['extra-light-color']};
+          ${({theme}) => (!theme.rtl ? 'margin-right' : 'margin-left')}: 20px;
+          color: ${({theme}) => theme['extra-light-color']};
         }
         &.active{
           background: rgba(95,99,242,0.1);
-          color: ${({ theme }) => theme['primary-color']};
+          color: ${({theme}) => theme['primary-color']};
           svg,
           i{
-            color: ${({ theme }) => theme['primary-color']};
+            color: ${({theme}) => theme['primary-color']};
           }
         }
       }
@@ -448,10 +451,10 @@ const EmailNav = Styled.nav`
       &:hover{
         a{
           background: rgba(95,99,242,0.1);
-          color: ${({ theme }) => theme['primary-color']};
+          color: ${({theme}) => theme['primary-color']};
           svg,
           i{
-            color: ${({ theme }) => theme['primary-color']};
+            color: ${({theme}) => theme['primary-color']};
           }
         }
       }
@@ -465,7 +468,7 @@ const EmailNav = Styled.nav`
         padding: 25px 30px;
         position: relative;
         width: calc(100% + 60px);
-        ${({ theme }) => (theme.rtl ? 'right' : 'left')}: 50%;
+        ${({theme}) => (theme.rtl ? 'right' : 'left')}: 50%;
         transform: translateX(-50%);
         background: #fff;
         border-radius: 8px;
@@ -481,12 +484,12 @@ const EmailNav = Styled.nav`
           margin-bottom: 16px;
           font-weight: 500;
           transition: .3s;
-          color: ${({ theme }) => theme['dark-color']};
+          color: ${({theme}) => theme['dark-color']};
         }
         input{
           height: 44px;
           border-radius: 2px;
-          border: 1px solid ${({ theme }) => theme['border-color-light']};
+          border: 1px solid ${({theme}) => theme['border-color-light']};
         }
         .btn-group{
           margin-top: 15px;
@@ -500,7 +503,7 @@ const EmailNav = Styled.nav`
           }
           .ant-btn-default{
             padding: 0 12px;
-            color: ${({ theme }) => theme['light-color']};
+            color: ${({theme}) => theme['light-color']};
           }
         }
       }
@@ -514,7 +517,7 @@ const EmailNav = Styled.nav`
       margin: 0;
       padding: 0 15px;
       color: #9299b8;
-      text-align: ${({ theme }) => (theme.rtl ? 'right' : 'left')};
+      text-align: ${({theme}) => (theme.rtl ? 'right' : 'left')};
     }
     ul{
       margin-top: 6px;
@@ -571,12 +574,12 @@ const MessageAction = Styled.div`
     }
     svg{
       width: 16px;
-      color: ${({ theme }) => theme['gray-solid']};
+      color: ${({theme}) => theme['gray-solid']};
     }
     &:hover{
       background: rgba(95,99,242,0.05);
       svg{
-        color: ${({ theme }) => theme['primary-color']};
+        color: ${({theme}) => theme['primary-color']};
       }
     }
   }
@@ -586,28 +589,28 @@ const EmailAuthor = Styled.div`
   display: flex;
   align-items: center;  
   svg{
-    color: ${({ theme }) => theme['extra-light-color']};
+    color: ${({theme}) => theme['extra-light-color']};
   }
   img{
     width: 32px;
     height: 32px;
     border-radius: 50%;
     display: inline-block;
-    ${({ theme }) => (theme.rtl ? 'margin-right' : 'margin-left')}: 20px;
-    ${({ theme }) => (!theme.rtl ? 'margin-right' : 'margin-left')}: 16px;
+    ${({theme}) => (theme.rtl ? 'margin-right' : 'margin-left')}: 20px;
+    ${({theme}) => (!theme.rtl ? 'margin-right' : 'margin-left')}: 16px;
   }
   h1{
     margin: 0;
     font-size: 14px;
     font-weight: 500;
     a{
-      color: ${({ theme }) => theme['gray-color']};
+      color: ${({theme}) => theme['gray-color']};
       transition: .3s;
     }
   }
   i,
   span.fa{
-    color: ${({ theme }) => theme['extra-light-color']};
+    color: ${({theme}) => theme['extra-light-color']};
   }
 `;
 
@@ -620,36 +623,36 @@ const EmailHeader = Styled.div`
     font-size: 14px;
     font-weight: 500;
     transition: .3s;
-    color: ${({ theme }) => theme['gray-color']};
+    color: ${({theme}) => theme['gray-color']};
     a{
-      color: ${({ theme }) => theme['gray-color']};
+      color: ${({theme}) => theme['gray-color']};
       transition: .3s;
       &:hover{
-        color: ${({ theme }) => theme['primary-color']};
+        color: ${({theme}) => theme['primary-color']};
       }
     }
   }
   .mail-badge{
     display: inline-block;
-    ${({ theme }) => (theme.rtl ? 'margin-right' : 'margin-left')}: 10px;
+    ${({theme}) => (theme.rtl ? 'margin-right' : 'margin-left')}: 10px;
     font-size: 12px;
     font-weight: 500;
     height: 22px;
     padding: 0 6.4px;
     border-radius: 3px;
     text-transform: capitalize;
-    background: ${({ theme }) => theme['bg-color-deep']};
+    background: ${({theme}) => theme['bg-color-deep']};
     @media only screen and (max-width: 575px){
-      ${({ theme }) => (theme.rtl ? 'margin-right' : 'margin-left')}: 0px;
+      ${({theme}) => (theme.rtl ? 'margin-right' : 'margin-left')}: 0px;
     }
     &.primary{
-      background: ${({ theme }) => theme['primary-color']}10;
-      color: ${({ theme }) => theme['primary-color']};
+      background: ${({theme}) => theme['primary-color']}10;
+      color: ${({theme}) => theme['primary-color']};
     }
   }
   p{
     margin: 0;
-    color: ${({ theme }) => theme['gray-color']};
+    color: ${({theme}) => theme['gray-color']};
   }
   .btn-attachment{
     font-size: 13px;
@@ -659,18 +662,18 @@ const EmailHeader = Styled.div`
     height: 30px;
     padding: 0 22px;
     border-radius: 15px;
-    color: ${({ theme }) => theme['gray-solid']};
-    background: ${({ theme }) => theme['bg-color-normal']};
+    color: ${({theme}) => theme['gray-solid']};
+    background: ${({theme}) => theme['bg-color-normal']};
     @media only screen and (max-width: 575px){
       display: none;
     }
     i,
     svg{
-      ${({ theme }) => (!theme.rtl ? 'margin-right' : 'margin-left')}: 6px;
+      ${({theme}) => (!theme.rtl ? 'margin-right' : 'margin-left')}: 6px;
     }
   }
   a + a{
-    ${({ theme }) => (theme.rtl ? 'margin-right' : 'margin-left')}: 15px;
+    ${({theme}) => (theme.rtl ? 'margin-right' : 'margin-left')}: 15px;
   }
 `;
 
@@ -706,7 +709,7 @@ const MessageDetails = Styled.div`
       }
       .mail-badge{
         display: inline-block;
-        ${({ theme }) => (theme.rtl ? 'margin-right' : 'margin-left')}: 20px;
+        ${({theme}) => (theme.rtl ? 'margin-right' : 'margin-left')}: 20px;
         font-size: 12px;
         font-weight: 500;
         height: 20px;
@@ -717,10 +720,10 @@ const MessageDetails = Styled.div`
         @media only screen and (max-width: 375px){
           margin: 15px 0 0 0;
         }
-        background: ${({ theme }) => theme['bg-color-deep']};
+        background: ${({theme}) => theme['bg-color-deep']};
         &.primary{
-          background: ${({ theme }) => theme['primary-color']}10;
-          color: ${({ theme }) => theme['primary-color']};
+          background: ${({theme}) => theme['primary-color']}10;
+          color: ${({theme}) => theme['primary-color']};
         }
       }
     }
@@ -737,7 +740,7 @@ const MessageDetails = Styled.div`
       height: 38px;
       border-radius: 50%;
       transition: 0.3s ease;
-      color: ${({ theme }) => theme['gray-solid']};
+      color: ${({theme}) => theme['gray-solid']};
       svg{
         margin: -3px 0;
       }
@@ -754,7 +757,7 @@ const MessageDetails = Styled.div`
       margin-top: 14px;
     }
     div{
-      ${({ theme }) => (theme.rtl ? 'margin-right' : 'margin-left')}: 20px;
+      ${({theme}) => (theme.rtl ? 'margin-right' : 'margin-left')}: 20px;
       h1{
         font-weight: 500;
         font-size: 16px;
@@ -763,10 +766,10 @@ const MessageDetails = Styled.div`
       a{
         display: flex;
         align-items: center;
-        color: ${({ theme }) => theme['gray-solid']};
+        color: ${({theme}) => theme['gray-solid']};
         svg,
         i{
-          ${({ theme }) => (theme.rtl ? 'margin-right' : 'margin-left')}: 5px;
+          ${({theme}) => (theme.rtl ? 'margin-right' : 'margin-left')}: 5px;
         }
       }
     }
@@ -787,13 +790,13 @@ const MessageDetails = Styled.div`
       display: block;
       padding: 0 15px;
       line-height: 1;
-      color: ${({ theme }) => theme['gray-solid']};
+      color: ${({theme}) => theme['gray-solid']};
       @media only screen and (max-width: 1199px){
         padding: 0 6px;
       }
     }
     & > span{
-      ${({ theme }) => (theme.rtl ? 'padding-right' : 'padding-left')}: 0;
+      ${({theme}) => (theme.rtl ? 'padding-right' : 'padding-left')}: 0;
       svg{
         margin-top: 6px;
       }
@@ -812,7 +815,7 @@ const MessageDetails = Styled.div`
         }
       }
       &.starActive{
-        color: ${({ theme }) => theme['warning-color']};
+        color: ${({theme}) => theme['warning-color']};
         i:before,
         span.fa:before{
           content: "\f005";
@@ -822,49 +825,49 @@ const MessageDetails = Styled.div`
   }
 
   .message-body{
-    ${({ theme }) => (theme.rtl ? 'padding-right' : 'padding-left')}: 82px;
+    ${({theme}) => (theme.rtl ? 'padding-right' : 'padding-left')}: 82px;
     margin-top: 22px;
     @media only screen and (max-width: 767px){
-      ${({ theme }) => (theme.rtl ? 'padding-right' : 'padding-left')}: 0px;
+      ${({theme}) => (theme.rtl ? 'padding-right' : 'padding-left')}: 0px;
       margin-top: 18px;
     }
     .welcome-text{
       font-size: 15px;
       margin-bottom: 40px;
       display: inline-block;
-      color: ${({ theme }) => theme['gray-color']};
+      color: ${({theme}) => theme['gray-color']};
     }
     p{
-      color: ${({ theme }) => theme['gray-color']};
+      color: ${({theme}) => theme['gray-color']};
       font-size: 15px;
       line-height: 1.667;
       margin-bottom: 55px;
     }
     h1{
       font-size: 15px;
-      color: ${({ theme }) => theme['gray-color']};
+      color: ${({theme}) => theme['gray-color']};
       font-weight: normal;
       line-height: 30px;
     }
   }
   .message-attachments{
     margin: 44px -5px 0 -5px;
-    ${({ theme }) => (theme.rtl ? 'padding-right' : 'padding-left')}: 82px;
+    ${({theme}) => (theme.rtl ? 'padding-right' : 'padding-left')}: 82px;
     display: flex;
     flex-wrap: wrap;
     @media only screen and (max-width: 767px){
       margin: 30px 0 0;
-      ${({ theme }) => (theme.rtl ? 'padding-right' : 'padding-left')}: 0px;
+      ${({theme}) => (theme.rtl ? 'padding-right' : 'padding-left')}: 0px;
       justify-content: center;
     }
     figure{
       position: relative;
-      border: 1px solid ${({ theme }) => theme['border-color-light']};
+      border: 1px solid ${({theme}) => theme['border-color-light']};
       border-radius: 10px;
       padding: 10px;
       margin: 0 5px 30px;
       &:hover{
-        box-shadow: 0 10px 20px ${({ theme }) => theme['gray-solid']}10;
+        box-shadow: 0 10px 20px ${({theme}) => theme['gray-solid']}10;
         .attachment-image{
           &:after{
             height: 100%;
@@ -881,7 +884,7 @@ const MessageDetails = Styled.div`
         position: relative;
         &:after{
           position: absolute;
-          ${({ theme }) => (theme.rtl ? 'right' : 'left')}: 0;
+          ${({theme}) => (theme.rtl ? 'right' : 'left')}: 0;
           top: 0;
           width: 100%;
           height: 0%;
@@ -890,13 +893,13 @@ const MessageDetails = Styled.div`
           opacity: 0;
           visibility: hidden;
           transition: .3s ease-in;
-          background: ${({ theme }) => theme['dark-color']}50;
+          background: ${({theme}) => theme['dark-color']}50;
         }
       }
       .attachment-hover{
         position: absolute;
         top: 80px;
-        ${({ theme }) => (theme.rtl ? 'right' : 'left')}: 50%;
+        ${({theme}) => (theme.rtl ? 'right' : 'left')}: 50%;
         transform: translateX(-50%);
         opacity: 0;
         visibility: hidden;
@@ -911,7 +914,7 @@ const MessageDetails = Styled.div`
           border-radius: 50%;
           &:after{
             position: absolute;
-            ${({ theme }) => (theme.rtl ? 'right' : 'left')}: 0;
+            ${({theme}) => (theme.rtl ? 'right' : 'left')}: 0;
             top: 0;
             width: 100%;
             height: 100%;
@@ -927,7 +930,7 @@ const MessageDetails = Styled.div`
           }
         }
         .btn-link + .btn-link{
-          ${({ theme }) => (theme.rtl ? 'margin-right' : 'margin-left')}: 10px;
+          ${({theme}) => (theme.rtl ? 'margin-right' : 'margin-left')}: 10px;
         }
       }
       figcaption{
@@ -938,7 +941,7 @@ const MessageDetails = Styled.div`
         }
         p{
           font-size: 12px;
-          color: ${({ theme }) => theme['gray-solid']};
+          color: ${({theme}) => theme['gray-solid']};
           margin:0;
         }
       }
@@ -948,7 +951,7 @@ const MessageDetails = Styled.div`
     margin-bottom: 30px;
     border: 0 none;
     height: 1px;
-    background: ${({ theme }) => theme['border-color-light']};
+    background: ${({theme}) => theme['border-color-light']};
   }
 `;
 
@@ -958,10 +961,10 @@ const MessageReply = Styled.div`
     padding: 0 15px;
   }
   nav{
-    ${({ theme }) => (theme.rtl ? 'padding-right' : 'padding-left')}: 70px;
+    ${({theme}) => (theme.rtl ? 'padding-right' : 'padding-left')}: 70px;
     margin-bottom: 30px;
     @media only screen and (max-width: 575px){
-      ${({ theme }) => (theme.rtl ? 'padding-right' : 'padding-left')}: 0;
+      ${({theme}) => (theme.rtl ? 'padding-right' : 'padding-left')}: 0;
     }
     ul{
       display: flex;
@@ -972,16 +975,16 @@ const MessageReply = Styled.div`
       li{
         padding: 0 5px;
         a{
-          border: 1px solid ${({ theme }) => theme['border-color-light']};
+          border: 1px solid ${({theme}) => theme['border-color-light']};
           line-height: 44px;
           display: inline-block;
           padding: 0 20px;
           font-size: 14px;
           font-weight: 600;
-          color: ${({ theme }) => theme['gray-color']};
+          color: ${({theme}) => theme['gray-color']};
           border-radius: 4px;
           &:hover{
-            color: ${({ theme }) => theme['primary-color']};
+            color: ${({theme}) => theme['primary-color']};
           }
         }
       }
@@ -993,7 +996,7 @@ const MessageReply = Styled.div`
       align-items: center;
     }
     img{
-      margin: ${({ theme }) => (theme.rtl ? '10px 0 0 20px' : '10px 20px 0 0')};
+      margin: ${({theme}) => (theme.rtl ? '10px 0 0 20px' : '10px 20px 0 0')};
       border-radius: 50%;
       @media only screen and (max-width: 575px){
         margin: 0 0 20px;
@@ -1015,7 +1018,7 @@ const MessageReply = Styled.div`
     > div{
       width: 100%;
       z-index: 10;
-      border: 1px solid ${({ theme }) => theme['border-color-light']};
+      border: 1px solid ${({theme}) => theme['border-color-light']};
     }
     .reply-inner{
       width: 100%
@@ -1030,11 +1033,11 @@ const MessageReply = Styled.div`
       }
     }
     .reply-title{
-      ${({ theme }) => (!theme.rtl ? 'margin-right' : 'margin-left')}: 10px;
-      color: ${({ theme }) => theme['light-color']};
+      ${({theme}) => (!theme.rtl ? 'margin-right' : 'margin-left')}: 10px;
+      color: ${({theme}) => theme['light-color']};
     }
     .mail-cc{
-      color: ${({ theme }) => theme['light-color']};
+      color: ${({theme}) => theme['light-color']};
     }
     .body{
       .DraftEditor-root{
@@ -1064,7 +1067,7 @@ const MessageReply = Styled.div`
 `;
 
 const ReplyList = Styled.div`
-  box-shadow: 0 15px 40px ${({ theme }) => theme['light-color']}10;
+  box-shadow: 0 15px 40px ${({theme}) => theme['light-color']}10;
   margin: 0px 0 50px;
   padding-top: 30px;
   .reply-view__single{
@@ -1082,7 +1085,7 @@ const ReplyList = Styled.div`
           flex-flow: column;
       }
       img{
-        ${({ theme }) => (!theme.rtl ? 'margin-right' : 'margin-left')}: 20px;
+        ${({theme}) => (!theme.rtl ? 'margin-right' : 'margin-left')}: 20px;
         border-radius: 50%;
         @media only screen and (max-width: 575px){
           margin: 0 0 15px 0;
@@ -1095,7 +1098,7 @@ const ReplyList = Styled.div`
         }
         p{
           font-size: 15px;
-          color: ${({ theme }) => theme['gray-color']};
+          color: ${({theme}) => theme['gray-color']};
         }
       }
     }
@@ -1109,7 +1112,7 @@ const ReplyList = Styled.div`
       svg,
       i,
       span{
-        color: ${({ theme }) => theme['light-color']};
+        color: ${({theme}) => theme['light-color']};
       }
       i,
       span.fa{
@@ -1135,22 +1138,22 @@ const ReplyList = Styled.div`
         }
         .date-meta{
           min-width: 135px;
-          ${({ theme }) => (!theme.rtl ? 'margin-right' : 'margin-left')}: 30px
+          ${({theme}) => (!theme.rtl ? 'margin-right' : 'margin-left')}: 30px
           @media only screen and (max-width: 767px){
-            ${({ theme }) => (!theme.rtl ? 'margin-right' : 'margin-left')}: 15px;
+            ${({theme}) => (!theme.rtl ? 'margin-right' : 'margin-left')}: 15px;
           }
           @media only screen and (max-width: 575px){
             margin: 0 0 15px 0;
           }
           @media only screen and (max-width: 375px){
-            margin: ${({ theme }) => (theme.rtl ? '0 0 0 15px' : '0 15px 0 0')};
+            margin: ${({theme}) => (theme.rtl ? '0 0 0 15px' : '0 15px 0 0')};
           }
         }
         a{
           &:not(:last-child){
-            ${({ theme }) => (!theme.rtl ? 'margin-right' : 'margin-left')}: 30px;
+            ${({theme}) => (!theme.rtl ? 'margin-right' : 'margin-left')}: 30px;
             @media only screen and (max-width: 767px){
-              ${({ theme }) => (!theme.rtl ? 'margin-right' : 'margin-left')}: 15px;
+              ${({theme}) => (!theme.rtl ? 'margin-right' : 'margin-left')}: 15px;
             }
             @media only screen and (max-width: 575px){
                 margin: 0 0 15px 0;
@@ -1167,7 +1170,7 @@ const ReplyList = Styled.div`
 
 const MailRightAction = Styled.div`
   span{
-    color: ${({ theme }) => theme['light-color']};
+    color: ${({theme}) => theme['light-color']};
   }
 `;
 
@@ -1176,7 +1179,7 @@ const EmailWrapper = Styled.div`
   .trigger-close.ant-btn-link{
     margin: 0 !important;
     position: absolute;
-    ${({ theme }) => (!theme.rtl ? 'right' : 'left')}: 20px;
+    ${({theme}) => (!theme.rtl ? 'right' : 'left')}: 20px;
     top: 20px;
     z-index: 99;
     padding: 0;
@@ -1191,14 +1194,14 @@ const EmailWrapper = Styled.div`
     background: #fff !important;
     margin-bottom: 25px;
     border-radius: 6px;
-    color: ${({ theme }) => theme['primary-color']} !important;
+    color: ${({theme}) => theme['primary-color']} !important;
     &:focus{
-      color: ${({ theme }) => theme['primary-color']} !important;
+      color: ${({theme}) => theme['primary-color']} !important;
     }
   }
   .mail-sideabr{
     &.hide{
-      transform: translateX(${({ theme }) => (theme.rtl ? '100%' : '-100%')});
+      transform: translateX(${({theme}) => (theme.rtl ? '100%' : '-100%')});
       transition: .35s ease-in;
     }
     &.show{
@@ -1209,7 +1212,7 @@ const EmailWrapper = Styled.div`
       display: block;
       background: #fff;
       position: fixed;
-      ${({ theme }) => (theme.rtl ? 'right' : 'left')}: 0;
+      ${({theme}) => (theme.rtl ? 'right' : 'left')}: 0;
       top: 60px;
       width: 280px;
       height: 100%;
@@ -1244,22 +1247,22 @@ const EmailWrapper = Styled.div`
 `;
 
 const MailSideBar = Styled.div`
-  display: ${({ collapsed }) => (!collapsed ? 'none' : 'block')}
+  display: ${({collapsed}) => (!collapsed ? 'none' : 'block')}
 
 `;
 
 export {
-  Style,
-  MailBox,
-  EmailNav,
-  MessageAction,
-  MailSideBar,
-  EmailAuthor,
-  EmailHeader,
-  MailDetailsWrapper,
-  MessageDetails,
-  MessageReply,
-  ReplyList,
-  MailRightAction,
-  EmailWrapper,
+    Style,
+    MailBox,
+    EmailNav,
+    MessageAction,
+    MailSideBar,
+    EmailAuthor,
+    EmailHeader,
+    MailDetailsWrapper,
+    MessageDetails,
+    MessageReply,
+    ReplyList,
+    MailRightAction,
+    EmailWrapper,
 };

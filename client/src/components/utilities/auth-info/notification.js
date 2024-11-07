@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Badge, Spin} from 'antd';
+import {motion} from 'framer-motion';
 import FeatherIcon from 'feather-icons-react';
 import {Link, useHistory} from 'react-router-dom';
 import {useSelector} from 'react-redux';
@@ -21,6 +22,7 @@ function NotificationBox() {
     const [notificationUnread, setNotificationUnread] = useState([]);
     const [notificationRender, setNotificationRender] = useState([]);
     const history = useHistory();
+    const [newNotification, setNewNotification] = useState(false);
     const [loadingClick, setLoadingClick] = useState(false);
     const socketConnection = useSelector(state => state?.userSocket?.socketConnection);
     const {rtl} = useSelector(state => {
@@ -28,14 +30,33 @@ function NotificationBox() {
             rtl: state.ChangeLayoutMode.rtlData,
         };
     });
+    const notificationVariants = {
+        hidden: {opacity: 0, y: -20},
+        visible: {opacity: 1, y: 0, transition: {duration: 0.5}}
+    };
 
+    const itemVariants = {
+        hidden: {opacity: 0, x: -20},
+        visible: {opacity: 1, x: 0, transition: {duration: 0.3}}
+    };
+    const notificationIconVariants = {
+        initial: {scale: 1},
+        animate: {
+            scale: [1, 1.2, 1],
+            rotate: [0, 15, -15, 15, -15, 0],
+            transition: {duration: 0.5, repeat: Infinity, repeatType: "reverse"}
+        }
+    };
     const getNotify = async () => {
         try {
+            setLoadingClick(true);
             const response = await getNotifications();
             setNotification(response?.data);
             setNotificationRender(response?.data);
             setNotificationUnread(response?.data?.filter(item => item?.notification_status === 0));
+            setLoadingClick(false);
         } catch (error) {
+            setLoadingClick(false);
             console.log(error);
         }
     };
@@ -47,20 +68,28 @@ function NotificationBox() {
 
     useEffect(() => {
         if (socketConnection) {
-            socketConnection.off('notification');
-            socketConnection.on('notification', async (data) => {
-                console.log(data)
-                toast.warn(`${data?.createByUserName} ${data?.notification_title}`, {
-                    position: "top-right",
-                    autoClose: 1000,
-                })
-                await getNotify();
-            });
+            console.log('socketConnection', socketConnection);
+            const receiveNotification = async (data) => {
+                setNotification(prevNotifications => [data, ...prevNotifications]);
+                setNotificationRender(prevNotifications => [data, ...prevNotifications]);
+                setNotificationUnread(prevUnreadNotifications => [data, ...prevUnreadNotifications]);
+                setNewNotification(true);
+                setTimeout(() => {
+                    setNewNotification(false);
+                }, 3000)// Trigger animation
+            };
+            socketConnection.on('notification', receiveNotification);
+
+            // Clean up the event listener on component unmount or when socketConnection changes
+            return () => {
+                socketConnection.off('notification');
+            };
         }
     }, [socketConnection]);
 
     const handleUpdateStatusNotification = async (item) => {
         try {
+            console.log(item)
             const url = new URL(item?.notification_link);
             const pathname = url.pathname;
             if (item.notification_status === 1) {
@@ -78,7 +107,30 @@ function NotificationBox() {
                         autoClose: 1000,
                     });
                 }
-                await getNotify();
+                const notification_id = res?.data?.notification_id;
+                setNotificationUnread(prevUnreadNotifications => prevUnreadNotifications.filter(notification => notification.notification_id !== notification_id));
+                setNotification(prevNotifications => prevNotifications.map(notification => {
+                    if (notification.notification_id === notification_id) {
+                        return {
+                            ...notification,
+                            notification_status: 1
+                        };
+                    }
+                    return notification;
+                }));
+                setNotificationRender(prevNotifications => {
+                    const updatedNotifications = prevNotifications.map(notification => {
+                        if (notification.notification_id === notification_id) {
+                            return {
+                                ...notification,
+                                notification_status: 1
+                            };
+                        }
+                        return notification;
+                    });
+
+                    return updatedNotifications.sort((a, b) => a.notification_status - b.notification_status);
+                });
 
                 setActiveTab('recent');
                 history.push(pathname);
@@ -208,6 +260,9 @@ function NotificationBox() {
                     }
                 </ul>
             </Scrollbars>
+            <div style={{marginTop: '10px'}}>
+                <Link type='button' style={{textAlign: 'center'}} to="/admin/thong-bao">Xem tất cả thông báo</Link>
+            </div>
         </AtbdTopDropdwon>
     );
 
@@ -218,7 +273,15 @@ function NotificationBox() {
                     count={notificationUnread?.length > 9 ? '9+' : notificationUnread?.length}
                     offset={[-8, -5]} className="custom-badge">
                     <div className="head-example" style={{marginBottom: '-6px'}}>
-                        <FeatherIcon icon="bell" size={24}/>
+                        <motion.div
+                            variants={notificationIconVariants}
+                            initial="initial"
+                            animate={newNotification ? "animate" : "initial"} // Apply animation
+                            onAnimationComplete={() => setNewNotification(false)} // Reset animation state
+                        >
+                            <FeatherIcon icon="bell" size={24}/>
+                        </motion.div>
+
                     </div>
                 </Badge>
             </Popover>

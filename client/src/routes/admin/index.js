@@ -39,7 +39,7 @@ const Task = lazy(() => import('../../container/task/Index'));
 import {io} from "socket.io-client";
 import {useDispatch} from "react-redux";
 import {socketConnect, socketDisconnect} from '../../redux/users/actionCreator';
-import {toast} from "react-toastify";
+import NotificationRouter from "./Notification";
 
 function Admin() {
     const {path} = useRouteMatch();
@@ -136,6 +136,7 @@ function Admin() {
                 <Route path={`${path}/de-xuat`} component={Propose}/>
                 <Route path={`${path}/lam-viec`} component={Work}/>
                 <Route path={`${path}/tuyen-dung`} component={Recruit}/>
+                <Route path={`${path}/thong-bao`} component={NotificationRouter}/>
             </Suspense>
         </Switch>
     );

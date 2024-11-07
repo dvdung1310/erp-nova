@@ -12,6 +12,7 @@ import Avatar from "../../../../../components/Avatar/Avatar";
 import {checkRole} from "../../../../../utility/checkValue";
 
 const dateFormat = 'MM/DD/YYYY';
+import RichTextEditor from 'react-rte';
 
 function CreateProject({visible, onCancel, group_id, listUser = []}) {
     const [listUserData, setListUser] = useState(listUser);
@@ -26,6 +27,11 @@ function CreateProject({visible, onCancel, group_id, listUser = []}) {
         modalType: 'primary',
         checked: [],
     });
+    //
+    const [editorState, setEditorState] = useState(RichTextEditor.createEmptyValue());
+    const handleChangeEditer = (value) => {
+        setEditorState(value);
+    };
 
     useEffect(() => {
         let unmounted = false;
@@ -66,6 +72,14 @@ function CreateProject({visible, onCancel, group_id, listUser = []}) {
                 setIsLoading(false);
                 return;
             }
+            if (!editorState.toString('html')) {
+                toast.warn('Mô tả không được để trống', {
+                    position: "top-right",
+                    autoClose: 1000,
+                });
+                setIsLoading(false);
+                return;
+            }
             if (!data?.project_start_date) {
                 toast.warn('Ngày bắt đầu không được để trống', {
                     position: "top-right",
@@ -84,7 +98,7 @@ function CreateProject({visible, onCancel, group_id, listUser = []}) {
             }
             const payload = {
                 project_name: data?.project_name,
-                project_description: data?.project_description,
+                project_description: editorState.toString('html'),
                 project_start_date: data?.project_start_date?.format('YYYY-MM-DD'),
                 project_end_date: data?.project_end_date?.format('YYYY-MM-DD'),
                 group_id,
@@ -106,6 +120,7 @@ function CreateProject({visible, onCancel, group_id, listUser = []}) {
             });
             form.resetFields();
             onCancel();
+            setEditorState(RichTextEditor.createEmptyValue());
             history.push(pathname, {
                 key: 'createProject',
                 data: res?.data
@@ -129,6 +144,7 @@ function CreateProject({visible, onCancel, group_id, listUser = []}) {
 
     return (
         <Modal
+            className='modal-project'
             type={state.modalType}
             title="Tạo dự án"
             visible={state.visible}
@@ -158,7 +174,14 @@ function CreateProject({visible, onCancel, group_id, listUser = []}) {
                             <Input placeholder="Tên dự án"/>
                         </Form.Item>
                         <Form.Item name="project_description" label="">
-                            <Input.TextArea rows={4} placeholder="Mô tả dự án"/>
+                            <div className="group">
+                                <RichTextEditor
+                                    className='custom-rich-text-editor'
+                                    placeholder="Nhập mô tả dự án"
+                                    name={'project_description'}
+                                    value={editorState}
+                                    onChange={handleChangeEditer}/>
+                            </div>
                         </Form.Item>
                         <Row gutter={15}>
                             <Col md={12}>

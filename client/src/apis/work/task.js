@@ -32,6 +32,15 @@ export const updateNameTask = async (data, id) => {
     });
     return response.data;
 }
+export const updateDescriptionTask = async (data, id) => {
+    const token = getToken();
+    const response = await instanceAxios.put(`${LARAVEL_SERVER}/api/tasks/update-description/${id}`, data, {
+        headers: {
+            'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`
+        }
+    });
+    return response.data;
+}
 export const updateStatusTask = async (data, id) => {
     const token = getToken();
     const response = await instanceAxios.put(`${LARAVEL_SERVER}/api/tasks/update-status/${id}`, data, {

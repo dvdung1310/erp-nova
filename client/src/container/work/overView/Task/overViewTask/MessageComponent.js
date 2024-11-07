@@ -78,9 +78,9 @@ const MessageComponent = ({handleCloseComment, task}) => {
             setLoadingSend(false);
         } catch (error) {
             setLoadingSend(false);
-            toast.error(error?.response?.data?.message, {
-                position: "top-right",
-                autoClose: 1000
+            toast.error('Đã xảy ra lỗi', {
+                autoClose: 1000,
+                position: 'top-right'
             })
             console.log(error);
         }
@@ -130,8 +130,9 @@ const MessageComponent = ({handleCloseComment, task}) => {
         } catch (error) {
             setLoading(false);
             console.log(error);
-            toast.error(error.response?.data?.message, {
-                position: "top-right", autoClose: 1000
+            toast.error('Đã xảy ra lỗi', {
+                autoClose: 1000,
+                position: 'top-right'
             })
         }
 

@@ -14,6 +14,7 @@ import { Dropdown } from '../../../components/dropdown/dropdown';
 import { onStarUpdate, onSortingAscending, onSortingDescending } from '../../../redux/email/actionCreator';
 
 function Content({ searchData, email }) {
+  console.log(email)
   const dispatch = useDispatch();
   const { rtl } = useSelector(state => {
     return {

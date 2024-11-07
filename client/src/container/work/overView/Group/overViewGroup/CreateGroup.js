@@ -121,10 +121,10 @@ function CreateGroup({visible, onCancel, group_id, listUser = [], admin = false}
         } catch (e) {
             setIsLoading(false);
             console.log(e);
-            toast.error(e?.response?.data?.message, {
-                position: "top-right",
+            toast.error('Đã xảy ra lỗi', {
                 autoClose: 1000,
-            });
+                position: 'top-right'
+            })
         }
 
 
