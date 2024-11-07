@@ -189,7 +189,7 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
         </Menu.Item>
 
         <Menu.Item className="pl-custom-sidebar" key="work-confimation">
-          <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/xac-nhan-cong`}>
+          <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-xac-nhan-cong`}>
             Xác nhận công
           </NavLink>
         </Menu.Item>

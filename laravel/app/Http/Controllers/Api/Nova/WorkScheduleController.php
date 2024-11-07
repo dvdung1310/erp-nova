@@ -28,7 +28,7 @@ class WorkScheduleController extends Controller
                     ]
                 );
             }
-            return response()->json(['message' => 'Lịch làm việc đã được lưu thành công !']);
+            return response()->json(['message' => 'Lịch làm việc đã được lưu thành công']);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Đã xảy ra lỗi: ' . $e->getMessage()], 500);
         }
@@ -80,11 +80,11 @@ class WorkScheduleController extends Controller
     {
         $userId = Auth::id();
         $today = Carbon::now();
-        $startOfWeek = $today->startOfWeek()->format('Y-m-d'); 
-        $endOfWeek = $today->endOfWeek()->format('Y-m-d');  
+        $startOfMonth = $today->copy()->startOfMonth()->subDays(3)->format('Y-m-d');
+        $endOfMonth = $today->copy()->endOfMonth()->addDays(3)->format('Y-m-d');
         
         $schedule = WorkSchedule::where('user_id', $userId)
-            ->whereBetween('date', [$startOfWeek, $endOfWeek])
+            ->whereBetween('date', [$startOfMonth, $endOfMonth])
             ->get(['date', 'code']);
     
         $result = $schedule->map(function ($item) {

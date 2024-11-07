@@ -85,6 +85,7 @@ const FullWorkSchedule = () => {
                         <table className="min-w-full bg-white border border-gray-200 mb-4">
                             <thead className="sticky top-0 bg-white">
                             <tr>
+                                <th rowSpan={2} className="px-4 border text-center">STT</th>
                                 <th rowSpan={2} className="px-4 border name-class">Họ Và Tên</th>
                                 {["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "CN"].map((day, idx) => (
                                     <th key={idx} colSpan={3} className="px-4 border text-center date-class">{day}</th>
@@ -109,6 +110,7 @@ const FullWorkSchedule = () => {
                                     <table className="min-w-full bg-white border border-gray-200">
                                         <thead>
                                         <tr className="week-tr">
+                                            <th className="px-4 border text-center">STT</th>
                                             <th className="px-4 border name-class">Tuần {weekIndex + 1} tháng {selectedMonth}</th>
                                             {week.map((date, idx) => (
                                                 <th key={idx} colSpan={3}
@@ -122,16 +124,17 @@ const FullWorkSchedule = () => {
                                         <tbody>
                                         {scheduleData.length > 0 ? (
                                             scheduleData.map((user, idx) => {
-                                                let totalDays = 0; // Biến tổng số ngày đã đăng ký
+                                                let totalDays = 0;
                                                 return (
                                                     <tr key={idx} className="text-center table-row-hover ">
+                                                        <td className="border px-4 text-center">{idx + 1}</td>
                                                         <td className="border px-4 aa">{user.name}</td>
                                                         {week.map((date) => {
                                                             const schedule = user.schedule[date];
                                                             const formattedCode = schedule ? formatScheduleCode(schedule).split(" ") : ["x", "x", "x"];
                                                             const registeredDays = formattedCode.filter(item => item === '0,5').length;
 
-                                                            totalDays += registeredDays / 2; // Cộng dồn số ngày đã đăng ký
+                                                            totalDays += registeredDays / 2;
 
                                                             return (
                                                                 <>
@@ -150,7 +153,7 @@ const FullWorkSchedule = () => {
                                             })
                                         ) : (
                                             <tr>
-                                                <td colSpan={week.length * 3 + 2}
+                                                <td colSpan={week.length * 3 + 3}
                                                     className="border px-4 text-center">Không có dữ liệu
                                                 </td>
                                             </tr>
@@ -161,8 +164,6 @@ const FullWorkSchedule = () => {
                             ))}
                         </div>
 
-                        {/* Nút chọn tháng */
-                        }
                         <div className="flex justify-center my-4 footer-schedule">
                             {[...Array(12).keys()].map((month) => (
                                 <button
