@@ -20,6 +20,10 @@ class NvEmployeeController extends Controller
     public function index()
     {
         try {
+            $user_id = auth()->user()->id;
+            $user_login = CrmEmployeeModel::join('users','crm_employee.account_id','=','users.id')
+            ->select('users.*','crm_employee.department_id')
+            ->where('users.id',$user_id)->first();
             $employee = CrmEmployeeModel::join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
                 ->leftjoin('crm_department_team', 'crm_employee.team_id', '=', 'crm_department_team.team_id')
                 ->join('crm_employee_level', 'crm_employee.level_id', '=', 'crm_employee_level.level_id')
@@ -36,6 +40,7 @@ class NvEmployeeController extends Controller
             return response()->json([
                 'error' => false,
                 'message' => 'Customers get successfully.',
+                'user_login'=>$user_login,
                 'data' => $employee
             ]);
         } catch (\Throwable $th) {

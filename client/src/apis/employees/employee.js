@@ -5,7 +5,13 @@ import {createAxios} from "../../utility/createAxios";
 
 const instanceAxios = createAxios();
 export const getEmployees = async (data) => {
-    const response = await axios.get(`${LARAVEL_SERVER}/api/nvemployee`);
+    const token = getToken();
+    const response = await axios.get(`${LARAVEL_SERVER}/api/nvemployee`,{
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
     return response.data;
 };
 export const createEmployees = async (data) => {

@@ -20,6 +20,7 @@ const { Option } = Select;
 function CrmEmployees() {
   const { path } = useRouteMatch();
   const [dataSource, setDataSource] = useState([]);
+  const [userLogin, setUserLogin] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
@@ -34,7 +35,11 @@ function CrmEmployees() {
     try {
       const res = await getEmployees();
       if (!res.error) {
+        console.log('====================================');
+        console.log(res);
+        console.log('====================================');
         setDataSource(res.data);
+        setUserLogin(res.user_login);
       } else {
         message.error(res.message);
       }
@@ -108,9 +113,8 @@ function CrmEmployees() {
   const handleDelete = async (id) => {
     try {
       const res = await deleteEmployees(id);
-        setDataSource((prev) => prev.filter((item) => item.employee_id !== id)); // Remove deleted employee
-        message.success('Xóa nhân sự thành công!');
-     
+      setDataSource((prev) => prev.filter((item) => item.employee_id !== id)); // Remove deleted employee
+      message.success('Xóa nhân sự thành công!');
     } catch (error) {
       message.error(error.message || 'Xóa nhân sự thất bại.');
     }
@@ -131,13 +135,18 @@ function CrmEmployees() {
                 {loading ? (
                   <Spin tip="Loading..." />
                 ) : (
-                  <Row gutter={16} style={{marginTop:'30px'}}>
+                  <Row gutter={16} style={{ marginTop: '30px' }}>
                     {dataSource.map((employee) => (
                       <Col xs={24} sm={12} md={8} lg={6} key={employee.employee_id}>
                         <UserCard>
                           <div
                             className="card user-card"
-                            style={{ boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)', padding: '5px', borderRadius: '5px', marginBottom:'15px' }}
+                            style={{
+                              boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)',
+                              padding: '5px',
+                              borderRadius: '5px',
+                              marginBottom: '15px',
+                            }}
                           >
                             <Cards headless>
                               <figure>
@@ -155,7 +164,9 @@ function CrmEmployees() {
                               <figcaption>
                                 <div className="card__content">
                                   <h6 className="card__name">{employee.employee_name}</h6>
-                                  <p className="card__designation">{employee.level_name}-{employee.department_name}</p>
+                                  <p className="card__designation">
+                                    {employee.level_name}-{employee.department_name}
+                                  </p>
                                 </div>
                                 <div style={{ textAlign: 'left', marginBottom: '20px' }}>
                                   <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -167,6 +178,7 @@ function CrmEmployees() {
                                     <MailOutlined style={{ marginRight: '8px', color: '#1890ff' }} />
                                     <p style={{ margin: 0 }}>{employee.employee_email}</p>
                                   </div>
+                                  {userLogin && userLogin.department_id === 9 && (
                                   <div style={{ display: 'flex', alignItems: 'center' }}>
                                     <SnippetsOutlined style={{ marginRight: '8px', color: '#1890ff' }} />
                                     <NavLink
@@ -176,22 +188,25 @@ function CrmEmployees() {
                                       Hồ sơ
                                     </NavLink>
                                   </div>
+                                   )}
                                 </div>
-                                <div className="card__actions">
-                                  <Button type="link" onClick={() => handleOpenModal(employee)}>
-                                    <FormOutlined />
-                                  </Button>
-                                  <Popconfirm
-                                    title="Bạn có chắc muốn xóa nhân sự này không?"
-                                    onConfirm={() => handleDelete(employee.employee_id)}
-                                    okText="Yes"
-                                    cancelText="No"
-                                  >
-                                    <Button type="link" danger>
-                                      <DeleteOutlined />
+                                {userLogin && userLogin.department_id === 9 && (
+                                  <div className="card__actions">
+                                    <Button type="link" onClick={() => handleOpenModal(employee)}>
+                                      <FormOutlined />
                                     </Button>
-                                  </Popconfirm>
-                                </div>
+                                    <Popconfirm
+                                      title="Bạn có chắc muốn xóa nhân sự này không?"
+                                      onConfirm={() => handleDelete(employee.employee_id)}
+                                      okText="Yes"
+                                      cancelText="No"
+                                    >
+                                      <Button type="link" danger>
+                                        <DeleteOutlined />
+                                      </Button>
+                                    </Popconfirm>
+                                  </div>
+                                )}
                               </figcaption>
                             </Cards>
                           </div>
