@@ -23,13 +23,14 @@ const CheckWorkConfirmation = lazy(() => import('../../container/employees/workc
 const ManagerCheckWorkConfirmation = lazy(() => import('../../container/employees/workconfimation/ManagerCheckWorkConfirmation'));
 const CreateWorkConfimation = lazy(() => import('../../container/employees/workconfimation/CreateWorkConfimation'));
 const DetailWorkConfimation = lazy(() => import('../../container/employees/workconfimation/DetailWorkConfimation'));
+const ListWorkConfirmationStatus1 = lazy(() => import('../../container/employees/workconfimation/ListWorkConfirmationStatus1'));
 function Employees() {
     const {path} = useRouteMatch();
     return (
         <Switch>
             <Route exact path={path} component={EmployeesMain}/>
             <Route path={`${path}/tong-quan`} component={EmployeesList}/>
-            <Route path={`${path}/danh-sach-nhanh-su`} component={ListEmployee}/>
+            <Route path={`${path}/danh-sach-nhan-su`} component={ListEmployee}/>
             <Route path={`${path}/phong-ban`} component={Department}/>
             <Route path={`${path}/lich-lam-viec`} component={FullWorkSchedule}/>
             <Route path={`${path}/dang-ki/lich-lam-viec`} component={CreateWorksSchedule}/>
@@ -47,6 +48,7 @@ function Employees() {
             <Route path={`${path}/thong-tin`} component={EmployeesInformation}/>
             <Route path={`${path}/danh-sach-xac-nhan-cong`} component={ListWorkConfirmation}/>
             <Route path={`${path}/kiem-tra-danh-sach-xac-nhan-cong`} component={CheckWorkConfirmation}/>
+            <Route path={`${path}/danh-sach-xac-nhan-cong-cua-nhan-su`} component={ListWorkConfirmationStatus1}/>
             <Route path={`${path}/quan-ly-check-xac-nhan-cong/:id`} component={ManagerCheckWorkConfirmation}/>
             <Route path={`${path}/xac-nhan-cong`} component={CreateWorkConfimation}/>
             <Route path={`${path}/chi-tiet-xac-nhan-cong/:id`} component={DetailWorkConfimation}/>

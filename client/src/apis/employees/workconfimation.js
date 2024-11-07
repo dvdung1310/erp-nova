@@ -127,6 +127,21 @@ export const listEmployee = async () => {
     }
 };
 
+export const listWorkConfimationStatus1 = async () => {
+    try {
+        const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/work-confirmations/danh-sach-cong-da-duyet`, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error saving work storeWorkConfimation:', error.response ? error.response.data : error.message);
+        throw error;
+    }
+};
+
 export const updateStatus = async (id,status) => {
     try {
         const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/work-confirmations/update_status/${id}/${status}`, {

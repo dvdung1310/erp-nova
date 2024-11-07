@@ -162,7 +162,7 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
       {/* Quản lý nhân sự */}
       <SubMenu key="employees" icon={!topMenu && <FeatherIcon icon="users" />} title="Quản lý nhân sự">
         <Menu.Item className="pl-custom-sidebar" key="list_employee">
-          <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-nhanh-su`}>
+          <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-nhan-su`}>
             Nhân sự
           </NavLink>
         </Menu.Item>
@@ -191,6 +191,12 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
         <Menu.Item className="pl-custom-sidebar" key="work-confimation">
           <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-xac-nhan-cong`}>
             Xác nhận công
+          </NavLink>
+        </Menu.Item>
+
+        <Menu.Item className="pl-custom-sidebar" key="work-confimation-da-duyet">
+          <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-xac-nhan-cong-cua-nhan-su`}>
+            Danh sách xác nhận công
           </NavLink>
         </Menu.Item>
         {/*<Menu.Item key="nvu-home">*/}
@@ -252,7 +258,7 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
         icon={!topMenu && <FeatherIcon icon="home" />}
         title="Tuyển dụng"
       >
-        <Menu.Item key="nvu-home">
+        <Menu.Item className='pl-custom-sidebar' key="de-xuat">
           <NavLink onClick={toggleCollapsed} to={`${path}/tuyen-dung`}>
             Chỉ tiêu tuyển dụng
           </NavLink>
@@ -261,6 +267,20 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
       {/* end tuyển dụng   */}
       {/**/}
       {/* work */}
+
+      {/* Đề xuất */}
+      <SubMenu style={{display:'none'}}
+        key="de-xuat"
+        icon={!topMenu && <FeatherIcon icon="home" />}
+        title="Đề xuất"
+      >
+        <Menu.Item className='pl-custom-sidebar' key="de-xuat">
+          <NavLink onClick={toggleCollapsed} to={`${path}/de-xuat/danh-sach`}>
+            Đề xuất
+          </NavLink>
+        </Menu.Item>
+      </SubMenu>
+      {/* end Đề xuất   */}
       <SubMenu key="work" icon={!topMenu && <FeatherIcon icon="briefcase" />} title="Làm việc">
         <Menu.Item key="inbox">
           <NavLink onClick={toggleCollapsed} to={`${path}/lam-viec`}>

@@ -30,6 +30,7 @@ use App\Http\Controllers\Api\Nova\NvRecruitNewsController;
 use App\Http\Controllers\Api\Nova\QuestionController;
 use App\Http\Controllers\Api\Nova\WorkScheduleController;
 use App\Http\Controllers\Api\Nova\WorkConfirmationController;
+use App\Http\Controllers\Api\Nova\ProposalController;
 
 Route::group([
     'middleware' => 'api',
@@ -81,6 +82,14 @@ Route::group(['middleware' => 'api', 'prefix' => 'work-confirmations'], function
     Route::post('update_detail', [WorkConfirmationController::class, 'updateDetailWorkConfimation']);
     Route::post('update_status/{id}/{status}', [WorkConfirmationController::class, 'updateStatus']);
     Route::get('listbyuser', [WorkConfirmationController::class, 'listWorkConfimationUser']);
+    Route::get('danh-sach-cong-da-duyet', [WorkConfirmationController::class, 'listWorkConfimationStatus1']);
+});
+
+// Đề xuất
+Route::group(['middleware' => 'api', 'prefix' => 'proposal'], function () {
+    Route::post('/store', [ProposalController::class, 'store']);
+    Route::get('/index', [ProposalController::class, 'index']);
+    Route::get('/delete/{id}', [ProposalController::class, 'delete']);
 });
 
 
