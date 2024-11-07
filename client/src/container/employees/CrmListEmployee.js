@@ -4,7 +4,7 @@ import { Row, Col, Spin, message, Popconfirm, Button, Modal, Form, Input, Select
 import moment from 'moment';
 import { Cards } from '../../components/cards/frame/cards-frame';
 import { Main } from '../styled';
-import { DeleteOutlined, FormOutlined, PhoneOutlined, MailOutlined, SnippetsOutlined } from '@ant-design/icons';
+import { DeleteOutlined, FormOutlined, PhoneOutlined, MailOutlined, SnippetsOutlined,EyeOutlined } from '@ant-design/icons';
 import {
   getEmployees,
   createEmployees,
@@ -192,20 +192,29 @@ function CrmEmployees() {
                                 </div>
                                 {userLogin && userLogin.department_id === 9 && (
                                   <div className="card__actions">
-                                    <Button type="link" onClick={() => handleOpenModal(employee)}>
-                                      <FormOutlined />
+                                  <NavLink
+                                    to={`/admin/nhan-su/profile/${employee.employee_id}`}
+                                    style={{ color: 'inherit', textDecoration: 'none' }}
+                                  >
+                                    <Button type="link">
+                                      <EyeOutlined />
                                     </Button>
-                                    <Popconfirm
-                                      title="Bạn có chắc muốn xóa nhân sự này không?"
-                                      onConfirm={() => handleDelete(employee.employee_id)}
-                                      okText="Yes"
-                                      cancelText="No"
-                                    >
-                                      <Button type="link" danger>
-                                        <DeleteOutlined />
-                                      </Button>
-                                    </Popconfirm>
-                                  </div>
+                                  </NavLink>
+                                  <Button type="link" onClick={() => handleOpenModal(employee)}>
+                                    <FormOutlined />
+                                  </Button>
+                                  <Popconfirm
+                                    title="Bạn có chắc muốn xóa nhân sự này không?"
+                                    onConfirm={() => handleDelete(employee.employee_id)}
+                                    okText="Yes"
+                                    cancelText="No"
+                                  >
+                                    <Button type="link" danger>
+                                      <DeleteOutlined />
+                                    </Button>
+                                  </Popconfirm>
+                                </div>
+                                
                                 )}
                               </figcaption>
                             </Cards>

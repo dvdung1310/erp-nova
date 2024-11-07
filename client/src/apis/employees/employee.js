@@ -35,7 +35,10 @@ export const updateEmployees = async (data, id) => {
     const response = await axios.put(`${LARAVEL_SERVER}/api/nvemployee/${id}`, data);
     return response.data;
 };
-
+export const showEmployees = async (id) => {
+    const response = await axios.get(`${LARAVEL_SERVER}/api/nvemployee/${id}`);
+    return response.data;
+};
 // ----------------------Hồ sơ nhân sự----------------------------------
 export const getEmployeesFile = async (id) => {
     const response = await axios.get(`${LARAVEL_SERVER}/api/showEmployeeFile/${id}`);
