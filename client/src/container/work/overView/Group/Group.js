@@ -3,6 +3,7 @@ import {useLocation, useParams} from "react-router-dom";
 import {getGroupByParentId} from "../../../../apis/work/group";
 import {getAllUsers} from "../../../../apis/work/user";
 import {Spin} from "antd";
+import {toast} from "react-toastify";
 
 const Project = lazy(() => import('../Project/Project'));
 
@@ -28,6 +29,10 @@ const Group = () => {
             setListUser(users?.data);
             setLoading(false);
         } catch (e) {
+            toast.error('Đã xảy ra lỗi', {
+                autoClose: 1000,
+                position: 'top-right'
+            })
             setLoading(false)
             console.log(e);
         }

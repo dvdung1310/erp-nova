@@ -14,6 +14,7 @@ import FeatherIcon from "feather-icons-react";
 import {ProjectHeader} from "./overView/Project/style";
 import CreateGroup from "./overView/Group/overViewGroup/CreateGroup";
 import {useLocation} from "react-router-dom";
+import {toast} from "react-toastify";
 
 const MainWord = () => {
     const role_id = getItem('role_id')
@@ -47,6 +48,10 @@ const MainWord = () => {
 
             setLoading(false)
         } catch (e) {
+            toast.error('Đã xảy ra lỗi', {
+                autoClose: 1000,
+                position: 'top-right'
+            })
             setLoading(false)
             console.log(e)
         }

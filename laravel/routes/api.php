@@ -106,7 +106,7 @@ Route::group(['middleware' => 'api'], function () {
     Route::post('/storeemployeedayoff', [NvEmployeeDayOffController::class, 'storeemployeedayoff']);
     Route::get('getdayoffdetail/{off_id}', [NvEmployeeDayOffController::class, 'getdayoffdetail']);
     Route::put('updatestatusdayoff/{off_id}/{off_status}', [NvEmployeeDayOffController::class, 'updatestatusdayoff'])->middleware(MiddlewareLoginLeader::class);
-    Route::get('listdayoff/{employee_id}',[NvEmployeeDayOffController::class,'listdayoff']);
+    Route::get('listdayoff/{employee_id}', [NvEmployeeDayOffController::class, 'listdayoff']);
 });
 // work
 //groups
@@ -147,6 +147,7 @@ Route::prefix('tasks')->group(function () {
     Route::get('get-task-unfinished-by-user-id', [TaskController::class, 'getTaskUnfinishedByUserId'])->middleware(middlewareLogin::class);
     Route::delete('delete/{task_id}', [TaskController::class, 'delete'])->middleware(middlewareLogin::class);
     Route::get('get-task-by-project-id/{project_id}', [TaskController::class, 'getTaskByProjectId'])->middleware(middlewareLogin::class);
+    Route::put('update-description/{task_id}', [TaskController::class, 'updateDescription'])->middleware(middlewareLogin::class);
     Route::put('update-name/{task_id}', [TaskController::class, 'updateName'])->middleware(middlewareLogin::class);
     Route::put('update-status/{task_id}', [TaskController::class, 'updateStatus'])->middleware(middlewareLogin::class);
     Route::put('update-priority/{task_id}', [TaskController::class, 'updatePriority'])->middleware(middlewareLogin::class);

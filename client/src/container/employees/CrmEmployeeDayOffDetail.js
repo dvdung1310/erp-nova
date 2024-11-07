@@ -42,7 +42,7 @@ const CrmEmployeeDayOffDetail = () => {
         <div style={{background: '#fff', marginTop: '30px', padding: '50px'}}>
             <div>
                 <div style={{display: 'flex', justifyContent: 'center'}}>
-                    <img src='/logo.jpg' alt="User" width={120} height={120}/>
+                    <img src='/logo1.jpg' alt="User" width={120} height={120}/>
                 </div>
                 <div style={{textAlign: 'center'}}>
                     <h2>ĐƠN XIN NGHỈ PHÉP</h2>

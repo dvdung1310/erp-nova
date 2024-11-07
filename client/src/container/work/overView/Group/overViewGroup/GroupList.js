@@ -120,6 +120,10 @@ const ListGroupComponent = ({listGroup, listUser = []}) => {
             setIsLoading(false);
 
         } catch (e) {
+            toast.error('Đã xảy ra lỗi', {
+                autoClose: 1000,
+                position: 'top-right'
+            })
             setIsLoading(false);
             console.log(e);
         }
@@ -147,6 +151,10 @@ const ListGroupComponent = ({listGroup, listUser = []}) => {
             });
             setIsLoading(false);
         } catch (e) {
+            toast.error('Đã xảy ra lỗi', {
+                autoClose: 1000,
+                position: 'top-right'
+            })
             setIsLoading(false);
             console.log(e);
         }
@@ -188,13 +196,15 @@ const ListGroupComponent = ({listGroup, listUser = []}) => {
                                                         className="wide-dropdwon"
                                                         content={
                                                             <div className='popover-content'>
-                                                                <div className='action-item' onClick={() => handleEditClick('name', group)}>
+                                                                <div className='action-item'
+                                                                     onClick={() => handleEditClick('name', group)}>
                                                                     <MdEdit size={30}
 
                                                                             className='d-block ms-1 fs-4 text-secondary'/>
                                                                     <span>Sửa tên, mô tả ...</span>
                                                                 </div>
-                                                                <div className='action-item' onClick={() => handleEditClick('delete', group)}>
+                                                                <div className='action-item'
+                                                                     onClick={() => handleEditClick('delete', group)}>
                                                                     <MdDelete color='red' size={30}
 
                                                                               className='icon-delete'/>

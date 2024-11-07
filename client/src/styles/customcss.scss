@@ -84,9 +84,49 @@
     width: 100%;
   }
 }
-.text-danger {
-    color: #d32f2f;
+
+.modal-project {
+  .ant-modal-content {
+
+    .RichTextEditor__root___2QXK- .EditorToolbar__root___3_Aqz {
+      display: none;
+    }
+
+    .RichTextEditor__editor___1QqIU .public-DraftEditor-content {
+      border: 1px solid #E3E6EF;
+    }
+
+    .custom-rich-text-editor .RichTextEditor__toolbar {
+      display: none;
+    }
+  }
 }
+
+.modal-task {
+  width: inherit !important;
+
+  .ant-modal-content {
+    width: min-content !important;
+    min-width: 600px !important;
+
+    .RichTextEditor__root___2QXK- .EditorToolbar__root___3_Aqz {
+      display: none;
+    }
+
+    .RichTextEditor__editor___1QqIU .public-DraftEditor-content {
+      border: 1px solid #E3E6EF;
+    }
+
+    .custom-rich-text-editor .RichTextEditor__toolbar {
+      display: none;
+    }
+  }
+}
+
+.text-danger {
+  color: #d32f2f;
+}
+
 //.text-warning {
 //    color: #ed6c02;
 //}

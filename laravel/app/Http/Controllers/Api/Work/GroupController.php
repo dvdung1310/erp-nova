@@ -425,6 +425,9 @@ class GroupController extends Controller
         $filteredGroups = [];
 
         foreach ($groups as $group) {
+            if ($group->leader_id == $user_id) {
+                $filteredGroups[] = $group;
+            }
             if ($this->hasUserInProjects($group, $user_id)) {
                 $filteredGroups[] = $group;
             }
@@ -453,6 +456,7 @@ class GroupController extends Controller
                     return true;
                 }
             }
+
         }
 
         return false;
