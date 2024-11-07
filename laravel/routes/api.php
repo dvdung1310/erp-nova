@@ -173,6 +173,7 @@ Route::prefix('devices')->group(function () {
 });
 // notification
 Route::prefix('notifications')->group(function () {
+    Route::post('create', [NotificationController::class, 'create'])->middleware(middlewareLogin::class);
     Route::get('get-notification-by-user-id', [NotificationController::class, 'getNotificationByUserId'])->middleware(middlewareLogin::class);
     Route::put('update-status/{notification_id}', [NotificationController::class, 'updateStatus'])->middleware(middlewareLogin::class);
 });

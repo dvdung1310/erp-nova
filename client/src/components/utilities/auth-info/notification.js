@@ -107,7 +107,30 @@ function NotificationBox() {
                         autoClose: 1000,
                     });
                 }
-                await getNotify();
+                const notification_id = res?.data?.notification_id;
+                setNotificationUnread(prevUnreadNotifications => prevUnreadNotifications.filter(notification => notification.notification_id !== notification_id));
+                setNotification(prevNotifications => prevNotifications.map(notification => {
+                    if (notification.notification_id === notification_id) {
+                        return {
+                            ...notification,
+                            notification_status: 1
+                        };
+                    }
+                    return notification;
+                }));
+                setNotificationRender(prevNotifications => {
+                    const updatedNotifications = prevNotifications.map(notification => {
+                        if (notification.notification_id === notification_id) {
+                            return {
+                                ...notification,
+                                notification_status: 1
+                            };
+                        }
+                        return notification;
+                    });
+
+                    return updatedNotifications.sort((a, b) => a.notification_status - b.notification_status);
+                });
 
                 setActiveTab('recent');
                 history.push(pathname);
@@ -237,6 +260,9 @@ function NotificationBox() {
                     }
                 </ul>
             </Scrollbars>
+            <div style={{marginTop: '10px'}}>
+                <Link type='button' style={{textAlign: 'center'}} to="/admin/thong-bao">Xem tất cả thông báo</Link>
+            </div>
         </AtbdTopDropdwon>
     );
 

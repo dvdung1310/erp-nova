@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Mail\ForgotPasswordMail;
 use App\Mail\InviteUserMail;
+use App\Models\CrmEmployeeModel;
 use App\Models\Devices;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -21,8 +22,8 @@ use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
-    protected $nodeUrl;
-    protected $ClientUrl;
+    protected mixed $nodeUrl;
+    protected mixed $ClientUrl;
 
     public function __construct()
     {
@@ -167,7 +168,7 @@ class AuthController extends Controller
             $avatar = $request->input('avatar') || $request->file('avatar');
             $user = auth()->user();
             // xóa ảnh cũ
-            if($user->avatar && $avatar){
+            if ($user->avatar && $avatar) {
                 $array = explode('/', $user->avatar);
                 $avatar = array_pop($array);
                 Storage::disk('public_avatars')->delete($avatar);
@@ -190,10 +191,17 @@ class AuthController extends Controller
             $user->name = $request->input('name');
             $user->email = $request->input('email');
             $user->phone = $request->input('phone');
-
             $user->save();
+            $user_id = $user->id;
+            $employee = CrmEmployeeModel::where('account_id', $user_id)->first();
+            if ($employee) {
+                $employee->employee_name = $user->name;
+                $employee->employee_email = $user->email;
+                $employee->employee_phone = $user->phone;
+                $employee->save();
+            }
             $payload = [
-                'user'=> $user,
+                'user' => $user,
                 'user_id' => $user->id
             ];
             Http::post($this->nodeUrl . '/update-profile', $payload);
