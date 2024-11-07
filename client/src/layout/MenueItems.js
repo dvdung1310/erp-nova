@@ -162,7 +162,7 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
       {/* Quản lý nhân sự */}
       <SubMenu key="employees" icon={!topMenu && <FeatherIcon icon="users" />} title="Quản lý nhân sự">
         <Menu.Item className="pl-custom-sidebar" key="list_employee">
-          <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-nhanh-su`}>
+          <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-nhan-su`}>
             Nhân sự
           </NavLink>
         </Menu.Item>

@@ -112,14 +112,13 @@ Route::group(['middleware' => 'api'], function () {
     Route::post('/storeemployeedayoff', [NvEmployeeDayOffController::class, 'storeemployeedayoff']);
     Route::get('getdayoffdetail/{off_id}', [NvEmployeeDayOffController::class, 'getdayoffdetail']);
     Route::put('updatestatusdayoff/{off_id}/{off_status}', [NvEmployeeDayOffController::class, 'updatestatusdayoff'])->middleware(MiddlewareLoginLeader::class);
-<<<<<<< HEAD
     Route::get('listdayoff/{employee_id}', [NvEmployeeDayOffController::class, 'listdayoff']);
-=======
-    Route::get('listdayoff/{employee_id}',[NvEmployeeDayOffController::class,'listdayoff']);
+
+    Route::get('listdayoff/{employee_id}', [NvEmployeeDayOffController::class, 'listdayoff']);
     //Department Team
-    Route::get('getdepartmentteam/{department_id}',[NvDepartmentTeamController::class,'getdepartmentteam']);
-    Route::get('nvemployee',[ NvEmployeeController::class,'index'])->middleware(middlewareLogin::class);
->>>>>>> fb60b7eacde42ea1a24a5da82dcc0d7375be62a1
+    Route::get('getdepartmentteam/{department_id}', [NvDepartmentTeamController::class, 'getdepartmentteam']);
+    Route::get('nvemployee', [NvEmployeeController::class, 'index'])->middleware(middlewareLogin::class);
+
 });
 // work
 //groups

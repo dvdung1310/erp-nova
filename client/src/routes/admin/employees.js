@@ -29,7 +29,7 @@ function Employees() {
         <Switch>
             <Route exact path={path} component={EmployeesMain}/>
             <Route path={`${path}/tong-quan`} component={EmployeesList}/>
-            <Route path={`${path}/danh-sach-nhanh-su`} component={ListEmployee}/>
+            <Route path={`${path}/danh-sach-nhan-su`} component={ListEmployee}/>
             <Route path={`${path}/phong-ban`} component={Department}/>
             <Route path={`${path}/lich-lam-viec`} component={FullWorkSchedule}/>
             <Route path={`${path}/dang-ki/lich-lam-viec`} component={CreateWorksSchedule}/>
