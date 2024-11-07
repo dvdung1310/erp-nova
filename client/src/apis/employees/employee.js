@@ -5,7 +5,13 @@ import {createAxios} from "../../utility/createAxios";
 
 const instanceAxios = createAxios();
 export const getEmployees = async (data) => {
-    const response = await axios.get(`${LARAVEL_SERVER}/api/nvemployee`);
+    const token = getToken();
+    const response = await axios.get(`${LARAVEL_SERVER}/api/nvemployee`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
     return response.data;
 };
 export const createEmployees = async (data) => {
@@ -29,7 +35,10 @@ export const updateEmployees = async (data, id) => {
     const response = await axios.put(`${LARAVEL_SERVER}/api/nvemployee/${id}`, data);
     return response.data;
 };
-
+export const showEmployees = async (id) => {
+    const response = await axios.get(`${LARAVEL_SERVER}/api/nvemployee/${id}`);
+    return response.data;
+};
 // ----------------------Hồ sơ nhân sự----------------------------------
 export const getEmployeesFile = async (id) => {
     const response = await axios.get(`${LARAVEL_SERVER}/api/showEmployeeFile/${id}`);
@@ -135,11 +144,11 @@ export const getdepartmentteam = async (id) => {
     return response.data;
 };
 export const storeDepartmentTeam = async (data) => {
-    const response = await axios.post(`${LARAVEL_SERVER}/api/nvdepartmentteam`,data);
+    const response = await axios.post(`${LARAVEL_SERVER}/api/nvdepartmentteam`, data);
     return response.data;
 };
-export const updateDepartmentTeam = async (data,id) => {
-    const response = await axios.put(`${LARAVEL_SERVER}/api/nvdepartmentteam/${id}`,data);
+export const updateDepartmentTeam = async (data, id) => {
+    const response = await axios.put(`${LARAVEL_SERVER}/api/nvdepartmentteam/${id}`, data);
     return response.data;
 };
 export const getDepartment = async (data) => {
@@ -147,10 +156,10 @@ export const getDepartment = async (data) => {
     return response.data;
 };
 export const storeDepartment = async (data) => {
-    const response = await axios.post(`${LARAVEL_SERVER}/api/nvdepartment`,data);
+    const response = await axios.post(`${LARAVEL_SERVER}/api/nvdepartment`, data);
     return response.data;
 };
-export const updateDepartment = async (data,id) => {
-    const response = await axios.put(`${LARAVEL_SERVER}/api/nvdepartment/${id}`,data);
+export const updateDepartment = async (data, id) => {
+    const response = await axios.put(`${LARAVEL_SERVER}/api/nvdepartment/${id}`, data);
     return response.data;
 };

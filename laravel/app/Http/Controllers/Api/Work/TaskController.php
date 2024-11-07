@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Work;
 
 use App\Http\Controllers\Controller;
 use App\Models\Devices;
+use App\Models\Group;
 use App\Models\Message;
 use App\Models\MessageTask;
 use App\Models\Notification;
@@ -42,8 +43,10 @@ class TaskController extends Controller
             $project = Project::find($validatedData['project_id']);
             $user_id = auth()->user()->id;
             $role_id = auth()->user()->role_id;
+            $group_id = $project->group_id;
+            $group = Group::find($group_id);
 
-            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2) {
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2 && $group->leader_id != $user_id) {
                 return response()->json([
                     'error' => true,
                     'message' => 'Bạn không có quyền thực hiện hành động này',
@@ -160,7 +163,9 @@ class TaskController extends Controller
             $user_id = auth()->user()->id;
             $role_id = auth()->user()->role_id;
             $project = Project::find($task->project_id);
-            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2) {
+            $group_id = $project->group_id;
+            $group = Group::find($group_id);
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2 && $group->leader_id != $user_id) {
                 return response()->json([
                     'error' => true,
                     'message' => 'Bạn không có quyền thực hiện hành động này',
@@ -237,7 +242,11 @@ class TaskController extends Controller
                 $devices = $devices->map(function ($device) {
                     return json_decode($device->endpoint, true);
                 })->filter()->values()->toArray();
-
+                $notification = Notification::where('task_id', $task_id)
+                    ->where('create_by_user_id', $create_by_user_id)
+                    ->with('createByUser')
+                    ->latest()
+                    ->first();
                 if (!empty($notifications)) {
                     $taskName = $task->task_name;
                     $payload = [
@@ -245,7 +254,7 @@ class TaskController extends Controller
                         'devices' => $devices,
                         'createByUserName' => $createByUserName,
                         'taskName' => $taskName,
-                        'notification' => $notifications[0],
+                        'notification' => $notification,
                         'createByUserId' => $create_by_user_id,
                         'pathname' => $pathname,
                     ];
@@ -259,7 +268,11 @@ class TaskController extends Controller
                 $devices = $devices->map(function ($device) {
                     return json_decode($device->endpoint, true);
                 })->filter()->values()->toArray();
-
+                $notification = Notification::where('task_id', $task_id)
+                    ->where('create_by_user_id', $create_by_user_id)
+                    ->with('createByUser')
+                    ->latest()
+                    ->first();
                 if (!empty($notifications)) {
                     $taskName = $task->task_name;
                     $payload = [
@@ -267,7 +280,7 @@ class TaskController extends Controller
                         'devices' => $devices,
                         'createByUserName' => $createByUserName,
                         'taskName' => $taskName,
-                        'notification' => $notifications[0],
+                        'notification' => $notification,
                         'createByUserId' => $create_by_user_id,
                         'pathname' => $pathname,
                     ];
@@ -433,7 +446,9 @@ class TaskController extends Controller
             $user_id = auth()->user()->id;
             $role_id = auth()->user()->role_id;
             $project = Project::find($task->project_id);
-            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2 && !in_array($user_id, $project->members->pluck('id')->toArray())) {
+            $group_id = $project->group_id;
+            $group = Group::find($group_id);
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2 && $group->leader_id != $user_id) {
                 return response()->json([
                     'error' => true,
                     'message' => 'Bạn không có quyền thực hiện hành động này',
@@ -461,6 +476,7 @@ class TaskController extends Controller
                     $notifications[] = [
                         'user_id' => $user_id,
                         'task_id' => $task_id,
+                        'notification_status' => 0,
                         'create_by_user_id' => $create_by_user_id,
                         'notification_title' => ' Đã cập nhật tên công việc: ' . $task->task_name,
                         'notification_link' => $this->ClientUrl . $pathname,
@@ -477,7 +493,11 @@ class TaskController extends Controller
             $devices = $devices->map(function ($device) {
                 return json_decode($device->endpoint, true);
             })->filter()->values()->toArray();
-
+            $notification = Notification::where('task_id', $task_id)
+                ->where('create_by_user_id', $create_by_user_id)
+                ->with('createByUser')
+                ->latest()
+                ->first();
             if (!empty($notifications)) {
                 $taskName = $task->task_name;
                 $payload = [
@@ -485,7 +505,7 @@ class TaskController extends Controller
                     'devices' => $devices,
                     'createByUserName' => $createByUserName,
                     'taskName' => $taskName,
-                    'notification' => $notifications[0],
+                    'notification' => $notification,
                     'createByUserId' => $create_by_user_id,
                     'pathname' => $pathname,
                 ];
@@ -504,6 +524,109 @@ class TaskController extends Controller
                 'data' => null
             ], 400);
         }
+    }
+
+    public function updateDescription(Request $request, $task_id)
+    {
+        try {
+            $task = Task::with('users')->find($task_id);
+            if (!$task) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Task not found',
+                    'data' => null
+                ], 404);
+            }
+            $validatedData = $request->validate([
+                'task_description' => 'nullable|string|max:255',
+            ]);
+            $members = $task->users->pluck('id');
+            $project = Project::find($task->project_id);
+            $leader_id = $project->leader_id;
+            $members[] = $leader_id;
+            $members = array_unique($members->toArray());
+            $user_id = auth()->user()->id;
+            $role_id = auth()->user()->role_id;
+            $project = Project::find($task->project_id);
+            $group_id = $project->group_id;
+            $group = Group::find($group_id);
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2 && $group->leader_id != $user_id) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Bạn không có quyền thực hiện hành động này',
+                    'data' => $role_id
+                ], 403);
+            }
+            $task->update($validatedData);
+            // insert comment
+            $message = Message::create([
+                'text' => 'Cập nhật mô tả công việc công việc ',
+                'message_type' => 3,
+                'message_by_user_id' => $user_id,
+            ]);
+            MessageTask::create([
+                'message_id' => $message->message_id,
+                'task_id' => $task->task_id,
+            ]);
+            //
+            $pathname = $request->input('pathname');
+            $createByUserName = auth()->user()->name;
+            $create_by_user_id = auth()->user()->id;
+            $notifications = [];
+            foreach ($members as $user_id) {
+                if ($user_id != $create_by_user_id) {
+                    $notifications[] = [
+                        'user_id' => $user_id,
+                        'task_id' => $task_id,
+                        'notification_status' => 0,
+                        'create_by_user_id' => $create_by_user_id,
+                        'notification_title' => ' Đã cập nhật mô tả công việc: ' . $task->task_name,
+                        'notification_link' => $this->ClientUrl . $pathname,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+            }
+            Notification::insert($notifications);
+
+            $devices = Devices::whereIn('user_id', $members)
+                ->where('user_id', '!=', $create_by_user_id)
+                ->get();
+            $devices = $devices->map(function ($device) {
+                return json_decode($device->endpoint, true);
+            })->filter()->values()->toArray();
+            $notification = Notification::where('task_id', $task_id)
+                ->where('create_by_user_id', $create_by_user_id)
+                ->with('createByUser')
+                ->latest()
+                ->first();
+            if (!empty($notifications)) {
+                $taskName = $task->task_name;
+                $payload = [
+                    'members' => $members,
+                    'devices' => $devices,
+                    'createByUserName' => $createByUserName,
+                    'taskName' => $taskName,
+                    'notification' => $notification,
+                    'createByUserId' => $create_by_user_id,
+                    'pathname' => $pathname,
+                ];
+                Http::post($this->nodeUrl . '/update-description-task', $payload);
+            }
+//
+            return response()->json([
+                'error' => false,
+                'message' => 'Task description updated successfully',
+                'data' => $task
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+
     }
 
     public function updateStatus(Request $request, $task_id)
@@ -601,7 +724,11 @@ class TaskController extends Controller
             $devices = $devices->map(function ($device) {
                 return json_decode($device->endpoint, true);
             })->filter()->values()->toArray();
-
+            $notification = Notification::where('task_id', $task_id)
+                ->where('create_by_user_id', $create_by_user_id)
+                ->with('createByUser')
+                ->latest()
+                ->first();
             if (!empty($notifications)) {
                 $taskName = $task->task_name;
                 $payload = [
@@ -610,7 +737,7 @@ class TaskController extends Controller
                     'statusMessage' => $statusMessage,
                     'createByUserName' => $createByUserName,
                     'taskName' => $taskName,
-                    'notification' => $notifications[0],
+                    'notification' => $notification,
                     'createByUserId' => $create_by_user_id,
                     'pathname' => $pathname,
                 ];
@@ -656,7 +783,9 @@ class TaskController extends Controller
             $user_id = auth()->user()->id;
             $role_id = auth()->user()->role_id;
             $project = Project::find($task->project_id);
-            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2) {
+            $group_id = $project->group_id;
+            $group = Group::find($group_id);
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2 && $group->leader_id != $user_id) {
                 return response()->json([
                     'error' => true,
                     'message' => 'Bạn không có quyền thực hiện hành động này',
@@ -700,7 +829,11 @@ class TaskController extends Controller
             $devices = $devices->map(function ($device) {
                 return json_decode($device->endpoint, true);
             })->filter()->values()->toArray();
-
+            $notification = Notification::where('task_id', $task_id)
+                ->where('create_by_user_id', $create_by_user_id)
+                ->with('createByUser')
+                ->latest()
+                ->first();
             if (!empty($notifications)) {
                 $taskName = $task->task_name;
                 $payload = [
@@ -708,7 +841,7 @@ class TaskController extends Controller
                     'devices' => $devices,
                     'createByUserName' => $createByUserName,
                     'taskName' => $taskName,
-                    'notification' => $notifications[0],
+                    'notification' => $notification,
                     'createByUserId' => $create_by_user_id,
                     'pathname' => $pathname,
                 ];
@@ -753,7 +886,9 @@ class TaskController extends Controller
             $user_id = auth()->user()->id;
             $role_id = auth()->user()->role_id;
             $project = Project::find($task->project_id);
-            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2) {
+            $group_id = $project->group_id;
+            $group = Group::find($group_id);
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2 && $group->leader_id != $user_id) {
                 return response()->json([
                     'error' => true,
                     'message' => 'Bạn không có quyền thực hiện hành động này',
@@ -797,7 +932,11 @@ class TaskController extends Controller
             $devices = $devices->map(function ($device) {
                 return json_decode($device->endpoint, true);
             })->filter()->values()->toArray();
-
+            $notification = Notification::where('task_id', $task_id)
+                ->where('create_by_user_id', $create_by_user_id)
+                ->with('createByUser')
+                ->latest()
+                ->first();
             if (!empty($notifications)) {
                 $taskName = $task->task_name;
                 $payload = [
@@ -805,7 +944,7 @@ class TaskController extends Controller
                     'devices' => $devices,
                     'createByUserName' => $createByUserName,
                     'taskName' => $taskName,
-                    'notification' => $notifications[0],
+                    'notification' => $notification,
                     'createByUserId' => $create_by_user_id,
                     'pathname' => $pathname,
                 ];

@@ -20,6 +20,10 @@ class NvEmployeeController extends Controller
     public function index()
     {
         try {
+            $user_id = auth()->user()->id;
+            $user_login = CrmEmployeeModel::join('users', 'crm_employee.account_id', '=', 'users.id')
+                ->select('users.*', 'crm_employee.department_id')
+                ->where('users.id', $user_id)->first();
             $employee = CrmEmployeeModel::join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
                 ->leftjoin('crm_department_team', 'crm_employee.team_id', '=', 'crm_department_team.team_id')
                 ->join('crm_employee_level', 'crm_employee.level_id', '=', 'crm_employee_level.level_id')
@@ -36,6 +40,7 @@ class NvEmployeeController extends Controller
             return response()->json([
                 'error' => false,
                 'message' => 'Customers get successfully.',
+                'user_login' => $user_login,
                 'data' => $employee
             ]);
         } catch (\Throwable $th) {
@@ -142,20 +147,22 @@ class NvEmployeeController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($nvemployee)
+    public function show($id)
     {
         try {
             $employee = CrmEmployeeModel::join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
+                ->join('users','crm_employee.account_id','=','users.id')
                 ->leftjoin('crm_department_team', 'crm_employee.team_id', '=', 'crm_department_team.team_id')
                 ->join('crm_employee_level', 'crm_employee.level_id', '=', 'crm_employee_level.level_id')
+
                 ->select(
                     'crm_employee.*',
                     'crm_department.department_name',
-                    'crm_department.department_name',
                     'crm_department_team.team_name',
                     'crm_employee_level.level_name',
+                    'users.avatar'
                 )
-                ->where('employee_id', $nvemployee)->first();
+                ->where('employee_id', $id)->first();
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
@@ -238,7 +245,7 @@ class NvEmployeeController extends Controller
                 ]);
             }
             $nvemployee->delete();
-            $delete_user = User::where('id',$user_id)->delete();
+            $delete_user = User::where('id', $user_id)->delete();
             return response()->json([
                 'error' => false, // Đã sửa thành true
                 'message' => 'Xóa nhân sự thành công!',

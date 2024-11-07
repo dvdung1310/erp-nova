@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react';
+import RichTextEditor from 'react-rte';
 import {
     Row,
     Col,
@@ -64,6 +65,11 @@ function ProjectLists({listProject, listUser = []}) {
     const [showModalUpdateStartDate, setShowModalUpdateStartDate] = useState(false);
     const [showModalUpdateEndDate, setShowModalUpdateEndDate] = useState(false);
     const [showModalConfirm, setShowModalConfirm] = useState(false);
+    //
+    const [editorState, setEditorState] = useState(RichTextEditor.createEmptyValue());
+    const handleChangeEditer = (value) => {
+        setEditorState(value);
+    };
     const handleShowModalUpdateLeader = () => {
         setShowModalUpdateLeader(true);
     }
@@ -148,9 +154,9 @@ function ProjectLists({listProject, listUser = []}) {
             case 'name':
                 form.setFieldsValue({
                     project_name: value?.project_name,
-                    project_description: value?.project_description,
                 });
                 setSelectedProject(value);
+                setEditorState(value?.project_description ? RichTextEditor.createValueFromString(value?.project_description, 'html') : RichTextEditor.createEmptyValue());
                 handleShowModalUpdateName();
                 break;
             case 'status':
@@ -210,7 +216,8 @@ function ProjectLists({listProject, listUser = []}) {
             setLoadingUpdate(true);
             const payload = {
                 project_name: selectedProject?.project_name,
-                project_description: selectedProject?.project_description,
+                project_description: editorState.toString('html'),
+                pathname
             }
             const res = await updateNameProject(payload, selectedProject?.project_id);
             if (res.error) {
@@ -236,9 +243,9 @@ function ProjectLists({listProject, listUser = []}) {
 
         } catch (e) {
             setLoadingUpdate(false);
-            toast.error(e?.response?.data?.message, {
-                position: "top-right",
+            toast.error('Đã xảy ra lỗi', {
                 autoClose: 1000,
+                position: 'top-right'
             })
             console.log(e);
         }
@@ -274,9 +281,9 @@ function ProjectLists({listProject, listUser = []}) {
 
         } catch (e) {
             setLoadingUpdate(false);
-            toast.error(e?.response?.data?.message, {
-                position: "top-right",
+            toast.error('Đã xảy ra lỗi', {
                 autoClose: 1000,
+                position: 'top-right'
             })
             console.log(e);
         }
@@ -312,9 +319,9 @@ function ProjectLists({listProject, listUser = []}) {
 
         } catch (e) {
             setLoadingUpdate(false);
-            toast.error(e?.response?.data?.message, {
-                position: "top-right",
+            toast.error('Đã xảy ra lỗi', {
                 autoClose: 1000,
+                position: 'top-right'
             })
             console.log(e);
         }
@@ -345,9 +352,9 @@ function ProjectLists({listProject, listUser = []}) {
             setLoadingUpdate(false);
         } catch (e) {
             setLoadingUpdate(false);
-            toast.error(e?.response?.data?.message, {
-                position: "top-right",
+            toast.error('Đã xảy ra lỗi', {
                 autoClose: 1000,
+                position: 'top-right'
             })
             console.log(e);
         }
@@ -383,9 +390,9 @@ function ProjectLists({listProject, listUser = []}) {
 
         } catch (e) {
             setLoadingUpdate(false);
-            toast.error(e?.response?.data?.message, {
-                position: "top-right",
+            toast.error('Đã xảy ra lỗi', {
                 autoClose: 1000,
+                position: 'top-right'
             })
             console.log(e);
         }
@@ -421,9 +428,9 @@ function ProjectLists({listProject, listUser = []}) {
             setLoadingUpdate(false);
         } catch (e) {
             setLoadingUpdate(false);
-            toast.error(e?.response?.data?.message, {
-                position: "top-right",
+            toast.error('Đã xảy ra lỗi', {
                 autoClose: 1000,
+                position: 'top-right'
             })
             console.log(e);
         }
@@ -481,9 +488,9 @@ function ProjectLists({listProject, listUser = []}) {
             setLoadingUpdate(false);
         } catch (e) {
             setLoadingUpdate(false);
-            toast.error(e?.response?.data?.message, {
-                position: "top-right",
+            toast.error('Đã xảy ra lỗi', {
                 autoClose: 1000,
+                position: 'top-right'
             })
             console.log(e);
         }
@@ -518,9 +525,9 @@ function ProjectLists({listProject, listUser = []}) {
             setLoadingUpdate(false);
         } catch (e) {
             setLoadingUpdate(false);
-            toast.error(e?.response?.data?.message, {
-                position: "top-right",
+            toast.error('Đã xảy ra lỗi', {
                 autoClose: 1000,
+                position: 'top-right'
             })
             console.log(e);
         }
@@ -755,6 +762,7 @@ function ProjectLists({listProject, listUser = []}) {
                 title=" Cập nhật tên và mô tả dự án"
                 visible={showModalUpdateName}
                 onCancel={handleCancel}
+                className='modal-project'
                 footer={[
                     <div key="1" className="project-modal-footer">
                         <Button size="default" type="primary" key="submit" onClick={handleUpdateName}
@@ -785,16 +793,14 @@ function ProjectLists({listProject, listUser = []}) {
                                 />
                             </Form.Item>
                             <Form.Item name="project_description" label="">
-                                <Input.TextArea
-                                    rows={4}
-                                    onChange={(e) => {
-                                        setSelectedProject({
-                                            ...selectedProject,
-                                            project_description: e.target.value
-                                        });
-                                    }}
-                                    placeholder="Mô tả dự án"
-                                />
+                                <div className="group">
+                                    <RichTextEditor
+                                        className='custom-rich-text-editor'
+                                        placeholder="Nhập mô tả dự án"
+                                        name={'project_description'}
+                                        value={editorState}
+                                        onChange={handleChangeEditer}/>
+                                </div>
                             </Form.Item>
                         </Form>
                     </BasicFormWrapper>

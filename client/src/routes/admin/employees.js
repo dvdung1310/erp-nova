@@ -17,6 +17,7 @@ const ListEmployee = lazy(() => import('../../container/employees/CrmListEmploye
 const CrmEmployeeDayOff = lazy(() => import('../../container/employees/CrmEmployeeDayOff'));
 const CrmEmployeeDayOffDetail = lazy(() => import('../../container/employees/CrmEmployeeDayOffDetail'));
 const CrmListDayOffEmployee = lazy(() => import('../../container/employees/CrmListDayOff'));
+const CrmEmployeeProfile = lazy(() => import('../../container/employees/profile/Index'));
 const EmployeesInformation = lazy(() => import('../../container/employees/EmployeesInformation'));
 const ListWorkConfirmation = lazy(() => import('../../container/employees/workconfimation/ListWorkConfirmation'));
 const CheckWorkConfirmation = lazy(() => import('../../container/employees/workconfimation/CheckWorkConfirmation'));
@@ -36,6 +37,7 @@ function Employees() {
             <Route path={`${path}/dang-ki/lich-lam-viec`} component={CreateWorksSchedule}/>
             <Route path={`${path}/danh-sach-de`} component={ListExam}/>
             <Route path={`${path}/ho-so/:employee_id`} component={EmployeeFile}/>
+            <Route path={`${path}/profile/:employee_id`} component={CrmEmployeeProfile}/>
             <Route path={`${path}/lich-lam-viec`} component={FullWorkSchedule}/>
             <Route path={`${path}/dang-ki/lich-lam-viec`} component={CreateWorksSchedule}/>
             <Route path={`${path}/tao-de`} component={CreateExam}/>

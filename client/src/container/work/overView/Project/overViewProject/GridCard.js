@@ -121,6 +121,10 @@ function GridCard({value, listUser}) {
             setIsLoading(false);
 
         } catch (e) {
+            toast.error('Đã xảy ra lỗi', {
+                autoClose: 1000,
+                position: 'top-right'
+            })
             setIsLoading(false);
             console.log(e);
         }
@@ -148,6 +152,10 @@ function GridCard({value, listUser}) {
             })
             setIsLoading(false);
         } catch (e) {
+            toast.error('Đã xảy ra lỗi', {
+                autoClose: 1000,
+                position: 'top-right'
+            })
             setIsLoading(false);
             console.log(e);
         }

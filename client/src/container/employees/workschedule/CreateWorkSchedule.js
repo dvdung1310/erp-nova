@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { Row, Col, Checkbox, Card, Button, Tabs } from "antd";
-import { toast } from "react-toastify";
-import { useHistory } from 'react-router-dom';
+import React, {useState, useEffect} from "react";
+import {Row, Col, Checkbox, Card, Button, Tabs} from "antd";
+import {toast} from "react-toastify";
+import {useHistory} from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
-import { saveWorkSchedule, getWorkScheduleForWeekByUserId } from '../../../apis/employees/index';
-import { startOfMonth, addDays, getDay, eachDayOfInterval } from "date-fns";
+import {saveWorkSchedule, getWorkScheduleForWeekByUserId} from '../../../apis/employees/index';
+import {startOfMonth, addDays, getDay, eachDayOfInterval} from "date-fns";
 import '../style.css';
 
-const { TabPane } = Tabs;
+const {TabPane} = Tabs;
 
 const CreateWorkSchedule = () => {
     const [weeks, setWeeks] = useState([]);
@@ -19,7 +19,7 @@ const CreateWorkSchedule = () => {
     // Hàm lấy các tuần trong tháng bắt đầu từ thứ Hai đầu tiên
     const getWeeksOfMonthStartingFromMonday = (month) => {
         const firstDayOfMonth = startOfMonth(new Date(new Date().getFullYear(), month - 1));
-        
+
         let firstMonday = firstDayOfMonth;
         const dayOfWeek = getDay(firstDayOfMonth);
         if (dayOfWeek !== 1) {
@@ -28,21 +28,21 @@ const CreateWorkSchedule = () => {
 
         const weeks = [];
         let currentWeekStart = firstMonday;
-        
+
         while (currentWeekStart.getMonth() === firstDayOfMonth.getMonth()) {
-            const weekDays = eachDayOfInterval({ 
-                start: currentWeekStart, 
-                end: addDays(currentWeekStart, 6) 
+            const weekDays = eachDayOfInterval({
+                start: currentWeekStart,
+                end: addDays(currentWeekStart, 6)
             });
 
             weeks.push(weekDays.map(day => ({
-                dayName: day.toLocaleDateString('vi-VN', { weekday: 'long' }),
+                dayName: day.toLocaleDateString('vi-VN', {weekday: 'long'}),
                 date: day.toLocaleDateString('en-GB'),
             })));
 
             currentWeekStart = addDays(currentWeekStart, 7);
         }
-        
+
         return weeks;
     };
 
@@ -69,7 +69,7 @@ const CreateWorkSchedule = () => {
     const checkRegistrationDeadline = () => {
         const now = new Date();
         const firstDayOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay() + 1);
-        const mondayMorningDeadline = new Date(firstDayOfWeek.getFullYear(), firstDayOfWeek.getMonth(), firstDayOfWeek.getDate(), 21, 0, 0); // 21h sáng thứ 2
+        const mondayMorningDeadline = new Date(firstDayOfWeek.getFullYear(), firstDayOfWeek.getMonth(), firstDayOfWeek.getDate(), 21, 0, 0); // 9h sáng thứ 2
         if (now > mondayMorningDeadline) {
             setIsRegistrationClosed(true);
             toast.warn('Đã hết hạn đăng ký lịch làm việc cho tuần này', {
