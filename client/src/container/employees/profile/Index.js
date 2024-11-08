@@ -1,6 +1,6 @@
 import React, { lazy, Suspense, useState, useEffect } from 'react';
-import { Row, Col, Skeleton, message } from 'antd';
 import FeatherIcon from 'feather-icons-react';
+import { Row, Col, Skeleton, message, Modal, Form, Input, Select, DatePicker } from 'antd';
 import { NavLink, Switch, Route, useRouteMatch, Link, useParams } from 'react-router-dom';
 import { SettingWrapper, UserBioBox } from './overview/style';
 import { UserCard } from '../../pages/style';
@@ -10,12 +10,12 @@ import { Cards } from '../../../components/cards/frame/cards-frame';
 import { Button } from '../../../components/buttons/buttons';
 import Heading from '../../../components/heading/heading';
 import FontAwesome from 'react-fontawesome';
-import { showEmployees } from '../../../apis/employees/employee';
+import { showEmployees, updateEmployees } from '../../../apis/employees/employee';
 import { SnippetsOutlined, ProductOutlined } from '@ant-design/icons';
+
 const UserCards = lazy(() => import('../../pages/overview/UserCard'));
-// const CoverSection = lazy(() => import('../overview/CoverSection'));
 const Overview = lazy(() => import('./overview/Overview'));
-const Timeline = lazy(() => import('./overview/Timeline'));
+const EditInfomationEmployee = lazy(() => import('./overview/EditInfomationEmployee'));
 const EmployeeFile = lazy(() => import('./overview/EmployeeFile'));
 
 function MyProfile() {
@@ -23,7 +23,11 @@ function MyProfile() {
   const { employee_id } = useParams();
   const [dataSource, setDataSource] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [form] = Form.useForm();
   const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
+  
+  // Fetch employee data when component mounts
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -39,22 +43,61 @@ function MyProfile() {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Open modal and load form data if editing
+  const handleOpenModal = () => {
+    if (dataSource) {
+      form.setFieldsValue({
+        employee_name: dataSource.employee_name,
+        employee_phone: dataSource.employee_phone,
+        employee_email: dataSource.employee_email,
+        employee_email_nova: dataSource.employee_email_nova,
+        employee_address: dataSource.employee_address,
+        employee_identity: dataSource.employee_identity,
+        employee_bank_number: dataSource.employee_bank_number,
+        department_id: dataSource.department_id,
+      });
+    }
+    setIsModalVisible(true);
+  };
+
+  // Close modal
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+    form.resetFields();
+  };
+
+  // Update employee data
+  const handleModalOk = async () => {
+    try {
+      const values = await form.validateFields();
+
+      // Update employee data if editing
+      const response = await updateEmployees(values, employee_id);
+      if (response && !response.error) {
+        message.success('Cập nhật nhân sự thành công!');
+        fetchData(); // Refetch data after successful update
+        setIsModalVisible(false);
+        form.resetFields();
+      } else {
+        message.error(response?.message || 'Đã có lỗi xảy ra khi cập nhật nhân sự.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      message.error('Lưu thông tin nhân sự thất bại.');
+    }
+  };
 
   return (
     <>
       <Main>
         <Row gutter={25} style={{ marginTop: '30px' }}>
           <Col xxl={6} lg={8} md={10} xs={24}>
-            <Suspense
-              fallback={
-                <Cards headless>
-                  <Skeleton avatar active paragraph={{ rows: 3 }} />
-                </Cards>
-              }
-            >
+            <Suspense fallback={<Cards headless><Skeleton avatar active paragraph={{ rows: 3 }} /></Cards>}>
               {dataSource && (
                 <UserCard>
                   <div className="card user-card">
@@ -78,133 +121,32 @@ function MyProfile() {
                             {dataSource.level_name} - {dataSource.department_name}
                           </p>
                         </div>
-
                         <div className="card__actions">
-                          <Button size="default" type="white">
-                            {/* <FeatherIcon icon="mail" size={14} /> */}
-                            <ProductOutlined size={14} />
-                            Cập nhật
-                          </Button>
-                          <Button size="default" type="white">
-                            {/* <FeatherIcon icon="user-plus" size={14} /> */}
-                            <SnippetsOutlined size={14} />
-                            Hồ sơ
+                          <Button size="default" type="white" onClick={handleOpenModal}>
+                            <ProductOutlined size={14} /> Cập nhật
                           </Button>
                         </div>
-                        {/* <div className="card__info">
-                          <Row gutter={15}>
-                            <Col xs={8}>
-                              <div className="info-single">
-                                <Heading className="info-single__title" as="h2">
-                                  $72,572
-                                </Heading>
-                                <p>Total Revenue</p>
-                              </div>
-                            </Col>
-                            <Col xs={8}>
-                              <div className="info-single">
-                                <Heading className="info-single__title" as="h2">
-                                  3,257
-                                </Heading>
-                                <p>Orders</p>
-                              </div>
-                            </Col>
-                            <Col xs={8}>
-                              <div className="info-single">
-                                <Heading className="info-single__title" as="h2">
-                                  74
-                                </Heading>
-                                <p>Products</p>
-                              </div>
-                            </Col>
-                          </Row>
-                        </div> */}
                       </figcaption>
                     </Cards>
                   </div>
                 </UserCard>
               )}
             </Suspense>
-            <Suspense
-              fallback={
-                <Cards headless>
-                  <Skeleton active paragraph={{ rows: 10 }} />
-                </Cards>
-              }
-            >
+            <Suspense fallback={<Cards headless><Skeleton active paragraph={{ rows: 10 }} /></Cards>}>
               <UserBioBox>
                 {dataSource && (
                   <Cards headless>
-                    {/* <article className="user-info">
-                    <h5 className="user-info__title">User Bio 1111</h5>
-                    <p>
-                      Nam malesuada dolor tellus pretium amet was hendrerit facilisi id vitae enim sed ornare there
-                      suspendisse sed orci neque ac sed aliquet risus faucibus in pretium molestie nisl tempor quis odio
-                      habitant.
-                    </p>
-                  </article> */}
                     <address className="user-info">
                       <h5 className="user-info__title">Thông tin cá nhân</h5>
                       <ul className="user-info__contact">
-                        <li>
-                          {/* <FeatherIcon icon="mail" size={14} />  */}
-                          Email cá nhân: &ensp;
-                          <span>{dataSource.employee_email}</span>
-                        </li>
-                        <li>
-                          Email Nova:&ensp;<span>{dataSource.employee_email_nova}</span>
-                        </li>
-                        <li>
-                          SĐT:&ensp;<span>{dataSource.employee_phone}</span>
-                        </li>
-                        <li>
-                          Địa chỉ:&ensp;<span>{dataSource.employee_address}</span>
-                        </li>
-                        <li>
-                          CCCD:&ensp;<span>{dataSource.employee_identity}</span>
-                        </li>
-                        <li>
-                          Số tài khoản:&ensp;<span>{dataSource.employee_bank_number}</span>
-                        </li>
+                        <li>Email cá nhân: &ensp;<span>{dataSource.employee_email}</span></li>
+                        <li>Email Nova: &ensp;<span>{dataSource.employee_email_nova}</span></li>
+                        <li>SĐT: &ensp;<span>{dataSource.employee_phone}</span></li>
+                        <li>Địa chỉ: &ensp;<span>{dataSource.employee_address}</span></li>
+                        <li>CCCD: &ensp;<span>{dataSource.employee_identity}</span></li>
+                        <li>Số tài khoản: &ensp;<span>{dataSource.employee_bank_number}</span></li>
                       </ul>
                     </address>
-                    {/* <div className="user-info">
-                      <h5 className="user-info__title">Skills</h5>
-                      <div className="user-info__skills">
-                        <Button type="light" outlined className="btn-outlined">
-                          UI/UX
-                        </Button>
-                        <Button type="light" outlined className="btn-outlined">
-                          Branding
-                        </Button>
-                        <Button type="light" outlined className="btn-outlined">
-                          product design
-                        </Button>
-                        <Button type="light" outlined className="btn-outlined">
-                          web design
-                        </Button>
-                        <Button type="light" outlined className="btn-outlined">
-                          Application
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="user-info">
-                      <h5 className="user-info__title">Social Profiles</h5>
-                      <div className="card__social">
-                        <Link className="btn-icon facebook" to="#">
-                          <FontAwesome name="facebook" />
-                        </Link>
-                        <Link className="btn-icon twitter" to="#">
-                          <FontAwesome name="twitter" />
-                        </Link>
-                        <Link className="btn-icon dribble" to="#">
-                          <FontAwesome name="dribbble" />
-                        </Link>
-                        <Link className="btn-icon instagram" to="#">
-                          <FontAwesome name="instagram" />
-                        </Link>
-                      </div>
-                    </div> */}
                   </Cards>
                 )}
               </UserBioBox>
@@ -212,60 +154,76 @@ function MyProfile() {
           </Col>
           <Col xxl={18} lg={16} md={14} xs={24}>
             <SettingWrapper>
-              <Suspense
-                fallback={
-                  <Cards headless>
-                    <Skeleton active />
-                  </Cards>
-                }
-              >
+              <Suspense fallback={<Cards headless><Skeleton active /></Cards>}>
                 <div className="coverWrapper">
                   <div className="cover-image">
                     <img style={{ width: '100%' }} src={require('./banner_profile.png')} alt="banner" />
-                    {/* <Upload {...props}>
-                      <Link to="#">
-                        <FeatherIcon icon="camera" size={16} /> Change Cover
-                      </Link>
-                    </Upload> */}
                   </div>
                   <nav className="profileTab-menu">
                     <ul>
-                      <li>
+                      {/* <li>
                         <NavLink to={`${path}/overview`}>Overview</NavLink>
-                      </li>
+                      </li> */}
                       <li>
-                        <NavLink to={`${path}/timeline`}>Timeline</NavLink>
+                        <NavLink to={`/admin/nhan-su/profile/activity/${employee_id}`} activeClassName="active">
+                          Hồ sơ
+                        </NavLink>
                       </li>
-                      <NavLink to={`/admin/nhan-su/profile/activity/${employee_id}`} activeClassName="active">
-                        Hồ sơ
-                      </NavLink>
                     </ul>
                   </nav>
                 </div>
               </Suspense>
               <Switch>
-                <Suspense
-                  fallback={
-                    <Cards headless>
-                      <Skeleton active paragraph={{ rows: 10 }} />
-                    </Cards>
-                  }
-                >
-                  <Route exact path={`${path}/overview`} component={Overview} />
-                  <Route path={`${path}/timeline`} component={Timeline} />
-                  <Route path={`/admin/nhan-su/profile/activity/:employee_id`} component={EmployeeFile} />
-                </Suspense>
+                {/* <Route exact path={`${path}/overview`}>
+                  <Suspense fallback={<Skeleton active paragraph={{ rows: 10 }} />}>
+                    <Overview />
+                  </Suspense>
+                </Route> */}
+                <Route path={`/admin/nhan-su/profile/activity/:employee_id`}>
+                  <Suspense fallback={<Skeleton active paragraph={{ rows: 10 }} />}>
+                    <EmployeeFile />
+                  </Suspense>
+                </Route>
               </Switch>
             </SettingWrapper>
           </Col>
         </Row>
+        <Modal
+          title="Cập nhật nhân viên"
+          open={isModalVisible}
+          onOk={handleModalOk} // Call handleModalOk on "OK" button
+          onCancel={handleModalClose}
+        >
+          <Form form={form} layout="vertical">
+            <Form.Item label="Họ Tên" name="employee_name" rules={[{ required: true, message: 'Vui lòng nhập tên nhân sự!' }]}>
+              <Input />
+            </Form.Item>
+            <Form.Item label="SĐT" name="employee_phone" rules={[{ required: true, message: 'Vui lòng nhập số điện thoại!' }]}>
+              <Input />
+            </Form.Item>
+            <Form.Item label="Email cá nhân" name="employee_email" rules={[{ required: true, message: 'Vui lòng nhập email cá nhân!' }]}>
+              <Input />
+            </Form.Item>
+            <Form.Item label="Email Nova" name="employee_email_nova" rules={[{ required: true, message: 'Vui lòng nhập email Nova!' }]}>
+              <Input />
+            </Form.Item>
+            <Form.Item label="Địa chỉ" name="employee_address">
+              <Input />
+            </Form.Item>
+            <Form.Item label="Số CCCD" name="employee_identity" rules={[{ required: true, message: 'Vui lòng nhập số CCCD!' }]}>
+              <Input />
+            </Form.Item>
+            <Form.Item label="Số tài khoản" name="employee_bank_number">
+              <Input />
+            </Form.Item>
+            {/* <Form.Item label="Ngày vào công ty" name="employee_date_join">
+              <DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} />
+            </Form.Item> */}
+          </Form>
+        </Modal>
       </Main>
     </>
   );
 }
-
-MyProfile.propTypes = {
-  // match: propTypes.object,
-};
 
 export default MyProfile;

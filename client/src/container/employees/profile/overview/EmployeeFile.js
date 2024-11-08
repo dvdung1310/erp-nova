@@ -40,9 +40,7 @@ function CrmEmployees() {
   const [form] = Form.useForm();
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [categoryFile, setCategoryFile] = useState([]);
-  console.log('====================================');
-  console.log(employee_id);
-  console.log('====================================');
+
   const fetchData = async () => {
     setLoading(true);
     try {

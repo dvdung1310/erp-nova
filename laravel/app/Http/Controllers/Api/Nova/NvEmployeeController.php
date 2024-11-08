@@ -11,6 +11,7 @@ use App\Models\CrmEmployeeLevelModel;
 use App\Models\CrmEmployeeModel;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class NvEmployeeController extends Controller
 {
@@ -23,7 +24,16 @@ class NvEmployeeController extends Controller
             $user_id = auth()->user()->id;
             $user_login = CrmEmployeeModel::join('users', 'crm_employee.account_id', '=', 'users.id')
                 ->select('users.*', 'crm_employee.department_id')
-                ->where('users.id', $user_id)->first();
+                ->where('users.id', $user_id)
+                ->first();
+
+            $isAdminOrDept9 = false;
+
+            if ($user_login->role_id == 1 || $user_login->department_id == 9) {
+                $isAdminOrDept9 = true;
+            } else {
+                $isAdminOrDept9;
+            }
             $employee = CrmEmployeeModel::join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
                 ->leftjoin('crm_department_team', 'crm_employee.team_id', '=', 'crm_department_team.team_id')
                 ->join('crm_employee_level', 'crm_employee.level_id', '=', 'crm_employee_level.level_id')
@@ -40,7 +50,7 @@ class NvEmployeeController extends Controller
             return response()->json([
                 'error' => false,
                 'message' => 'Customers get successfully.',
-                'user_login' => $user_login,
+                'user_login' => $isAdminOrDept9,
                 'data' => $employee
             ]);
         } catch (\Throwable $th) {
@@ -151,7 +161,7 @@ class NvEmployeeController extends Controller
     {
         try {
             $employee = CrmEmployeeModel::join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
-                ->join('users','crm_employee.account_id','=','users.id')
+                ->join('users', 'crm_employee.account_id', '=', 'users.id')
                 ->leftjoin('crm_department_team', 'crm_employee.team_id', '=', 'crm_department_team.team_id')
                 ->join('crm_employee_level', 'crm_employee.level_id', '=', 'crm_employee_level.level_id')
 
@@ -276,6 +286,118 @@ class NvEmployeeController extends Controller
                 'message' => 'No customers found.' . $e->getMessage(),
                 'data' => []
             ]);
+        }
+    }
+    public function employeeLogin()
+    {
+        try {
+            $user_id = auth()->user()->id;
+            $employee = CrmEmployeeModel::join('users', 'crm_employee.account_id', '=', 'users.id')
+                ->join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
+                ->join('crm_employee_level', 'crm_employee.level_id', '=', 'crm_employee_level.level_id')
+                ->where('users.id', $user_id)->first();
+            return response()->json([
+                'error' => false,
+                'message' => 'Customers retrieved successfully.',
+                'data' => $employee
+
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => 'No customers found.' . $e->getMessage(),
+                'data' => []
+            ]);
+        }
+    }
+    public function updatEployeeLogin(Request $request)
+    {
+        try {
+            $id = auth()->user()->id;
+            $employee_id = CrmEmployeeModel::join('users', 'crm_employee.account_id', '=', 'users.id')
+                ->where('crm_employee.account_id', $id)
+                ->pluck('crm_employee.employee_id')
+                ->first();
+            
+                $employee_name = $request->employee_name;
+                $employee_email = $request->employee_email;
+                $employee_phone = $request->employee_phone;
+                $employee_email_nova = $request->employee_email_nova;
+                $existingUser = User::where(function($query) use ($employee_email, $employee_email_nova) {
+                    $query->where('email', $employee_email)
+                          ->orWhere('email', $employee_email_nova);
+                })
+                ->where('id', '!=', $id) // Loại trừ bản ghi có ID bằng với người dùng hiện tại
+                ->first();
+
+            if ($existingUser) {
+                // Trả về lỗi nếu email đã tồn tại
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Email đã tồn tại trong hệ thống.',
+                    'data' => []
+                ]);
+            }
+
+            $data = CrmEmployeeModel::findOrFail($employee_id);
+            $data->employee_name = $employee_name;
+            $data->employee_email = $employee_email;
+            $data->employee_email_nova = $employee_email_nova;
+            $data->employee_phone = $employee_phone;
+            $data->employee_address = $request->employee_address;
+            $data->employee_identity = $request->employee_identity;
+            $data->employee_bank_number = $request->employee_bank_number;
+            $data->save();
+            $user = User::findOrFail($id);
+            $user->name =$employee_name;
+            $user->phone = $employee_phone;
+            $user->email = $employee_email; 
+            $user->save();
+            $employee = CrmEmployeeModel::join('users', 'crm_employee.account_id', '=', 'users.id')
+            ->join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
+            ->join('crm_employee_level', 'crm_employee.level_id', '=', 'crm_employee_level.level_id')
+            ->where('users.id', $id)->first();
+            return response([
+                'message' => 'User updated successfully',
+                'error' => false,
+                'data' =>  $employee
+            ]);
+        } catch (\Exception $e) {
+            return response([
+                'message' => 'Error: ' . $e->getMessage(),
+                'error' => true,
+                'data' => null
+            ], 400);
+        }
+    }
+    public function updateEmployeeAvatar(Request $request){
+        try {
+            $avatar = $request->input('avatar') || $request->file('avatar');
+            $user = auth()->user();
+            // xóa ảnh cũ
+            if ($user->avatar && $avatar) {
+                $array = explode('/', $user->avatar);
+                $avatar = array_pop($array);
+                Storage::disk('public_avatars')->delete($avatar);
+            }
+            //
+            if ($avatar) {
+                $request->validate([
+                    'avatar' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
+                ]);
+                $avatarName = time() . '.' . $request->avatar->extension();
+
+                // Lưu ảnh vào disk 'public'
+                $avatarPath = $request->avatar->storeAs('avatars', $avatarName, 'public');
+
+                // Lấy url của ảnh
+                $url_avatar = Storage::url($avatarPath);
+                // Cập nhật avatar trong database
+                $user->avatar = $url_avatar;
+            }
+            $user->save();
+        } catch (\Throwable $th) {
+            //throw $th;
         }
     }
 }
