@@ -19,6 +19,7 @@ const CrmEmployeeDayOffDetail = lazy(() => import('../../container/employees/Crm
 const CrmListDayOffEmployee = lazy(() => import('../../container/employees/CrmListDayOff'));
 const CrmEmployeeProfile = lazy(() => import('../../container/employees/profile/Index'));
 const EmployeesInformation = lazy(() => import('../../container/employees/EmployeesInformation'));
+const InfoProfileMe = lazy(() => import('../../container/employees/profile/ProfileMe'));
 const ListWorkConfirmation = lazy(() => import('../../container/employees/workconfimation/ListWorkConfirmation'));
 const CheckWorkConfirmation = lazy(() => import('../../container/employees/workconfimation/CheckWorkConfirmation'));
 const ManagerCheckWorkConfirmation = lazy(() => import('../../container/employees/workconfimation/ManagerCheckWorkConfirmation'));
@@ -48,7 +49,7 @@ function Employees() {
             <Route path={`${path}/nghi-phep`} component={CrmEmployeeDayOff} />
             <Route path={`${path}/don-nghi-phep/:id`} component={CrmEmployeeDayOffDetail} />
             <Route path={`${path}/danh-sach-don-nhan/:employeeId`} component={CrmListDayOffEmployee} />
-            <Route path={`${path}/thong-tin`} component={EmployeesInformation}/>
+            <Route path={`${path}/thong-tin`} component={InfoProfileMe}/>
             <Route path={`${path}/danh-sach-xac-nhan-cong`} component={ListWorkConfirmation}/>
             <Route path={`${path}/kiem-tra-danh-sach-xac-nhan-cong`} component={CheckWorkConfirmation}/>
             <Route path={`${path}/danh-sach-xac-nhan-cong-cua-nhan-su`} component={ListWorkConfirmationStatus1}/>

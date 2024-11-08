@@ -163,3 +163,36 @@ export const updateDepartment = async (data, id) => {
     const response = await axios.put(`${LARAVEL_SERVER}/api/nvdepartment/${id}`, data);
     return response.data;
 };
+export const employeeLogin = async () => {
+    const token = getToken();
+    const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/employeeLogin`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        }
+    );
+    return response.data;
+}
+export const updatEployeeLogin = async (formData) => {
+    const token = getToken();
+    const response = await axios.put(`${LARAVEL_SERVER}/api/update-employee-login`, formData, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    return response.data;
+};
+export const updateEmployeeAvatar = async (formData) => {
+    try {
+        const token = getToken();
+        const response = await axios.post(`${LARAVEL_SERVER}/api/updateEmployeeAvatar/?_method=PUT`, formData, {
+            headers: {'Content-Type': 'multipart/form-data', 'Authorization': `Bearer ${token}`},
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Lỗi khi cập nhật hồ sơ:', error);
+        throw new Error(error.response?.data?.message || 'Cập nhật hồ sơ thất bại');
+    }
+};

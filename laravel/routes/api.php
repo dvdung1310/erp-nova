@@ -118,6 +118,10 @@ Route::group(['middleware' => 'api'], function () {
     //Department Team
     Route::get('getdepartmentteam/{department_id}', [NvDepartmentTeamController::class, 'getdepartmentteam']);
     Route::get('nvemployee', [NvEmployeeController::class, 'index'])->middleware(middlewareLogin::class);
+    //User đang đăng nhập
+    Route::get('/employeeLogin', [NvEmployeeController::class, 'employeeLogin'])->middleware(middlewareLogin::class);
+    Route::put('/update-employee-login', [NvEmployeeController::class, 'updatEployeeLogin'])->middleware(middlewareLogin::class); 
+    Route::put('/updateEmployeeAvatar', [NvEmployeeController::class, 'updateEmployeeAvatar'])->middleware(middlewareLogin::class); 
 
 });
 // work

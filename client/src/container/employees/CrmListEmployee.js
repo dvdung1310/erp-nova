@@ -35,9 +35,6 @@ function CrmEmployees() {
         try {
             const res = await getEmployees();
             if (!res.error) {
-                console.log('====================================');
-                console.log(res);
-                console.log('====================================');
                 setDataSource(res.data);
                 setUserLogin(res.user_login);
             } else {
@@ -202,7 +199,7 @@ function CrmEmployees() {
                                                                         }}/>
                                                                         <p style={{margin: 0}}>{employee.employee_email}</p>
                                                                     </div>
-                                                                    {userLogin && userLogin.department_id === 9 && (
+                                                                    {userLogin && userLogin && (
                                                                         <div style={{
                                                                             display: 'flex',
                                                                             alignItems: 'center'
@@ -223,7 +220,7 @@ function CrmEmployees() {
                                                                         </div>
                                                                     )}
                                                                 </div>
-                                                                {userLogin && userLogin.department_id === 9 && (
+                                                                {userLogin && userLogin && (
                                                                     <div className="card__actions">
                                                                       <NavLink to={`/admin/nhan-su/profile/${employee.employee_id}`} style={{ color: 'inherit', textDecoration: 'none' }} > <Button type="link"> <EyeOutlined /> </Button> </NavLink>
                                                                         <Button type="link"
