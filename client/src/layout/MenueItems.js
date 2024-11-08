@@ -160,10 +160,10 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
       </Menu.Item>
       {/*end home*/}
       {/* Quản lý nhân sự */}
-      <SubMenu key="employees" icon={!topMenu && <FeatherIcon icon="users" />} title="Quản lý nhân sự">
+      <SubMenu key="employees" icon={!topMenu && <FeatherIcon icon="users" />} title="Nhân Sự">
         <Menu.Item className="pl-custom-sidebar" key="list_employee">
           <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-nhan-su`}>
-            Nhân sự
+            Danh sách nhân sự
           </NavLink>
         </Menu.Item>
         <Menu.Item  className="pl-custom-sidebar" key="list_department">
@@ -171,12 +171,7 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
             Phòng ban
           </NavLink>
         </Menu.Item>
-        <Menu.Item className="pl-custom-sidebar" key="store-works-chedule">
-          <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/dang-ki/lich-lam-viec`}>
-            Đăng kí lịch làm việc
-          </NavLink>
-        </Menu.Item>
-
+       
         <Menu.Item className="pl-custom-sidebar" key="works-chedule">
           <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/lich-lam-viec`}>
             Lịch làm việc
@@ -194,9 +189,9 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
           </NavLink>
         </Menu.Item>
 
-        <Menu.Item className="pl-custom-sidebar" key="work-confimation-da-duyet">
-          <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-xac-nhan-cong-cua-nhan-su`}>
-            Danh sách xác nhận công
+        <Menu.Item className='pl-custom-sidebar' key="de-xuat">
+          <NavLink onClick={toggleCollapsed} to={`${path}/de-xuat/danh-sach`}>
+            Đề xuất
           </NavLink>
         </Menu.Item>
         {/*<Menu.Item key="nvu-home">*/}
@@ -268,19 +263,7 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
       {/**/}
       {/* work */}
 
-      {/* Đề xuất */}
-      <SubMenu
-        key="de-xuat"
-        icon={!topMenu && <FeatherIcon icon="server" />}
-        title="Đề xuất"
-      >
-        <Menu.Item className='pl-custom-sidebar' key="de-xuat">
-          <NavLink onClick={toggleCollapsed} to={`${path}/de-xuat/danh-sach`}>
-            Đề xuất
-          </NavLink>
-        </Menu.Item>
-      </SubMenu>
-      {/* end Đề xuất   */}
+      
       <SubMenu key="work" icon={!topMenu && <FeatherIcon icon="briefcase" />} title="Làm việc">
         <Menu.Item key="inbox">
           <NavLink onClick={toggleCollapsed} to={`${path}/lam-viec`}>

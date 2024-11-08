@@ -2,14 +2,16 @@ import React, { useState, useEffect } from "react";
 import { startOfMonth, eachDayOfInterval, addDays, getDay } from "date-fns/esm";
 import { fullWorkSchedule } from "../../../apis/employees/index";
 import "../FullWorkSchedule.css";
-import { Spin } from "antd";
+import { Spin , Button} from "antd";
+import {useHistory} from 'react-router-dom';
+
 
 const FullWorkSchedule = () => {
     const [scheduleData, setScheduleData] = useState([]);
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
     const [weeks, setWeeks] = useState([]);
     const [loading, setLoading] = useState(false);
-
+    const history = useHistory();
     const toRomanNumeral = (num) => {
         const romanNumerals = [
             ["X", 10],
@@ -189,7 +191,6 @@ const FullWorkSchedule = () => {
         </tr>
     )}
 </tbody>
-
                                     </table>
                                 </div>
                             ))}
@@ -206,6 +207,10 @@ const FullWorkSchedule = () => {
                                     Tháng {month + 1}
                                 </button>
                             ))}
+
+                    <Button style={{textAlign:'end' ,color:'#000' , backgroundColor:'#00FF00' , fontSize:'18px' , border:'none' , marginLeft:'10px'}}  type="primary" onClick={() => history.push(`/admin/nhan-su/dang-ki/lich-lam-viec`)}>
+                        Đăng kí lịch làm việc
+                    </Button>
                         </div>
                     </>
                 )

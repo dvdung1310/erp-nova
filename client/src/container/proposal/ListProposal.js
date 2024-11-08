@@ -335,7 +335,7 @@ const ListPropose = () => {
           </Form.Item>
 
           <div style={{ marginBottom: '16px' }}>
-            <h6 style={{ marginBottom: '8px', fontWeight: 'bold', fontSize: '1.1rem' }}>Gửi đến</h6>
+            <h6 style={{ marginBottom: '8px', fontWeight: 'bold', fontSize: '1.1rem' }}>Gửi đến (có thể gửi cho nhiều Leader)</h6>
             {selectedMembers.length > 0 && (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', padding: '8px', border: '1px solid #e8e8e8', borderRadius: '4px', backgroundColor: '#f9f9f9' }}>
                 {selectedMembers.map((member) => (
@@ -400,7 +400,7 @@ const ListPropose = () => {
           </Form.Item>
 
           <div style={{ marginBottom: '16px' }}>
-            <h6 style={{ marginBottom: '8px', fontWeight: 'bold', fontSize: '1.1rem' }}>Gửi đến</h6>
+            <h6 style={{ marginBottom: '8px', fontWeight: 'bold', fontSize: '1.1rem' }}>Gửi đến (có thể gửi cho nhiều Leader)</h6>
             {selectedMembers.length > 0 && (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', padding: '8px', border: '1px solid #e8e8e8', borderRadius: '4px', backgroundColor: '#f9f9f9' }}>
                 {selectedMembers.map((member) => (

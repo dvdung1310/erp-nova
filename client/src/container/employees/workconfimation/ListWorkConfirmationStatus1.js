@@ -115,7 +115,7 @@ function ListWorkConfirmationStatus() {
                                     <div style={{ marginTop: '15px', textAlign: 'center' }}>
                                         <Button
                                             type="primary"
-                                            onClick={() => history.push(`/admin/nhan-su/quan-ly-check-xac-nhan-cong/${user.id}`)}
+                                            onClick={() => history.push(`/admin/nhan-su/quan-ly-xem-xac-nhan-cong/${user.id}`)}
                                         >
                                             Xem chi tiết
                                         </Button>

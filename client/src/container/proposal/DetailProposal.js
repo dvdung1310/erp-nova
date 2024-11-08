@@ -81,7 +81,7 @@ const DetailProposal = () => {
                         </div>
                         <Title level={3} style={{ textAlign: 'center', marginBottom: '0px' , paddingBottom:'5px' }}>Giấy Xác Nhận Đề xuất </Title>
                         <Title level={3} style={{ textAlign: 'center', marginBottom: '5px' , marginTop:'0' }}>{data.data.title}</Title>
-                        <Text strong>Mô tả:</Text> <Text style={{fontSize:'20px'}}>{data.data.description}</Text><br></br>
+                        <Text strong>Nội dung:</Text> <Text style={{fontSize:'20px'}}>{data.data.description}</Text><br></br>
                         <Text strong>Kính gửi:</Text> <Text>Ban Lãnh Đạo Công ty</Text>
                         <div style={{ marginTop: '10px' }}>
                             <Row gutter={16}>
