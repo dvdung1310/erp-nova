@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Input, Space, Tag, List, Badge, Form , Row, Col , Tooltip  } from 'antd';
+import { Table, Button, Modal, Input, Space, Tag, List, Badge, Form , Row, Col , Tooltip , Spin   } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import FeatherIcon from 'feather-icons-react';
 import { toast } from 'react-toastify';
@@ -8,7 +8,7 @@ import { useHistory } from 'react-router-dom';
 import { Cards } from '../../components/cards/frame/cards-frame';
 import Avatar from "../../components/Avatar/Avatar";
 import { getAllUsers } from '../../apis/employees/employee';
-import { storeProposal , ListProposal , DeleteProposal} from '../../apis/proposal/proposal';
+import { storeProposal , ListProposal , DeleteProposal , updateProposal} from '../../apis/proposal/proposal';
 import "./proposal.css";
 
 const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
@@ -47,7 +47,6 @@ const ListPropose = () => {
     setLoading(true);
     try {
       const response = await ListProposal();
-      console.log('res:',response);
       setState((prevState) => ({
         ...prevState,
         proposals: response || [],
@@ -151,9 +150,17 @@ const ListPropose = () => {
   const handleSubmitEdit = async () => {
     try {
       const values = await editForm.validateFields();
-      // Gọi API để cập nhật dữ liệu tại đây...
-      console.log("Data to update:", values);
-      fetchProposals(); // Cập nhật danh sách sau khi sửa
+      const members = selectedMembers.map((member) => member?.id);
+      const formData = new FormData();
+      formData.append('key', values.key);
+      formData.append('title', values.title);
+      formData.append('description', values.description);
+      formData.append('file', selectedFile);
+      formData.append('members', JSON.stringify(members));
+      const response = await updateProposal(formData);
+      toast.success('Cập nhật thành công');
+
+      fetchProposals(); 
       setIsModalVisibleEdit(false);
     } catch (error) {
       console.error("Lỗi cập nhật:", error);
@@ -178,7 +185,7 @@ const ListPropose = () => {
         return null;
     }
   };
-  console.log('data2:',proposals);
+ 
   const dataSource = proposals?.map((confirmation, index) => ({
     key: confirmation.id,
     stt: index + 1,
@@ -241,23 +248,31 @@ const ListPropose = () => {
       dataIndex: 'file',
       key: 'file',
       render: (file) => (
-        <a href={`/path/to/files/${file}`} target="_blank" rel="noopener noreferrer">
-          {file}
+        <a href={`${LARAVEL_SERVER}/storage/${file}`} target="_blank" rel="noopener noreferrer">
+          Xem file
         </a>
       ),
     },
     {
       title: 'Chức năng',
       key: 'action',
-      render: (_, record) => (
-        <Space size="middle">
-          <Button>Chi tiết</Button>
-          <Button icon={<EditOutlined />} onClick={() => showModalEdit(record)}>Sửa</Button>
-          <Button icon={<DeleteOutlined />} danger onClick={() => handleDelete(record.key)}>
-            Xóa
-          </Button>
-        </Space>
-      ),
+      render: (_, record) => {
+        console.log(record);
+        
+        return (
+          <Space size="middle">
+           <Button type="primary" onClick={() => history.push(`/admin/de-xuat/chi-tiet/${record.key}`)}>Chi tiết</Button>
+            {
+              record.status.props.color === 'gray' &&  <>
+              <Button icon={<EditOutlined />} onClick={() => showModalEdit(record)}>Sửa</Button>
+              <Button icon={<DeleteOutlined />} danger onClick={() => handleDelete(record.key)}>
+              Xóa
+            </Button>
+            </>
+            }
+          </Space>
+        )
+      } 
     },
   ];
 
@@ -274,6 +289,7 @@ const ListPropose = () => {
           Thêm đề xuất
         </Button>
       </div>
+      <Spin spinning={loading}>
       <Row gutter={25} className='table-xacnhancong'>
       <Col xs={24}>
         <Cards headless>
@@ -283,6 +299,11 @@ const ListPropose = () => {
         </Cards>
       </Col>
     </Row>
+    </Spin>
+
+    <Button type="primary" onClick={() => history.push(`/admin/de-xuat/kiem-tra-danh-sach`)}>
+        Kiểm tra đề xuất của nhân viên
+    </Button>
 
       {/* Modal to manage selected members đề xuất */}
       <Modal
@@ -310,7 +331,7 @@ const ListPropose = () => {
           </Form.Item>
 
           <Form.Item label="File đính kèm">
-            <input type="file" onChange={handleFileUpload} />
+            <input style={{border:'none'}} type="file" onChange={handleFileUpload} />
           </Form.Item>
 
           <div style={{ marginBottom: '16px' }}>
@@ -364,6 +385,9 @@ const ListPropose = () => {
       {/* Modal sửa đề xuất */}
       <Modal visible={isModalVisibleEdit} onCancel={handleCancelEdit} title="Sửa đề xuất" footer={null}>
         <Form form={editForm} layout="vertical" onFinish={handleSubmitEdit}>
+        <Form.Item style={{display:'none'}} name="key" rules={[{ required: true }]}>
+            <Input type='hidden' />
+          </Form.Item>
           <Form.Item name="title" label="Tiêu đề" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
@@ -372,7 +396,7 @@ const ListPropose = () => {
           </Form.Item>
           
           <Form.Item label="File đính kèm">
-            <input type="file" onChange={handleFileUpload} />
+            <input style={{border:'none'}} type="file" onChange={handleFileUpload} />
           </Form.Item>
 
           <div style={{ marginBottom: '16px' }}>
@@ -412,7 +436,7 @@ const ListPropose = () => {
             )}
           />
 
-          <Button type="primary" onClick={() => editForm.submit()}>
+          <Button style={{marginTop:'15px'}} type="primary" onClick={() => editForm.submit()}>
             Cập nhật
           </Button>
         </Form>

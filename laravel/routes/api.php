@@ -8,12 +8,6 @@ use App\Http\Controllers\Api\Nova\NvEmployeeFileController;
 use App\Http\Controllers\Api\Nova\NvEmployeeDayOffController;
 use App\Http\Controllers\Api\Nova\NvRecruitCandidatesController;
 use App\Http\Controllers\Api\Nova\NvRecruitTargetController;
-use App\Http\Controllers\Api\Nvu\NvuCustomerController;
-use App\Http\Controllers\Api\Nvu\NvuDataSourceController;
-use App\Http\Controllers\Api\Nvu\NvuPaymentController;
-use App\Http\Controllers\Api\Nvu\NvuRentRoomController;
-use App\Http\Controllers\Api\Nvu\NvuRoomController;
-use App\Http\Controllers\Api\Nvu\NvuStatusCustomerController;
 use App\Http\Controllers\Api\Work\DeviceController;
 use App\Http\Controllers\Api\Work\GroupController;
 use App\Http\Controllers\Api\Work\MessageController;
@@ -88,19 +82,16 @@ Route::group(['middleware' => 'api', 'prefix' => 'work-confirmations'], function
 // Đề xuất
 Route::group(['middleware' => 'api', 'prefix' => 'proposal'], function () {
     Route::post('/store', [ProposalController::class, 'store']);
+    Route::post('/update', [ProposalController::class, 'update']);
+    Route::get('/detail/{id}', [ProposalController::class, 'detail']);
     Route::get('/index', [ProposalController::class, 'index']);
     Route::get('/delete/{id}', [ProposalController::class, 'delete']);
+    Route::get('/list_employee', [ProposalController::class, 'getEmployeeConfirmations']);
+    Route::post('update_status/{id}/{status}', [ProposalController::class, 'updateStatus']);
 });
 
 
-Route::group(['middleware' => 'api'], function () {
-    Route::resource('nvucustomer', NvuCustomerController::class);
-    Route::resource('nvudatasource', NvuDataSourceController::class);
-    Route::resource('nvustatus', NvuStatusCustomerController::class);
-    Route::resource('nvuroom', NvuRoomController::class);
-    Route::resource('nvuroomrent', NvuRentRoomController::class);
-    Route::resource('nvupayment', NvuPaymentController::class);
-});
+
 
 Route::group(['middleware' => 'api'], function () {
     Route::resource('nvdepartment', NvDepartmentController::class);

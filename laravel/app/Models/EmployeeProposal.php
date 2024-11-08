@@ -16,4 +16,6 @@ class EmployeeProposal extends Model
     {
         return $this->belongsTo(User::class, 'approved_by');
     }
+
+    
 }

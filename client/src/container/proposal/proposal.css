@@ -14,3 +14,17 @@
 .ant-modal-body{
     padding-top: 5px;
 }
+
+.ant-tag-red{
+    background-color: red !important;
+    color: #fff !important;
+}
+
+.ant-tag-green{
+    background-color: #5F63F2 !important;
+    color: #fff !important;
+}
+
+.table-xacnhancong .ant-card-body{
+    padding: 0 !important;
+}

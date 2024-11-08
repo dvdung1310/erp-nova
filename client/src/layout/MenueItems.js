@@ -269,9 +269,9 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
       {/* work */}
 
       {/* Đề xuất */}
-      <SubMenu style={{display:'none'}}
+      <SubMenu
         key="de-xuat"
-        icon={!topMenu && <FeatherIcon icon="home" />}
+        icon={!topMenu && <FeatherIcon icon="server" />}
         title="Đề xuất"
       >
         <Menu.Item className='pl-custom-sidebar' key="de-xuat">
