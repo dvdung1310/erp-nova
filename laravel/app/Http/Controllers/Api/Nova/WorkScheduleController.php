@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\WorkSchedule;
+use App\Models\CrmEmployeeModel;
+use App\Models\CrmDepartmentModel;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -63,6 +65,8 @@ class WorkScheduleController extends Controller
 
         $result = $schedules->map(function ($userSchedules) {
             $user = $userSchedules->first()->user;
+            $employee = CrmEmployeeModel::where('account_id', $user->id)->first();
+            $department = $employee ? CrmDepartmentModel::where('department_id', $employee->department_id)->first() : null;
             $formattedSchedule = $userSchedules->mapWithKeys(function ($schedule) {
                 return [
                     $schedule->date => $schedule->code,
@@ -70,6 +74,7 @@ class WorkScheduleController extends Controller
             });
             return [
                 'name' => $user->name,
+                'department_name' => $department ? $department->department_name : 'No Department',
                 'schedule' => $formattedSchedule,
             ];
         });

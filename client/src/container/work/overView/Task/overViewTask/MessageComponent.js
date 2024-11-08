@@ -156,9 +156,9 @@ const MessageComponent = ({handleCloseComment, task}) => {
                         {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus */}
                         <Button type='primary' style={{borderRadius: '10px'}} onClick={handleCloseComment}>X</Button>
                     </div>
-                    <div style={{
-                        backgroundColor: '#eef0f1'
-                    }} dangerouslySetInnerHTML={{__html: task?.task_description}}></div>
+                    {/*<div style={{*/}
+                    {/*    backgroundColor: '#eef0f1'*/}
+                    {/*}} dangerouslySetInnerHTML={{__html: task?.task_description}}></div>*/}
                     <div className="card-body">
                         <div className="comment">
                             <div className="message">

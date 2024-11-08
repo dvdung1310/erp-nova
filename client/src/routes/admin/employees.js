@@ -17,12 +17,16 @@ const ListEmployee = lazy(() => import('../../container/employees/CrmListEmploye
 const CrmEmployeeDayOff = lazy(() => import('../../container/employees/CrmEmployeeDayOff'));
 const CrmEmployeeDayOffDetail = lazy(() => import('../../container/employees/CrmEmployeeDayOffDetail'));
 const CrmListDayOffEmployee = lazy(() => import('../../container/employees/CrmListDayOff'));
+const CrmEmployeeProfile = lazy(() => import('../../container/employees/profile/Index'));
 const EmployeesInformation = lazy(() => import('../../container/employees/EmployeesInformation'));
+const InfoProfileMe = lazy(() => import('../../container/employees/profile/ProfileMe'));
 const ListWorkConfirmation = lazy(() => import('../../container/employees/workconfimation/ListWorkConfirmation'));
 const CheckWorkConfirmation = lazy(() => import('../../container/employees/workconfimation/CheckWorkConfirmation'));
 const ManagerCheckWorkConfirmation = lazy(() => import('../../container/employees/workconfimation/ManagerCheckWorkConfirmation'));
+const ManagerViewWorkConfirmation = lazy(() => import('../../container/employees/workconfimation/ManagerViewWorkConfirmation'));
 const CreateWorkConfimation = lazy(() => import('../../container/employees/workconfimation/CreateWorkConfimation'));
 const DetailWorkConfimation = lazy(() => import('../../container/employees/workconfimation/DetailWorkConfimation'));
+const ListWorkConfirmationStatus1 = lazy(() => import('../../container/employees/workconfimation/ListWorkConfirmationStatus1'));
 function Employees() {
     const {path} = useRouteMatch();
     return (
@@ -35,6 +39,7 @@ function Employees() {
             <Route path={`${path}/dang-ki/lich-lam-viec`} component={CreateWorksSchedule}/>
             <Route path={`${path}/danh-sach-de`} component={ListExam}/>
             <Route path={`${path}/ho-so/:employee_id`} component={EmployeeFile}/>
+            <Route path={`${path}/profile/:employee_id`} component={CrmEmployeeProfile}/>
             <Route path={`${path}/lich-lam-viec`} component={FullWorkSchedule}/>
             <Route path={`${path}/dang-ki/lich-lam-viec`} component={CreateWorksSchedule}/>
             <Route path={`${path}/tao-de`} component={CreateExam}/>
@@ -44,10 +49,12 @@ function Employees() {
             <Route path={`${path}/nghi-phep`} component={CrmEmployeeDayOff} />
             <Route path={`${path}/don-nghi-phep/:id`} component={CrmEmployeeDayOffDetail} />
             <Route path={`${path}/danh-sach-don-nhan/:employeeId`} component={CrmListDayOffEmployee} />
-            <Route path={`${path}/thong-tin`} component={EmployeesInformation}/>
+            <Route path={`${path}/thong-tin`} component={InfoProfileMe}/>
             <Route path={`${path}/danh-sach-xac-nhan-cong`} component={ListWorkConfirmation}/>
             <Route path={`${path}/kiem-tra-danh-sach-xac-nhan-cong`} component={CheckWorkConfirmation}/>
+            <Route path={`${path}/danh-sach-xac-nhan-cong-cua-nhan-su`} component={ListWorkConfirmationStatus1}/>
             <Route path={`${path}/quan-ly-check-xac-nhan-cong/:id`} component={ManagerCheckWorkConfirmation}/>
+            <Route path={`${path}/quan-ly-xem-xac-nhan-cong/:id`} component={ManagerViewWorkConfirmation}/>
             <Route path={`${path}/xac-nhan-cong`} component={CreateWorkConfimation}/>
             <Route path={`${path}/chi-tiet-xac-nhan-cong/:id`} component={DetailWorkConfimation}/>
         </Switch>

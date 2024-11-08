@@ -15,7 +15,7 @@ function UserCards({ user }) {
       <div className="card user-card">
         <Cards headless>
           <figure>
-            <img src={require(`../../../${img}`)} alt="" />
+            <img src={require(`../../../static/img/users/1.png`)} alt="" />
           </figure>
           <figcaption>
             <div className="card__content">

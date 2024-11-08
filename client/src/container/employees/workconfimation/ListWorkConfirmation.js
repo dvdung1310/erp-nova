@@ -162,6 +162,10 @@ function ListWorkConfirmation() {
     <Button type="primary" onClick={() => history.push(`/admin/nhan-su/kiem-tra-danh-sach-xac-nhan-cong`)}>
         Xác nhận công cho nhân viên
     </Button>
+
+    <Button style={{marginLeft:'15px'}} type="primary" onClick={() => history.push(`/admin/nhan-su/danh-sach-xac-nhan-cong-cua-nhan-su`)}>
+        Danh sách xác nhận công của tất cả nhân viên
+    </Button>
     
     </>
                 )}

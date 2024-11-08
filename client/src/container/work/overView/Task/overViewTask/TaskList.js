@@ -680,7 +680,7 @@ const TaskList = (props) => {
                                                                 hoàn thành đúng hạn
                                                             </span>)}
                                                 </>)}
-                                                {(!task.task_date_update_status_completed && task?.tast_status !== 4) ? (<>
+                                                {(!task.task_date_update_status_completed && task?.task_status !== 4) ? (<>
                                                     {diffDays < 0 ? (
                                                         <span className='text-danger'>
     {(Math.abs(diffDays) >= 1 && Math.abs(diffHours) >= 24) ? `Quá hạn ${Math.abs(diffDays)} ngày` : `Quá hạn ${Math.abs(diffHours)} giờ`}
