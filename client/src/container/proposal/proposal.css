@@ -1,0 +1,30 @@
+.ant-modal{
+    width: 40% !important;
+}
+
+.ant-modal .ant-modal-content{
+    padding: 5px !important;
+}
+.ant-form-item{
+    margin-bottom: 5px;
+}
+.ant-modal-header{
+    padding-bottom: 0;
+}
+.ant-modal-body{
+    padding-top: 5px;
+}
+
+.ant-tag-red{
+    background-color: red !important;
+    color: #fff !important;
+}
+
+.ant-tag-green{
+    background-color: #5F63F2 !important;
+    color: #fff !important;
+}
+
+.table-xacnhancong .ant-card-body{
+    padding: 0 !important;
+}

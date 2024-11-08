@@ -1,8 +1,8 @@
-import React, {useState, useEffect} from "react";
-import {startOfMonth, eachDayOfInterval, addDays, getDay} from "date-fns/esm";
-import {fullWorkSchedule} from '../../../apis/employees/index';
-import '../FullWorkSchedule.css';
-import {Spin} from "antd";
+import React, { useState, useEffect } from "react";
+import { startOfMonth, eachDayOfInterval, addDays, getDay } from "date-fns/esm";
+import { fullWorkSchedule } from "../../../apis/employees/index";
+import "../FullWorkSchedule.css";
+import { Spin } from "antd";
 
 const FullWorkSchedule = () => {
     const [scheduleData, setScheduleData] = useState([]);
@@ -10,15 +10,32 @@ const FullWorkSchedule = () => {
     const [weeks, setWeeks] = useState([]);
     const [loading, setLoading] = useState(false);
 
+    const toRomanNumeral = (num) => {
+        const romanNumerals = [
+            ["X", 10],
+            ["IX", 9],
+            ["VIII", 8],
+            ["VII", 7],
+            ["VI", 6],
+            ["V", 5],
+            ["IV", 4],
+            ["III", 3],
+            ["II", 2],
+            ["I", 1],
+        ];
+    
+        const found = romanNumerals.find(([_, value]) => value === num);
+        return found ? found[0] : "";
+    };
     useEffect(() => {
         const fetchScheduleData = async () => {
             try {
-                setLoading(true)
+                setLoading(true);
                 const response = await fullWorkSchedule(selectedMonth);
                 setScheduleData(response.data);
-                setLoading(false)
+                setLoading(false);
             } catch (error) {
-                setLoading(false)
+                setLoading(false);
                 console.error("Error fetching schedule data:", error);
             }
         };
@@ -41,15 +58,15 @@ const FullWorkSchedule = () => {
             if (selectedMonth === 10) {
                 const extraWeekStart = new Date(2024, 8, 31);
                 const extraWeekEnd = new Date(2024, 9, 7);
-                const extraDays = eachDayOfInterval({start: extraWeekStart, end: extraWeekEnd});
-                weeksArray.push(extraDays.map(day => day.toISOString().split('T')[0]));
+                const extraDays = eachDayOfInterval({ start: extraWeekStart, end: extraWeekEnd });
+                weeksArray.push(extraDays.map(day => day.toISOString().split("T")[0]));
             }
             const firstTuesday = addDays(firstMonday, 1);
-            const days = eachDayOfInterval({start: firstTuesday, end: addDays(firstTuesday, 27)});
+            const days = eachDayOfInterval({ start: firstTuesday, end: addDays(firstTuesday, 27) });
 
             let week = [];
             days.forEach((day) => {
-                week.push(day.toISOString().split('T')[0]);
+                week.push(day.toISOString().split("T")[0]);
                 if (week.length === 7) {
                     weeksArray.push(week);
                     week = [];
@@ -95,16 +112,16 @@ const FullWorkSchedule = () => {
                             <tr>
                                 {Array(7).fill().map((_, idx) => (
                                     <>
-                                        <th style={{width: '25px'}} key={`S${idx}`} className="px-4 border sang">S</th>
-                                        <th style={{width: '25px'}} key={`C${idx}`} className="px-4 border chieu">C</th>
-                                        <th style={{width: '25px'}} key={`T${idx}`} className="px-4 border toi">T</th>
+                                        <th style={{ width: '25px' }} key={`S${idx}`} className="px-4 border sang">S</th>
+                                        <th style={{ width: '25px' }} key={`C${idx}`} className="px-4 border chieu">C</th>
+                                        <th style={{ width: '25px' }} key={`T${idx}`} className="px-4 border toi">T</th>
                                     </>
                                 ))}
                             </tr>
                             </thead>
                         </table>
 
-                        <div style={{marginTop: '70px', marginBottom: '30px'}}>
+                        <div style={{ marginTop: '70px', marginBottom: '30px' }}>
                             {weeks.map((week, weekIndex) => (
                                 <div key={weekIndex} className="mb-4">
                                     <table className="min-w-full bg-white border border-gray-200">
@@ -113,8 +130,7 @@ const FullWorkSchedule = () => {
                                             <th className="px-4 border text-center">STT</th>
                                             <th className="px-4 border name-class">Tuần {weekIndex + 1} tháng {selectedMonth}</th>
                                             {week.map((date, idx) => (
-                                                <th key={idx} colSpan={3}
-                                                    className="px-4 border text-center date-class">
+                                                <th key={idx} colSpan={3} className="px-4 border text-center date-class">
                                                     {new Date(date).toLocaleDateString()}
                                                 </th>
                                             ))}
@@ -122,43 +138,58 @@ const FullWorkSchedule = () => {
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        {scheduleData.length > 0 ? (
-                                            scheduleData.map((user, idx) => {
-                                                let totalDays = 0;
-                                                return (
-                                                    <tr key={idx} className="text-center table-row-hover ">
-                                                        <td className="border px-4 text-center">{idx + 1}</td>
-                                                        <td className="border px-4 aa">{user.name}</td>
-                                                        {week.map((date) => {
-                                                            const schedule = user.schedule[date];
-                                                            const formattedCode = schedule ? formatScheduleCode(schedule).split(" ") : ["x", "x", "x"];
-                                                            const registeredDays = formattedCode.filter(item => item === '0,5').length;
+    {scheduleData.length > 0 ? (
+        Object.entries(
+            scheduleData.reduce((acc, user) => {
+                if (!acc[user.department_name]) {
+                    acc[user.department_name] = [];
+                }
+                acc[user.department_name].push(user);
+                return acc;
+            }, {})
+        ).map(([departmentName, users], deptIdx) => (
+            <React.Fragment key={departmentName}>
+                {/* Hiển thị tên phòng ban */}
+                <tr className="department-row">
+                    <td colSpan={week.length * 3 + 3} className="px-4 py-2 bg-gray-200 text-left font-semibold" style={{fontWeight:'bold', fontSize:'18px'}}>
+                    {toRomanNumeral(deptIdx + 1)}. BP {departmentName}
+                    </td>
+                </tr>
+                {/* Hiển thị danh sách nhân sự trong phòng ban */}
+                {users.map((user, idx) => {
+                    let totalDays = 0;
+                    return (
+                        <tr key={user.name} className="text-center table-row-hover">
+                            <td className="border px-4 text-center">{idx + 1}</td>
+                            <td className="border px-4 aa">{user.name}</td>
+                            {week.map((date) => {
+                                const schedule = user.schedule?.[date];
+                                const formattedCode = schedule ? formatScheduleCode(schedule).split(" ") : ["x", "x", "x"];
+                                const registeredDays = formattedCode.filter(item => item === '0,5').length;
 
-                                                            totalDays += registeredDays / 2;
+                                totalDays += registeredDays / 2;
 
-                                                            return (
-                                                                <>
-                                                                    <td key={`${date}-S`} style={{width: '25px'}}
-                                                                        className="border px-4">{formattedCode[0]}</td>
-                                                                    <td key={`${date}-C`} style={{width: '25px'}}
-                                                                        className="border px-4">{formattedCode[1]}</td>
-                                                                    <td key={`${date}-T`} style={{width: '25px'}}
-                                                                        className="border px-4">{formattedCode[2]}</td>
-                                                                </>
-                                                            );
-                                                        })}
-                                                        <td className="border px-4">{totalDays}</td>
-                                                    </tr>
-                                                );
-                                            })
-                                        ) : (
-                                            <tr>
-                                                <td colSpan={week.length * 3 + 3}
-                                                    className="border px-4 text-center">Không có dữ liệu
-                                                </td>
-                                            </tr>
-                                        )}
-                                        </tbody>
+                                return (
+                                    <>
+                                        <td key={`${date}-S`} style={{ width: '25px' }} className="border px-4">{formattedCode[0]}</td>
+                                        <td key={`${date}-C`} style={{ width: '25px' }} className="border px-4">{formattedCode[1]}</td>
+                                        <td key={`${date}-T`} style={{ width: '25px' }} className="border px-4">{formattedCode[2]}</td>
+                                    </>
+                                );
+                            })}
+                            <td className="border px-4">{totalDays}</td>
+                        </tr>
+                    );
+                })}
+            </React.Fragment>
+        ))
+    ) : (
+        <tr>
+            <td colSpan={week.length * 3 + 3} className="border px-4 text-center">Không có dữ liệu</td>
+        </tr>
+    )}
+</tbody>
+
                                     </table>
                                 </div>
                             ))}
@@ -170,15 +201,17 @@ const FullWorkSchedule = () => {
                                     type="button"
                                     key={month}
                                     onClick={() => setSelectedMonth(month + 1)}
-                                    className={`mx-2  p-2 ${selectedMonth === month + 1 ? "bg-blue-500 active" : "bg-gray-200"}`}
+                                    className={`mx-2 p-2 ${selectedMonth === month + 1 ? "bg-blue-500 active" : "bg-gray-200"}`}
                                 >
                                     Tháng {month + 1}
                                 </button>
                             ))}
                         </div>
                     </>
-                )}
-        </div>);
+                )
+            }
+        </div>
+    );
 };
 
 export default FullWorkSchedule;

@@ -188,6 +188,18 @@ class WorkConfirmationController extends Controller
         return response()->json($confirmations);
     }
 
+    public function listWorkConfimationStatus1(){
+        $confirmations = EmployeeWorkConfirmation::all();
+        $confirmations = $confirmations->map(function ($confirmation) {
+            $employee = CrmEmployeeModel::where('employee_id', $confirmation->employee_id)->first();
+            $user = User::where('id', $employee->account_id)->first();
+            $confirmation->employee_name = $employee ? $employee->employee_name : null;
+            $confirmation->avatar = $user ? $user->avatar : null;
+            return $confirmation;
+    });
+    return response()->json($confirmations);
+    }
+
     public function updateStatus($id,$status){
         $confirmations = EmployeeWorkConfirmation::find($id);
         $confirmations->status = $status;

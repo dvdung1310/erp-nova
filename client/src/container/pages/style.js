@@ -531,7 +531,10 @@ const UserCard = Styled.div`
     figure{
       img{
         margin-bottom: 18px;
-        max-width: 120px;
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        object-position: center;
       }      
     }
     .card__actions{
