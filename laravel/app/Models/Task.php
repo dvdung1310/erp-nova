@@ -17,7 +17,7 @@ class Task extends Model
         'task_name',
         'task_description',
         'task_priority', // 0: low, 1: medium, 2: high
-        'task_status', // 0: not started, 1: in progress, 2: completed 3: leader confrimed
+        'task_status', // 0: not started, 1: in progress, 2: completed 3: leader confrimed 4:paused
         'task_start_date',
         'task_end_date',
         'create_by_user_id',

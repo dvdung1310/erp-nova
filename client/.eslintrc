@@ -46,6 +46,8 @@
     "no-unsafe-optional-chaining": "off",
     "prefer-template": "off",
     "react/jsx-curly-brace-presence": "off",
+    "jsx-a11y/no-noninteractive-element-interactions": "off",
+    "no-unneeded-ternary": "off",
     "react/jsx-filename-extension": [
       0,
       {

@@ -211,8 +211,8 @@ function NotificationBox() {
                 <Badge offset={[10, -5]} className="custom-badge">
                     <div className={`head-example ${activeTab === 'recent' ? 'active' : ''}`}
                          onClick={() => {
-                             setNotificationRender(notification);
-                             setActiveTab('recent');
+                         setNotificationRender(notification);
+                         setActiveTab('recent');
                          }}
                     >
                         Tất cả

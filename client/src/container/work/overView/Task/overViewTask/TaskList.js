@@ -636,7 +636,7 @@ const TaskList = (props) => {
                                                     label={checkStatus(task.task_status).status}
                                                     className="chip-status"
                                                     icon={task.task_status?.toString() === '3' ? <MdCheck/> : null}
-                                                    color={(task.task_status?.toString() === '2' || task.task_status?.toString() === '3') ? 'success' : task.task_status?.toString() === '1' ? 'info' : task.task_status?.toString() === '0' ? 'warning' : 'warning'}
+                                                    color={(task.task_status?.toString() === '2' || task.task_status?.toString() === '3') ? 'success' : task.task_status?.toString() === '1' ? 'info' : task.task_status?.toString() === '0' ? 'warning' : '#fff'}
                                                 />
                                                 {new Date(task.task_end_date) < new Date() && (task.task_status?.toString() !== '2' && task.task_status?.toString() !== '3') && (
                                                     <Chip label="Quá hạn" style={{fontSize: '12px'}}
@@ -680,7 +680,7 @@ const TaskList = (props) => {
                                                                 hoàn thành đúng hạn
                                                             </span>)}
                                                 </>)}
-                                                {!task.task_date_update_status_completed && (<>
+                                                {(!task.task_date_update_status_completed && task?.tast_status !== 4) ? (<>
                                                     {diffDays < 0 ? (
                                                         <span className='text-danger'>
     {(Math.abs(diffDays) >= 1 && Math.abs(diffHours) >= 24) ? `Quá hạn ${Math.abs(diffDays)} ngày` : `Quá hạn ${Math.abs(diffHours)} giờ`}
@@ -690,7 +690,7 @@ const TaskList = (props) => {
         {diffDays === 0 ? `còn ${Math.abs(diffHours)} giờ` : `còn ${diffDays} ngày`}
     </span>
                                                     )}
-                                                </>)}
+                                                </>) : <span>tạm dừng</span>}
                                             </TableCell>
                                             <TableCell className="table-cell"
                                                        onClick={(event) => handleUserClick(event, task)}
@@ -817,6 +817,8 @@ const TaskList = (props) => {
                                               label="Hoàn thành (Tiến độ hoàn thành = 100%)"/>
                             <FormControlLabel value="3" control={<Radio/>}
                                               label="Xác nhận hoàn thành (leader xác nhận)"/>
+                            <FormControlLabel value="4" control={<Radio/>}
+                                              label="Tạm dừng"/>
                         </RadioGroup>
                     </FormControl>
                 </Popover>

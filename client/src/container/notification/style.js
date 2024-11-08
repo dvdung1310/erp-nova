@@ -2,9 +2,6 @@ import Styled from 'styled-components';
 import {Table} from 'antd';
 
 const Style = Styled(Table)`
- thead {
-    display: none;
-  }
   margin-bottom: 30px;  
   .ant-table{
     padding-bottom: 30px;
@@ -678,7 +675,6 @@ const EmailHeader = Styled.div`
 `;
 
 const MessageDetails = Styled.div`
-margin-top: 30px;
   padding: 0 30px;
   .message-box {
     @media only screen and (max-width: 767px){
@@ -1220,9 +1216,7 @@ const EmailWrapper = Styled.div`
       z-index: 99;
     }
     .ant-card{
-    
-    margin-bottom: 0 !important;
-      min-height: 800px;
+      min-height: 900px;
       .ant-card-body{
         padding: 0px !important;
       }

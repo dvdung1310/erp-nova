@@ -123,6 +123,20 @@
   }
 }
 
+.modal-notification {
+  max-width: 800px !important;
+  width: inherit !important;
+
+  .ant-modal-body {
+    .ant-upload-list {
+      bottom: 25%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+    }
+  }
+}
+
 .text-danger {
   color: #d32f2f;
 }

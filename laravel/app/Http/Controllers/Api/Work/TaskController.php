@@ -538,7 +538,7 @@ class TaskController extends Controller
                 ], 404);
             }
             $validatedData = $request->validate([
-                'task_description' => 'nullable|string|max:255',
+                'task_description' => 'nullable|string',
             ]);
             $members = $task->users->pluck('id');
             $project = Project::find($task->project_id);
@@ -641,7 +641,7 @@ class TaskController extends Controller
                 ], 404);
             }
             $validatedData = $request->validate([
-                'task_status' => 'required|in:0,1,2,3',
+                'task_status' => 'required|in:0,1,2,3,4',
             ]);
 
             if ($validatedData['task_status'] == 2) {

@@ -509,11 +509,11 @@ class GroupController extends Controller
 
         foreach ($projects as $project) {
             $tasks = $project->tasks;
-            $completedTasks = $tasks->where('task_status', '2')->count();
+            $completedTasks = $tasks->where('task_status', '3')->count();
             $doingTasks = $tasks->where('task_status', '1')->count();
             $waitingTasks = $tasks->where('task_status', '0')->count();
             $overdueTasks = $tasks->where('task_end_date', '<', now())
-                ->where('task_status', '!=', '2')
+                ->where('task_status', '!=', '3')
                 ->count();
             $totalProjects++;
             $totalTasks += $tasks->count();

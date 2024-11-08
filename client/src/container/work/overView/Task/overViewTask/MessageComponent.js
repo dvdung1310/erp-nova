@@ -1,7 +1,7 @@
 import {motion} from 'framer-motion';
 import {CiImageOn} from "react-icons/ci";
 import './MessageComponent.scss';
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useLocation} from "react-router-dom";
 import {createComment, createCommentFile, getCommentByTask} from "../../../../../apis/work/task";
 import {toast} from "react-toastify";
@@ -14,6 +14,7 @@ import {FaRegFileLines} from "react-icons/fa6";
 import {getItem} from "../../../../../utility/localStorageControl";
 
 const MessageComponent = ({handleCloseComment, task}) => {
+    console.log(task);
     const {pathname} = useLocation();
     const URL_LARAVEL = process.env.REACT_APP_LARAVEL_SERVER;
     const [message, setMessage] = useState([]);
@@ -155,6 +156,9 @@ const MessageComponent = ({handleCloseComment, task}) => {
                         {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus */}
                         <Button type='primary' style={{borderRadius: '10px'}} onClick={handleCloseComment}>X</Button>
                     </div>
+                    <div style={{
+                        backgroundColor: '#eef0f1'
+                    }} dangerouslySetInnerHTML={{__html: task?.task_description}}></div>
                     <div className="card-body">
                         <div className="comment">
                             <div className="message">

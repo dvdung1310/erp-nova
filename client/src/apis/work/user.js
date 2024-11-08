@@ -3,6 +3,7 @@ import {getToken} from "../../utility/localStorageControl";
 const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
 import {createAxios} from "../../utility/createAxios";
 import axios from "axios";
+
 const instanceAxios = createAxios();
 export const getAllUsers = async () => {
     const token = getToken();
@@ -27,6 +28,17 @@ export const registerDevice = async (data) => {
 export const getNotifications = async () => {
     const token = getToken();
     const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/notifications/get-notification-by-user-id`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        }
+    );
+    return response.data;
+}
+export const getNotificationPagination = async (url) => {
+    const token = getToken();
+    const response = await instanceAxios.get(url, {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`

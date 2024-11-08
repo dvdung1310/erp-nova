@@ -19,6 +19,7 @@ class Notification extends Model
         'project_id',
         'notification_status', // 0 = unread, 1 = read
         'notification_type',
+        'notification_file',
         'notification_content',
         'notification_title',
         'notification_link',

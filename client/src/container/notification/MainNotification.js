@@ -1,6 +1,7 @@
 import {Main} from "../styled";
 import {EmailNav, EmailWrapper, MailSideBar} from "../email/overview/style";
-import {Col, Modal, Row, Spin} from "antd";
+import {Col, Input, Modal, Pagination, Row, Spin} from "antd";
+import Avatar from "../../components/Avatar/Avatar";
 import {Button} from "../../components/buttons/buttons";
 import FeatherIcon from "feather-icons-react";
 import {Cards} from "../../components/cards/frame/cards-frame";
@@ -10,9 +11,10 @@ import React, {Suspense, useEffect, useLayoutEffect, useState} from "react";
 import {PageHeader} from "../../components/page-headers/page-headers";
 
 import {ActivityContents} from "../profile/myProfile/overview/style";
-import {getNotifications, updateStatusNotification} from "../../apis/work/user";
+import {getNotificationPagination, getNotifications, updateStatusNotification} from "../../apis/work/user";
 import moment from "moment/moment";
 import {toast} from "react-toastify";
+import MailComposer from "./MailComposer";
 
 const MainNotification = ({match}) => {
     const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
@@ -21,6 +23,16 @@ const MainNotification = ({match}) => {
     const [notificationRender, setNotificationRender] = useState([]);
     const [loadingClick, setLoadingClick] = useState(false);
     const history = useHistory();
+    const [showModalCreate, setShowModalCreate] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+    const [total, setTotal] = useState(10);
+    const handleShowModalCreate = () => {
+        setShowModalCreate(true);
+    }
+    const handleCloseModalCreate = () => {
+        setShowModalCreate(false);
+    }
     const [state, setState] = useState({
         responsive: 0,
         collapsed: false,
@@ -52,29 +64,40 @@ const MainNotification = ({match}) => {
             } else if (name === 'other') {
                 setNotificationRender(notificationUnread);
             } else {
-                setNotificationRender(notification);
+                setNotificationRender(notification?.filter(item => item?.notification_type === 1));
             }
         }
     ;
     //
-    const getNotify = async () => {
+    const getNotify = async (page) => {
         try {
             setLoadingClick(true);
-            const response = await getNotifications();
-            setNotification(response?.data);
-            setNotificationRender(response?.data);
-            setNotificationUnread(response?.data?.filter(item => item?.notification_status === 0));
+            // eslint-disable-line no-unneeded-ternary
+            const response = await getNotificationPagination(`${LARAVEL_SERVER}/api/notifications/get-notification-by-user-id-paginate?page=${page}`);
+            setNotification(response?.data?.data);
+            setNotificationRender(response?.data?.data);
+            setNotificationUnread(response?.data?.data?.filter(item => item?.notification_status === 0));
+            setCurrentPage(response?.data?.current_page);
+            setTotal(response?.data?.total);
             setLoadingClick(false);
         } catch (error) {
             setLoadingClick(false);
             console.log(error);
         }
     };
+    const handlePageChange = async (page, size) => {
+        setCurrentPage(page);
+        setPageSize(size);
+        getNotify(page);
+    };
     const handleUpdateStatusNotification = async (item) => {
         try {
-            console.log(item)
-            const url = new URL(item?.notification_link);
-            const pathname = url.pathname;
+            let url = new URL(item?.notification_link);
+            let pathname = url.pathname;
+            if (item.notification_type === 1) {
+                url = new URL(`${item?.notification_link}/${item?.notification_id}`);
+                pathname = url.pathname;
+            }
             if (item.notification_status === 1) {
                 history.push(pathname);
             } else {
@@ -128,7 +151,7 @@ const MainNotification = ({match}) => {
 
 
     useEffect(() => {
-        getNotify();
+        getNotify('');
     }, []);
     return (
         <div>
@@ -137,7 +160,7 @@ const MainNotification = ({match}) => {
                 title='Thông báo'
                 buttons={[
                     <div key="1" className="page-header-actions">
-                        <Button size="small" type="primary">
+                        <Button size="small" type="primary" onClick={handleShowModalCreate}>
                             <FeatherIcon icon="plus" size={14}/>
                             Thêm thông báo mới
                         </Button>
@@ -291,62 +314,92 @@ const MainNotification = ({match}) => {
                             )}
                         </Col>
                         <Col xxl={19} xl={17} lg={16}>
-                            {
-                                loadingClick ? <div className='spin'>
-                                    <Spin/>
-                                </div> : (
-                                    <ActivityContents>
-                                        <Cards headless>
-                                            <ul className="activity-list">
-                                                {
-                                                    notificationRender.length > 0 ? notificationRender?.map((item, index) => (
-                                                        <li key={index}
-                                                            style={{cursor: 'pointer'}}
-                                                            onClick={() => handleUpdateStatusNotification(item)}
-                                                            className="activity-list__single">
+                            <div style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                height: '100%'
+                            }}>
+                                {
+                                    loadingClick ? <div className='spin'>
+                                        <Spin/>
+                                    </div> : (
+                                        <ActivityContents style={{flex: '1', marginBottom: '0'}}>
+                                            <Cards headless style={{height: '98%'}}>
+                                                <ul className="activity-list">
+                                                    {
+                                                        notificationRender.length > 0 ? notificationRender?.map((item, index) => (
+                                                            <li key={index}
+                                                                style={{cursor: 'pointer'}}
+                                                                onClick={() => handleUpdateStatusNotification(item)}
+                                                                className="activity-list__single">
                                                     <span className="activity-icon primary">
                                                       <FeatherIcon icon="inbox" size={14}/>
                                                     </span>
-                                                            <div className="activity-content">
-                                                                <div className="activity-info">
-                                                                    <img
-                                                                        src={`${LARAVEL_SERVER}${item?.create_by_user?.avatar}`}
-                                                                        alt=""/>
-                                                                    <p>
+                                                                <div className="activity-content">
+                                                                    <div className="activity-info">
+                                                                        <Avatar
+                                                                            name={item?.create_by_user?.name}
+                                                                            width={40}
+                                                                            height={40}
+                                                                            imageUrl={`${LARAVEL_SERVER}${item?.create_by_user?.avatar}`}/>
+                                                                        <p>
                                                             <span
                                                                 className="inline-text color-primary">
                                                                     {`${item?.create_by_user?.name} `}
                                                                 </span> {`${item?.notification_title}`}
-                                                                        <span
-                                                                            className="hour">{moment(item?.created_at).fromNow()} &nbsp;
-                                                                            {moment(item?.created_at).format('HH:mm DD/MM/YYYY')}</span>
-                                                                    </p>
+                                                                            <span
+                                                                                className="hour">{moment(item?.created_at).fromNow()} &nbsp;
+                                                                                {moment(item?.created_at).format('HH:mm DD/MM/YYYY')}</span>
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                        )) : <>
+                                                            <div className="activity-list__single">
+                                                                <div className="activity-content">
+                                                                    <div className="activity-info">
+                                                                        <p>
+                                                                            Không có thông báo nào
+                                                                        </p>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </li>
-                                                    )) : <>
-                                                        <div className="activity-list__single">
-                                                            <div className="activity-content">
-                                                                <div className="activity-info">
-                                                                    <p>
-                                                                        Không có thông báo nào
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </>
-                                                }
+                                                        </>
+                                                    }
 
-                                            </ul>
-                                        </Cards>
-                                    </ActivityContents>
-                                )
-                            }
+                                                </ul>
+                                            </Cards>
+                                        </ActivityContents>
+                                    )
+                                }
+                                <div>
+                                    {/* Render your notifications here */}
+                                    <Pagination
+                                        style={{textAlign: 'right', marginTop: '10px'}}
+                                        current={currentPage}
+                                        pageSize={pageSize}
+                                        total={total}
+                                        onChange={handlePageChange}
+                                        onShowSizeChange={handlePageChange}
+                                    />
+                                </div>
+                            </div>
+
 
                         </Col>
                     </Row>
                 </EmailWrapper>
             </Main>
+            <Modal
+                className='modal-notification'
+                visible={showModalCreate}
+                onCancel={handleCloseModalCreate}
+                footer={null}
+            >
+                <div className="body">
+                    <MailComposer handleClose={handleCloseModalCreate}/>
+                </div>
+            </Modal>
         </div>
     )
         ;

@@ -243,12 +243,19 @@ class AuthController extends Controller
 
     public function refresh()
     {
-        return response()->json([
-            'accessToken' => auth()->refresh(),
-            'error' => false,
-            'message' => 'Token refreshed'
-        ]);
-        // return $this->respondWithToken(auth()->refresh());
+        try {
+            return response()->json([
+                'accessToken' => auth()->refresh(),
+                'error' => false,
+                'message' => 'Token refreshed'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error: ' . $e->getMessage(),
+                'error' => true,
+                'data' => null
+            ], 400);
+        }
     }
 
     protected function respondWithToken($token)
