@@ -13,9 +13,9 @@ const NovaupRoutes = memo(() => {
     return (
         <Switch>
             <Route exact path={path} component={Dashboard}/>
-            <Route path={`${path}/status-data`} component={StatusData}/>
-            <Route path={`${path}/data-source`} component={DataSource}/>
-            <Route path={`${path}/customer`} component={Customer}/>
+            <Route path={`${path}/trang-thai`} component={StatusData}/>
+            <Route path={`${path}/nguon-khach-hang`} component={DataSource}/>
+            <Route path={`${path}/khach-hang`} component={Customer}/>
             <Route path={`${path}/room`} component={Room}/>
         </Switch>
     );

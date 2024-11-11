@@ -106,15 +106,26 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
         </Menu.Item>
       </SubMenu>
       {/* novaup */}
-      <SubMenu style={{ display: 'none' }} key="novaup" icon={!topMenu && <FeatherIcon icon="home" />} title="Novaup">
+      <SubMenu key="novaup" icon={!topMenu && <FeatherIcon icon="map-pin" />} title="Novaup">
         <Menu.Item key="nvu-home">
           <NavLink onClick={toggleCollapsed} to={`${path}/novaup`}>
             Dashboard
           </NavLink>
         </Menu.Item>
         <Menu.Item key="nvu-customer">
-          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/customer`}>
-            Khách hàng
+          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/khach-hang`}>
+            Khách hàng 
+          </NavLink>
+        </Menu.Item>
+        <Menu.Item key="nvu-status">
+          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/trang-thai`}>
+           Trạng thái khách hàng
+          </NavLink>
+        </Menu.Item>
+
+        <Menu.Item key="nvu-source">
+          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/nguon-khach-hang`}>
+          Nguồn khách hàng
           </NavLink>
         </Menu.Item>
         <Menu.Item key="nvu-revenue">
@@ -262,7 +273,6 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
       {/* end tuyển dụng   */}
       {/**/}
       {/* work */}
-
       
       <SubMenu key="work" icon={!topMenu && <FeatherIcon icon="briefcase" />} title="Làm việc">
         <Menu.Item key="inbox">

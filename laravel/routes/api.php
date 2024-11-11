@@ -25,6 +25,11 @@ use App\Http\Controllers\Api\Nova\QuestionController;
 use App\Http\Controllers\Api\Nova\WorkScheduleController;
 use App\Http\Controllers\Api\Nova\WorkConfirmationController;
 use App\Http\Controllers\Api\Nova\ProposalController;
+// novaup
+use App\Http\Controllers\Api\Nvu\StatusController;
+use App\Http\Controllers\Api\Nvu\SourceController;
+use App\Http\Controllers\Api\Nvu\CustomerController;
+// endNovaup
 
 Route::group([
     'middleware' => 'api',
@@ -88,6 +93,26 @@ Route::group(['middleware' => 'api', 'prefix' => 'proposal'], function () {
     Route::get('/delete/{id}', [ProposalController::class, 'delete']);
     Route::get('/list_employee', [ProposalController::class, 'getEmployeeConfirmations']);
     Route::post('update_status/{id}/{status}', [ProposalController::class, 'updateStatus']);
+});
+
+// Novaup
+Route::group(['middleware' => 'api', 'prefix' => 'novaup'], function () {
+    Route::post('/storeStatus', [StatusController::class, 'store']);
+    Route::get('/indexStatus', [StatusController::class, 'index']);
+    Route::post('/updateStatus', [StatusController::class, 'update']);
+    Route::get('/deleteStatus/{id}', [StatusController::class, 'delete']);
+
+    Route::post('/storeSource', [SourceController::class, 'store']);
+    Route::get('/indexSource', [SourceController::class, 'index']);
+    Route::post('/updateSource', [SourceController::class, 'update']);
+    Route::get('/deleteSource/{id}', [SourceController::class, 'delete']);
+
+    Route::post('/storeCustomer', [CustomerController::class, 'store']);
+    Route::get('/indexCustomer', [CustomerController::class, 'index']);
+    Route::post('/updateCustomer', [CustomerController::class, 'update']);
+    Route::get('/deleteCustomer/{id}', [CustomerController::class, 'delete']);
+
+
 });
 
 
