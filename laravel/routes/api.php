@@ -25,6 +25,8 @@ use App\Http\Controllers\Api\Nova\QuestionController;
 use App\Http\Controllers\Api\Nova\WorkScheduleController;
 use App\Http\Controllers\Api\Nova\WorkConfirmationController;
 use App\Http\Controllers\Api\Nova\ProposalController;
+use App\Http\Controllers\Api\Nvt\NvtCustomerController;
+use App\Http\Controllers\Api\Nvt\StudentController;
 // novaup
 use App\Http\Controllers\Api\Nvu\StatusController;
 use App\Http\Controllers\Api\Nvu\SourceController;
@@ -136,8 +138,19 @@ Route::group(['middleware' => 'api', 'prefix' => 'novaup'], function () {
 
 });
 
-
-
+// NovaTeen
+Route::group(['middleware' => 'api'], function () {
+    Route::resource('nvtstudent',StudentController::class);
+    Route::resource('nvtcustomer',NvtCustomerController::class);
+    Route::post('storestudent',[NvtCustomerController::class,'storestudent'])->middleware(middlewareLogin::class);
+    Route::post('update_parent/{id}', [NvtCustomerController::class,'update_parent']);
+    //Học sinh
+    Route::get('student_trial_class/{id}',[StudentController::class,'student_trial_class']);
+    Route::post('store_trial_class',[StudentController::class,'store_trial_class']);
+    Route::post('update_trial_class/{id}',[StudentController::class,'update_trial_class']);
+    Route::post('update_comment_parient/{id}',[StudentController::class,'update_comment_parient']);
+    Route::get('get_comment_parent/{id}',[StudentController::class,'get_comment_parent']);
+});
 
 Route::group(['middleware' => 'api'], function () {
     Route::resource('nvdepartment', NvDepartmentController::class);
