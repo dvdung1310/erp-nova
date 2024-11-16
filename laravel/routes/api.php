@@ -28,7 +28,10 @@ use App\Http\Controllers\Api\Nova\ProposalController;
 // novaup
 use App\Http\Controllers\Api\Nvu\StatusController;
 use App\Http\Controllers\Api\Nvu\SourceController;
+use App\Http\Controllers\Api\Nvu\RoomController;
 use App\Http\Controllers\Api\Nvu\CustomerController;
+use App\Http\Controllers\Api\Nvu\BookingController;
+use App\Http\Controllers\Api\Nvu\PaymentController;
 // endNovaup
 
 Route::group([
@@ -107,10 +110,28 @@ Route::group(['middleware' => 'api', 'prefix' => 'novaup'], function () {
     Route::post('/updateSource', [SourceController::class, 'update']);
     Route::get('/deleteSource/{id}', [SourceController::class, 'delete']);
 
+    Route::post('/storeRoom', [RoomController::class, 'store']);
+    Route::get('/indexRoom', [RoomController::class, 'index']);
+    Route::post('/updateRoom', [RoomController::class, 'update']);
+    Route::get('/deleteRoom/{id}', [RoomController::class, 'delete']);
+
     Route::post('/storeCustomer', [CustomerController::class, 'store']);
     Route::get('/indexCustomer', [CustomerController::class, 'index']);
     Route::post('/updateCustomer', [CustomerController::class, 'update']);
     Route::get('/deleteCustomer/{id}', [CustomerController::class, 'delete']);
+
+
+    Route::post('/storeBooking', [BookingController::class, 'store']);
+    Route::get('/indexBooking', [BookingController::class, 'index']);
+    Route::post('/updateBooking', [BookingController::class, 'update']);
+    Route::get('/deleteBooking/{id}', [BookingController::class, 'delete']);
+
+
+    Route::post('/storePayment', [PaymentController::class, 'store']);
+    Route::get('/indexPayment', [PaymentController::class, 'index']);
+    Route::post('/updatePayment', [PaymentController::class, 'update']);
+    Route::get('/deletePayment/{id}', [PaymentController::class, 'delete']);
+    Route::get('/getBookingConnectCumstomer', [PaymentController::class, 'getBookingConnectCumstomer']);
 
 
 });

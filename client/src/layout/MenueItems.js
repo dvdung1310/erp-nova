@@ -107,11 +107,6 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
       </SubMenu>
       {/* novaup */}
       <SubMenu key="novaup" icon={!topMenu && <FeatherIcon icon="map-pin" />} title="Novaup">
-        <Menu.Item key="nvu-home">
-          <NavLink onClick={toggleCollapsed} to={`${path}/novaup`}>
-            Dashboard
-          </NavLink>
-        </Menu.Item>
         <Menu.Item key="nvu-customer">
           <NavLink onClick={toggleCollapsed} to={`${path}/novaup/khach-hang`}>
             Khách hàng 
@@ -129,40 +124,20 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
           </NavLink>
         </Menu.Item>
         <Menu.Item key="nvu-revenue">
-          <NavLink onClick={toggleCollapsed} to={`${path}/eco`}>
+          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/doanh-thu`}>
             Doanh thu
           </NavLink>
         </Menu.Item>
         <Menu.Item key="nvu-room">
-          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/room`}>
+          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/phong`}>
             Phòng
           </NavLink>
         </Menu.Item>
         <Menu.Item key="nvu-boking">
-          <NavLink onClick={toggleCollapsed} to={`${path}/sales`}>
+          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/dat-phong/month`}>
             Đặt phòng
           </NavLink>
         </Menu.Item>
-        {/* cấu hình novaup */}
-        <Menu
-          mode={!topMenu || window.innerWidth <= 991 ? 'inline' : 'horizontal'}
-          theme={darkMode ? 'dark' : 'light'}
-          openKeys={openKey}
-          onOpenChange={onOpenChanges}
-        >
-          <SubMenu key="sales" title="Cấu hình" icon={<FeatherIcon icon="settings" />}>
-            <Menu.Item key="sales-option1">
-              <NavLink onClick={toggleCollapsed} to={`${path}/novaup/status-data`}>
-                Trạng thái data
-              </NavLink>
-            </Menu.Item>
-            <Menu.Item key="sales-option2">
-              <NavLink onClick={toggleCollapsed} to={`${path}/novaup/data-source`}>
-                Nguồn data
-              </NavLink>
-            </Menu.Item>
-          </SubMenu>
-        </Menu>
       </SubMenu>
       {/* end novaup   */}
       {/*home*/}

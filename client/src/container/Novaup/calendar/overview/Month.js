@@ -8,15 +8,18 @@ import moment from 'moment';
 import { useSelector, useDispatch } from 'react-redux';
 import ProjectUpdate from './ProjectUpdate';
 import AddNewEvent from './AddNewEvent';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { BlockViewCalendarWrapper } from '../Style';
-import { Cards } from '../../../components/cards/frame/cards-frame';
-import { Button } from '../../../components/buttons/buttons';
-import { Dropdown } from '../../../components/dropdown/dropdown';
+import { Cards } from '../../../../components/cards/frame/cards-frame';
+import { Button } from '../../../../components/buttons/buttons';
+import { Dropdown } from '../../../../components/dropdown/dropdown';
 import './style.css';
-import { calendarDeleteData, eventVisible, addNewEvents } from '../../../redux/calendar/actionCreator';
-import { Modal } from '../../../components/modals/antd-modals';
+import { calendarDeleteData, eventVisible, addNewEvents } from '../../../../redux/calendar/actionCreator';
+import { Modal } from '../../../../components/modals/antd-modals';
+import { DeleteBooking } from '../../../../apis/novaup/booking';
 
-function MonthCalendar() {
+function MonthCalendar({ bookings }) {
   const dispatch = useDispatch();
   const { events, isVisible } = useSelector(state => {
     return {
@@ -24,6 +27,7 @@ function MonthCalendar() {
       isVisible: state.Calender.eventVisible,
     };
   });
+  const [dataBooking, setDataBooking] = useState();
   const [state, setState] = useState({
     date: new Date(),
     container: null,
@@ -49,8 +53,8 @@ function MonthCalendar() {
             container: containers,
             date,
             currentLabel,
-            width: getInput.current !== null && getInput.current.clientWidth,
-            defaultValue: getDate,
+            width: getInput.current ? getInput.current.clientWidth : '100%',
+            defaultValue : getDate,
           });
 
           dispatch(eventVisible(true));
@@ -64,43 +68,59 @@ function MonthCalendar() {
       defaultValue,
       date,
       currentLabel,
-      width: getInput.current !== null && getInput.current.clientWidth,
+      width: getInput.current ? getInput.current.clientWidth : '100%',
     });
-  }, [date, currentLabel, defaultValue, dispatch]);
+    setDataBooking(bookings.data_booking);
+  }, [date, currentLabel, defaultValue , bookings, dispatch]);
 
   const onChange = dt => setState({ ...state, date: dt, defautlValue: moment(dt).format('YYYY-MM-DD') });
-
-  const onEventDelete = id => {
+  
+  const onEventDelete = async id => {
     const data = events.filter(item => item.id !== id);
+    const response = await DeleteBooking(id);
+    toast.success(response.message);
     dispatch(calendarDeleteData(data));
   };
 
   function getListData(value) {
-    let listData;
-    const data = [];
-    events.map(event => {
-      if (moment(event.date[0]).format('MMMM YYYY') === currentLabel) {
-        const { label, title, id, description, time, date, type } = event;
-        const a = moment(moment(event.date[1]).format('DD MMMM YYYY'));
-        const b = moment(moment(event.date[0]).format('DD MMMM YYYY'));
-        const totalDays = a.diff(b, 'days');
-
-        switch (value.date()) {
-          case parseInt(moment(event.date[0]).format('DD'), 10):
-            data.push({ label, title, id, totalDays, description, time, date, type });
-            listData = data;
-            break;
-          default:
+    const listData = [];
+    if (dataBooking) {
+      dataBooking.forEach(booking => {
+        const startDate = moment(booking.start_time);
+        const endDate = moment(booking.end_time);
+        if (value.isBetween(startDate, endDate, 'day', '[]') || value.isSame(startDate, 'day') || value.isSame(endDate, 'day')) {
+          const total_Days = endDate.diff(startDate, 'days') + 1;
+  
+          listData.push({
+            id: booking.id,
+            title: `${booking.customer.name} - ${booking.room.name}`,
+            room: booking.room_id,
+            customer: booking.customer_id,
+            time: [
+              moment(booking.start_time).format('hh:mm A'),
+              moment(booking.end_time).format('hh:mm A')
+            ],
+            date: [
+              moment(booking.start_time).format('MM/DD/YYYY'),
+              moment(booking.end_time).format('MM/DD/YYYY')
+            ],
+            label: `bg-${booking.room.color.replace('#', '')}`,
+            totalDays: total_Days,
+            start: startDate,
+            end: endDate,
+            room_id : booking.room.id,
+            customer_id : booking.customer.id
+          });
         }
-      }
-      return listData;
-    });
-    return listData || [];
+      });
+    }
+    return listData;
   }
+  
+  
 
   function dateCellRender(value) {
     const listData = getListData(value);
-    console.log('hellp' , listData);
     return (
       <ul className="events">
         {listData.map(item => (
@@ -109,7 +129,7 @@ function MonthCalendar() {
             key={item.id}
             style={{ padding: 0 }}
             placement="bottomLeft"
-            content={<ProjectUpdate onEventDelete={onEventDelete} {...item} />}
+            content={<ProjectUpdate onEventDelete={onEventDelete} {...item} bookings={bookings} />}
             action={['click']}
           >
             <li ref={getInput}>
@@ -143,12 +163,14 @@ function MonthCalendar() {
         className="addEvent-modal"
         footer={null}
         type="primary"
-        title="Create Event"
+        title="Đặt phòng"
         visible={isVisible}
         onCancel={handleCancel}
       >
-        <AddNewEvent onHandleAddEvent={addNew} defaultValue={defaultValue} />
+        <AddNewEvent onHandleAddEvent={addNew} defaultValue={defaultValue} bookings={bookings} />
       </Modal>
+
+      
       <div className="calendar-header">
         <div className="calendar-header__left">
           <Button className="btn-today" type="white" outlined>
@@ -188,10 +210,7 @@ function MonthCalendar() {
               <NavLink to="./year">Year</NavLink>
             </li>
           </ul>
-          <NavLink className="schedule-list" to="./schedule">
-            <FeatherIcon icon="list" />
-            Schedule
-          </NavLink>
+          
         </div>
       </div>
       <BlockViewCalendarWrapper className="table-responsive">
@@ -201,8 +220,8 @@ function MonthCalendar() {
           }}
           mode="month"
           dateCellRender={dateCellRender}
-          value={moment(defaultValue)}
-          defaultValue={moment(defaultValue)}
+          value={moment(defaultValue)}  // ngày được chọn 
+          defaultValue={moment(defaultValue)}  // giá trị mặc định được render lần đầu
         />
       </BlockViewCalendarWrapper>
     </Cards>

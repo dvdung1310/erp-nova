@@ -8,6 +8,8 @@ class NvuRoomBooking extends Model
 {
     use HasFactory;
 
+    protected $table = 'nvu_room_booking';
+
     protected $fillable = ['start_time', 'end_time', 'room_id', 'customer_id', 'sale_id'];
 
     public function room()

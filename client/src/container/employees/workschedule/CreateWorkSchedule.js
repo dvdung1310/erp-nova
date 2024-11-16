@@ -68,17 +68,18 @@ const CreateWorkSchedule = () => {
     // Kiểm tra hạn chót đăng ký lịch làm việc
     const checkRegistrationDeadline = () => {
         const now = new Date();
-        const firstDayOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay() + 1);
-        const mondayMorningDeadline = new Date(firstDayOfWeek.getFullYear(), firstDayOfWeek.getMonth(), firstDayOfWeek.getDate(), 21, 0, 0); // 9h sáng thứ 2
-        if (now > mondayMorningDeadline) {
+        const dayOfWeek = now.getDay();
+        setIsRegistrationClosed(false);
+        if (dayOfWeek === 0 || dayOfWeek === 1 || dayOfWeek === 6) {
+            setIsRegistrationClosed(false);
+        }else {
             setIsRegistrationClosed(true);
             toast.warn('Đã hết hạn đăng ký lịch làm việc cho tuần này', {
                 autoClose: 1000,
                 position: 'top-right'
             });
-        } else {
-            setIsRegistrationClosed(false);
         }
+    
     };
 
     useEffect(() => {
