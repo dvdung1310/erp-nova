@@ -38,7 +38,6 @@ class CustomerController extends Controller
 
             $statuses = CustomerStatus::select('id', 'name', 'color')->get();
             $dataSources = CustomerDataSource::select('id', 'name')->get();
-
             return response()->json([
                 'success' => true,
                 'customers' => $customers,

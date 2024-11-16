@@ -165,6 +165,7 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
         </Menu>
       </SubMenu>
       {/* end novaup   */}
+    
       {/*home*/}
       <Menu.Item key="home" icon={<FeatherIcon icon="home" />}>
         <NavLink to={`${path}`}>Trang chủ</NavLink>
@@ -299,6 +300,40 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
             </Menu.Item>
           ))}
       </SubMenu>
+        {/* novateen */}
+        <SubMenu key="novateen" icon={!topMenu && <FeatherIcon icon="map-pin" />} title="NovaTeen">
+        <Menu.Item key="nvt-home">
+          <NavLink onClick={toggleCollapsed} to={`${path}/novateen/khach-hang`}>
+            Khách hàng
+          </NavLink>
+        </Menu.Item>
+        <Menu.Item key="nvt-data">
+          <NavLink onClick={toggleCollapsed} to={`${path}/novateen/data-import`}>
+           Data import
+          </NavLink>
+        </Menu.Item>
+        {/* cấu hình novateen */}
+        <Menu
+          mode={!topMenu || window.innerWidth <= 991 ? 'inline' : 'horizontal'}
+          theme={darkMode ? 'dark' : 'light'}
+          openKeys={openKey}
+          onOpenChange={onOpenChanges}
+        >
+          <SubMenu key="sales" title="Cấu hình" icon={<FeatherIcon icon="settings" />}>
+            <Menu.Item key="sales-option1">
+              <NavLink onClick={toggleCollapsed} to={`${path}/novateen/status-data`}>
+                Trạng thái data
+              </NavLink>
+            </Menu.Item>
+            <Menu.Item key="sales-option2">
+              <NavLink onClick={toggleCollapsed} to={`${path}/novateen/data-source`}>
+                Nguồn data
+              </NavLink>
+            </Menu.Item>
+          </SubMenu>
+        </Menu>
+      </SubMenu>
+      {/* end novateen */}
       {/**/}
       {/* start d-none */}
       <SubMenu style={{ display: 'none' }}>
