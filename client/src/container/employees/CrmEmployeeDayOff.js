@@ -151,13 +151,13 @@ function CrmEmployeeDayOff() {
       title: 'Ngày bắt đầu',
       dataIndex: 'day_off_start',
       key: 'day_off_start',
-      render: (text) => moment(text).format('DD/MM/YYYY'), // Format to 'day/month/year'
+      render: (text) => moment(text).format('DD/MM/YYYY HH:mm'), // Format to 'day/month/year hour:minute'
     },
     {
       title: 'Ngày kết thúc',
       dataIndex: 'day_off_end',
       key: 'day_off_end',
-      render: (text) => moment(text).format('DD/MM/YYYY'), // Format to 'day/month/year'
+      render: (text) => moment(text).format('DD/MM/YYYY HH:mm'), // Format to 'day/month/year hour:minute'
     },
     {
       title: 'Trạng thái',
@@ -169,7 +169,6 @@ function CrmEmployeeDayOff() {
         </span>
       ),
     },
-    
   ];
 
   return (
@@ -194,7 +193,7 @@ function CrmEmployeeDayOff() {
                       textAlign: 'center',
                     }}
                   >
-                    Danh sách đơn xin xác nhận 
+                    Danh sách đơn xin xác nhận
                   </NavLink>
                   <Button type="primary" onClick={opentModelDayOff} style={{ marginBottom: 16 }}>
                     Thêm đơn nghỉ phép
@@ -239,19 +238,29 @@ function CrmEmployeeDayOff() {
             <Form.Item
               name="day_off_start"
               rules={[{ required: true, message: 'Vui lòng chọn thời gian bắt đầu' }]}
-              style={{ width: '100%' }}
+              style={{ width: '100%', height:'40px'}}
             >
-              <DatePicker format="YYYY-MM-DD" />
+              <DatePicker
+                format="YYYY-MM-DD HH:mm"
+                showTime={{ format: 'HH:mm' }} 
+                style={{ width: '100%', height:'40px'}}
+
+              />
             </Form.Item>
           </div>
+
           <div>
             <h6 style={{ marginBottom: '8px', fontWeight: 'bold', fontSize: '1.1rem' }}>Ngày kết thúc nghỉ</h6>
             <Form.Item
               name="day_off_end"
-              rules={[{ required: true, message: 'Vui lòng chọn thời gian bắt đầu' }]}
-              style={{ width: '100%' }}
+              rules={[{ required: true, message: 'Vui lòng chọn thời gian kết thúc' }]}
+              style={{ width: '100%',height:'40px' }}
             >
-              <DatePicker format="YYYY-MM-DD" />
+              <DatePicker
+                format="YYYY-MM-DD HH:mm"
+                showTime={{ format: 'HH:mm' }} // Chọn giờ và phút
+                style={{ width: '100%', height:'40px'}}
+              />
             </Form.Item>
             <Form.Item name="employee_id" initialValue={employeeId} hidden>
               <Input type="hidden" />

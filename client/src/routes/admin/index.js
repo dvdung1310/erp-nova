@@ -11,6 +11,7 @@ import Features from './features';
 import Axios from './axios';
 import Gallery from './gallery';
 import Novaup from "./Novaup";
+import Novateen from "./novateen";
 import Employees from "./employees";
 import Proposal from "./proposal";
 import withAdminLayout from '../../layout/withAdminLayout';
@@ -132,6 +133,7 @@ function Admin() {
                 <Route path={`${path}/widgets`} component={Widgets}/>
                 {/**/}
                 <Route path={`${path}/novaup`} component={Novaup}/>
+                <Route path={`${path}/novateen`} component={Novateen}/>
                 <Route path={`${path}/nhan-su`} component={Employees}/>
                 <Route path={`${path}/de-xuat`} component={Proposal}/>
                 <Route path={`${path}/lam-viec`} component={Work}/>

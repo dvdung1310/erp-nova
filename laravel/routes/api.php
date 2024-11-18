@@ -25,6 +25,16 @@ use App\Http\Controllers\Api\Nova\QuestionController;
 use App\Http\Controllers\Api\Nova\WorkScheduleController;
 use App\Http\Controllers\Api\Nova\WorkConfirmationController;
 use App\Http\Controllers\Api\Nova\ProposalController;
+use App\Http\Controllers\Api\Nvt\NvtCustomerController;
+use App\Http\Controllers\Api\Nvt\StudentController;
+// novaup
+use App\Http\Controllers\Api\Nvu\StatusController;
+use App\Http\Controllers\Api\Nvu\SourceController;
+use App\Http\Controllers\Api\Nvu\RoomController;
+use App\Http\Controllers\Api\Nvu\CustomerController;
+use App\Http\Controllers\Api\Nvu\BookingController;
+use App\Http\Controllers\Api\Nvu\PaymentController;
+// endNovaup
 
 Route::group([
     'middleware' => 'api',
@@ -90,7 +100,57 @@ Route::group(['middleware' => 'api', 'prefix' => 'proposal'], function () {
     Route::post('update_status/{id}/{status}', [ProposalController::class, 'updateStatus']);
 });
 
+// Novaup
+Route::group(['middleware' => 'api', 'prefix' => 'novaup'], function () {
+    Route::post('/storeStatus', [StatusController::class, 'store']);
+    Route::get('/indexStatus', [StatusController::class, 'index']);
+    Route::post('/updateStatus', [StatusController::class, 'update']);
+    Route::get('/deleteStatus/{id}', [StatusController::class, 'delete']);
 
+    Route::post('/storeSource', [SourceController::class, 'store']);
+    Route::get('/indexSource', [SourceController::class, 'index']);
+    Route::post('/updateSource', [SourceController::class, 'update']);
+    Route::get('/deleteSource/{id}', [SourceController::class, 'delete']);
+
+    Route::post('/storeRoom', [RoomController::class, 'store']);
+    Route::get('/indexRoom', [RoomController::class, 'index']);
+    Route::post('/updateRoom', [RoomController::class, 'update']);
+    Route::get('/deleteRoom/{id}', [RoomController::class, 'delete']);
+
+    Route::post('/storeCustomer', [CustomerController::class, 'store']);
+    Route::get('/indexCustomer', [CustomerController::class, 'index']);
+    Route::post('/updateCustomer', [CustomerController::class, 'update']);
+    Route::get('/deleteCustomer/{id}', [CustomerController::class, 'delete']);
+
+
+    Route::post('/storeBooking', [BookingController::class, 'store']);
+    Route::get('/indexBooking', [BookingController::class, 'index']);
+    Route::post('/updateBooking', [BookingController::class, 'update']);
+    Route::get('/deleteBooking/{id}', [BookingController::class, 'delete']);
+
+
+    Route::post('/storePayment', [PaymentController::class, 'store']);
+    Route::get('/indexPayment', [PaymentController::class, 'index']);
+    Route::post('/updatePayment', [PaymentController::class, 'update']);
+    Route::get('/deletePayment/{id}', [PaymentController::class, 'delete']);
+    Route::get('/getBookingConnectCumstomer', [PaymentController::class, 'getBookingConnectCumstomer']);
+
+
+});
+
+// NovaTeen
+Route::group(['middleware' => 'api'], function () {
+    Route::resource('nvtstudent',StudentController::class);
+    Route::resource('nvtcustomer',NvtCustomerController::class);
+    Route::post('storestudent',[NvtCustomerController::class,'storestudent'])->middleware(middlewareLogin::class);
+    Route::post('update_parent/{id}', [NvtCustomerController::class,'update_parent']);
+    //Học sinh
+    Route::get('student_trial_class/{id}',[StudentController::class,'student_trial_class']);
+    Route::post('store_trial_class',[StudentController::class,'store_trial_class']);
+    Route::post('update_trial_class/{id}',[StudentController::class,'update_trial_class']);
+    Route::post('update_comment_parient/{id}',[StudentController::class,'update_comment_parient']);
+    Route::get('get_comment_parent/{id}',[StudentController::class,'get_comment_parent']);
+});
 Route::group(['middleware' => 'api'], function () {
     Route::resource('nvdepartment', NvDepartmentController::class);
     Route::resource('nvdepartmentteam', NvDepartmentTeamController::class);

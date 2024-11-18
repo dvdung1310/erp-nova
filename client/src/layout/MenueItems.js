@@ -106,54 +106,41 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
         </Menu.Item>
       </SubMenu>
       {/* novaup */}
-      <SubMenu style={{ display: 'none' }} key="novaup" icon={!topMenu && <FeatherIcon icon="home" />} title="Novaup">
-        <Menu.Item key="nvu-home">
-          <NavLink onClick={toggleCollapsed} to={`${path}/novaup`}>
-            Dashboard
+      <SubMenu key="novaup" icon={!topMenu && <FeatherIcon icon="map-pin" />} title="Novaup">
+        <Menu.Item key="nvu-customer">
+          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/khach-hang`}>
+            Khách hàng 
           </NavLink>
         </Menu.Item>
-        <Menu.Item key="nvu-customer">
-          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/customer`}>
-            Khách hàng
+        <Menu.Item key="nvu-status">
+          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/trang-thai`}>
+           Trạng thái khách hàng
+          </NavLink>
+        </Menu.Item>
+
+        <Menu.Item key="nvu-source">
+          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/nguon-khach-hang`}>
+          Nguồn khách hàng
           </NavLink>
         </Menu.Item>
         <Menu.Item key="nvu-revenue">
-          <NavLink onClick={toggleCollapsed} to={`${path}/eco`}>
+          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/doanh-thu`}>
             Doanh thu
           </NavLink>
         </Menu.Item>
         <Menu.Item key="nvu-room">
-          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/room`}>
+          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/phong`}>
             Phòng
           </NavLink>
         </Menu.Item>
         <Menu.Item key="nvu-boking">
-          <NavLink onClick={toggleCollapsed} to={`${path}/sales`}>
+          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/dat-phong/month`}>
             Đặt phòng
           </NavLink>
         </Menu.Item>
-        {/* cấu hình novaup */}
-        <Menu
-          mode={!topMenu || window.innerWidth <= 991 ? 'inline' : 'horizontal'}
-          theme={darkMode ? 'dark' : 'light'}
-          openKeys={openKey}
-          onOpenChange={onOpenChanges}
-        >
-          <SubMenu key="sales" title="Cấu hình" icon={<FeatherIcon icon="settings" />}>
-            <Menu.Item key="sales-option1">
-              <NavLink onClick={toggleCollapsed} to={`${path}/novaup/status-data`}>
-                Trạng thái data
-              </NavLink>
-            </Menu.Item>
-            <Menu.Item key="sales-option2">
-              <NavLink onClick={toggleCollapsed} to={`${path}/novaup/data-source`}>
-                Nguồn data
-              </NavLink>
-            </Menu.Item>
-          </SubMenu>
-        </Menu>
       </SubMenu>
       {/* end novaup   */}
+    
       {/*home*/}
       <Menu.Item key="home" icon={<FeatherIcon icon="home" />}>
         <NavLink to={`${path}`}>Trang chủ</NavLink>
@@ -262,7 +249,6 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
       {/* end tuyển dụng   */}
       {/**/}
       {/* work */}
-
       
       <SubMenu key="work" icon={!topMenu && <FeatherIcon icon="briefcase" />} title="Làm việc">
         <Menu.Item key="inbox">
@@ -289,6 +275,40 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
             </Menu.Item>
           ))}
       </SubMenu>
+        {/* novateen */}
+        <SubMenu key="novateen" icon={!topMenu && <FeatherIcon icon="map-pin" />} title="NovaTeen">
+        <Menu.Item key="nvt-home">
+          <NavLink onClick={toggleCollapsed} to={`${path}/novateen/khach-hang`}>
+            Khách hàng
+          </NavLink>
+        </Menu.Item>
+        <Menu.Item key="nvt-data">
+          <NavLink onClick={toggleCollapsed} to={`${path}/novateen/data-import`}>
+           Data import
+          </NavLink>
+        </Menu.Item>
+        {/* cấu hình novateen */}
+        <Menu
+          mode={!topMenu || window.innerWidth <= 991 ? 'inline' : 'horizontal'}
+          theme={darkMode ? 'dark' : 'light'}
+          openKeys={openKey}
+          onOpenChange={onOpenChanges}
+        >
+          <SubMenu key="sales" title="Cấu hình" icon={<FeatherIcon icon="settings" />}>
+            <Menu.Item key="sales-option1">
+              <NavLink onClick={toggleCollapsed} to={`${path}/novateen/status-data`}>
+                Trạng thái data
+              </NavLink>
+            </Menu.Item>
+            <Menu.Item key="sales-option2">
+              <NavLink onClick={toggleCollapsed} to={`${path}/novateen/data-source`}>
+                Nguồn data
+              </NavLink>
+            </Menu.Item>
+          </SubMenu>
+        </Menu>
+      </SubMenu>
+      {/* end novateen */}
       {/**/}
       {/* start d-none */}
       <SubMenu style={{ display: 'none' }}>
