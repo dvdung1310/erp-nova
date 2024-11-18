@@ -91,8 +91,6 @@ Route::group(['middleware' => 'api', 'prefix' => 'proposal'], function () {
 });
 
 
-
-
 Route::group(['middleware' => 'api'], function () {
     Route::resource('nvdepartment', NvDepartmentController::class);
     Route::resource('nvdepartmentteam', NvDepartmentTeamController::class);
@@ -120,8 +118,8 @@ Route::group(['middleware' => 'api'], function () {
     Route::get('nvemployee', [NvEmployeeController::class, 'index'])->middleware(middlewareLogin::class);
     //User đang đăng nhập
     Route::get('/employeeLogin', [NvEmployeeController::class, 'employeeLogin'])->middleware(middlewareLogin::class);
-    Route::put('/update-employee-login', [NvEmployeeController::class, 'updatEployeeLogin'])->middleware(middlewareLogin::class); 
-    Route::put('/updateEmployeeAvatar', [NvEmployeeController::class, 'updateEmployeeAvatar'])->middleware(middlewareLogin::class); 
+    Route::put('/update-employee-login', [NvEmployeeController::class, 'updatEployeeLogin'])->middleware(middlewareLogin::class);
+    Route::put('/updateEmployeeAvatar', [NvEmployeeController::class, 'updateEmployeeAvatar'])->middleware(middlewareLogin::class);
 
 });
 // work
@@ -138,6 +136,7 @@ Route::prefix('groups')->group(function () {
 // projects
 Route::prefix('projects')->group(function () {
     Route::post('create', [ProjectController::class, 'create'])->middleware(MiddlewareLoginLeader::class);
+    Route::post('copy', [ProjectController::class, 'copyProject'])->middleware(MiddlewareLoginLeader::class);
     Route::put('update/{project_id}', [ProjectController::class, 'update'])->middleware(MiddlewareLoginLeader::class);
     Route::get('get-by-ceo', [ProjectController::class, 'getProjectByCeo'])->middleware(MiddlewareLoginCeo::class);
     Route::post('member-join-project/{project_id}', [ProjectController::class, 'memberJoinProject'])->middleware(MiddlewareLoginLeader::class);
@@ -177,7 +176,7 @@ Route::prefix('devices')->group(function () {
 });
 // notification
 Route::prefix('notifications')->group(function () {
-    Route::post('create', [NotificationController::class, 'create'])->middleware(middlewareLogin::class);
+    Route::post('create', [NotificationController::class, 'create'])->middleware(MiddlewareLoginCeo::class);
     Route::get('get-notification-by-id/{notification_id}', [NotificationController::class, 'getNotificationById'])->middleware(middlewareLogin::class);
     Route::get('get-notification-by-user-id', [NotificationController::class, 'getNotificationByUserId'])->middleware(middlewareLogin::class);
     Route::get('get-notification-by-user-id-paginate', [NotificationController::class, 'getNotificationByUserIdPaginate'])->middleware(middlewareLogin::class);

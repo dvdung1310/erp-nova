@@ -70,6 +70,7 @@ function NotificationBox() {
         if (socketConnection) {
             console.log('socketConnection', socketConnection);
             const receiveNotification = async (data) => {
+                console.log('data', data);
                 setNotification(prevNotifications => [data, ...prevNotifications]);
                 setNotificationRender(prevNotifications => [data, ...prevNotifications]);
                 setNotificationUnread(prevUnreadNotifications => [data, ...prevUnreadNotifications]);
@@ -239,7 +240,7 @@ function NotificationBox() {
                                         <div className="notification-content d-flex">
                                             <div className="notification-text">
                                                 <Heading as="h5">
-                                                    {`${notification?.create_by_user?.name} ${notification?.notification_title}`}
+                                                    {`${notification?.create_by_user?.name ?? notification?.createByUserName} ${notification?.notification_title}`}
                                                 </Heading>
                                                 <p> {moment(notification?.created_at).fromNow()} &nbsp;
                                                     {moment(notification?.created_at).format('HH:mm DD/MM/YYYY')}</p>

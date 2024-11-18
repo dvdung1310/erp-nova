@@ -3,9 +3,9 @@ import {getToken} from "../../utility/localStorageControl";
 const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
 import {createAxios} from "../../utility/createAxios";
 
-const instanceAxios =  createAxios();
+const instanceAxios = createAxios();
 export const getGroupByUserId = async () => {
-const token = getToken();
+    const token = getToken();
     const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/groups/get-by-user-id`, {
         headers: {
             'Content-Type': 'application/json',
@@ -58,6 +58,16 @@ export const deleteGroup = async (id) => {
 export const getGroupByCeo = async () => {
     const token = getToken();
     const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/groups/get-by-ceo`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    return response.data;
+}
+export const getAllGroupParent = async () => {
+    const token = getToken();
+    const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/groups/get-all-group-parent`, {
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`

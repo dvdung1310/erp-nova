@@ -14,6 +14,7 @@ export const getAllUsers = async () => {
     });
     return response.data;
 }
+
 export const registerDevice = async (data) => {
     const token = getToken();
     const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/devices/create`, data, {

@@ -679,6 +679,8 @@ class TaskController extends Controller
                 $statusMessage = 'Hoàn thành';
             } elseif ($status == 3) {
                 $statusMessage = 'Leader đã xác nhận';
+            } elseif ($status == 4) {
+                $statusMessage = 'Tạm dừng';
             }
             $oldStatusMessage = '';
             if ($oldStatus == 0) {
@@ -687,6 +689,10 @@ class TaskController extends Controller
                 $oldStatusMessage = 'Đang làm';
             } elseif ($oldStatus == 2) {
                 $oldStatusMessage = 'Hoàn thành';
+            } elseif ($oldStatus == 3) {
+                $oldStatusMessage = 'Leader đã xác nhận';
+            } elseif ($oldStatus == 4) {
+                $oldStatusMessage = 'Tạm dừng';
             }
             // insert comment
             $status = $request->input('task_status');
@@ -1013,7 +1019,7 @@ class TaskController extends Controller
                         $query->select('work_projects.project_id', 'work_projects.project_name'); // Adjust the fields as needed
                     }
                 ])
-                ->where('task_status', '!=', 2)
+                ->where('task_status', '!=', 3)
                 ->orderBy('project_id')
                 ->get();
             return response()->json([

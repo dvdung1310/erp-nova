@@ -156,11 +156,10 @@ const MessageComponent = ({handleCloseComment, task}) => {
                         {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus */}
                         <Button type='primary' style={{borderRadius: '10px'}} onClick={handleCloseComment}>X</Button>
                     </div>
-                    {/*<div style={{*/}
-                    {/*    backgroundColor: '#eef0f1'*/}
-                    {/*}} dangerouslySetInnerHTML={{__html: task?.task_description}}></div>*/}
                     <div className="card-body">
                         <div className="comment">
+                            <div className='comment_description'
+                                 dangerouslySetInnerHTML={{__html: task?.task_description}}></div>
                             <div className="message">
                                 {
                                     loading ? <div style={{
@@ -195,7 +194,8 @@ const MessageComponent = ({handleCloseComment, task}) => {
                                                            display: 'block',
                                                            margin: '10px 0'
                                                        }}>
-                                                            <strong>{item?.user?.name}</strong>: {item?.text} lúc {moment(item?.created_at).format('HH:mm [ngày] DD/MM/YYYY')}
+                                                          {moment(item?.created_at).format('HH:mm [ngày] DD/MM/YYYY')}
+                                                           <strong>{item?.user?.name}</strong>: {item?.text}
                                                         </span>
                                                         </> :
                                                         <>

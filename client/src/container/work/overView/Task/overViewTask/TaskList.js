@@ -1,4 +1,4 @@
-import {useLocation, useParams} from "react-router-dom";
+import {useHistory, useLocation, useParams} from "react-router-dom";
 import React, {useState} from "react";
 import {checkStatus} from "../../../../../utility/checkValue";
 import RichTextEditor from 'react-rte';
@@ -55,6 +55,7 @@ import {PiEyeThin} from "react-icons/pi";
 import FeatherIcon from "feather-icons-react";
 //
 import dayjs from 'dayjs';
+import {IoEnterOutline} from "react-icons/io5";
 
 const getComparator = (order, orderBy) => {
     return (a, b) => {
@@ -94,6 +95,7 @@ const TaskList = (props) => {
     const handleChangeEditer = (value) => {
         setEditorState(value);
     };
+    const history = useHistory();
     const [form] = Form.useForm();
     const {listUser, tasks, setTasks, isHome} = props;
     const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
@@ -177,6 +179,9 @@ const TaskList = (props) => {
     };
 // click
     const handleNameClick = (event, task) => {
+        if (isHome) {
+            return;
+        }
         setNameAnchorEl(event.currentTarget);
         setSelectedTask(task);
         setTaskName(task.task_name);
@@ -191,6 +196,9 @@ const TaskList = (props) => {
         setSelectedMembers(task.users || []);
     }
     const handleStatusClick = (event, task) => {
+        if (isHome) {
+            return;
+        }
         if (task?.task_status?.toString() !== '3') {
             setStatusAnchorEl(event.currentTarget);
             setSelectedTask(task);
@@ -480,7 +488,7 @@ const TaskList = (props) => {
             const task_start_date_value = task_start_date.format('YYYY-MM-DD HH:mm:ss');
             const task_end_date = endTime
                 ? endDate.set({hour: endTime.hour(), minute: endTime.minute()})
-                : endDate.set({hour: 23, minute: 59});
+                : endDate.set({hour: 18, minute: 0});
             const task_end_date_value = task_end_date.format('YYYY-MM-DD HH:mm:ss');
             const payload = {
                 "project_id": id,
@@ -638,7 +646,7 @@ const TaskList = (props) => {
                                                     icon={task.task_status?.toString() === '3' ? <MdCheck/> : null}
                                                     color={(task.task_status?.toString() === '2' || task.task_status?.toString() === '3') ? 'success' : task.task_status?.toString() === '1' ? 'info' : task.task_status?.toString() === '0' ? 'warning' : '#fff'}
                                                 />
-                                                {new Date(task.task_end_date) < new Date() && (task.task_status?.toString() !== '2' && task.task_status?.toString() !== '3') && (
+                                                {task?.task_status !== 4 && new Date(task.task_end_date) < new Date() && (task.task_status?.toString() !== '2' && task.task_status?.toString() !== '3') && (
                                                     <Chip label="Quá hạn" style={{fontSize: '12px'}}
                                                           className="chip-status ms-1"
                                                           color="error"/>
@@ -670,27 +678,49 @@ const TaskList = (props) => {
                                             <TableCell className="table-cell">
 
                                                 {task.task_date_update_status_completed && (<>
-                                                    {new Date(task.task_date_update_status_completed) > new Date(task.task_end_date) ? (
-                                                        <span className='text-danger'>
+
+                                                    {
+                                                        task?.task_status !== 4 ? (
+                                                            <>
+                                                                {new Date(task.task_date_update_status_completed) > new Date(task.task_end_date) ? (
+                                                                    <span className='text-danger'>
                                                                 Quá hạn {Math.floor((new Date(task.task_date_update_status_completed) - new Date(task.task_end_date)) / (1000 * 60 * 60 * 24))} ngày
                                                             </span>) : new Date(task.task_date_update_status_completed) < new Date(task.task_end_date) ? (
-                                                        <span className='text-success'>
+                                                                    <span className='text-success'>
                                                                 hoàn thành sớm {Math.floor((new Date(task.task_end_date) - new Date(task.task_date_update_status_completed)) / (1000 * 60 * 60 * 24))} ngày
                                                             </span>) : (<span className='text-success'>
                                                                 hoàn thành đúng hạn
                                                             </span>)}
+                                                            </>
+                                                        ) : <>
+                                                            <span>Tạm dừng</span>
+                                                        </>
+                                                    }
+
                                                 </>)}
-                                                {(!task.task_date_update_status_completed && task?.task_status !== 4) ? (<>
-                                                    {diffDays < 0 ? (
-                                                        <span className='text-danger'>
-    {(Math.abs(diffDays) >= 1 && Math.abs(diffHours) >= 24) ? `Quá hạn ${Math.abs(diffDays)} ngày` : `Quá hạn ${Math.abs(diffHours)} giờ`}
-</span>
-                                                    ) : (
-                                                        <span className='text-warning'>
-        {diffDays === 0 ? `còn ${Math.abs(diffHours)} giờ` : `còn ${diffDays} ngày`}
-    </span>
-                                                    )}
-                                                </>) : <span>tạm dừng</span>}
+                                                {!task.task_date_update_status_completed && (
+                                                    <>
+                                                        {
+                                                            task?.task_status !== 4 ? (
+                                                                    <>
+                                                                        {diffDays < 0 ? (
+                                                                            <span className='text-danger'>
+                                                                                {(Math.abs(diffDays) >= 1 && Math.abs(diffHours) >= 24) ? `Quá hạn ${Math.abs(diffDays)} ngày` : `Quá hạn ${Math.abs(diffHours)} giờ`}
+                                                                            </span>
+                                                                        ) : (
+                                                                            <span className='text-warning'>
+                                                                                    {diffDays === 0 ? `còn ${Math.abs(diffHours)} giờ` : `còn ${diffDays} ngày`}
+                                                                                </span>
+                                                                        )}
+                                                                    </>
+                                                                )
+                                                                : <>
+                                                                    <span>Tạm dừng</span>
+                                                                </>
+                                                        }
+
+                                                    </>
+                                                )}
                                             </TableCell>
                                             <TableCell className="table-cell"
                                                        onClick={(event) => handleUserClick(event, task)}
@@ -721,20 +751,32 @@ const TaskList = (props) => {
                                                     >
                                                         <PiEyeThin color='gray' size={30} className='icon-delete'/>
                                                     </div>
-                                                    {/* eslint-disable-next-line react/button-has-type */}
-                                                    <div className='btn p-1'
-                                                         title='Bình luận'
-                                                         onClick={(event) => handleCommentClick(event, task)}
-                                                    >
-                                                        <GoComment color='gray' size={30} className='icon-delete'/>
-                                                    </div>
-                                                    {/* eslint-disable-next-line react/button-has-type */}
-                                                    <div className='btn p-1'
-                                                         title='Xóa công việc'
-                                                         onClick={() => handleShowModalConfirm(task.task_id)}
-                                                    >
-                                                        <MdDelete color='red' size={30} className='icon-delete'/>
-                                                    </div>
+                                                    {
+                                                        !isHome && <div className='btn p-1'
+                                                                        title='Thảo luận'
+                                                                        onClick={(event) => handleCommentClick(event, task)}
+                                                        >
+                                                            <GoComment color='gray' size={30} className='icon-delete'/>
+                                                        </div>
+                                                    }
+                                                    {
+                                                        !isHome && <div className='btn p-1'
+                                                                        title='Xóa công việc'
+                                                                        onClick={() => handleShowModalConfirm(task.task_id)}
+                                                        >
+                                                            <MdDelete color='red' size={30} className='icon-delete'/>
+                                                        </div>
+                                                    }
+                                                    {
+                                                        isHome && <div className='btn p-1' title='Xem dự án'
+                                                                       onClick={() => {
+                                                                           history.push(`/admin/lam-viec/du-an/${task?.project?.project_id}`)
+                                                                       }}
+                                                        >
+                                                            <IoEnterOutline color='gray' size={30}/>
+                                                        </div>
+                                                    }
+
                                                 </div>
                                                 {/* eslint-disable-next-line react/button-has-type */}
 

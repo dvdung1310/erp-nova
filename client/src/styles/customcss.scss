@@ -64,6 +64,10 @@
   }
   .message-component {
     .comment {
+      .comment_description {
+        display: none;
+      }
+
       .message {
         height: 300px !important;
       }
@@ -84,7 +88,6 @@
     width: 100%;
   }
 }
-
 .modal-project {
   .ant-modal-content {
 
@@ -94,6 +97,7 @@
 
     .RichTextEditor__editor___1QqIU .public-DraftEditor-content {
       border: 1px solid #E3E6EF;
+      min-height: 100px;
     }
 
     .custom-rich-text-editor .RichTextEditor__toolbar {
@@ -115,6 +119,7 @@
 
     .RichTextEditor__editor___1QqIU .public-DraftEditor-content {
       border: 1px solid #E3E6EF;
+        min-height: 100px;
     }
 
     .custom-rich-text-editor .RichTextEditor__toolbar {
@@ -133,6 +138,31 @@
       left: 50%;
       transform: translateX(-50%);
       width: 80%;
+    }
+  }
+}
+
+.modal-copy-project {
+  .ant-modal-content {
+    height: 600px;
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+      width: 8px; /* Width of the scrollbar */
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1; /* Background of the scrollbar track */
+      border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #888; /* Color of the scrollbar thumb */
+      border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: #555; /* Color of the scrollbar thumb on hover */
     }
   }
 }

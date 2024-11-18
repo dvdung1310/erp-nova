@@ -14,7 +14,7 @@ import {
     Spin,
     Radio,
     List,
-    Badge
+    Badge, Select
 } from 'antd';
 import {useSelector} from 'react-redux';
 import {Link, useHistory, useLocation} from 'react-router-dom';
@@ -26,7 +26,7 @@ import {Dropdown} from '../../../../../components/dropdown/dropdown';
 import moment from "moment";
 import Avatar from "../../../../../components/Avatar/Avatar";
 import {checkRole, checkStatus} from "../../../../../utility/checkValue";
-import {MdDelete, MdEdit, MdGroups, MdOutlineDateRange} from "react-icons/md";
+import {MdContentCopy, MdDelete, MdEdit, MdGroups, MdOutlineDateRange, MdOutlineSettings} from "react-icons/md";
 import {GrInProgress} from "react-icons/gr";
 import {Modal} from "../../../../../components/modals/antd-modals";
 import {BasicFormWrapper} from "../../../../styled";
@@ -38,6 +38,7 @@ import {
 } from "../../../../../apis/work/project";
 import {toast} from "react-toastify";
 import {FaUserTie} from "react-icons/fa";
+import CopyProject from "./CopyProject";
 
 const dateFormat = 'MM/DD/YYYY';
 
@@ -106,6 +107,12 @@ function ProjectLists({listProject, listUser = []}) {
     const [selectedMembers, setSelectedMembers] = useState([]);
     const [selectedLeader, setSelectedLeader] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
+    //
+    const [showModalCopy, setShowModalCopy] = useState(false);
+
+    const handleShowModalCopy = () => {
+        setShowModalCopy(true);
+    }
 
     const handleSearchChange = (e) => setSearchTerm(e.target.value);
 
@@ -138,6 +145,7 @@ function ProjectLists({listProject, listUser = []}) {
         setShowModalUpdateEndDate(false);
         setShowModalConfirm(false);
         setShowModalUpdateLeader(false);
+        setShowModalCopy(false);
     }
     //
     const {projects} = state;
@@ -206,6 +214,10 @@ function ProjectLists({listProject, listUser = []}) {
                     id: value?.leader_id,
                 });
                 handleShowModalUpdateLeader();
+                break;
+            case 'copy':
+                setSelectedProject(value);
+                handleShowModalCopy();
                 break;
             default:
                 break;
@@ -682,6 +694,18 @@ function ProjectLists({listProject, listUser = []}) {
                                     <MdOutlineDateRange size={30}
                                                         className='d-block ms-1 fs-4 text-secondary'/>
                                     <span>Sửa ngày kết thúc</span>
+                                </div>
+                                <div className='action-item'
+                                     onClick={() => handleEditClick('copy', value)}>
+                                    <MdContentCopy size={30}
+                                                   className='d-block ms-1 fs-4 text-secondary'/>
+                                    <span>Sao chép dự án</span>
+                                </div>
+                                <div className='action-item'
+                                     onClick={() => handleEditClick('setting', value)}>
+                                    <MdOutlineSettings size={30}
+                                                   className='d-block ms-1 fs-4 text-secondary'/>
+                                    <span>Cài đặt nhắc nhở</span>
                                 </div>
                                 <div className='action-item' onClick={() => handleEditClick('delete', value)}>
                                     <MdDelete color='red' size={30} className='icon-delete'/>
@@ -1170,6 +1194,11 @@ function ProjectLists({listProject, listUser = []}) {
                     </BasicFormWrapper>
                 </div>
             </Modal>
+            {
+                selectedProject &&
+                <CopyProject visible={showModalCopy} onCancel={handleCancel} project={selectedProject}/>
+            }
+
         </Row>
     );
 }

@@ -16,6 +16,7 @@ use App\Models\ProjectMember;
 use App\Models\Task;
 use App\Models\TaskMember;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
@@ -80,6 +81,155 @@ class ProjectController extends Controller
                 'data' => null
             ], 400);
         }
+    }
+
+    public function copyProject(Request $request)
+    {
+        try {
+            $validatedData = $request->validate([
+                'project_id' => 'required',
+                'project_name' => 'required',
+                'group_id' => 'required',
+                'start_date' => 'required',
+                'memberSetting' => 'required',
+            ]);
+
+            $originalProject = Project::find($request->project_id);
+            if (!$originalProject) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Project not found',
+                    'data' => null
+                ], 404);
+            }
+
+            $group = Group::where('group_id', $request->group_id)->first();
+            $create_by_user_id = auth()->user()->id;
+            $leader_id = $request->leader_id ? $request->leader_id : $create_by_user_id;
+
+// Create new project
+            $originalProjectStartDate = Carbon::parse($originalProject->project_start_date);
+            $originalProjectEndDate = Carbon::parse($originalProject->project_end_date);
+
+// Calculate the difference in days
+            $projectDuration = abs($originalProjectStartDate->diffInDays($originalProjectEndDate));
+
+// Calculate the new end date
+            $newProjectEndDate = Carbon::parse($request->start_date)->addDays($projectDuration);
+
+
+            $newProject = Project::create(array_merge($validatedData, [
+                'project_name' => $request->project_name,
+                'project_start_date' => Carbon::parse($request->start_date)->format('Y-m-d H:i:s'),
+                'project_end_date' => Carbon::parse($newProjectEndDate)->format('Y-m-d H:i:s'),
+                'project_description' => $originalProject->project_description,
+                'create_by_user_id' => $create_by_user_id,
+                'leader_id' => $leader_id
+            ]));
+            $newProjectId = $newProject->project_id;
+// Copy project members
+            if ($request->memberSetting == 'remove') {
+                $membersData[] = [
+                    'project_id' => $newProjectId,
+                    'user_id' => $leader_id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+                ProjectMember::insert($membersData);
+            } else {
+                $originalMembers = ProjectMember::where('project_id', $originalProject->project_id)->get();
+                $membersData = [];
+                foreach ($originalMembers as $member) {
+                    $membersData[] = [
+                        'project_id' => $newProjectId,
+                        'user_id' => $member->user_id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+                ProjectMember::insert($membersData);
+            }
+            $originalTasks = Task::where('project_id', $originalProject->project_id)
+                ->orderBy('task_start_date')
+                ->get();
+            $projectStartDate = Carbon::parse($request->start_date);
+            $originalProjectStartDate = Carbon::parse($originalProject->project_start_date);
+
+// Find the smallest task_start_date
+            $minTaskStartDate = $originalTasks->min('task_start_date');
+            $minTaskStartDate = Carbon::parse($minTaskStartDate);
+
+// Calculate the difference
+            $daysDifference = $minTaskStartDate->diffInDays($originalProjectStartDate);
+
+            foreach ($originalTasks as $task) {
+                $taskStartDate = Carbon::parse($task->task_start_date);
+                $taskEndDate = Carbon::parse($task->task_end_date);
+
+                // Calculate the difference between task_end_date and task_start_date
+                $taskDuration = abs($taskEndDate->diffInDays($taskStartDate));
+
+                // Update task dates based on the difference
+                $newTaskStartDate = $projectStartDate->copy()->addDays($taskStartDate->diffInDays($minTaskStartDate));
+                $newTaskEndDate = $newTaskStartDate->copy()->addDays($taskDuration);
+
+                // Set the date part only, keeping the time unchanged
+                $newTaskStartDate->setDate($newTaskStartDate->year, $newTaskStartDate->month, $newTaskStartDate->day);
+                $newTaskEndDate->setDate($newTaskEndDate->year, $newTaskEndDate->month, $newTaskEndDate->day);
+
+                $newTask = Task::create([
+                    'project_id' => $newProjectId,
+                    'task_name' => $task->task_name,
+                    'task_description' => $task->task_description,
+                    'task_status' => $task->task_status,
+                    'task_start_date' => $newTaskStartDate,
+                    'task_end_date' => $newTaskEndDate,
+                    'create_by_user_id' => $task->create_by_user_id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                // Copy tasks and task members
+                if ($request->memberSetting == 'remove') {
+                    TaskMember::insert([]);
+                } else {
+                    $originalTaskMembers = TaskMember::where('task_id', $task->task_id)->get();
+                    $taskMembersData = [];
+                    foreach ($originalTaskMembers as $taskMember) {
+                        $taskMembersData[] = [
+                            'task_id' => $newTask->task_id,
+                            'user_id' => $taskMember->user_id,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
+                    }
+                    TaskMember::insert($taskMembersData);
+                }
+            }
+
+
+            $projectResponse = Project::with(['projectMembers.user', 'leader'])
+                ->withCount([
+                    'tasks as total_tasks',
+                    'tasks as completed_tasks' => function ($query) {
+                        $query->where('task_status', 2);
+                    }
+                ])
+                ->find($newProjectId);
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Project copied and created successfully',
+                'data' => $projectResponse
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+
     }
 
     public function update(Request $request, $project_id)
