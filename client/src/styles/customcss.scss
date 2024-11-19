@@ -34,7 +34,7 @@
 @media only screen and (max-width: 450px) {
   .ant-modal-content {
     padding: 10px !important;
-    min-width: 200px;
+    min-width: 200px !important;
   }
   .ant-modal-body {
     padding: 10px !important;

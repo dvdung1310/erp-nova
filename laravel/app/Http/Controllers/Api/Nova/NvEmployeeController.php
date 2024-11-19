@@ -318,7 +318,7 @@ class NvEmployeeController extends Controller
                 ->where('crm_employee.account_id', $id)
                 ->pluck('crm_employee.employee_id')
                 ->first();
-            
+
                 $employee_name = $request->employee_name;
                 $employee_email = $request->employee_email;
                 $employee_phone = $request->employee_phone;
@@ -351,7 +351,7 @@ class NvEmployeeController extends Controller
             $user = User::findOrFail($id);
             $user->name =$employee_name;
             $user->phone = $employee_phone;
-            $user->email = $employee_email; 
+            $user->email = $employee_email;
             $user->save();
             $employee = CrmEmployeeModel::join('users', 'crm_employee.account_id', '=', 'users.id')
             ->join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
@@ -396,6 +396,7 @@ class NvEmployeeController extends Controller
                 $user->avatar = $url_avatar;
             }
             $user->save();
+
         } catch (\Throwable $th) {
             //throw $th;
         }

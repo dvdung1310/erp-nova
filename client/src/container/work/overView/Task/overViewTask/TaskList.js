@@ -122,6 +122,9 @@ const TaskList = (props) => {
 
     const [showModalUpdateDescription, setShowModalUpdateDescription] = useState(false);
     const handleShowModalUpdateDescription = () => {
+        if (isHome) {
+            return;
+        }
         setShowModalUpdateDescription(true);
         setEditorState(selectedTask?.task_description ? RichTextEditor.createValueFromString(selectedTask.task_description, 'html') : RichTextEditor.createEmptyValue());
     }
@@ -202,17 +205,23 @@ const TaskList = (props) => {
         if (task?.task_status?.toString() !== '3') {
             setStatusAnchorEl(event.currentTarget);
             setSelectedTask(task);
-            setSelectedStatus(task.task_status);
+            setSelectedStatus(task?.task_status);
         }
     };
 
     const handleStartDateClick = (event, task) => {
+        if (isHome) {
+            return;
+        }
         setStartDateAnchorEl(event.currentTarget);
         setSelectedTask(task);
         setStartDate(task.task_start_date);
     };
 
     const handleEndDateClick = (event, task) => {
+        if (isHome) {
+            return;
+        }
         setEndDateAnchorEl(event.currentTarget);
         setSelectedTask(task);
         setEndDate(task.task_end_date);
@@ -637,16 +646,16 @@ const TaskList = (props) => {
                                             </TableCell>
                                             <TableCell
                                                 onClick={(event) => handleStatusClick(event, task)}
-                                                className={`table-cell ${task.task_status?.toString() !== '0' ? 'table-cell-clickable' : ''}`}
+                                                className={`table-cell ${task?.task_status?.toString() !== '0' ? 'table-cell-clickable' : ''}`}
                                             >
                                                 <Chip
                                                     style={{fontSize: '12px'}}
-                                                    label={checkStatus(task.task_status).status}
+                                                    label={checkStatus(task?.task_status).status}
                                                     className="chip-status"
-                                                    icon={task.task_status?.toString() === '3' ? <MdCheck/> : null}
-                                                    color={(task.task_status?.toString() === '2' || task.task_status?.toString() === '3') ? 'success' : task.task_status?.toString() === '1' ? 'info' : task.task_status?.toString() === '0' ? 'warning' : '#fff'}
+                                                    icon={task?.task_status?.toString() === '3' ? <MdCheck/> : null}
+                                                    color={(task?.task_status?.toString() === '2' || task?.task_status?.toString() === '3') ? 'success' : task?.task_status?.toString() === '1' ? 'info' : task?.task_status?.toString() === '0' ? 'warning' : '#fff'}
                                                 />
-                                                {task?.task_status !== 4 && new Date(task.task_end_date) < new Date() && (task.task_status?.toString() !== '2' && task.task_status?.toString() !== '3') && (
+                                                {task?.task_status?.toString() !== '4' && new Date(task.task_end_date) < new Date() && (task?.task_status?.toString() !== '2' && task?.task_status?.toString() !== '3') && (
                                                     <Chip label="Quá hạn" style={{fontSize: '12px'}}
                                                           className="chip-status ms-1"
                                                           color="error"/>
@@ -680,7 +689,7 @@ const TaskList = (props) => {
                                                 {task.task_date_update_status_completed && (<>
 
                                                     {
-                                                        task?.task_status !== 4 ? (
+                                                        task?.task_status?.toString() !== '4' ? (
                                                             <>
                                                                 {new Date(task.task_date_update_status_completed) > new Date(task.task_end_date) ? (
                                                                     <span className='text-danger'>
@@ -701,7 +710,7 @@ const TaskList = (props) => {
                                                 {!task.task_date_update_status_completed && (
                                                     <>
                                                         {
-                                                            task?.task_status !== 4 ? (
+                                                            task?.task_status?.toString() !== '4' ? (
                                                                     <>
                                                                         {diffDays < 0 ? (
                                                                             <span className='text-danger'>
@@ -769,8 +778,9 @@ const TaskList = (props) => {
                                                     }
                                                     {
                                                         isHome && <div className='btn p-1' title='Xem dự án'
+                                                                       style={{cursor: 'pointer'}}
                                                                        onClick={() => {
-                                                                           history.push(`/admin/lam-viec/du-an/${task?.project?.project_id}`)
+                                                                           history.push(`/admin/lam-viec/du-an/${task?.project?.project_id ?? task?.project_id}`)
                                                                        }}
                                                         >
                                                             <IoEnterOutline color='gray' size={30}/>
@@ -1267,14 +1277,14 @@ const TaskList = (props) => {
                                     <strong>Trạng thái: </strong>
                                     <span
                                         style={{
-                                            backgroundColor: checkStatus(selectedTask?.task_status).color,
+                                            backgroundColor: checkStatus(selectedTask?.task_status)?.color,
                                             padding: '4px', borderRadius: '4px', color: '#fff'
                                         }}
                                     >
-                                        {checkStatus(selectedTask?.task_status).status}
+                                        {checkStatus(selectedTask?.task_status)?.status}
                         </span>
                                 </Typography.Paragraph>
-                                <Typography.Paragraph className="fs-5">
+                                <Typography.Paragraph className="fs-5">`
                                     <strong>Người thực hiện:</strong>
                                 </Typography.Paragraph>
                                 <div className='d-flex flex-wrap ms-3'>

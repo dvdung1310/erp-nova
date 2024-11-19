@@ -19,6 +19,7 @@ import MailComposer from "./MailComposer";
 const MainNotification = ({match}) => {
     const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
     const [notification, setNotification] = useState([]);
+    const [notificationCommon, setNotificationCommon] = useState([]);
     const [notificationUnread, setNotificationUnread] = useState([]);
     const [notificationRender, setNotificationRender] = useState([]);
     const [loadingClick, setLoadingClick] = useState(false);
@@ -77,6 +78,7 @@ const MainNotification = ({match}) => {
             setNotification(response?.data?.data);
             setNotificationRender(response?.data?.data);
             setNotificationUnread(response?.data?.data?.filter(item => item?.notification_status === 0));
+            setNotificationCommon(response?.data?.data?.filter(item => item?.notification_type === 1));
             setCurrentPage(response?.data?.current_page);
             setTotal(response?.data?.total);
             setLoadingClick(false);
@@ -197,7 +199,8 @@ const MainNotification = ({match}) => {
                                                             <FeatherIcon icon="inbox" size={18}/>
                                                             <span className="nav-text">
                                                                 <span>Thông báo chung</span>
-                                                                <span className="badge badge-primary">3</span>
+                                                                <span
+                                                                    className="badge badge-primary">{notificationCommon?.length}</span>
                                                             </span>
                                                         </NavLink>
                                                     </li>
@@ -214,7 +217,8 @@ const MainNotification = ({match}) => {
                                                             <FeatherIcon icon="inbox" size={18}/>
                                                             <span className="nav-text">
                                                                 <span>Tất cả thông báo</span>
-                                                                <span className="badge badge-primary">3</span>
+                                                                <span
+                                                                    className="badge badge-primary">{total}</span>
                                                             </span>
                                                         </NavLink>
                                                     </li>
@@ -231,7 +235,8 @@ const MainNotification = ({match}) => {
                                                             <FeatherIcon icon="inbox" size={18}/>
                                                             <span className="nav-text">
                                                                 <span>Thông báo chưa đọc</span>
-                                                                <span className="badge badge-primary">3</span>
+                                                                <span
+                                                                    className="badge badge-primary">{notificationUnread?.length}</span>
                                                             </span>
                                                         </NavLink>
                                                     </li>
@@ -268,7 +273,8 @@ const MainNotification = ({match}) => {
                                                             <FeatherIcon icon="inbox" size={18}/>
                                                             <span className="nav-text">
                                                                 <span>Thông báo chung</span>
-                                                                <span className="badge badge-primary">3</span>
+                                                                <span
+                                                                    className="badge badge-primary">{notificationCommon?.length}</span>
                                                             </span>
                                                         </NavLink>
                                                     </li>
@@ -285,7 +291,7 @@ const MainNotification = ({match}) => {
                                                             <FeatherIcon icon="inbox" size={18}/>
                                                             <span className="nav-text">
                                                                 <span>Tất cả thông báo</span>
-                                                                <span className="badge badge-primary">3</span>
+                                                                <span className="badge badge-primary">{total}</span>
                                                             </span>
                                                         </NavLink>
                                                     </li>
@@ -302,7 +308,8 @@ const MainNotification = ({match}) => {
                                                             <FeatherIcon icon="inbox" size={18}/>
                                                             <span className="nav-text">
                                                                 <span>Thông báo chưa đọc</span>
-                                                                <span className="badge badge-primary">3</span>
+                                                                <span
+                                                                    className="badge badge-primary">{notificationUnread?.length}</span>
                                                             </span>
                                                         </NavLink>
                                                     </li>

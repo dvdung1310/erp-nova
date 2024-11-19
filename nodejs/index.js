@@ -555,6 +555,41 @@ app.post('/create-comment-task', (req, res) => {
         console.log(error);
     }
 })
+app.post('/check-dateline-task', (req, res) => {
+    try {
+        const {
+            members,
+            content,
+            devices,
+            pathname
+        } = req.body;
+        console.log(devices)
+        const payload = JSON.stringify({
+            title: 'THông báo mới',
+            body: content,
+            data: {
+                url: `${CLIENT_URL}${pathname}`
+            }
+        });
+        devices.forEach(subscription => {
+            webpush.sendNotification(subscription, payload)
+                .catch(error => {
+                    console.error('Lỗi khi gửi thông báo:', error);
+                    res.status(500).json({
+                        message: "Lỗi khi gửi thông báo"
+                    });
+                });
+        });
+        res.status(200).json({
+            message: "Check dateline task success"
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi khi gửi thông báo"
+        });
+        console.log(error);
+    }
+})
 //employee
 app.post('/new-day-off', (req, res) => {
     try {
@@ -636,10 +671,15 @@ app.post('/create-notification-all', (req, res) => {
         sendNotificationSocket(createByUserName, notification, members, createByUserId);
         // Gửi thông báo đến các thiết bị
         devices.forEach(subscription => {
-            webpush.sendNotification(subscription, payload).catch(error => {
+            try {
+                webpush.sendNotification(subscription, payload)
+                    .catch(error => {
+                        throw new Error('Lỗi khi gửi thông báo');
+                    });
+            } catch (error) {
                 console.error('Lỗi khi gửi thông báo:', error);
                 res.status(500).json({message: "Lỗi khi gửi thông báo"});
-            });
+            }
         });
         res.status(200).json({message: "Create notification success"});
     } catch (error) {

@@ -14,7 +14,7 @@ import {
     Spin,
     Radio,
     List,
-    Badge, Select
+    Badge, Select, InputNumber
 } from 'antd';
 import {useSelector} from 'react-redux';
 import {Link, useHistory, useLocation} from 'react-router-dom';
@@ -33,7 +33,7 @@ import {BasicFormWrapper} from "../../../../styled";
 import {
     deleteProject, joinProject,
     updateEndDateProject, updateLeaderProject, updateMemberProject,
-    updateNameProject,
+    updateNameProject, updateNotifyBeforeEndTimeProject,
     updateStartDateProject, updateStatusProject
 } from "../../../../../apis/work/project";
 import {toast} from "react-toastify";
@@ -57,6 +57,7 @@ function ProjectLists({listProject, listUser = []}) {
     });
     const [selectedProject, setSelectedProject] = useState(null);
     const [loadingUpdate, setLoadingUpdate] = useState(false);
+    const [notifyBeforeEndTime, setNotifyBeforeEndTime] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     //
     const [showModalUpdateLeader, setShowModalUpdateLeader] = useState(false);
@@ -109,6 +110,10 @@ function ProjectLists({listProject, listUser = []}) {
     const [searchTerm, setSearchTerm] = useState('');
     //
     const [showModalCopy, setShowModalCopy] = useState(false);
+    const [showModalSetting, setShowModalSetting] = useState(false);
+    const handleShowModalSetting = () => {
+        setShowModalSetting(true);
+    }
 
     const handleShowModalCopy = () => {
         setShowModalCopy(true);
@@ -146,6 +151,7 @@ function ProjectLists({listProject, listUser = []}) {
         setShowModalConfirm(false);
         setShowModalUpdateLeader(false);
         setShowModalCopy(false);
+        setShowModalSetting(false);
     }
     //
     const {projects} = state;
@@ -218,6 +224,11 @@ function ProjectLists({listProject, listUser = []}) {
             case 'copy':
                 setSelectedProject(value);
                 handleShowModalCopy();
+                break;
+            case 'setting':
+                setSelectedProject(value);
+                setNotifyBeforeEndTime(value?.notify_before_end_time);
+                handleShowModalSetting();
                 break;
             default:
                 break;
@@ -544,7 +555,45 @@ function ProjectLists({listProject, listUser = []}) {
             console.log(e);
         }
     }
+    const handleUpdateRemind = async () => {
+        try {
+            setLoadingUpdate(true);
+            const payload = {
+                notify_before_end_time: notifyBeforeEndTime,
+                pathname
+            }
+            const res = await updateNotifyBeforeEndTimeProject(payload, selectedProject?.project_id);
+            if (res.error) {
+                toast.error(res?.message, {
+                    position: "top-right",
+                    autoClose: 1000,
+                })
+                setLoadingUpdate(false);
+                return;
+            }
+            toast.success('Cập nhật nhắc nhở dự án thành công', {
+                position: "top-right",
+                autoClose: 1000,
+            });
+            form.resetFields();
+            handleCancel();
+            history.push(pathname, {
+                key: 'updateProject',
+                data: res?.data
+            });
 
+            setLoadingUpdate(false);
+
+        } catch (e) {
+            console.log(e)
+            toast.error('Đã có lỗi xảy ra', {
+                autoClose: 1000,
+                position: 'top-right'
+            })
+        }
+        console.log(selectedProject)
+        console.log(notifyBeforeEndTime)
+    }
     //
     const dataSource = [];
     if (projects?.length)
@@ -704,7 +753,7 @@ function ProjectLists({listProject, listUser = []}) {
                                 <div className='action-item'
                                      onClick={() => handleEditClick('setting', value)}>
                                     <MdOutlineSettings size={30}
-                                                   className='d-block ms-1 fs-4 text-secondary'/>
+                                                       className='d-block ms-1 fs-4 text-secondary'/>
                                     <span>Cài đặt nhắc nhở</span>
                                 </div>
                                 <div className='action-item' onClick={() => handleEditClick('delete', value)}>
@@ -1198,6 +1247,32 @@ function ProjectLists({listProject, listUser = []}) {
                 selectedProject &&
                 <CopyProject visible={showModalCopy} onCancel={handleCancel} project={selectedProject}/>
             }
+            {/*    modal update notification before end time*/}
+            <Modal
+                visible={showModalSetting}
+                onCancel={handleCancel}
+                centered
+                title="Cài đặt nhắc nhở dự án"
+                footer={[
+                    <Button key="cancel" onClick={handleCancel}>
+                        Đóng
+                    </Button>,
+                    <Button key="submit" type="primary" onClick={handleUpdateRemind}>
+                        Hoàn thành
+                    </Button>,
+                ]}
+            >
+                <div>
+                    <label style={{marginBottom: '10px', display: 'block'}}>Thời gian nhắc nhở (giờ) <span
+                        style={{color: 'red'}}>*</span></label>
+                    < InputNumber style={{width: '100%'}} min={0} value={notifyBeforeEndTime}
+                                  defaultValue={notifyBeforeEndTime}
+                                  onChange={(value) => setNotifyBeforeEndTime(value)}/>
+                </div>
+
+
+            </Modal>
+
 
         </Row>
     );

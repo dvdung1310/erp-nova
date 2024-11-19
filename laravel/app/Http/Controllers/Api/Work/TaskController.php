@@ -11,6 +11,8 @@ use App\Models\Notification;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskMember;
+use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -644,7 +646,7 @@ class TaskController extends Controller
                 'task_status' => 'required|in:0,1,2,3,4',
             ]);
 
-            if ($validatedData['task_status'] == 2) {
+            if ($validatedData['task_status'] == 2 || $validatedData['task_status'] == 3) {
                 $validatedData['task_date_update_status_completed'] = now();
             }
             if ($validatedData['task_status'] == 3) {

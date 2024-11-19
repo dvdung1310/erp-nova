@@ -73,14 +73,10 @@ function MailComposer({handleClose}) {
                 setLoading(false);
                 return;
             }
-            if (res?.success) {
-                toast.success('Gửi thông báo thành công', {
-                    position: 'top-right',
-                    autoClose: 1000
-                });
-                setLoading(false);
-                return
-            }
+            toast.success('Gửi thông báo thành công', {
+                position: 'top-right',
+                autoClose: 1000
+            });
             setFileList([]);
             setEditorState(RichTextEditor.createEmptyValue());
             setNotificationTitle('');

@@ -85,13 +85,12 @@ const NotificationDetail = () => {
                                                             }} src={imageSrc} alt=""/>
                                                         </div>
                                                         <div className="attachment-hover">
-                                                            <a type='download' download={fileName}  href={`${LARAVEL_SERVER}${file}`}
+                                                            <a download href={`${LARAVEL_SERVER}${file}`}
+                                                               target="_blank"
+                                                               rel='noreferrer'
                                                                className="btn-link">
                                                                 <FeatherIcon icon="download"/>
                                                             </a>
-                                                            <Link className="btn-link" to="#">
-                                                                <FeatherIcon icon="share-2"/>
-                                                            </Link>
                                                         </div>
                                                         <figcaption>
                                                             <h4 style={{

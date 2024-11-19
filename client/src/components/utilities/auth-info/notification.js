@@ -70,7 +70,6 @@ function NotificationBox() {
         if (socketConnection) {
             console.log('socketConnection', socketConnection);
             const receiveNotification = async (data) => {
-                console.log('data', data);
                 setNotification(prevNotifications => [data, ...prevNotifications]);
                 setNotificationRender(prevNotifications => [data, ...prevNotifications]);
                 setNotificationUnread(prevUnreadNotifications => [data, ...prevUnreadNotifications]);
@@ -91,8 +90,13 @@ function NotificationBox() {
     const handleUpdateStatusNotification = async (item) => {
         try {
             console.log(item)
-            const url = new URL(item?.notification_link);
-            const pathname = url.pathname;
+            let url = new URL(item?.notification_link);
+            let pathname = url.pathname;
+            if (item.notification_type === 1) {
+                url = new URL(`${item?.notification_link}/${item?.notification_id}`);
+                pathname = url.pathname;
+            }
+
             if (item.notification_status === 1) {
                 history.push(pathname);
                 setActiveTab('recent');
@@ -212,8 +216,8 @@ function NotificationBox() {
                 <Badge offset={[10, -5]} className="custom-badge">
                     <div className={`head-example ${activeTab === 'recent' ? 'active' : ''}`}
                          onClick={() => {
-                         setNotificationRender(notification);
-                         setActiveTab('recent');
+                             setNotificationRender(notification);
+                             setActiveTab('recent');
                          }}
                     >
                         Tất cả

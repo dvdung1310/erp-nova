@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\Nova\WorkConfirmationController;
 use App\Http\Controllers\Api\Nova\ProposalController;
 use App\Http\Controllers\Api\Nvt\NvtCustomerController;
 use App\Http\Controllers\Api\Nvt\StudentController;
+
 // novaup
 use App\Http\Controllers\Api\Nvu\StatusController;
 use App\Http\Controllers\Api\Nvu\SourceController;
@@ -34,6 +35,7 @@ use App\Http\Controllers\Api\Nvu\RoomController;
 use App\Http\Controllers\Api\Nvu\CustomerController;
 use App\Http\Controllers\Api\Nvu\BookingController;
 use App\Http\Controllers\Api\Nvu\PaymentController;
+
 // endNovaup
 
 Route::group([
@@ -140,16 +142,16 @@ Route::group(['middleware' => 'api', 'prefix' => 'novaup'], function () {
 
 // NovaTeen
 Route::group(['middleware' => 'api'], function () {
-    Route::resource('nvtstudent',StudentController::class);
-    Route::resource('nvtcustomer',NvtCustomerController::class);
-    Route::post('storestudent',[NvtCustomerController::class,'storestudent'])->middleware(middlewareLogin::class);
-    Route::post('update_parent/{id}', [NvtCustomerController::class,'update_parent']);
+    Route::resource('nvtstudent', StudentController::class);
+    Route::resource('nvtcustomer', NvtCustomerController::class);
+    Route::post('storestudent', [NvtCustomerController::class, 'storestudent'])->middleware(middlewareLogin::class);
+    Route::post('update_parent/{id}', [NvtCustomerController::class, 'update_parent']);
     //Học sinh
-    Route::get('student_trial_class/{id}',[StudentController::class,'student_trial_class']);
-    Route::post('store_trial_class',[StudentController::class,'store_trial_class']);
-    Route::post('update_trial_class/{id}',[StudentController::class,'update_trial_class']);
-    Route::post('update_comment_parient/{id}',[StudentController::class,'update_comment_parient']);
-    Route::get('get_comment_parent/{id}',[StudentController::class,'get_comment_parent']);
+    Route::get('student_trial_class/{id}', [StudentController::class, 'student_trial_class']);
+    Route::post('store_trial_class', [StudentController::class, 'store_trial_class']);
+    Route::post('update_trial_class/{id}', [StudentController::class, 'update_trial_class']);
+    Route::post('update_comment_parient/{id}', [StudentController::class, 'update_comment_parient']);
+    Route::get('get_comment_parent/{id}', [StudentController::class, 'get_comment_parent']);
 });
 Route::group(['middleware' => 'api'], function () {
     Route::resource('nvdepartment', NvDepartmentController::class);
@@ -206,6 +208,7 @@ Route::prefix('projects')->group(function () {
     Route::put('update-members/{project_id}', [ProjectController::class, 'updateMembers'])->middleware(middlewareLogin::class);
     Route::put('update-start-date/{project_id}', [ProjectController::class, 'updateStartDate'])->middleware(middlewareLogin::class);
     Route::put('update-end-date/{project_id}', [ProjectController::class, 'updateEndDate'])->middleware(middlewareLogin::class);
+    Route::put('update-notify-before-end-time/{project_id}', [ProjectController::class, 'updateNotifyBeforeEndTime'])->middleware(middlewareLogin::class);
     Route::delete('delete/{project_id}', [ProjectController::class, 'delete'])->middleware(middlewareLogin::class);
     Route::get('get-all', [ProjectController::class, 'getAllProjects'])->middleware(middlewareLogin::class);
     Route::get('get-project-by-user-id', [ProjectController::class, 'getProjectByUserId'])->middleware(middlewareLogin::class);
