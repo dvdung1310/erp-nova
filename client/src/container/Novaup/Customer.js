@@ -39,10 +39,18 @@ const CustomerStatus = () => {
   const showModal = (status = null) => {
     setIsEditMode(!!status);
     setEditingStatus(status);
-    form.setFieldsValue({
-      ...status,
-      date: status?.date ? dayjs(status.date) : null,
-    });
+    
+    if (status) {
+      form.setFieldsValue({
+        ...status,
+        date: status.date ? dayjs(status.date) : null,
+        status_id: status.status_id,
+        source_id: status.source_id,
+      });
+    } else {
+      form.resetFields();
+    }
+
     setIsModalVisible(true);
   };
 
@@ -52,18 +60,18 @@ const CustomerStatus = () => {
         const formData = new FormData();
         formData.append('name', values.name);
         formData.append('phone', values.phone);
-        formData.append('date', values.date ? values.date.format('YYYY-MM-DD') : null); 
+        formData.append('date', values.date); 
         formData.append('email', values.email ? values.email : null);
         formData.append('status_id', values.status_id);
         formData.append('source_id', values.source_id);
-        
+        console.log(values.status_id);
         const response = await storeCustomer(formData);
-        toast.success('Lưu nguồn khách hàng thành công!');
+        toast.success(response.message);
         setIsModalVisible(false);
         form.resetFields();
         fetchStatuses();
     } catch (error) {
-        toast.error('Lưu nguồn khách hàng thất bại!');
+        toast.error(error.message);
     }
   };
 
@@ -74,18 +82,18 @@ const CustomerStatus = () => {
         formData.append('id', editingStatus.id);
         formData.append('name', values.name);
         formData.append('phone', values.phone);
-        formData.append('date', values.date ? values.date.format('YYYY-MM-DD') : null); // Chuyển đổi ngày
-        formData.append('email', values.email || 'không có');
+        formData.append('date', values.date); 
+        formData.append('email', values.email ? values.email : null);
         formData.append('status_id', values.status_id);
         formData.append('source_id', values.source_id);
         
         const response = await updateCustomer(formData);
-        toast.success('Cập nhật nguồn khách hàng thành công!');
+        toast.success(response.message);
         setIsModalVisible(false);
         form.resetFields();
         fetchStatuses();
     } catch (error) {
-        toast.error('Cập nhật nguồn khách hàng thất bại!');
+        toast.error(error.message);
     }
   };
 
@@ -197,38 +205,45 @@ const CustomerStatus = () => {
           <Row gutter={16}>
             <Col className="gutter-row" span={12}>
               <Form.Item name="name" label="Tên" rules={[{ required: true, message: 'Vui lòng nhập tên khách hàng' }]}>
-                <Input />
+                <Input placeholder='Nhập tên' />
               </Form.Item>
             </Col>
 
             <Col className="gutter-row" span={12}>
               <Form.Item name="phone" label="Số điện thoại" rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}>
-                <Input />
+                <Input placeholder='Nhập số điện thoại' />
               </Form.Item>
             </Col>
 
             <Col className="gutter-row" span={12}>
               <Form.Item name="date" label="Ngày sinh">
-                <DatePicker format="YYYY-MM-DD" />
+              <Input
+        type="date"
+        value={editingStatus && editingStatus.date ? dayjs(editingStatus.date).format('YYYY-MM-DD') : ''}
+        onChange={(e) => form.setFieldsValue({ date: e.target.value })}
+      />
               </Form.Item>
             </Col>
 
             <Col className="gutter-row" span={12}>
               <Form.Item name="email" label="Email">
-                <Input />
+                <Input placeholder='Nhập email' />
               </Form.Item>
             </Col>
 
             <Col className="gutter-row" span={12}>
-              <Form.Item name="status_id" label="Trạng thái" rules={[{ required: true, message: 'Vui lòng chọn trạng thái' }]}>
-                <Select placeholder="Chọn trạng thái">
-                  {customer_status.map((status) => (
-                    <Option key={status.id} value={status.id}>
-                      {status.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
+            <Form.Item
+             name="status_id"
+             label="Trạng thái"
+              rules={[{ required: true, message: 'Vui lòng chọn trạng thái' }]}>
+  <Select placeholder="Chọn trạng thái">
+    {customer_status.map((status) => (
+      <Option key={status.id} value={status.id}>
+        {status.name}
+      </Option>
+    ))}
+  </Select>
+</Form.Item>
             </Col>
 
             <Col className="gutter-row" span={12}>

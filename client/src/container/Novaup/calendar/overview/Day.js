@@ -1,22 +1,19 @@
-/* eslint-disable no-shadow */
-import React, { useState, useLayoutEffect, useRef } from 'react';
-import { Calendar } from 'antd';
+import React, { useState, useLayoutEffect } from 'react';
 import FeatherIcon from 'feather-icons-react';
 import { Link, NavLink } from 'react-router-dom';
 import CalenDar from 'react-calendar';
 import moment from 'moment';
 import { useSelector, useDispatch } from 'react-redux';
-import ProjectUpdate from './ProjectUpdate';
 import AddNewEvent from './AddNewEvent';
-import { BlockViewCalendarWrapper } from '../Style';
-import { Cards } from '../../../components/cards/frame/cards-frame';
-import { Button } from '../../../components/buttons/buttons';
-import { Dropdown } from '../../../components/dropdown/dropdown';
+import ProjectUpdate from './ProjectUpdate';
+import { Cards } from '../../../../components/cards/frame/cards-frame';
+import { Button } from '../../../../components/buttons/buttons';
 import './style.css';
-import { calendarDeleteData, eventVisible, addNewEvents } from '../../../redux/calendar/actionCreator';
-import { Modal } from '../../../components/modals/antd-modals';
+import { eventVisible, addNewEvents, calendarDeleteData } from '../../../../redux/calendar/actionCreator';
+import { Modal } from '../../../../components/modals/antd-modals';
+import { Dropdown } from '../../../../components/dropdown/dropdown';
 
-function MonthCalendar() {
+function DayCalendar() {
   const dispatch = useDispatch();
   const { events, isVisible } = useSelector(state => {
     return {
@@ -28,12 +25,10 @@ function MonthCalendar() {
     date: new Date(),
     container: null,
     currentLabel: moment().format('MMMM YYYY'),
-    width: 0,
     defaultValue: moment().format('YYYY-MM-DD'),
   });
 
-  const { date, container, currentLabel, width, defaultValue } = state;
-  const getInput = useRef();
+  const { date, container, currentLabel, defaultValue } = state;
 
   useLayoutEffect(() => {
     const button = document.querySelector(
@@ -44,13 +39,11 @@ function MonthCalendar() {
     calenderDom.forEach(element => {
       element.addEventListener('click', e => {
         if (e.target.classList[0] === 'ant-picker-calendar-date-content') {
-          const getDate = moment(e.currentTarget.closest('td').getAttribute('title')).format('YYYY-MM-DD');
           setState({
             container: containers,
             date,
             currentLabel,
-            width: getInput.current !== null && getInput.current.clientWidth,
-            defaultValue: getDate,
+            defaultValue,
           });
 
           dispatch(eventVisible(true));
@@ -64,64 +57,15 @@ function MonthCalendar() {
       defaultValue,
       date,
       currentLabel,
-      width: getInput.current !== null && getInput.current.clientWidth,
     });
   }, [date, currentLabel, defaultValue, dispatch]);
 
-  const onChange = dt => setState({ ...state, date: dt, defautlValue: moment(dt).format('YYYY-MM-DD') });
+  const onChange = dt => setState({ ...state, date: dt, defaultValue: moment(dt).format('YYYY-MM-DD') });
 
   const onEventDelete = id => {
     const data = events.filter(item => item.id !== id);
     dispatch(calendarDeleteData(data));
   };
-
-  function getListData(value) {
-    let listData;
-    const data = [];
-    events.map(event => {
-      if (moment(event.date[0]).format('MMMM YYYY') === currentLabel) {
-        const { label, title, id, description, time, date, type } = event;
-        const a = moment(moment(event.date[1]).format('DD MMMM YYYY'));
-        const b = moment(moment(event.date[0]).format('DD MMMM YYYY'));
-        const totalDays = a.diff(b, 'days');
-
-        switch (value.date()) {
-          case parseInt(moment(event.date[0]).format('DD'), 10):
-            data.push({ label, title, id, totalDays, description, time, date, type });
-            listData = data;
-            break;
-          default:
-        }
-      }
-      return listData;
-    });
-    return listData || [];
-  }
-
-  function dateCellRender(value) {
-    const listData = getListData(value);
-    console.log('hellp' , listData);
-    return (
-      <ul className="events">
-        {listData.map(item => (
-          <Dropdown
-            className="event-dropdown"
-            key={item.id}
-            style={{ padding: 0 }}
-            placement="bottomLeft"
-            content={<ProjectUpdate onEventDelete={onEventDelete} {...item} />}
-            action={['click']}
-          >
-            <li ref={getInput}>
-              <Link style={{ width: width * (item.totalDays + 1) }} className={item.label} to="#">
-                {item.title}
-              </Link>
-            </li>
-          </Dropdown>
-        ))}
-      </ul>
-    );
-  }
 
   const handleCancel = () => {
     dispatch(eventVisible(false));
@@ -137,13 +81,40 @@ function MonthCalendar() {
     dispatch(eventVisible(false));
   };
 
+  const eventTimes = [
+    '12 AM',
+    '1 AM',
+    '2 AM',
+    '3 AM',
+    '4 AM',
+    '5 AM',
+    '6 AM',
+    '7 AM',
+    '8 AM',
+    '9 AM',
+    '10 AM',
+    '11 AM',
+    '12 PM',
+    '1 PM',
+    '2 PM',
+    '3 PM',
+    '4 PM',
+    '5 PM',
+    '6 PM',
+    '7 PM',
+    '8 PM',
+    '9 PM',
+    '10 PM',
+    '11 PM',
+  ];
+
   return (
     <Cards headless>
       <Modal
         className="addEvent-modal"
         footer={null}
         type="primary"
-        title="Create Event"
+        title="Đặt phòng"
         visible={isVisible}
         onCancel={handleCancel}
       >
@@ -151,11 +122,11 @@ function MonthCalendar() {
       </Modal>
       <div className="calendar-header">
         <div className="calendar-header__left">
-          <Button className="btn-today" type="white" outlined>
+          <Button className="btn-today" type="white" size="small" outlined>
             <NavLink to="./day">Today</NavLink>
           </Button>
           <CalenDar
-            onClickMonth={() => {
+            onClickDay={() => {
               container.classList.remove('show');
             }}
             onActiveStartDateChange={({ activeStartDate }) =>
@@ -170,6 +141,7 @@ function MonthCalendar() {
             nextLabel={<FeatherIcon icon="chevron-right" />}
             prevLabel={<FeatherIcon icon="chevron-left" />}
             onChange={onChange}
+            navigationLabel={() => `${moment(defaultValue).format('MMMM DD, YYYY')}`}
             value={state.date}
           />
         </div>
@@ -194,19 +166,54 @@ function MonthCalendar() {
           </NavLink>
         </div>
       </div>
-      <BlockViewCalendarWrapper className="table-responsive">
-        <Calendar
-          headerRender={() => {
-            return <></>;
-          }}
-          mode="month"
-          dateCellRender={dateCellRender}
-          value={moment(defaultValue)}
-          defaultValue={moment(defaultValue)}
-        />
-      </BlockViewCalendarWrapper>
+      <table className="table-event" width="100%">
+        <thead>
+          <tr>
+            
+            <th>
+              <p>{moment(defaultValue).format('dddd')}</p>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {eventTimes.map((time, key) => {
+            return (
+              <tr key={key + 1}>
+                <td style={{ width: '60px' }}>{time}</td>
+                <td
+                  className={`ant-picker-calendar-date-content ${
+                    moment().format('h A') === time ? 'current-data' : null
+                  }`}
+                >
+                  {moment().format('h A') === time ? <span className="currentTime secondary" /> : null}
+
+                  {events.map(
+                    event =>
+                      moment(defaultValue).format('MM/DD/YYYY') === event.date[0] &&
+                      time === moment(event.time[0], 'h:mm a').format('h A') && (
+                        <Dropdown
+                          className="event-dropdown"
+                          key={event.id}
+                          style={{ padding: 0 }}
+                          placement="bottomLeft"
+                          content={<ProjectUpdate onEventDelete={onEventDelete} {...event} />}
+                          action={['click']}
+                        >
+                          <Link to="#" className={`${event.label} day-event-item`}>
+                            <span className="event-title">{event.title}</span>
+                            <span>{`${event.time[0]} - ${event.time[1]}`}</span>
+                          </Link>
+                        </Dropdown>
+                      ),
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </Cards>
   );
 }
 
-export default MonthCalendar;
+export default DayCalendar;

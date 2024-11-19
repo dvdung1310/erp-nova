@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers\Api\Nvu;
-
 use App\Http\Controllers\Controller;
 use App\Models\CustomerDataSource;
 use Illuminate\Http\Request;

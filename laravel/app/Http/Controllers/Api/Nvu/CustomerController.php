@@ -31,6 +31,8 @@ class CustomerController extends Controller
                         'file_infor' => $customer->file_infor,
                         'status_name' => $customer->status ? $customer->status->name : 'Không xác định',
                         'source_name' => $customer->dataSource ? $customer->dataSource->name : 'Không xác định',
+                        'status_id' => $customer->status->id ,
+                        'source_id' => $customer->dataSource->id,
                         'sales_names' => $salesNames,
                         'created_at' => $customer->created_at,
                     ];
@@ -66,17 +68,23 @@ class CustomerController extends Controller
             'source_id' => 'required|exists:customer_data_source,id',
         ]);
 
-        if (!empty($validatedData['date']) && $validatedData['date'] !== 'null') {
-            $date = Carbon::parse($validatedData['date'])->format('Y-m-d');
+        if (!empty($validatedData['date']) && $validatedData['date'] !== 'null' && $validatedData['date'] !== 'undefined') {
+            $date = $validatedData['date'];
         } else {
             $date = null;
+        }
+
+        if (empty($validatedData['email'])  || $validatedData['email'] == 'null') {
+            $email = null;
+        }else{
+            $email = $validatedData['email'];
         }
         try {
             $customer = Customer::create([
                 'name' => $validatedData['name'],
                 'phone' => $validatedData['phone'],
                 'date' => $date,
-                'email' => $validatedData['email'] ?? null,
+                'email' => $email,
                 'file_infor' => $validatedData['file_infor'] ?? null,
                 'status_id' => $validatedData['status_id'],
                 'source_id' => $validatedData['source_id'],
@@ -116,16 +124,22 @@ class CustomerController extends Controller
         try {
             $customer = Customer::findOrFail($validatedData['id']);
 
-            if (!empty($validatedData['date']) && $validatedData['date'] !== 'null') {
-                $date = Carbon::parse($validatedData['date'])->format('Y-m-d');
+            if (!empty($validatedData['date']) && $validatedData['date'] !== 'null' && $validatedData['date'] !== 'undefined') {
+                $date = $validatedData['date'];
             } else {
                 $date = null;
+            }
+    
+            if (empty($validatedData['email'])  || $validatedData['email'] == 'null') {
+                $email = null;
+            }else{
+                $email = $validatedData['email'];
             }
             $customer->update([
                 'name' => $validatedData['name'] ?? $customer->name,
                 'phone' => $validatedData['phone'] ?? $customer->phone,
                 'date' => $date,
-                'email' => $validatedData['email'] ?? $customer->email ?? null,
+                'email' => $email,
                 'file_infor' => $validatedData['file_infor'] ?? $customer->file_infor ?? null,
                 'status_id' => $validatedData['status_id'] ?? $customer->status_id,
                 'source_id' => $validatedData['source_id'] ?? $customer->source_id,

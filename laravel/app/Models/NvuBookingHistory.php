@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class NvuBookingHistory extends Model
 {
     use HasFactory;
+    protected $table = 'nvu_booking_history';
 
     protected $fillable = ['room_booking_id', 'payment_history_id'];
 
