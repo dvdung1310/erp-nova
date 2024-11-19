@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class CustomerPaymentHistory extends Model
 {
     use HasFactory;
-
-    protected $fillable = ['name', 'money', 'date', 'image', 'status'];
+    protected $table='customer_payment_history';
+    protected $fillable = ['customer_id', 'money', 'date','image','sale_id', 'status'];
 
     public function bookingHistories()
     {

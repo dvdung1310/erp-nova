@@ -185,18 +185,15 @@ const ShowCustomer = () => {
   // Xử lý khi nhấn submit
   const updateHistoryParent = async (e) => {
     e.preventDefault(); // Ngừng sự kiện mặc định khi submit form
-
     if (comment.trim()) {
       // Kiểm tra nếu comment không rỗng
       try {
         // Gửi bình luận và thời gian đến backend
         const response = await updateCommentParent({ student_note: comment }, customer.student_id);
-
+        setListComments(response.data || []);
+        setComment('');
         if (response.data.success) {
-          // Nếu thành công, thêm bình luận vào danh sách
           setComments([...comments, comment]);
-          setComment(''); // Xóa nội dung sau khi submit
-          
           message.success('Thêm trao đổi thành công');
         } else {
           message.success('Thêm trao đổi thành công');
@@ -206,14 +203,11 @@ const ShowCustomer = () => {
       }
     }
   };
-
-  // Xử lý khi người dùng thay đổi nội dung trong ô input
   const handleInputChange = (e) => {
     const timeStamp = getCurrentDateTime();
     const newComment = e.target.value;
-    // Kiểm tra và chỉ cho phép người dùng chỉnh sửa phần nội dung (sau dấu thời gian)
     if (!newComment.startsWith(timeStamp)) {
-      setComment(timeStamp + ' ' + newComment.slice(timeStamp.length)); // Duy trì thời gian
+      setComment(timeStamp + ' ' + newComment.slice(timeStamp.length));
     } else {
       setComment(newComment);
     }

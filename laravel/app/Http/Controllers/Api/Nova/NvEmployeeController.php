@@ -293,8 +293,8 @@ class NvEmployeeController extends Controller
         try {
             $user_id = auth()->user()->id;
             $employee = CrmEmployeeModel::join('users', 'crm_employee.account_id', '=', 'users.id')
-                ->join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
-                ->join('crm_employee_level', 'crm_employee.level_id', '=', 'crm_employee_level.level_id')
+                ->leftjoin('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
+                ->leftjoin('crm_employee_level', 'crm_employee.level_id', '=', 'crm_employee_level.level_id')
                 ->where('users.id', $user_id)->first();
             return response()->json([
                 'error' => false,

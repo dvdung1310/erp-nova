@@ -312,6 +312,11 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
            Data import
           </NavLink>
         </Menu.Item>
+        <Menu.Item key="nvt-bill">
+          <NavLink onClick={toggleCollapsed} to={`${path}/novateen/doanh-thu`}>
+          Doanh thu
+          </NavLink>
+        </Menu.Item>
         {/* cấu hình novateen */}
         <Menu
           mode={!topMenu || window.innerWidth <= 991 ? 'inline' : 'horizontal'}
@@ -320,13 +325,13 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
           onOpenChange={onOpenChanges}
         >
           <SubMenu key="sales" title="Cấu hình" icon={<FeatherIcon icon="settings" />}>
-            <Menu.Item key="sales-option1">
-              <NavLink onClick={toggleCollapsed} to={`${path}/novateen/status-data`}>
+            <Menu.Item key="nvt_sales-option1">
+              <NavLink onClick={toggleCollapsed} to={`${path}/novateen/trang-thai-data`}>
                 Trạng thái data
               </NavLink>
             </Menu.Item>
-            <Menu.Item key="sales-option2">
-              <NavLink onClick={toggleCollapsed} to={`${path}/novateen/data-source`}>
+            <Menu.Item key="nvt_sales-option2">
+              <NavLink onClick={toggleCollapsed} to={`${path}/novateen/nguon-data`}>
                 Nguồn data
               </NavLink>
             </Menu.Item>
