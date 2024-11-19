@@ -35,7 +35,7 @@ class NvtCustomerController extends Controller
                 ->paginate(20);
 
             $statuses = CustomerStatus::select('id', 'name', 'color')->get();
-            $dataSources = CustomerDataSource::select('id', 'name')->where('source', 'novateen')->get();
+            $dataSources = CustomerDataSource::select('id', 'name')->where('source', 'novateen')->where('status', 1)->get();
             return response()->json([
                 'error' => false,
                 'message' => 'Customers retrieved successfully.',
@@ -144,7 +144,7 @@ class NvtCustomerController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->where('customers.id', $nvtcustomer)->first();
             $statuses = CustomerStatus::select('id', 'name', 'color')->get();
-            $dataSources = CustomerDataSource::select('id', 'name')->where('source', 'novateen')->get();
+            $dataSources = CustomerDataSource::select('id', 'name')->where('source', 'novateen')->where('status', 1)->get();
             return response()->json([
                 'success' => true,
                 'message' => 'Khách hàng đã được tạo thành công.',
@@ -179,7 +179,7 @@ class NvtCustomerController extends Controller
             //     'id' => $id,
             //     'request_data' => $request->all(),
             // ]);
-            $parent = Customer::findOrFail($id); 
+            $parent = Customer::findOrFail($id);
             // Cập nhật thông tin khách hàng
             $parent->name = $request->name;
             $parent->phone = $request->phone;
@@ -188,7 +188,7 @@ class NvtCustomerController extends Controller
             $parent->status_id = $request->status_id;
             $parent->source_id = $request->source_id;
             $parent->save();
-    
+
             // Cập nhật thông tin học sinh
             $student_id = $request->student_id;
             if (!$student_id) {
@@ -197,14 +197,14 @@ class NvtCustomerController extends Controller
                     'message' => 'Thông tin học sinh không hợp lệ',
                 ], 400);
             }
-    
+
             $student = NvtStudentModel::findOrFail($student_id);
             $student->student_name = $request->student_name;
             $student->student_birthday = $request->student_birthday;
-            $student->student_note = $request->student_note;
+            // $student->student_note = $request->student_note;
             $student->student_subject = $request->student_subject;
             $student->save();
-    
+
             // Trả về thông tin đã cập nhật
             $customer = Customer::join('customer_status', 'customers.status_id', '=', 'customer_status.id')
                 ->join('nvt_student', 'customers.id', '=', 'nvt_student.parent_id')
@@ -225,7 +225,7 @@ class NvtCustomerController extends Controller
                 )
                 ->where('customers.id', $id)
                 ->first();
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Cập nhật thông tin khách hàng thành công.',
@@ -239,12 +239,61 @@ class NvtCustomerController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
         //
+    }
+    public function data_source_novateen()
+    {
+        try {
+            $data = CustomerDataSource::where('source', 'novateen')->get();
+            return response()->json([
+                'success' => true,
+                'message' => 'Nguồn khách hàng',
+                'data' => $data,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể lấy nguồn khách hàng',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function store_source_novateen(Request $request){
+        try {
+            $data = new CustomerDataSource();
+            $data['name'] = $request->name;
+            $data['status'] = $request->status;
+            $data['source'] = 'novateen';
+            $data->save();
+            // $getdata = $this->data_source_novateen();
+            return response()->json([
+                'success' => true,
+                'message' => 'Nguồn khách hàng',
+                'data' =>$data,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể lấy nguồn khách hàng',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function update_source_novateen(Request $request)
+    {
+        $id = $request->input('id');
+        $status = CustomerDataSource::find($id);
+        if (!$status) {
+            return response()->json(['message' => 'Nguồn khách hàng không tồn tại.'], 404);
+        }
+        $status->update($request->only(['name', 'status']));
+
+        return response()->json(['message' => 'Cập nhật nguồn khách hàng thành công!', 'status' => $status], 200);
     }
 }

@@ -262,8 +262,7 @@ const Customer = () => {
               <Form.Item
                 name="phone"
                 label="Số điện thoại"
-                rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}
-              >
+                rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}>
                 <Input />
               </Form.Item>
             </Col>
@@ -273,8 +272,8 @@ const Customer = () => {
               </Form.Item>
             </Col>
             <Col className="gutter-row" span={12}>
-              <Form.Item name="date" label="Ngày sinh">
-                <DatePicker format="YYYY-MM-DD" />
+              <Form.Item name="date" label="Ngày sinh" >
+                <DatePicker format="YYYY-MM-DD" style={{height:'45px'}}/>
               </Form.Item>
             </Col>
             <Col className="gutter-row" span={24}>

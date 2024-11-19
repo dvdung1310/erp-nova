@@ -26,6 +26,7 @@ use App\Http\Controllers\Api\Nova\WorkScheduleController;
 use App\Http\Controllers\Api\Nova\WorkConfirmationController;
 use App\Http\Controllers\Api\Nova\ProposalController;
 use App\Http\Controllers\Api\Nvt\NvtCustomerController;
+use App\Http\Controllers\Api\Nvt\NvtPaymentController;
 use App\Http\Controllers\Api\Nvt\StudentController;
 
 // novaup
@@ -152,6 +153,27 @@ Route::group(['middleware' => 'api'], function () {
     Route::post('update_trial_class/{id}', [StudentController::class, 'update_trial_class']);
     Route::post('update_comment_parient/{id}', [StudentController::class, 'update_comment_parient']);
     Route::get('get_comment_parent/{id}', [StudentController::class, 'get_comment_parent']);
+    Route::resource('nvtstudent',StudentController::class);
+    Route::resource('nvtcustomer',NvtCustomerController::class);
+    Route::post('storestudent',[NvtCustomerController::class,'storestudent'])->middleware(middlewareLogin::class);
+    Route::post('update_parent/{id}', [NvtCustomerController::class,'update_parent']);
+    Route::get('data_source_novateen',[NvtCustomerController::class,'data_source_novateen']);
+    Route::post('store_source_novateen',[NvtCustomerController::class,'store_source_novateen']);
+    Route::post('update_source_novateen',[NvtCustomerController::class,'update_source_novateen']);
+    //Học sinh
+    Route::get('student_trial_class/{id}',[StudentController::class,'student_trial_class']);
+    Route::post('store_trial_class',[StudentController::class,'store_trial_class']);
+    Route::post('update_trial_class/{id}',[StudentController::class,'update_trial_class']);
+    Route::post('update_comment_parient/{id}',[StudentController::class,'update_comment_parient']);
+    Route::get('get_comment_parent/{id}',[StudentController::class,'get_comment_parent']);
+    //Doanh thu
+    Route::get('nvt_payment',[NvtPaymentController::class,'index']);
+    Route::get('nvt_customer',[NvtPaymentController::class,'nvt_customer']);
+    Route::post('nvt_store_payment',[NvtPaymentController::class,'store'])->middleware(middlewareLogin::class);
+    Route::post('nvt_update_payment/{id}',[NvtPaymentController::class,'update']);
+    Route::get('delete_payment/{id}',[NvtPaymentController::class,'delete_payment']);
+    Route::put('update_status_payment/{id}', [NvtPaymentController::class, 'update_status_payment']);
+
 });
 Route::group(['middleware' => 'api'], function () {
     Route::resource('nvdepartment', NvDepartmentController::class);
