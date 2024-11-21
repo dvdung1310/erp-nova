@@ -187,6 +187,8 @@ Route::group(['middleware' => 'api'], function () {
     Route::get('listdayoff/{employee_id}', [NvEmployeeDayOffController::class, 'listdayoff']);
 
     Route::get('listdayoff/{employee_id}', [NvEmployeeDayOffController::class, 'listdayoff']);
+
+    Route::post('update_role_user', [NvEmployeeController::class, 'update_role_user']);
     //Department Team
     Route::get('getdepartmentteam/{department_id}', [NvDepartmentTeamController::class, 'getdepartmentteam']);
     Route::get('nvemployee', [NvEmployeeController::class, 'index'])->middleware(middlewareLogin::class);

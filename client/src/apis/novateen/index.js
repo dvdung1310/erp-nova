@@ -150,7 +150,7 @@ export const storePayment = async (data) => {
       `${LARAVEL_SERVER}/api/nvt_store_payment`, data,
       {
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`
         }
       }
