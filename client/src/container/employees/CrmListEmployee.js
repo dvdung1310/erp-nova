@@ -448,7 +448,7 @@ function CrmEmployees() {
             <Select placeholder="Chọn quyền">
               {roleUser.map((role) => (
                 <Option key={role.id} value={role.id}>
-                  {role.name}
+                  {role?.description}
                 </Option>
               ))}
             </Select>
