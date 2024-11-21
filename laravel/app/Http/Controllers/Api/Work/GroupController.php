@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Work;
 
 use App\Http\Controllers\Controller;
 use App\Models\Group;
+use App\Models\MessageTask;
 use App\Models\Notification;
 use App\Models\Project;
 use App\Models\Task;
@@ -167,7 +168,7 @@ class GroupController extends Controller
 
             if (!$group) {
                 return response([
-                    'message' => 'Group.js not found',
+                    'message' => 'Group not found',
                     'data' => null,
                     'error' => true
                 ], 404);
@@ -232,6 +233,8 @@ class GroupController extends Controller
                 foreach ($tasks as $task) {
                     $task->taskMembers()->delete();
                     Notification::where('task_id', $task->task_id)->delete();
+                    MessageTask::where('task_id', $task['task_id'])->delete();
+                    $task->delete();
                 }
                 // delete notifications
                 Notification::where('project_id', $project->project_id)->delete();
@@ -282,6 +285,8 @@ class GroupController extends Controller
                 foreach ($tasks as $task) {
                     Task::find($task['task_id'])->taskMembers()->delete();
                     Notification::where('task_id', $task['task_id'])->delete();
+                    MessageTask::where('task_id', $task['task_id'])->delete();
+                    $task->delete();
                 }
                 Project::find($project['project_id'])->tasks()->delete();
                 Notification::where('project_id', $project['project_id'])->delete();
@@ -327,7 +332,7 @@ class GroupController extends Controller
                         ->select('group_id', 'group_name', 'color', 'leader_id', 'group_description')
                         ->first();
                     return response([
-                        'message' => 'Group.js created successfully',
+                        'message' => 'Group created successfully',
                         'data' => $dataResponse,
                         'error' => false
                     ], 200);
@@ -483,9 +488,10 @@ class GroupController extends Controller
                     'total_completed_tasks' => 0,
                     'total_doing_tasks' => 0,
                     'total_waiting_tasks' => 0,
-                    'overdue_tasks' => 0
+                    'total_overdue_tasks' => 0,
+                    'taskOverdueWeek' => []
                 ];
-                $this->getProjectsAndTasksFromGroup($group, $groupData['total_projects'], $groupData['total_tasks'], $groupData['total_completed_tasks'], $groupData['total_doing_tasks'], $groupData['total_waiting_tasks'], $groupData['overdue_tasks'], $groupData['taskDeadlineWeek']);
+                $this->getProjectsAndTasksFromGroup($group, $groupData['total_projects'], $groupData['total_tasks'], $groupData['total_completed_tasks'], $groupData['total_doing_tasks'], $groupData['total_waiting_tasks'], $groupData['total_overdue_tasks'], $groupData['taskDeadlineWeek'], $groupData['taskOverdueWeek']);
                 $allGroupsProjectsAndTasks[] = $groupData;
             }
 
@@ -503,7 +509,7 @@ class GroupController extends Controller
         }
     }
 
-    private function getProjectsAndTasksFromGroup($group, &$totalProjects, &$totalTasks, &$totalCompletedTasks, &$totalDoingTasks, &$totalWaitingTasks, &$TotalOverdueTasks, &$taskDeadlineWeek = [])
+    private function getProjectsAndTasksFromGroup($group, &$totalProjects, &$totalTasks, &$totalCompletedTasks, &$totalDoingTasks, &$totalWaitingTasks, &$TotalOverdueTasks, &$taskDeadlineWeek = [], &$taskOverdueWeek = [])
     {
         $projects = Project::where('group_id', $group->group_id)
             ->with(['tasks'])
@@ -512,27 +518,27 @@ class GroupController extends Controller
         foreach ($projects as $project) {
             $tasks = $project->tasks;
             $taskDeadline = $tasks->where('task_end_date', '>', now()->startOfWeek())
-                ->where('task_end_date', '<', now()->endOfWeek())
-                ->whereIn('task_status', [0, 1, 2])
+                ->whereIn('task_status', [1])
                 ->load('project');
             $completedTasks = $tasks->where('task_status', '3')->count();
             $doingTasks = $tasks->where('task_status', '1')->count();
             $waitingTasks = $tasks->where('task_status', '0')->count();
             $overdueTasks = $tasks->where('task_end_date', '<', now())
-                ->where('task_status', '!=', '3')
-                ->count();
+                ->whereNotIn('task_status', [3, 4])
+                ->where('task_date_update_status_completed', '=', null);
             $totalProjects++;
             $totalTasks += $tasks->count();
             $totalCompletedTasks += $completedTasks;
             $totalDoingTasks += $doingTasks;
             $totalWaitingTasks += $waitingTasks;
-            $TotalOverdueTasks += $overdueTasks;
+            $TotalOverdueTasks += $overdueTasks->count();
             $taskDeadlineWeek = array_merge($taskDeadlineWeek, $taskDeadline->toArray());
+            $taskOverdueWeek = array_merge($taskOverdueWeek, $overdueTasks->toArray());
         }
 
         $childGroups = Group::where('parent_group_id', $group->group_id)->get();
         foreach ($childGroups as $childGroup) {
-            $this->getProjectsAndTasksFromGroup($childGroup, $totalProjects, $totalTasks, $totalCompletedTasks, $totalDoingTasks, $totalWaitingTasks, $TotalOverdueTasks, $taskDeadlineWeek);
+            $this->getProjectsAndTasksFromGroup($childGroup, $totalProjects, $totalTasks, $totalCompletedTasks, $totalDoingTasks, $totalWaitingTasks, $TotalOverdueTasks, $taskDeadlineWeek, $taskOverdueWeek);
         }
     }
 

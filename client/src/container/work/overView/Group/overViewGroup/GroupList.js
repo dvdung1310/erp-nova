@@ -3,7 +3,7 @@ import React, {useState} from "react";
 import {Link, useHistory, useLocation} from "react-router-dom";
 import {Card, Col, Form, Input, List, Progress, Row, Spin} from 'antd';
 import {Dropdown} from "../../../../../components/dropdown/dropdown";
-import {MdDelete, MdEdit} from "react-icons/md";
+import {MdDelete, MdEdit, MdOutlineRemoveRedEye} from "react-icons/md";
 import FeatherIcon from "feather-icons-react";
 import {Modal} from "../../../../../components/modals/antd-modals";
 import {Button} from "../../../../../components/buttons/buttons";
@@ -14,6 +14,8 @@ import {toast} from "react-toastify";
 import {deleteGroup, updateGroup} from "../../../../../apis/work/group";
 import {FaClipboardList} from "react-icons/fa";
 import TaskList from "../../Task/overViewTask/TaskList";
+import {CiWarning} from "react-icons/ci";
+import {IoWarningOutline} from "react-icons/io5";
 
 const ListGroupComponent = ({listGroup, listUser = []}) => {
     const URL_LARAVEL = process.env.REACT_APP_LARAVEL_SERVER;
@@ -24,7 +26,9 @@ const ListGroupComponent = ({listGroup, listUser = []}) => {
     const location = useLocation();
     const {pathname} = location;
     const [tasks, setTasks] = useState([]);
+    const [taskOverdue, setTaskOverdue] = useState([]);
     const [showModalTask, setShowModalTask] = useState(false);
+    const [showModalTaskOverdue, setShowModalTaskOverdue] = useState(false);
     const [showModalConfirm, setShowModalConfirm] = useState(false);
     const [showModalEdit, setShowModalEdit] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -44,6 +48,9 @@ const ListGroupComponent = ({listGroup, listUser = []}) => {
     const handleShowModalTask = () => {
         setShowModalTask(true);
     }
+    const handleShowModalTaskOverdue = () => {
+        setShowModalTaskOverdue(true);
+    }
     const handleShowModalConfirm = () => {
         setShowModalConfirm(true);
     }
@@ -54,6 +61,7 @@ const ListGroupComponent = ({listGroup, listUser = []}) => {
         setShowModalConfirm(false);
         setShowModalEdit(false);
         setShowModalTask(false);
+        setShowModalTaskOverdue(false);
     }
     const handleEditClick = (type, value) => {
         switch (type) {
@@ -71,10 +79,15 @@ const ListGroupComponent = ({listGroup, listUser = []}) => {
                 setSelectedGroup(value)
                 handleShowModalConfirm();
                 break;
-            case 'task':
+            case 'doing':
                 const taskDeadlineWeekArray = Object.values(value?.taskDeadlineWeek || {});
                 setTasks(taskDeadlineWeekArray);
                 handleShowModalTask();
+                break;
+            case 'overdue':
+                const taskOverdueArray = Object.values(value?.taskOverdueWeek || {});
+                setTaskOverdue(taskOverdueArray);
+                handleShowModalTaskOverdue();
                 break;
             default:
                 break
@@ -203,39 +216,52 @@ const ListGroupComponent = ({listGroup, listUser = []}) => {
                                                             {group?.group_name}
                                                         </Link>
                                                     </div>
+                                                    <div style={{display: 'flex', alignItems: 'center'}}>
+                                                        <div className='action-item'
+                                                             style={{marginRight: '10px'}}
+                                                             title='Công việc quá hạn'
+                                                             onClick={() => handleEditClick('overdue', group)}>
+                                                            <IoWarningOutline size={20}
 
-                                                    <Dropdown
-                                                        className="wide-dropdwon"
-                                                        content={
-                                                            <div className='popover-content'>
-                                                                <div className='action-item'
-                                                                     onClick={() => handleEditClick('name', group)}>
-                                                                    <MdEdit size={30}
-
-                                                                            className='d-block ms-1 fs-4 text-secondary'/>
-                                                                    <span>Sửa tên, mô tả ...</span>
-                                                                </div>
-                                                                <div className='action-item'
-                                                                     onClick={() => handleEditClick('task', group)}>
-                                                                    <FaClipboardList size={30}
-
-                                                                                     className='d-block ms-1 fs-4 text-secondary'/>
-                                                                    <span>Danh sách công việc trong tuần</span>
-                                                                </div>
-                                                                <div className='action-item'
-                                                                     onClick={() => handleEditClick('delete', group)}>
-                                                                    <MdDelete color='red' size={30}
-
-                                                                              className='icon-delete'/>
-                                                                    <span>Xóa nhóm</span>
-                                                                </div>
-                                                            </div>
-                                                        }
-                                                    >
-                                                        <div role='button' style={{cursor: 'pointer'}}>
-                                                            <FeatherIcon icon="more-horizontal" size={18}/>
+                                                                              className='d-block ms-1 fs-4 text-secondary'/>
                                                         </div>
-                                                    </Dropdown>
+                                                        <div className='action-item'
+                                                             style={{marginRight: '10px'}}
+                                                             title='Công việc đang làm'
+                                                             onClick={() => handleEditClick('doing', group)}>
+                                                            <MdOutlineRemoveRedEye size={20}
+
+                                                                                   className='d-block ms-1 fs-4 text-secondary'/>
+                                                        </div>
+
+                                                        <Dropdown
+                                                            className="wide-dropdwon"
+                                                            content={
+                                                                <div className='popover-content'>
+                                                                    <div className='action-item'
+                                                                         onClick={() => handleEditClick('name', group)}>
+                                                                        <MdEdit size={30}
+
+                                                                                className='d-block ms-1 fs-4 text-secondary'/>
+                                                                        <span>Sửa tên, mô tả ...</span>
+                                                                    </div>
+
+                                                                    <div className='action-item'
+                                                                         onClick={() => handleEditClick('delete', group)}>
+                                                                        <MdDelete color='red' size={30}
+
+                                                                                  className='icon-delete'/>
+                                                                        <span>Xóa nhóm</span>
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                        >
+                                                            <div role='button' style={{cursor: 'pointer'}}>
+                                                                <FeatherIcon icon="more-horizontal" size={18}/>
+                                                            </div>
+                                                        </Dropdown>
+                                                    </div>
+
                                                 </div>
                                             }
                                         />
@@ -244,17 +270,17 @@ const ListGroupComponent = ({listGroup, listUser = []}) => {
                                             <p><strong>Tổng số dự án:</strong> {group?.total_projects}</p>
                                             <p><strong>Tổng số công việc:</strong> {group?.total_tasks}</p>
                                             <Progress
-                                                percent={Math.round((group?.overdue_tasks / group?.total_tasks) * 100)}
+                                                percent={Math.round((group?.total_overdue_tasks / group?.total_tasks) * 100)}
                                                 status="exception"
                                                 showInfo={false}
                                             />
                                             <p className='d-flex justify-content-between'>
-                                                <span><strong>Quá hạn</strong> {group?.overdue_tasks} / {group?.total_tasks} công việc</span>
+                                                <span><strong>Quá hạn</strong> {group?.total_overdue_tasks} / {group?.total_tasks} công việc</span>
                                                 <span className="float-right">
                                                 {/* eslint-disable-next-line no-restricted-globals */}
-                                                    {isNaN(group?.overdue_tasks) || isNaN(group?.total_tasks) || group?.total_tasks === 0
+                                                    {isNaN(group?.total_overdue_tasks) || isNaN(group?.total_tasks) || group?.total_tasks === 0
                                                         ? '0%'
-                                                        : `${Math.round((group?.overdue_tasks / group?.total_tasks) * 100)}%`}
+                                                        : `${Math.round((group?.total_overdue_tasks / group?.total_tasks) * 100)}%`}
                                         </span>
                                             </p>
                                             <Progress
@@ -401,8 +427,9 @@ const ListGroupComponent = ({listGroup, listUser = []}) => {
             {/*    modal show tasks*/}
             <Modal
                 type='primary'
-                title="Danh sách công việc trong tuần"
+                title="Danh sách công việc đang làm"
                 visible={showModalTask}
+                className='modal-main'
                 onCancel={handleCloseModal}
                 footer={null}
             >
@@ -410,7 +437,25 @@ const ListGroupComponent = ({listGroup, listUser = []}) => {
                     {
                         tasks?.length > 0 ? <>
                             <TaskList listUser={[]} tasks={tasks} setTasks={setTasks} isHome/>
-                        </> : <div className='text-center mt-5'>Không có công việc nào trong tuần</div>
+                        </> : <div className='text-center mt-5'>Không có công việc nào</div>
+                    }
+
+                </div>
+            </Modal>
+            {/*    modal show overdue task*/}
+            <Modal
+                type='primary'
+                title="Danh sách công việc quá hạn"
+                visible={showModalTaskOverdue}
+                className='modal-main'
+                onCancel={handleCloseModal}
+                footer={null}
+            >
+                <div>
+                    {
+                        taskOverdue?.length > 0 ? <>
+                            <TaskList listUser={[]} tasks={taskOverdue} setTasks={setTaskOverdue} isHome/>
+                        </> : <div className='text-center mt-5'>Không có công việc nào</div>
                     }
 
                 </div>

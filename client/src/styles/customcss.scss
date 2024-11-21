@@ -88,6 +88,7 @@
     width: 100%;
   }
 }
+
 .modal-project {
   .ant-modal-content {
 
@@ -119,7 +120,7 @@
 
     .RichTextEditor__editor___1QqIU .public-DraftEditor-content {
       border: 1px solid #E3E6EF;
-        min-height: 100px;
+      min-height: 100px;
     }
 
     .custom-rich-text-editor .RichTextEditor__toolbar {
@@ -163,6 +164,19 @@
 
     &::-webkit-scrollbar-thumb:hover {
       background: #555; /* Color of the scrollbar thumb on hover */
+    }
+  }
+}
+
+.modal-main {
+  width: min-content !important;
+
+  .ant-modal-content {
+    min-width: 800px;
+
+    .ant-modal-body {
+      max-height: 500px;
+      overflow: auto;
     }
   }
 }

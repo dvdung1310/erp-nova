@@ -563,7 +563,6 @@ app.post('/check-dateline-task', (req, res) => {
             devices,
             pathname
         } = req.body;
-        console.log(devices)
         const payload = JSON.stringify({
             title: 'THông báo mới',
             body: content,
@@ -671,14 +670,15 @@ app.post('/create-notification-all', (req, res) => {
         sendNotificationSocket(createByUserName, notification, members, createByUserId);
         // Gửi thông báo đến các thiết bị
         devices.forEach(subscription => {
-            try {
+            if (subscription && subscription.endpoint) {
                 webpush.sendNotification(subscription, payload)
                     .catch(error => {
-                        throw new Error('Lỗi khi gửi thông báo');
+                        console.error('Lỗi khi gửi thông báo:', error);
+                        res.status(500).json({message: "Lỗi khi gửi thông báo"});
                     });
-            } catch (error) {
-                console.error('Lỗi khi gửi thông báo:', error);
-                res.status(500).json({message: "Lỗi khi gửi thông báo"});
+            } else {
+                console.error('Lỗi khi gửi thông báo: Subscription is missing an endpoint.');
+                res.status(400).json({message: "Subscription is missing an endpoint"});
             }
         });
         res.status(200).json({message: "Create notification success"});
