@@ -8,7 +8,7 @@ class CustomerDataSource extends Model
 {
     use HasFactory;
     protected $table = 'customer_data_source';
-    protected $fillable = ['name', 'status'];
+    protected $fillable = ['name','source','status'];
 
     public function customers()
     {

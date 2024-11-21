@@ -8,12 +8,15 @@ import {AuthWrapper} from './style';
 import {login} from '../../../../apis/auth';
 import Heading from '../../../../components/heading/heading';
 import {setItem} from "../../../../utility/localStorageControl";
+import {useDispatch} from "react-redux";
+import {setRoleId} from "../../../../redux/users/actionCreator";
 
 
 function SignIn() {
     const [isLoading, setLoading] = useState(false);
     const [form] = Form.useForm();
     const history = useHistory();
+    const dispatch = useDispatch();
 
 
     const handleSubmit = useCallback(async () => {
@@ -24,6 +27,7 @@ function SignIn() {
             setItem('accessToken', res?.data?.accessToken)
             setItem('role_id', res?.data?.role_id)
             setItem('user_id', res?.data?.user_id)
+            dispatch(setRoleId(res?.data?.role_id))
             Cookies.set('logedIn', true);
             history.push('/admin/lam-viec');
             window.location.reload();

@@ -243,12 +243,19 @@ class AuthController extends Controller
 
     public function refresh()
     {
-        return response()->json([
-            'accessToken' => auth()->refresh(),
-            'error' => false,
-            'message' => 'Token refreshed'
-        ]);
-        // return $this->respondWithToken(auth()->refresh());
+        try {
+            return response()->json([
+                'accessToken' => auth()->refresh(),
+                'error' => false,
+                'message' => 'Token refreshed'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error: ' . $e->getMessage(),
+                'error' => true,
+                'data' => null
+            ], 400);
+        }
     }
 
     protected function respondWithToken($token)
@@ -263,7 +270,22 @@ class AuthController extends Controller
     public function getAllUser()
     {
         try {
-            $users = User::select('id', 'name', 'email', 'avatar', 'role_id')->get();
+            $users = User::join('crm_employee', 'users.id', '=', 'crm_employee.account_id')
+                ->join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
+                ->leftJoin('crm_department_team', 'crm_employee.team_id', '=', 'crm_department_team.team_id')
+                ->join('crm_employee_level', 'crm_employee.level_id', '=', 'crm_employee_level.level_id')
+                ->select(
+                    'users.id',
+                    'users.name',
+                    'users.email',
+                    'users.avatar',
+                    'users.role_id',
+                    'crm_employee.*',
+                    'crm_department.department_name',
+                    'crm_department_team.team_name',
+                    'crm_employee_level.level_name'
+                )
+                ->get();
             return response([
                 'message' => 'Users fetched successfully',
                 'error' => false,

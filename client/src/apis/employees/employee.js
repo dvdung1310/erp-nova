@@ -196,3 +196,7 @@ export const updateEmployeeAvatar = async (formData) => {
         throw new Error(error.response?.data?.message || 'Cập nhật hồ sơ thất bại');
     }
 };
+export const updateRoleUser = async (data) => {
+    const response = await axios.post(`${LARAVEL_SERVER}/api/update_role_user`, data);
+    return response.data;
+};

@@ -14,6 +14,16 @@ export const createProject = async (data) => {
     });
     return response.data;
 }
+export const copyProject = async (data) => {
+    const token = getToken();
+    const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/projects/copy`, data, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    return response.data;
+}
 export const updateNameProject = async (data, id) => {
     const token = getToken();
     const response = await instanceAxios.put(`${LARAVEL_SERVER}/api/projects/update-name/${id}`, data, {
@@ -105,6 +115,17 @@ export const getProjectByUserId = async () => {
 export const updateLeaderProject = async (data, id) => {
     const token = getToken();
     const response = await instanceAxios.put(`${LARAVEL_SERVER}/api/projects/update-leader/${id}`, data, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        }
+    );
+    return response.data;
+}
+export const updateNotifyBeforeEndTimeProject = async (data, id) => {
+    const token = getToken();
+    const response = await instanceAxios.put(`${LARAVEL_SERVER}/api/projects/update-notify-before-end-time/${id}`, data, {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`

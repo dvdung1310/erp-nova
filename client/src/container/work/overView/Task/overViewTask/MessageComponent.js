@@ -1,7 +1,7 @@
 import {motion} from 'framer-motion';
 import {CiImageOn} from "react-icons/ci";
 import './MessageComponent.scss';
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useLocation} from "react-router-dom";
 import {createComment, createCommentFile, getCommentByTask} from "../../../../../apis/work/task";
 import {toast} from "react-toastify";
@@ -14,6 +14,7 @@ import {FaRegFileLines} from "react-icons/fa6";
 import {getItem} from "../../../../../utility/localStorageControl";
 
 const MessageComponent = ({handleCloseComment, task}) => {
+    console.log(task);
     const {pathname} = useLocation();
     const URL_LARAVEL = process.env.REACT_APP_LARAVEL_SERVER;
     const [message, setMessage] = useState([]);
@@ -157,6 +158,8 @@ const MessageComponent = ({handleCloseComment, task}) => {
                     </div>
                     <div className="card-body">
                         <div className="comment">
+                            <div className='comment_description'
+                                 dangerouslySetInnerHTML={{__html: task?.task_description}}></div>
                             <div className="message">
                                 {
                                     loading ? <div style={{
@@ -191,7 +194,8 @@ const MessageComponent = ({handleCloseComment, task}) => {
                                                            display: 'block',
                                                            margin: '10px 0'
                                                        }}>
-                                                            <strong>{item?.user?.name}</strong>: {item?.text} lúc {moment(item?.created_at).format('HH:mm [ngày] DD/MM/YYYY')}
+                                                          {moment(item?.created_at).format('HH:mm [ngày] DD/MM/YYYY')}
+                                                           <strong>{item?.user?.name}</strong>: {item?.text}
                                                         </span>
                                                         </> :
                                                         <>

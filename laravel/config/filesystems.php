@@ -57,6 +57,12 @@ return [
             'url' => env('APP_URL') . '/storage/avatars',
             'visibility' => 'public',
         ],
+        'public_notification' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/notification'),
+            'url' => env('APP_URL') . '/storage/notification',
+            'visibility' => 'public',
+        ],
 
         'public' => [
             'driver' => 'local',

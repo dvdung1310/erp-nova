@@ -15,9 +15,10 @@ import {ProjectHeader} from "./overView/Project/style";
 import CreateGroup from "./overView/Group/overViewGroup/CreateGroup";
 import {useLocation} from "react-router-dom";
 import {toast} from "react-toastify";
+import {useSelector} from "react-redux";
 
 const MainWord = () => {
-    const role_id = getItem('role_id')
+    const role_id = useSelector(state => state?.userRole?.role_id)
     const {state} = useLocation()
     const [loading, setLoading] = useState(false)
     const [listProject, setListProject] = useState([])
@@ -35,7 +36,6 @@ const MainWord = () => {
             if (role_id === 5) {
                 const res = await getTaskUnfinishedByUserId()
                 setTasks(res.data?.tasks)
-
             } else if (role_id === 3 || role_id === 4) {
                 const [res, users] = await Promise.all([getProjectByUserId(), getAllUsers()]);
                 setListProject(res.data)
@@ -57,7 +57,9 @@ const MainWord = () => {
         }
     }
     useEffect(() => {
-        fetchApi()
+        if (role_id) {
+            fetchApi()
+        }
     }, [role_id, state])
 
     return (
@@ -69,10 +71,10 @@ const MainWord = () => {
                     <PageHeader
                         ghost
                         title={
-                            role_id === 5 ? 'Danh sách công việc cần làm' :
+                            role_id && (role_id === 5 ? 'Danh sách công việc cần làm' :
                                 (role_id === 3 || role_id === 4) ? 'Danh sách dự án' :
                                     (role_id === 1 || role_id === 2) ? 'Danh sách nhóm' :
-                                        ''
+                                        '')
                         }
                         buttons={role_id && (role_id === 1 || role_id === 2) && [
                             <Button onClick={() => setShowModal(true)} key="1" type="primary" size="default">

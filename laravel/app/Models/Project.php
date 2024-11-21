@@ -20,6 +20,7 @@ class Project extends Model
         'project_start_date',
         'project_end_date',
         'create_by_user_id',
+        'notify_before_end_time',
         'leader_id',
     ];
 
@@ -47,6 +48,7 @@ class Project extends Model
     {
         return $this->belongsTo(User::class, 'create_by_user_id');
     }
+
     public function leader()
     {
         return $this->belongsTo(User::class, 'leader_id');

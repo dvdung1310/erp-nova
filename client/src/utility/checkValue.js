@@ -11,6 +11,9 @@ export const checkStatus = (status = 0) => {
     }, {
         status: 'Hoàn thành',
         color: '#2e7d32'
+    }, {
+        status: 'Tạm dừng',
+        color: '#607d8b'
     }]
     return arr[status];
 }

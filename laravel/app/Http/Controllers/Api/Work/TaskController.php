@@ -11,6 +11,8 @@ use App\Models\Notification;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskMember;
+use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -538,7 +540,7 @@ class TaskController extends Controller
                 ], 404);
             }
             $validatedData = $request->validate([
-                'task_description' => 'nullable|string|max:255',
+                'task_description' => 'nullable|string',
             ]);
             $members = $task->users->pluck('id');
             $project = Project::find($task->project_id);
@@ -641,10 +643,10 @@ class TaskController extends Controller
                 ], 404);
             }
             $validatedData = $request->validate([
-                'task_status' => 'required|in:0,1,2,3',
+                'task_status' => 'required|in:0,1,2,3,4',
             ]);
 
-            if ($validatedData['task_status'] == 2) {
+            if ($validatedData['task_status'] == 2 || $validatedData['task_status'] == 3) {
                 $validatedData['task_date_update_status_completed'] = now();
             }
             if ($validatedData['task_status'] == 3) {
@@ -679,6 +681,8 @@ class TaskController extends Controller
                 $statusMessage = 'Hoàn thành';
             } elseif ($status == 3) {
                 $statusMessage = 'Leader đã xác nhận';
+            } elseif ($status == 4) {
+                $statusMessage = 'Tạm dừng';
             }
             $oldStatusMessage = '';
             if ($oldStatus == 0) {
@@ -687,6 +691,10 @@ class TaskController extends Controller
                 $oldStatusMessage = 'Đang làm';
             } elseif ($oldStatus == 2) {
                 $oldStatusMessage = 'Hoàn thành';
+            } elseif ($oldStatus == 3) {
+                $oldStatusMessage = 'Leader đã xác nhận';
+            } elseif ($oldStatus == 4) {
+                $oldStatusMessage = 'Tạm dừng';
             }
             // insert comment
             $status = $request->input('task_status');
@@ -1013,7 +1021,7 @@ class TaskController extends Controller
                         $query->select('work_projects.project_id', 'work_projects.project_name'); // Adjust the fields as needed
                     }
                 ])
-                ->where('task_status', '!=', 2)
+                ->where('task_status', '!=', 3)
                 ->orderBy('project_id')
                 ->get();
             return response()->json([
