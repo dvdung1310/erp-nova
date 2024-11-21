@@ -9,8 +9,10 @@ use App\Models\CrmDepartmentTeamModel;
 use App\Models\CrmEmployeeFileModel;
 use App\Models\CrmEmployeeLevelModel;
 use App\Models\CrmEmployeeModel;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Storage;
 
 class NvEmployeeController extends Controller
@@ -43,15 +45,17 @@ class NvEmployeeController extends Controller
                     'crm_department.department_name',
                     'crm_department_team.team_name',
                     'crm_employee_level.level_name',
-                    'users.avatar'
+                    'users.avatar',
+                    'users.role_id'
                 )
                 ->get();
-
+            $rule_employee = Role::all();
             return response()->json([
                 'error' => false,
                 'message' => 'Customers get successfully.',
                 'user_login' => $isAdminOrDept9,
-                'data' => $employee
+                'data' => $employee,
+                'rule_employee' => $rule_employee
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -319,14 +323,14 @@ class NvEmployeeController extends Controller
                 ->pluck('crm_employee.employee_id')
                 ->first();
 
-                $employee_name = $request->employee_name;
-                $employee_email = $request->employee_email;
-                $employee_phone = $request->employee_phone;
-                $employee_email_nova = $request->employee_email_nova;
-                $existingUser = User::where(function($query) use ($employee_email, $employee_email_nova) {
-                    $query->where('email', $employee_email)
-                          ->orWhere('email', $employee_email_nova);
-                })
+            $employee_name = $request->employee_name;
+            $employee_email = $request->employee_email;
+            $employee_phone = $request->employee_phone;
+            $employee_email_nova = $request->employee_email_nova;
+            $existingUser = User::where(function ($query) use ($employee_email, $employee_email_nova) {
+                $query->where('email', $employee_email)
+                    ->orWhere('email', $employee_email_nova);
+            })
                 ->where('id', '!=', $id) // Loại trừ bản ghi có ID bằng với người dùng hiện tại
                 ->first();
 
@@ -349,14 +353,14 @@ class NvEmployeeController extends Controller
             $data->employee_bank_number = $request->employee_bank_number;
             $data->save();
             $user = User::findOrFail($id);
-            $user->name =$employee_name;
+            $user->name = $employee_name;
             $user->phone = $employee_phone;
             $user->email = $employee_email;
             $user->save();
             $employee = CrmEmployeeModel::join('users', 'crm_employee.account_id', '=', 'users.id')
-            ->join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
-            ->join('crm_employee_level', 'crm_employee.level_id', '=', 'crm_employee_level.level_id')
-            ->where('users.id', $id)->first();
+                ->join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
+                ->join('crm_employee_level', 'crm_employee.level_id', '=', 'crm_employee_level.level_id')
+                ->where('users.id', $id)->first();
             return response([
                 'message' => 'User updated successfully',
                 'error' => false,
@@ -370,7 +374,8 @@ class NvEmployeeController extends Controller
             ], 400);
         }
     }
-    public function updateEmployeeAvatar(Request $request){
+    public function updateEmployeeAvatar(Request $request)
+    {
         try {
             $avatar = $request->input('avatar') || $request->file('avatar');
             $user = auth()->user();
@@ -396,9 +401,32 @@ class NvEmployeeController extends Controller
                 $user->avatar = $url_avatar;
             }
             $user->save();
-
-        } catch (\Throwable $th) {
-            //throw $th;
+        } catch (\Exception $e) {
+            return response([
+                'message' => 'Error: ' . $e->getMessage(),
+                'error' => true,
+                'data' => null
+            ], 400);
+        }
+    }
+    public function update_role_user(Request $request)
+    {
+        try {
+            $id = $request->account_id;
+            $data = User::findOrFail($id);
+            $data->role_id = $request->role;
+            $data->save();
+            return response([
+                'message' => 'User updated successfully',
+                'error' => false,
+                'data' =>  $data
+            ]);
+        } catch (\Exception $e) {
+            return response([
+                'message' => 'Error: ' . $e->getMessage(),
+                'error' => true,
+                'data' => null
+            ], 400);
         }
     }
 }
