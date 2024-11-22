@@ -188,3 +188,42 @@ export const updateStatus = async (id, status) => {
     throw new Error('Lỗi khi cập nhật trạng thái');
   }
 };
+//Import data
+export const importdata = async (formData) => {
+  try {
+    const token = getToken();
+    const response = await instanceAxios.post(
+      `${LARAVEL_SERVER}/api/nvt_import_data`, formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    );
+    return response.data; 
+  } catch (error) {
+    console.error('Error Customer:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+export const getDataImport = async (data) => {
+  try {
+    const response = await axios.get(`${LARAVEL_SERVER}/api/nvt_list_data_import`);
+    return response.data;
+  } catch (error) {
+    console.error('Error Customer:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+export const divideData = async (data) => {
+  try {
+    const response = await axios.post(`${LARAVEL_SERVER}/api/nvt_divide_data`,data);
+    return response.data;
+  } catch (error) {
+    console.error('Error Customer:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};

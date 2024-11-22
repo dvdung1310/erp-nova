@@ -27,7 +27,7 @@ function ForgotPassword() {
                 setLoading(false)
                 return;
             }
-            toast.success('Gửi yêu cầu thành công', {
+            toast.success('Gửi yêu cầu thành công, bạn vui lòng kiểm tra Email để lấy Mật Khẩu', {
                 position: "top-right",
                 autoClose: 1000,
             })

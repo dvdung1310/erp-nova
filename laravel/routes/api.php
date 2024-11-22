@@ -161,7 +161,10 @@ Route::group(['middleware' => 'api'], function () {
     Route::post('nvt_update_payment/{id}',[NvtPaymentController::class,'update']);
     Route::get('delete_payment/{id}',[NvtPaymentController::class,'delete_payment']);
     Route::put('update_status_payment/{id}', [NvtPaymentController::class, 'update_status_payment']);
-    
+    //import data
+    Route::post('nvt_import_data',[NvtCustomerController::class,'nvt_import_data'])->middleware(middlewareLogin::class);
+    Route::get('nvt_list_data_import',[NvtCustomerController::class,'nvt_list_data_import']);
+    Route::post('nvt_divide_data',[NvtCustomerController::class,'nvt_divide_data']);
 
 });
 
