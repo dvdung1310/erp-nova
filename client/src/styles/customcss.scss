@@ -17,6 +17,9 @@
   border-radius: 12px; /* Custom border radius */
   padding: 0; /* Custom padding */
   box-shadow: 0 0 0 1px #fff; /* Custom box shadow */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .ant-scroll-number-only {

@@ -56,6 +56,11 @@ const sendNotificationSocket = (createByUserName, notification, members, createB
             }
         });
 }
+const sendNotificationWarning = (user_id, notification) => {
+    if (clients[user_id]) {
+        io.to(clients[user_id]).emit('notification-warning', notification);
+    }
+}
 
 //group
 app.post('/change-group', (req, res) => {
@@ -616,11 +621,14 @@ app.post('/create-comment-task', (req, res) => {
 app.post('/check-dateline-task', (req, res) => {
     try {
         const {
-            members,
+            user_id,
             content,
             devices,
-            pathname
+            pathname,
+            notification
         } = req.body;
+        // Gửi thông báo đến các client
+        sendNotificationWarning(user_id, notification);
         const payload = JSON.stringify({
             title: 'THông báo mới',
             body: content,
@@ -628,28 +636,29 @@ app.post('/check-dateline-task', (req, res) => {
                 url: `${CLIENT_URL}${pathname}`
             }
         });
-        devices.forEach(subscription => {
+        const promises = devices.map(subscription => {
             if (subscription && subscription.endpoint) {
-                webpush.sendNotification(subscription, payload)
+                return webpush.sendNotification(subscription, payload)
                     .catch(error => {
                         console.error('Lỗi khi gửi thông báo:', error);
-                        res.status(500).json({message: "Lỗi khi gửi thông báo"});
+                        throw new Error("Lỗi khi gửi thông báo");
                     });
             } else {
                 console.error('Lỗi khi gửi thông báo: Subscription is missing an endpoint.');
-                res.status(400).json({message: "Subscription is missing an endpoint"});
+                throw new Error("Subscription is missing an endpoint");
             }
         });
-        res.status(200).json({
-            message: "Check dateline task success"
-        });
+
+        Promise.all(promises)
+            .then(() => res.status(200).json({message: "Check dateline task success"}))
+            .catch(error => res.status(500).json({message: error.message}));
     } catch (error) {
         res.status(500).json({
             message: "Lỗi khi gửi thông báo"
         });
         console.log(error);
     }
-})
+});
 //employee
 app.post('/new-day-off', (req, res) => {
     try {

@@ -30,15 +30,6 @@ function NotificationBox() {
             rtl: state.ChangeLayoutMode.rtlData,
         };
     });
-    const notificationVariants = {
-        hidden: {opacity: 0, y: -20},
-        visible: {opacity: 1, y: 0, transition: {duration: 0.5}}
-    };
-
-    const itemVariants = {
-        hidden: {opacity: 0, x: -20},
-        visible: {opacity: 1, x: 0, transition: {duration: 0.3}}
-    };
     const notificationIconVariants = {
         initial: {scale: 1},
         animate: {
@@ -68,8 +59,8 @@ function NotificationBox() {
 
     useEffect(() => {
         if (socketConnection) {
-            console.log('socketConnection', socketConnection);
             const receiveNotification = async (data) => {
+                console.log(data, 'data');
                 setNotification(prevNotifications => [data, ...prevNotifications]);
                 setNotificationRender(prevNotifications => [data, ...prevNotifications]);
                 setNotificationUnread(prevUnreadNotifications => [data, ...prevUnreadNotifications]);
