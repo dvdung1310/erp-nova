@@ -41,6 +41,9 @@ const Customer = () => {
     try {
       setLoading(true);
       const response = await ListCustomer();
+      console.log('====================================');
+      console.log(response);
+      console.log('====================================');
       setCustomer(response.data.data);
       setStatuses(response.statuses || []);
       setSources(response.data_sources || []);
@@ -158,7 +161,10 @@ const Customer = () => {
       dataIndex: 'name',
       key: 'name',
       render: (text, record) => (
-        <NavLink to={`${path}/${record.id}`}>{text}</NavLink>
+        <NavLink to={`${path}/${record.id}`}>
+          <div>{text}</div> {/* Hiển thị tên phụ huynh */}
+          <div style={{ color: 'gray' }}>({record.student_name})</div> {/* Hiển thị tên con */}
+        </NavLink>
       ),
     },
     {
