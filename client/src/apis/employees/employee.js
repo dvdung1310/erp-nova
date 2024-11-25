@@ -200,3 +200,17 @@ export const updateRoleUser = async (data) => {
     const response = await axios.post(`${LARAVEL_SERVER}/api/update_role_user`, data);
     return response.data;
 };
+export const getDepartEmployee = async (department_id) => {
+    const token = getToken();
+    const response = await axios.get(`${LARAVEL_SERVER}/api/list_employee_department/${department_id}`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    return response.data;
+};
+export const searchEmployee = async (data) => {
+    const response = await axios.get(`${LARAVEL_SERVER}/api/search_employee`, data);
+    return response.data;
+};

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, lazy, Suspense } from 'react';
-import { Route, Switch, useRouteMatch, useHistory, NavLink } from 'react-router-dom';
+import { Route, Switch, useRouteMatch, useHistory, NavLink, useParams } from 'react-router-dom';
 import { Row, Col, Spin, message, Popconfirm, Button, Modal, Form, Input, Select, DatePicker } from 'antd';
 import moment from 'moment';
 import { Cards } from '../../components/cards/frame/cards-frame';
@@ -20,12 +20,11 @@ import {
   updateEmployees,
   storeEmployees,
   updateRoleUser,
-  searchEmployee,
+  getDepartEmployee,
 } from '../../apis/employees/employee';
 import { UserCard } from '../pages/style';
 
 const EmployeeFile = lazy(() => import('./CrmEmployeeFile'));
-const EmployeeDepartment = lazy(() => import('./CrmEmployeeDepartment'));
 const { Option } = Select;
 
 function CrmEmployees() {
@@ -45,19 +44,20 @@ function CrmEmployees() {
   const [employeeLevels, setEmployeeLevels] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState('');
+  const [departmentName, setdepartmentName] = useState('');
   const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
-
+  const { department_id } = useParams();
   // Fetch employees data
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await getEmployees();
+      const res = await getDepartEmployee(department_id);
       if (!res.error) {
         setDataSource(res.data);
         setAllData(res.data);
         setUserLogin(res.user_login);
         setRoleUser(res.rule_employee);
-        setemployeeDepartment(res.employee_department);
+        setdepartmentName(res.department_name);
       } else {
         message.error(res.message);
       }
@@ -91,10 +91,9 @@ function CrmEmployees() {
   
     setDataSource(filteredData); // Cập nhật lại dataSource với kết quả tìm kiếm
   };
-
   useEffect(() => {
     fetchData();
-    fetchCreateData();
+    fetchCreateData(); // Fetch create data on component mount
   }, []);
 
   // Open modal for editing or adding an employee
@@ -179,8 +178,6 @@ function CrmEmployees() {
     setIsModalOpen(false);
     form.resetFields(); // Xóa toàn bộ giá trị trong form
   };
-  const colors = ['#ffcccc', '#ccffcc', '#ccccff', '#ffffcc', '#ccffff', '#ffccff'];
-
   return (
     <Main style={{ background: '#fff' }}>
       <Switch>
@@ -188,15 +185,8 @@ function CrmEmployees() {
           <Row gutter={15}>
             <Col xs={24}>
               <div style={{ marginTop: '30px' }}>
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    marginBottom: '30px',
-                    alignItems: 'center',
-                  }}
-                >
-                  <h3>DANH SÁCH NHÂN SỰ</h3>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h3>DANH SÁCH NHÂN SỰ - {departmentName}</h3>
                   <div style={{ display: 'flex', alignItems: 'center' }}>
                     {/* Search Form */}
                     <Form form={form} onFinish={handleSearch} layout="inline" style={{ marginRight: 16 }}>
@@ -204,50 +194,18 @@ function CrmEmployees() {
                         name="key_word"
                         rules={[{ required: true, message: 'Vui lòng nhập thông tin tìm kiếm' }]}
                       >
-                        <Input placeholder="Tìm kiếm nhân sự" style={{ width: 200, height:'40px' }} />
+                        <Input placeholder="Tìm kiếm nhân sự" style={{ width: 200, height: '40px' }} />
                       </Form.Item>
                       <Form.Item>
-                        <Button type="primary" htmlType="submit" style={{height:'40px'}}>
+                        <Button type="primary" htmlType="submit" style={{ height: '40px' }}>
                           Tìm kiếm
                         </Button>
                       </Form.Item>
                     </Form>
                   </div>
-                  <Button type="primary" onClick={() => handleOpenModal()} style={{height:'40px'}}>
+                  <Button type="primary" onClick={() => handleOpenModal()} style={{ height: '40px' }}>
                     Thêm mới nhân sự
                   </Button>
-                </div>
-                <div>
-                  <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
-                    {employeeDepartment.map((department, index) => (
-                      <Col key={index} style={{ marginBottom: '20px' }} className="gutter-row" span={6}>
-                        <div
-                          style={{
-                            display: 'block', // Để cả box trở thành link
-                            padding: '16px',
-                            backgroundColor: colors[index % colors.length], // Chọn màu theo thứ tự
-                            textAlign: 'center',
-                            borderRadius: '8px',
-                            color: 'black',
-                            textDecoration: 'none', // Xóa gạch chân
-                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                          }}
-                        >
-                          {' '}
-                          <NavLink
-                            to={`/admin/nhan-su/nhan-vien-theo-phong/${department.department_id}`}
-                            style={{
-                              color: 'inherit',
-                              textDecoration: 'none',
-                            }}
-                          >
-                            <h3>{department.department_name}</h3>
-                            <p>Số lượng nhân viên: {department.employee_count}</p>
-                          </NavLink>
-                        </div>
-                      </Col>
-                    ))}
-                  </Row>
                 </div>
                 {loading ? (
                   <Spin tip="Loading..." />
@@ -525,7 +483,7 @@ function CrmEmployees() {
             <Select placeholder="Chọn quyền">
               {roleUser.map((role) => (
                 <Option key={role.id} value={role.id}>
-                  {role?.description}
+                  {role.name}
                 </Option>
               ))}
             </Select>

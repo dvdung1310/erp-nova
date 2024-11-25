@@ -258,38 +258,37 @@ function CrmEmployees() {
         </Form>
       </Modal>
       <Modal
-  title="Xem trước file"
-  visible={fileModalVisible}
-  footer={null}
-  onCancel={() => setFileModalVisible(false)}
-  width={800}
->
-  {previewFile ? (
-    previewFile.match(/\.(pdf)$/i) ? (
-      <iframe src={previewFile} title="PDF Preview" width="100%" height="500px" style={{ border: 'none' }} />
-    ) : previewFile.match(/\.(jpg|jpeg|png|gif)$/i) ? (
-      <img src={previewFile} alt="Preview" style={{ width: '100%' }} />
-    ) : previewFile.match(/\.(doc|docx|xls|xlsx)$/i) ? (
-      <iframe
-        src={`https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(previewFile)}`}
-        title="Office Preview"
-        width="100%"
-        height="500px"
-        style={{ border: 'none' }}
-      />
-    ) : (
-      <div style={{ textAlign: 'center' }}>
-        <p>Không thể hiển thị loại tệp này trong modal.</p>
-        <Button type="primary" href={previewFile} target="_blank" rel="noopener noreferrer">
-          Tải xuống hoặc xem file
-        </Button>
-      </div>
-    )
-  ) : (
-    <p>Không có file để xem trước.</p>
-  )}
-</Modal>
-
+        title="Xem trước file"
+        visible={fileModalVisible}
+        footer={null}
+        onCancel={() => setFileModalVisible(false)}
+        width={800}
+      >
+        {previewFile ? (
+          previewFile.match(/\.(pdf)$/i) ? (
+            <iframe src={previewFile} title="PDF Preview" width="100%" height="500px" style={{ border: 'none' }} />
+          ) : previewFile.match(/\.(jpg|jpeg|png|gif)$/i) ? (
+            <img src={previewFile} alt="Preview" style={{ width: '100%' }} />
+          ) : previewFile.match(/\.(doc|docx|xls|xlsx)$/i) ? (
+            <iframe
+              src={`https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(previewFile)}`}
+              title="Office Preview"
+              width="100%"
+              height="500px"
+              style={{ border: 'none' }}
+            />
+          ) : (
+            <div style={{ textAlign: 'center' }}>
+              <p>Không thể hiển thị loại tệp này trong modal.</p>
+              <Button type="primary" href={previewFile} target="_blank" rel="noopener noreferrer">
+                Tải xuống hoặc xem file
+              </Button>
+            </div>
+          )
+        ) : (
+          <p>Không có file để xem trước.</p>
+        )}
+      </Modal>
     </Main>
   );
 }

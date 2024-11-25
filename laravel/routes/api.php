@@ -201,7 +201,6 @@ Route::group(['middleware' => 'api'], function () {
     Route::get('listdayoff/{employee_id}', [NvEmployeeDayOffController::class, 'listdayoff']);
 
     Route::get('listdayoff/{employee_id}', [NvEmployeeDayOffController::class, 'listdayoff']);
-
     Route::post('update_role_user', [NvEmployeeController::class, 'update_role_user']);
     //Department Team
     Route::get('getdepartmentteam/{department_id}', [NvDepartmentTeamController::class, 'getdepartmentteam']);
@@ -210,6 +209,12 @@ Route::group(['middleware' => 'api'], function () {
     Route::get('/employeeLogin', [NvEmployeeController::class, 'employeeLogin'])->middleware(middlewareLogin::class);
     Route::put('/update-employee-login', [NvEmployeeController::class, 'updatEployeeLogin'])->middleware(middlewareLogin::class);
     Route::post('/updateEmployeeAvatar', [NvEmployeeController::class, 'updateEmployeeAvatar'])->middleware(middlewareLogin::class);
+    Route::put('/update-employee-login', [NvEmployeeController::class, 'updatEployeeLogin'])->middleware(middlewareLogin::class);
+    Route::put('/updateEmployeeAvatar', [NvEmployeeController::class, 'updateEmployeeAvatar'])->middleware(middlewareLogin::class);
+    //danh sách nhân viên theo phòng ban
+    Route::get('/employee_department',[NvEmployeeController::class,'employee_department']);
+    Route::get('/list_employee_department/{department_id}',[NvEmployeeController::class,'list_employee_department'])->middleware(middlewareLogin::class);
+
 
 });
 // work
