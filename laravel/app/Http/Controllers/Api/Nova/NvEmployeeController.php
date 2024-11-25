@@ -14,6 +14,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class NvEmployeeController extends Controller
 {
@@ -30,7 +31,6 @@ class NvEmployeeController extends Controller
                 ->first();
 
             $isAdminOrDept9 = false;
-
             if ($user_login->role_id == 1 || $user_login->department_id == 9) {
                 $isAdminOrDept9 = true;
             } else {
@@ -50,12 +50,23 @@ class NvEmployeeController extends Controller
                 )
                 ->get();
             $rule_employee = Role::all();
+            //nhân viên theo phòng ban
+            $employee_department = CrmEmployeeModel::join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
+                ->select(
+                    'crm_department.department_name',
+                    'crm_department.department_id',
+                    DB::raw('COUNT(crm_employee.employee_id) as employee_count')
+                )
+                ->groupBy('crm_department.department_name', 'crm_department.department_id') // Nhóm theo cả department_name và department_id
+                ->get();
+
             return response()->json([
                 'error' => false,
                 'message' => 'Customers get successfully.',
                 'user_login' => $isAdminOrDept9,
                 'data' => $employee,
-                'rule_employee' => $rule_employee
+                'rule_employee' => $rule_employee,
+                'employee_department' => $employee_department
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -65,6 +76,54 @@ class NvEmployeeController extends Controller
             ]);
         }
     }
+    public function list_employee_department($department_id){
+         try {
+            $user_id = auth()->user()->id;
+            $user_login = CrmEmployeeModel::join('users', 'crm_employee.account_id', '=', 'users.id')
+                ->select('users.*', 'crm_employee.department_id')
+                ->where('users.id', $user_id)
+                ->first();
+
+            $isAdminOrDept9 = false;
+            if ($user_login->role_id == 1 || $user_login->department_id == 9) {
+                $isAdminOrDept9 = true;
+            } else {
+                $isAdminOrDept9;
+            }
+            $employee = CrmEmployeeModel::join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
+                ->leftjoin('crm_department_team', 'crm_employee.team_id', '=', 'crm_department_team.team_id')
+                ->join('crm_employee_level', 'crm_employee.level_id', '=', 'crm_employee_level.level_id')
+                ->leftjoin('users', 'crm_employee.account_id', '=', 'users.id')
+                ->select(
+                    'crm_employee.*',
+                    'crm_department.department_name',
+                    'crm_department_team.team_name',
+                    'crm_employee_level.level_name',
+                    'users.avatar',
+                    'users.role_id'
+                )
+                ->where('crm_employee.department_id',$department_id)
+                ->get();
+            $rule_employee = Role::all();
+            $department_name = CrmDepartmentModel::where('department_id', $department_id)->pluck('department_name')->first();
+            return response()->json([
+                'error' => false,
+                'message' => 'Customers get successfully.',
+                'user_login' => $isAdminOrDept9,
+                'data' => $employee,
+                'rule_employee' => $rule_employee,
+                'department_name'=>$department_name
+            ]);
+        } catch (\Exception $th) {
+            return response()->json([
+                'error' => true,
+                'message' => 'No customers found.'.$th->getMessage(),
+                'data' => []
+            ]);
+        
+    }
+}
+
 
     /**
      * Show the form for creating a new resource.
@@ -135,6 +194,7 @@ class NvEmployeeController extends Controller
                 $employee['employee_address'] = $request->employee_address;
                 $employee['employee_identity'] = $request->employee_identity;
                 $employee['employee_bank_number'] = $request->employee_bank_number;
+                $employee['employee_date_join'] = $request->employee_date_join;
                 $employee['department_id'] = $request->department_id;
                 $employee['team_id'] = $request->team_id;
                 $employee['level_id'] = $request->level_id;
@@ -351,6 +411,7 @@ class NvEmployeeController extends Controller
             $data->employee_address = $request->employee_address;
             $data->employee_identity = $request->employee_identity;
             $data->employee_bank_number = $request->employee_bank_number;
+            $data->employee_date_join = $request->employee_date_join;
             $data->save();
             $user = User::findOrFail($id);
             $user->name = $employee_name;
