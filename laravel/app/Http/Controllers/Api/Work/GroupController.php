@@ -583,6 +583,9 @@ class GroupController extends Controller
             $overdueTasks = 0;
 
             foreach ($tasks as $task) {
+                $task->load(['users' => function ($query) {
+                    $query->select('users.id', 'users.name', 'users.email', 'users.avatar');
+                }]);
                 if (in_array($task->task_status, [2, 3])) {
                     $completedTasks++;
                     $listCompletedTasks[] = $task;
@@ -598,6 +601,7 @@ class GroupController extends Controller
                     $overdueTasks++;
                     $listOverdueTasks[] = $task;
                 }
+
 
                 $listTasks[] = $task;
             }

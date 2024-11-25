@@ -203,8 +203,7 @@ function CreateGroup({visible, onCancel, group_id, listUser = [], admin = false,
                                 </Form.Item>
                             )
                         }
-                        <Form.Item name="leader" label="Chọn trưởng nhóm"
-                                   rules={[{required: true, message: 'Vui lòng chọn trưởng nhóm!'}]}>
+                        <Form.Item name="leader" label="Chọn trưởng nhóm">
                             <Input
                                 type="text"
                                 placeholder="Tìm kiếm thành viên"
