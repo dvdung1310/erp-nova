@@ -1,3 +1,4 @@
+/* eslint-disable object-shorthand */
 import {PageHeader} from "../../../../../components/page-headers/page-headers";
 import React, {useEffect, useState} from "react";
 import {Cards} from "../../../../../components/cards/frame/cards-frame";
@@ -12,7 +13,7 @@ import {toast} from "react-toastify";
 import {Card, Col, Row, Spin, Table, Typography} from "antd";
 import Avatar from "../../../../../components/Avatar/Avatar";
 import {ChartjsDonutChart} from "../../../../../components/charts/chartjs";
-import {Doughnut} from "react-chartjs-2";
+import {Doughnut, HorizontalBar} from "react-chartjs-2";
 import useChartData from "../../../../../hooks/useChartData";
 
 const {Title} = Typography;
@@ -24,6 +25,7 @@ const ReportGroup = () => {
     const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
     const dispatch = useDispatch();
     const [data, setData] = useState({});
+    const [taskByUsers, setTaskByUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const params = useParams();
     const {id} = params;
@@ -43,10 +45,7 @@ const ReportGroup = () => {
             setTotalDoingTaskPercent(Math.round((response?.data?.total_doing_tasks / totalTask) * 100));
             setTotalCompletedTaskPercent(Math.round((response?.data?.total_completed_tasks / totalTask) * 100));
             setTotalOverdueTaskPercent(Math.round((response?.data?.total_overdue_tasks / totalTask) * 100));
-            console.log(Math.round((response?.data?.total_waiting_tasks / totalTask) * 100));
-            console.log(Math.round((response?.data?.total_doing_tasks / totalTask) * 100));
-            console.log(Math.round((response?.data?.total_completed_tasks / totalTask) * 100));
-            console.log(Math.round((response?.data?.total_overdue_tasks / totalTask) * 100));
+            setTaskByUsers(response?.data?.taskByUsers);
 
             setLoading(false);
         } catch (error) {
@@ -69,7 +68,6 @@ const ReportGroup = () => {
             dataIndex: "user",
             key: "user",
             render: (text, record) => {
-                console.log(text, record);
                 return (
                     <div style={{display: "flex", alignItems: "center"}}>
                         <Avatar
@@ -122,28 +120,138 @@ const ReportGroup = () => {
         labels: ["Đang chờ", "Đang làm", "Hoàn thành", "Quá hạn"],
         datasets: [
             {
-                data: [totalWaitingTaskPercent, totalDoingTaskPercent, totalCompletedTaskPercent, totalOverdueTaskPercent],
-                backgroundColor: ["#FFC107", "#2196F3", "#00C853", "#F44336"],
-                borderWidth: 0,
+                data: [totalWaitingTaskPercent, totalDoingTaskPercent, totalCompletedTaskPercent, totalOverdueTaskPercent], // Dữ liệu ví dụ
+                backgroundColor: ["#ed6c0282", "#0288d175", "#42a04787", "#d32f2f99"], // Màu sắc từng phần
+                hoverBackgroundColor: ["#ed6c02", "#0288d1", "#42a047", "#e15151"],
             },
         ],
     };
 
     const options = {
-        responsive: true,
-        cutout: "70%", // Để tạo hình tròn rỗng bên trong
-        plugins: {
-            legend: {
-                display: false, // Tắt legend bên trong biểu đồ
+        maintainAspectRatio: false,
+        tooltips: {
+            callbacks: {
+                label: function (tooltipItem, data) {
+                    const dataset = data.datasets[tooltipItem.datasetIndex];
+                    const total = dataset.data.reduce((prev, curr) => prev + curr, 0);
+                    const value = dataset.data[tooltipItem.index];
+                    const percentage = ((value / total) * 100).toFixed(1);
+                    return `${data.labels[tooltipItem.index]}: ${percentage}%`;
+                },
             },
-            tooltip: {
-                callbacks: {
-                    label: (tooltipItem) =>
-                        `${tooltipItem.label}: %`, // Hiển thị giá trị dạng phần trăm
+        },
+        legend: {
+            position: "bottom",
+            labels: {
+                fontSize: 12,
+                padding: 15,
+                boxWidth: 10,
+            },
+        },
+    };
+    // chart user
+    const labels = taskByUsers.map((item) => item.user.name);
+
+    const _data = {
+        labels: labels,
+        datasets: [
+            {
+                label: "Đang chờ",
+                backgroundColor: "#FFC107",
+                data: taskByUsers.map((item) => item.total_waiting_tasks),
+            },
+            {
+                label: "Đang làm",
+                backgroundColor: "#2196F3",
+                data: taskByUsers.map((item) => item.total_doing_tasks),
+            },
+            {
+                label: "Hoàn thành",
+                backgroundColor: "#4CAF50",
+                data: taskByUsers.map((item) => item.total_completed_tasks),
+            },
+            {
+                label: "Quá hạn",
+                backgroundColor: "#F44336",
+                data: taskByUsers.map(
+                    (item) =>
+                        item.totalTasksOverdueCompleted + item.totalTasksOverdueInProgress
+                ),
+            },
+        ],
+    };
+
+    const _options = {
+        maintainAspectRatio: false,
+        responsive: true,
+        scales: {
+            xAxes: [
+                {
+                    stacked: true,
+                    ticks: {
+                        beginAtZero: true,
+                    },
+                },
+            ],
+            yAxes: [
+                {
+                    stacked: true,
+                },
+            ],
+        },
+        legend: {
+            position: "top",
+            labels: {
+                fontSize: 12,
+                padding: 15,
+                boxWidth: 10,
+            },
+        },
+        animation: {
+            duration: 1000,
+            onComplete: function () {
+                const ctx = this.chart.ctx;
+                ctx.font = "bold 14px Arial";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+
+                const chart = this.chart;
+                const datasets = chart.data.datasets;
+
+                // datasets.forEach((dataset, i) => {
+                //     const meta = chart.controller.getDatasetMeta(i);
+                //     meta.data.forEach((bar, index) => {
+                //         const value = dataset.data[index];
+                //         const { x, y } = bar.tooltipPosition();
+                //         if (value > 0) {
+                //             ctx.fillStyle = "#fff";
+                //             ctx.fillText(value, x, y);
+                //         }
+                //     });
+                // });
+            },
+        },
+        tooltips: {
+            enabled: true, // Chỉ hiển thị tooltip khi hover vào
+            mode: "nearest", // Chỉ hiển thị tooltip gần vị trí của điểm
+            callbacks: {
+                // Cập nhật tooltip chỉ hiển thị phần đang hover
+                label: function (tooltipItem, data) {
+                    const dataset = data.datasets[tooltipItem.datasetIndex];
+                    const value = dataset.data[tooltipItem.index];
+                    // Hiển thị label chỉ cho phần đang hover
+                    return `${dataset.label}: ${value}`;
+                },
+                // Ẩn các phần label không cần thiết
+                afterLabel: function (tooltipItem, data) {
+                    return "";
                 },
             },
         },
     };
+
+
+
     return (
         <div>
             <PageHeader
@@ -168,26 +276,29 @@ const ReportGroup = () => {
                                     style={{borderRadius: "8px", overflow: "hidden"}}
                                 />
                             </div>
-                            {/*<div>*/}
-                            {/*    <Row gutter={25}>*/}
-                            {/*        <Col md={24} lg={24}>*/}
-                            {/*            <Card*/}
-                            {/*                style={{*/}
-                            {/*                    borderRadius: "8px",*/}
-                            {/*                    background: "#F5F5F5",*/}
-                            {/*                    padding: "16px",*/}
-                            {/*                }}*/}
-                            {/*            >*/}
-                            {/*                <Title level={4} style={{marginBottom: 16}}>*/}
-                            {/*                    Biểu đồ tổng hợp công việc*/}
-                            {/*                </Title>*/}
-                            {/*                <div style={{width: "300px", margin: "0 auto"}}>*/}
-                            {/*                    <Doughnut data={dataChart} options={options}/>*/}
-                            {/*                </div>*/}
-                            {/*            </Card>*/}
-                            {/*        </Col>*/}
-                            {/*    </Row>*/}
-                            {/*</div>*/}
+                            <div>
+                                <Row gutter={25}>
+                                    <Col md={24} lg={24}>
+                                        <Card
+
+                                            title="Biểu đồ tổng hợp công việc"
+                                        >
+                                            <div style={{height: "300px", margin: "0 auto"}}>
+                                                <Doughnut data={dataChart} options={options}/>
+                                            </div>
+                                        </Card>
+                                    </Col>
+                                    <Col md={24} lg={24}>
+                                        <Card
+                                            title="Biểu đồ tổng hợp thành viên"
+                                        >
+                                            <div style={{height: "300px", margin: "0 auto"}}>
+                                                <HorizontalBar data={_data} options={_options}/>
+                                            </div>
+                                        </Card>
+                                    </Col>
+                                </Row>
+                            </div>
 
                         </NoteCardWrap>
                     </Cards>

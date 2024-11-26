@@ -69,6 +69,7 @@ const ListGroupComponent = ({listGroup, listUser = [], listDepartments}) => {
             case 'name':
                 form.setFieldsValue({
                     group_name: value.group_name,
+                    department_id: value.department_id,
                     group_description: value.group_description,
                     color: value.color,
                 });
@@ -342,7 +343,7 @@ const ListGroupComponent = ({listGroup, listUser = [], listDepartments}) => {
             {/*modal update*/}
             <Modal
                 type="primary"
-                title="Tạo dự án"
+                title="Cập nhật dự án"
                 visible={showModalEdit}
                 footer={[
                     <div key="1" className="project-modal-footer">
