@@ -301,7 +301,7 @@ class NvtCustomerController extends Controller
         return response()->json(['message' => 'Cập nhật nguồn khách hàng thành công!', 'status' => $status], 200);
     }
 
-    public function nvt_import_data(Request $request)
+   public function nvt_import_data(Request $request)
     {
         try {
             $user_id = auth()->user()->id;
@@ -326,11 +326,8 @@ class NvtCustomerController extends Controller
                 while (($row = fgetcsv($handle, 1000, ',')) !== false) {
                     try {
                         // Kiểm tra và định dạng ngày tháng
-                        $formattedDate_birthday = isset($row[2]) ? Carbon::parse($row[2])->format('Y-m-d') : null;
-                        $formattedDate= isset($row[4]) ? Carbon::parse($row[2])->format('Y-m-d') : null;
-
-                        // Kiểm tra nếu cột "Nguồn data" trống
-                        // $sourceId = empty($row[6]) ? null : explode('|', $row[6])[0];
+                        $formattedDate_birthday = isset($row[2]) && $row[2] !== 'NULL' ? Carbon::parse($row[2])->format('Y-m-d') : null;
+                        $formattedDate = isset($row[4]) && $row[4] !== 'NULL' ? Carbon::parse($row[4])->format('Y-m-d') : null;
 
                         // Kiểm tra xem khách hàng đã tồn tại chưa (dựa vào số điện thoại)
                         $existingCustomer = Customer::where('phone', $row[3] ?? null)->first();
@@ -339,24 +336,22 @@ class NvtCustomerController extends Controller
                         }
 
                         // Tạo khách hàng mới
-                        $customer = Customer::create([
-                            'name' => $row[0] ?? null,
-                            'phone' => $row[3] ?? null,
-                            'date' => $formattedDate,
-                            // 'email' => $row[4] ?? null,
-                            'source_id' => 3,
-                            'status_id ' => 1,
-                            'created_at ' =>$row[6],
-                            'updated_at ' =>$row[7],
-                        ]);
+                        $customer = new Customer();
+                        $customer->name = $row[0] ?? null;
+                        $customer->phone = $row[3] ?? null;
+                        $customer->date = $formattedDate;
+                        $customer->source_id = 8;
+                        $customer->status_id = 1;
+                        $customer->created_at = $row[6];
+                        $customer->updated_at = $row[7];
+                        $customer->save();
 
                         // Tạo bản ghi bán hàng cho khách hàng
                         CustomerSale::create([
                             'customer_id' => $customer->id,
-                            'manager_sale' => $user_id,
+                            'manager_sale' =>$user_id,
                         ]);
 
-                        // Kiểm tra xem học sinh đã tồn tại chưa (dựa vào tên và ngày sinh
                         // Tạo học sinh mới
                         NvtStudentModel::create([
                             'student_name' => $row[1] ?? null,
@@ -366,9 +361,10 @@ class NvtCustomerController extends Controller
                             'student_status' => 1,
                         ]);
                     } catch (\Exception $e) {
-                        // Ghi log lỗi hoặc bỏ qua dòng lỗi
-                        \Log::error('Error importing row: ' . json_encode($row) . ' - ' . $e->getMessage());
-                        continue; // Bỏ qua dòng bị lỗi
+                        return response()->json([
+                            'error' => true,
+                            'message' => 'Nhập dữ liệu thất bại: ' . $e->getMessage(),
+                        ]);
                     }
                 }
 
@@ -380,17 +376,15 @@ class NvtCustomerController extends Controller
             return response()->json([
                 'error' => false,
                 'message' => 'Dữ liệu đã được nhập thành công.',
-                'data' => $customer,
             ]);
         } catch (\Exception $th) {
             return response()->json([
                 'error' => true,
                 'message' => 'Nhập dữ liệu thất bại.' . $th->getMessage(),
-
             ]);
         }
     }
-    public function nvt_list_data_import()
+   public function nvt_list_data_import()
     {
         try {
             $customer = Customer::join('nvt_student', 'customers.id', '=', 'nvt_student.parent_id')
