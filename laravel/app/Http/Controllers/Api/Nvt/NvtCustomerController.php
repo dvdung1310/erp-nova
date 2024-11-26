@@ -36,7 +36,7 @@ class NvtCustomerController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->whereNotNull('customer_sales.user_id')
                 ->where('customer_data_source.source', 'novateen')
-                ->paginate(20);
+                ->get();
             $statuses = CustomerStatus::select('id', 'name', 'color')->get();
             $dataSources = CustomerDataSource::select('id', 'name')->where('source', 'novateen')->where('status', 1)->get();
             return response()->json([
@@ -326,10 +326,11 @@ class NvtCustomerController extends Controller
                 while (($row = fgetcsv($handle, 1000, ',')) !== false) {
                     try {
                         // Kiểm tra và định dạng ngày tháng
-                        $formattedDate = isset($row[2]) ? Carbon::parse($row[2])->format('Y-m-d') : null;
+                        $formattedDate_birthday = isset($row[2]) ? Carbon::parse($row[2])->format('Y-m-d') : null;
+                        $formattedDate= isset($row[4]) ? Carbon::parse($row[2])->format('Y-m-d') : null;
 
                         // Kiểm tra nếu cột "Nguồn data" trống
-                        $sourceId = empty($row[6]) ? null : explode('|', $row[6])[0];
+                        // $sourceId = empty($row[6]) ? null : explode('|', $row[6])[0];
 
                         // Kiểm tra xem khách hàng đã tồn tại chưa (dựa vào số điện thoại)
                         $existingCustomer = Customer::where('phone', $row[3] ?? null)->first();
@@ -342,9 +343,11 @@ class NvtCustomerController extends Controller
                             'name' => $row[0] ?? null,
                             'phone' => $row[3] ?? null,
                             'date' => $formattedDate,
-                            'email' => $row[4] ?? null,
-                            'source_id' => $sourceId,
+                            // 'email' => $row[4] ?? null,
+                            'source_id' => 3,
                             'status_id ' => 1,
+                            'created_at ' =>$row[6],
+                            'updated_at ' =>$row[7],
                         ]);
 
                         // Tạo bản ghi bán hàng cho khách hàng
@@ -353,18 +356,11 @@ class NvtCustomerController extends Controller
                             'manager_sale' => $user_id,
                         ]);
 
-                        // Kiểm tra xem học sinh đã tồn tại chưa (dựa vào tên và ngày sinh)
-                        $existingStudent = NvtStudentModel::where('student_name', $row[1] ?? null)
-                            ->where('student_birthday', $formattedDate)
-                            ->first();
-                        if ($existingStudent) {
-                            continue; // Bỏ qua nếu học sinh đã tồn tại
-                        }
-
+                        // Kiểm tra xem học sinh đã tồn tại chưa (dựa vào tên và ngày sinh
                         // Tạo học sinh mới
                         NvtStudentModel::create([
                             'student_name' => $row[1] ?? null,
-                            'student_birthday' => $formattedDate,
+                            'student_birthday' => $formattedDate_birthday,
                             'parent_id' => $customer->id,
                             'student_note' => $row[5] ?? null,
                             'student_status' => 1,
@@ -412,7 +408,7 @@ class NvtCustomerController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->where('customer_data_source.source', 'novateen')
                 ->whereNull('customer_sales.user_id')
-                ->paginate(20);
+                ->get();
             $sales = User::join('crm_employee', 'users.id', '=', 'crm_employee.account_id')
                 ->select('crm_employee.employee_name', 'crm_employee.account_id')
                 ->where('department_id', 4)->orderBy('level_id', 'asc')->get();
