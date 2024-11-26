@@ -152,7 +152,7 @@ const ReportGroup = () => {
     // chart user
     const labels = taskByUsers.map((item) => item.user.name);
 
-    const _data = {
+    const dataChartUser = {
         labels: labels,
         datasets: [
             {
@@ -181,7 +181,7 @@ const ReportGroup = () => {
         ],
     };
 
-    const _options = {
+    const optionsChartUser = {
         maintainAspectRatio: false,
         responsive: true,
         scales: {
@@ -251,7 +251,6 @@ const ReportGroup = () => {
     };
 
 
-
     return (
         <div>
             <PageHeader
@@ -293,7 +292,7 @@ const ReportGroup = () => {
                                             title="Biểu đồ tổng hợp thành viên"
                                         >
                                             <div style={{height: "300px", margin: "0 auto"}}>
-                                                <HorizontalBar data={_data} options={_options}/>
+                                                <HorizontalBar data={dataChartUser} options={optionsChartUser}/>
                                             </div>
                                         </Card>
                                     </Col>
