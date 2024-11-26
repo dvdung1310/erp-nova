@@ -35,7 +35,7 @@ const DataImport = () => {
     try {
       setLoading(true);
       const response = await getDataImport();
-      setCustomer(response.data.data);
+      setCustomer(response.data);
       setSale(response.sale);
     } catch (error) {
       console.error('Error fetching ListCustomer:', error);

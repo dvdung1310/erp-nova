@@ -41,10 +41,7 @@ const Customer = () => {
     try {
       setLoading(true);
       const response = await ListCustomer();
-      console.log('====================================');
-      console.log(response);
-      console.log('====================================');
-      setCustomer(response.data.data);
+      setCustomer(response.data);
       setStatuses(response.statuses || []);
       setSources(response.data_sources || []);
     } catch (error) {

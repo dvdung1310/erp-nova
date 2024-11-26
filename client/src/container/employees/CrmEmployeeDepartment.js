@@ -31,6 +31,7 @@ function CrmEmployees() {
   const { path } = useRouteMatch();
   const [dataSource, setDataSource] = useState([]);
   const [allData, setAllData] = useState([]);
+  const [searchKeyword, setSearchKeyword] = useState('');
   const [employeeDepartment, setemployeeDepartment] = useState([]);
   const [userLogin, setUserLogin] = useState(null);
   const [roleUser, setRoleUser] = useState([]);
@@ -83,19 +84,21 @@ function CrmEmployees() {
       message.error('Không thể tải dữ liệu tạo mới.');
     }
   };
-  const handleSearch = async (data) => {
-    const filteredData = allData.filter((employee) => {
-      // Kiểm tra nếu từ khóa tìm kiếm có trong tên nhân sự hoặc thuộc tính khác
-      return employee.employee_name.toLowerCase().includes(data.key_word.toLowerCase());
-    });
-  
-    setDataSource(filteredData); // Cập nhật lại dataSource với kết quả tìm kiếm
-  };
   useEffect(() => {
     fetchData();
     fetchCreateData(); // Fetch create data on component mount
   }, []);
-
+  const handleSearch = () => {
+    const filteredData = allData.filter((employee) => {
+      const keyword = searchKeyword.toLowerCase();
+      return (
+        employee.employee_name?.toLowerCase().includes(keyword) || // Tìm kiếm theo tên
+        employee.employee_email?.toLowerCase().includes(keyword) || // Tìm kiếm theo email
+        employee.department_name?.toLowerCase().includes(keyword) // Tìm kiếm theo phòng ban
+      );
+    });
+    setDataSource(filteredData); // Cập nhật danh sách nhân sự
+  };
   // Open modal for editing or adding an employee
   const handleOpenModal = (employee = null) => {
     setEditingEmployee(employee);
@@ -189,19 +192,15 @@ function CrmEmployees() {
                   <h3>DANH SÁCH NHÂN SỰ - {departmentName}</h3>
                   <div style={{ display: 'flex', alignItems: 'center' }}>
                     {/* Search Form */}
-                    <Form form={form} onFinish={handleSearch} layout="inline" style={{ marginRight: 16 }}>
-                      <Form.Item
-                        name="key_word"
-                        rules={[{ required: true, message: 'Vui lòng nhập thông tin tìm kiếm' }]}
-                      >
-                        <Input placeholder="Tìm kiếm nhân sự" style={{ width: 200, height: '40px' }} />
-                      </Form.Item>
-                      <Form.Item>
-                        <Button type="primary" htmlType="submit" style={{ height: '40px' }}>
-                          Tìm kiếm
-                        </Button>
-                      </Form.Item>
-                    </Form>
+                    <Input
+                      placeholder="Tìm kiếm nhân sự"
+                      style={{ width: 200, height: '40px'}}
+                      value={searchKeyword}
+                      onChange={(e) => {
+                        setSearchKeyword(e.target.value);
+                        handleSearch();
+                      }}
+                    />
                   </div>
                   <Button type="primary" onClick={() => handleOpenModal()} style={{ height: '40px' }}>
                     Thêm mới nhân sự
