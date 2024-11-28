@@ -43,10 +43,11 @@ const CustomerStatus = () => {
     if (status) {
       form.setFieldsValue({
         ...status,
-        date: status.date ? dayjs(status.date) : null,
+        date: status.date ? status.date : null,
         status_id: status.status_id,
         source_id: status.source_id,
       });
+      console.log(form.getFieldValue('date'));
     } else {
       form.resetFields();
     }
@@ -86,7 +87,7 @@ const CustomerStatus = () => {
         formData.append('email', values.email ? values.email : null);
         formData.append('status_id', values.status_id);
         formData.append('source_id', values.source_id);
-        
+        console.log(formData);
         const response = await updateCustomer(formData);
         toast.success(response.message);
         setIsModalVisible(false);
@@ -140,12 +141,10 @@ const CustomerStatus = () => {
       key: 'phone',
     },
     {
-      title: 'Ngày Sinh',
+      title: 'Ngày làm việc',
       dataIndex: 'date',
       key: 'date',
-      render: (text) => {
-        return text ? dayjs(text).format('DD-MM-YYYY') : '';
-      },
+      render: (text) => (text ? dayjs(text).format('DD-MM-YYYY') : ''),
     },
     {
       title: 'Email',
@@ -186,7 +185,7 @@ const CustomerStatus = () => {
       <Spin spinning={loading}>
         <Card>
           <div className='d-flex justify-content-between'>
-            <h2 className='fw-bold'>Nguồn Khách Hàng</h2>
+            <h2 className='fw-bold'>Danh sách Khách Hàng</h2>
             <Button type="primary" onClick={() => showModal()} style={{ marginBottom: '16px' }}>
               Thêm khách hàng
             </Button>
@@ -216,12 +215,12 @@ const CustomerStatus = () => {
             </Col>
 
             <Col className="gutter-row" span={12}>
-              <Form.Item name="date" label="Ngày sinh">
+              <Form.Item name="date" label="Ngày làm việc">
               <Input
         type="date"
         value={editingStatus && editingStatus.date ? dayjs(editingStatus.date).format('YYYY-MM-DD') : ''}
         onChange={(e) => form.setFieldsValue({ date: e.target.value })}
-      />
+            />
               </Form.Item>
             </Col>
 
@@ -246,6 +245,7 @@ const CustomerStatus = () => {
 </Form.Item>
             </Col>
 
+          
             <Col className="gutter-row" span={12}>
               <Form.Item name="source_id" label="Nguồn khách hàng" rules={[{ required: true, message: 'Vui lòng chọn nguồn khách hàng' }]}>
                 <Select placeholder="Chọn nguồn khách hàng">

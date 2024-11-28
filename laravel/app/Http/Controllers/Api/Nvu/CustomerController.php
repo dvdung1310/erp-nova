@@ -18,6 +18,9 @@ class CustomerController extends Controller
     {
         try {
             $customers = Customer::with(['status', 'dataSource', 'sales'])
+                ->whereHas('dataSource', function ($query) {
+                    $query->where('source', 'novaup'); 
+                })
                 ->get()
                 ->map(function ($customer) {
                     $userIds = $customer->sales->pluck('user_id')->toArray();
@@ -31,7 +34,7 @@ class CustomerController extends Controller
                         'file_infor' => $customer->file_infor,
                         'status_name' => $customer->status ? $customer->status->name : 'Không xác định',
                         'source_name' => $customer->dataSource ? $customer->dataSource->name : 'Không xác định',
-                        'status_id' => $customer->status->id ,
+                        'status_id' => $customer->status->id,
                         'source_id' => $customer->dataSource->id,
                         'sales_names' => $salesNames,
                         'created_at' => $customer->created_at,
@@ -39,7 +42,9 @@ class CustomerController extends Controller
                 });
 
             $statuses = CustomerStatus::select('id', 'name', 'color')->get();
-            $dataSources = CustomerDataSource::select('id', 'name')->get();
+            $dataSources = CustomerDataSource::where('source', 'novaup')
+                ->select('id', 'name', 'source')
+                ->get();
             return response()->json([
                 'success' => true,
                 'customers' => $customers,
@@ -76,7 +81,7 @@ class CustomerController extends Controller
 
         if (empty($validatedData['email'])  || $validatedData['email'] == 'null') {
             $email = null;
-        }else{
+        } else {
             $email = $validatedData['email'];
         }
         try {
@@ -120,7 +125,7 @@ class CustomerController extends Controller
             'status_id' => 'nullable|exists:customer_status,id',
             'source_id' => 'nullable|exists:customer_data_source,id',
         ]);
-    
+
         try {
             $customer = Customer::findOrFail($validatedData['id']);
 
@@ -129,10 +134,10 @@ class CustomerController extends Controller
             } else {
                 $date = null;
             }
-    
+
             if (empty($validatedData['email'])  || $validatedData['email'] == 'null') {
                 $email = null;
-            }else{
+            } else {
                 $email = $validatedData['email'];
             }
             $customer->update([
@@ -144,13 +149,12 @@ class CustomerController extends Controller
                 'status_id' => $validatedData['status_id'] ?? $customer->status_id,
                 'source_id' => $validatedData['source_id'] ?? $customer->source_id,
             ]);
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Thông tin khách hàng đã được cập nhật.',
                 'data' => $customer,
             ], 200);
-    
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -159,20 +163,19 @@ class CustomerController extends Controller
             ], 500);
         }
     }
-    
+
     public function delete($id)
     {
         try {
-           
+
             $customer = Customer::findOrFail($id);
 
             $customer->delete();
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Khách hàng đã được xóa thành công.',
             ], 200);
-    
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -181,5 +184,4 @@ class CustomerController extends Controller
             ], 500);
         }
     }
-    
 }

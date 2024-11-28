@@ -39,3 +39,127 @@ html[dir='rtl'] .bullet {
   background-color: #f20d0d;
   color: #fff;
 }
+
+.bg-0084ff{
+  background-color:#0084ff !important ;
+  color: #fff;
+}
+
+.bg-d400ff{
+  background-color:#d400ff !important ;
+  color: #fff;
+}
+.bg-ff0000{
+  background-color: #ff0000 !important;
+  color: #fff;
+}
+
+.bg-5ec837 {
+  background-color: #5ec837 !important;
+  color: #fff;
+}
+
+.bg-e44e4e  {
+  background-color: #e44e4e  !important;
+  color: #fff;
+}
+
+.bg-7e4def  {
+  background-color: #7e4def  !important;
+  color: #fff;
+}
+
+.bg-167c83  {
+  background-color: #167c83  !important;
+  color: #fff;
+}
+
+.bg-bbdf07  {
+  background-color: #bbdf07  !important;
+  color: #fff;
+}
+
+.bg-e97407  {
+  background-color: #e97407  !important;
+  color: #fff;
+}
+
+.bg-3a03ba {
+  background-color: #3a03ba  !important;
+  color: #fff;
+}
+
+.bg-1c3f0d  {
+  background-color: #1c3f0d   !important;
+  color: #fff;
+}
+
+.bg-f07fb6  {
+  background-color: #f07fb6   !important;
+  color: #fff;
+}
+
+.bg-26bff2  {
+  background-color: #26bff2   !important;
+  color: #fff;
+}
+
+.bg-d6c400  {
+  background-color: #d6c400   !important;
+  color: #fff;
+}
+.bg-b25353 {
+  background-color: #b25353   !important;
+  color: #fff;
+}
+.bg-4c6267 {
+  background-color: #4c6267   !important;
+  color: #fff;
+}
+
+.bg-ffd29e {
+  background-color: #ffd29e   !important;
+  color: #fff;
+}
+
+.bg-571e1e {
+  background-color: #571e1e   !important;
+  color: #fff;
+}
+.bg-0008ff {
+  background-color: #0008ff   !important;
+  color: #fff;
+}
+.bg-8f580f {
+  background-color: #8f580f    !important;
+  color: #fff;
+}
+.bg-c7ec83  {
+  background-color: #c7ec83    !important;
+  color: #fff;
+}
+.bg-44480f {
+  background-color: #44480f    !important;
+}
+
+.bg-5a5035 {
+  background-color: #5a5035    !important;
+  color: #fff;
+}
+
+.bg-9a05ad {
+  background-color: #9a05ad !important;
+  color: #fff;
+}
+
+.ant-modal{
+  width: 25% !important;
+}
+
+.ant-modal-content{
+  padding: 10px !important;
+}
+
+.ant-modal-header{
+  padding: 8px !important;
+}

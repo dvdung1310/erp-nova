@@ -62,7 +62,7 @@ function ProjectUpdate({ title, id, description, label, onEventDelete, time, dat
         okText="Xóa"
         cancelText="Hủy"
         >
-        <p>Bạn có chắc chắn muốn xóa sự kiện này?</p>
+        <p>Bạn có chắc chắn muốn xóa sự kiện này</p>
       </Modal>
         <div className="bodyUpdate">
           <p className="event-info">
