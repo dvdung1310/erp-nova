@@ -142,7 +142,7 @@ class GroupController extends Controller
             $project = Project::where('group_id', $parent_group_id)
                 ->with(['projectMembers.user', 'leader'])
                 ->withCount(['tasks as total_tasks', 'tasks as completed_tasks' => function ($query) {
-                    $query->where('task_status', 2);
+                    $query->whereIn('task_status', [2, 3]);
                 }])
                 ->get();
             $currentGroup = Group::where('group_id', $parent_group_id)->first();
@@ -565,7 +565,7 @@ class GroupController extends Controller
     private function getReportFromGroup($group, &$totalProjects, &$totalTasks, &$totalCompletedTasks, &$totalDoingTasks,
                                         &$totalWaitingTasks, &$TotalOverdueTasks, &$listProjects = [], &$listTasks = [],
                                         &$listCompletedTasks = [], &$listDoingTasks = [], &$listWaitingTasks = [],
-                                        &$listOverdueTasks = [])
+                                        &$listOverdueTasks = [], $startDate = null, $endDate = null)
     {
         $projects = Project::where('group_id', $group->group_id)
             ->with(['projectMembers.user', 'leader'])
@@ -574,6 +574,15 @@ class GroupController extends Controller
                 $query->where('task_status', 2);
             }])
             ->get();
+        if ($startDate && $endDate) {
+            $projects->filter(function ($project) use ($startDate, $endDate) {
+                $tasks = $project->tasks->filter(function ($task) use ($startDate, $endDate) {
+                    return $task->task_start_date >= $startDate && $task->task_end_date <= $endDate;
+                });
+                $project->tasks = $tasks;
+                return $tasks->count() > 0;
+            });
+        }
 
         foreach ($projects as $project) {
             $tasks = $project->tasks;
@@ -581,8 +590,8 @@ class GroupController extends Controller
             $doingTasks = 0;
             $waitingTasks = 0;
             $overdueTasks = 0;
-
             foreach ($tasks as $task) {
+
                 $task->load(['users' => function ($query) {
                     $query->select('users.id', 'users.name', 'users.email', 'users.avatar');
                 }]);
@@ -619,11 +628,11 @@ class GroupController extends Controller
         foreach ($childGroups as $childGroup) {
             $this->getReportFromGroup($childGroup, $totalProjects, $totalTasks, $totalCompletedTasks,
                 $totalDoingTasks, $totalWaitingTasks, $TotalOverdueTasks, $listProjects, $listTasks,
-                $listCompletedTasks, $listDoingTasks, $listWaitingTasks, $listOverdueTasks);
+                $listCompletedTasks, $listDoingTasks, $listWaitingTasks, $listOverdueTasks, $startDate, $endDate);
         }
     }
 
-    public function getReportsByGroupId($group_id)
+    public function getReportsByGroupId(Request $request, $group_id)
     {
         try {
             $group = Group::where('group_id', $group_id)
@@ -632,14 +641,26 @@ class GroupController extends Controller
             $employees = CrmEmployeeModel::where('department_id', $department_id)
                 ->get();
             $taskByUsers = [];
-
+            $startDate = $request->startDate;
+            $endDate = $request->endDate;
             foreach ($employees as $employee) {
                 $user_id = $employee->account_id;
                 $user = User::find($user_id);
-
-                $tasks = Task::join('work_task_members', 'work_tasks.task_id', '=', 'work_task_members.task_id')
-                    ->where('work_task_members.user_id', $user_id)
-                    ->get(['work_tasks.*']);
+                $tasks = [];
+                if ($startDate && $endDate) {
+                    $tasks = Task::join('work_task_members', 'work_tasks.task_id', '=', 'work_task_members.task_id')
+                        ->where('work_task_members.user_id', $user_id)
+//                        ->where('work_tasks.task_start_date', '>=', $startDate)
+//                        ->where('work_tasks.task_end_date', '<=', $endDate)
+                        ->get(['work_tasks.*']);
+                    $tasks = $tasks->filter(function ($task) use ($startDate, $endDate) {
+                        return $task->task_start_date >= $startDate && $task->task_end_date <= $endDate;
+                    });
+                } else {
+                    $tasks = Task::join('work_task_members', 'work_tasks.task_id', '=', 'work_task_members.task_id')
+                        ->where('work_task_members.user_id', $user_id)
+                        ->get(['work_tasks.*']);
+                }
 
                 $doingTasks = $tasks->where('task_status', 1); // đang làm
                 $waitingTasks = $tasks->where('task_status', 0); // đang chờ
@@ -688,8 +709,10 @@ class GroupController extends Controller
                 $groupData['total_completed_tasks'], $groupData['total_doing_tasks'],
                 $groupData['total_waiting_tasks'], $groupData['total_overdue_tasks'],
                 $groupData['list_projects'], $groupData['list_tasks'],
-                $groupData['list_completed_tasks'], $groupData['list_doing_tasks'], $groupData['list_waiting_tasks'],
-                $groupData['list_overdue_tasks']);
+                $groupData['list_completed_tasks'], $groupData['list_doing_tasks'],
+                $groupData['list_waiting_tasks'], $groupData['list_overdue_tasks'],
+                $startDate, $endDate
+            );
 
             return response()->json([
                 'error' => false,

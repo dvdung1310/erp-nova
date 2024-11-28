@@ -36,7 +36,6 @@ function MyProfile() {
     try {
       setLoading(true);
       const res = await employeeLogin();
-      console.log(res);
 
       setDataSource(res.data);
       setLoading(false);

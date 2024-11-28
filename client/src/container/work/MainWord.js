@@ -62,6 +62,9 @@ const MainWord = () => {
         if (role_id) {
             fetchApi()
         }
+        if (!role_id) {
+            setLoading(true)
+        }
     }, [role_id, state])
 
     return (

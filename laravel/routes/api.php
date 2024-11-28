@@ -80,21 +80,21 @@ Route::group(['middleware' => 'api'], function () {
 // xác nhận công
 Route::group(['middleware' => 'api', 'prefix' => 'work-confirmations'], function () {
     Route::post('/store', [WorkConfirmationController::class, 'store']);
-    Route::post('/manager-store', [WorkConfirmationController::class, 'storeWorkConfirmationManager']);
+    Route::post('/manager-store', [WorkConfirmationController::class, 'storeWorkConfirmationManager'])->middleware(middlewareLogin::class);
     Route::get('/', [WorkConfirmationController::class, 'index']);
     Route::get('detail/{id}', [WorkConfirmationController::class, 'detailworkconfirmation']);
     Route::get('delete_detail/{id}', [WorkConfirmationController::class, 'deleteDetailworkconfirmation']);
     Route::get('delete_workconfirmation/{id}', [WorkConfirmationController::class, 'deleteworkconfirmation']);
     Route::get('list_employee', [WorkConfirmationController::class, 'getEmployeeConfirmations']);
     Route::post('update_detail', [WorkConfirmationController::class, 'updateDetailWorkConfimation']);
-    Route::post('update_status/{id}/{status}', [WorkConfirmationController::class, 'updateStatus']);
+    Route::post('update_status/{id}/{status}', [WorkConfirmationController::class, 'updateStatus'])->middleware(middlewareLogin::class);
     Route::get('listbyuser', [WorkConfirmationController::class, 'listWorkConfimationUser']);
     Route::get('danh-sach-cong-da-duyet', [WorkConfirmationController::class, 'listWorkConfimationStatus1']);
 });
 
 // Đề xuất
 Route::group(['middleware' => 'api', 'prefix' => 'proposal'], function () {
-    Route::post('/store', [ProposalController::class, 'store']);
+    Route::post('/store', [ProposalController::class, 'store'])->middleware(middlewareLogin::class);
     Route::post('/update', [ProposalController::class, 'update']);
     Route::get('/detail/{id}', [ProposalController::class, 'detail']);
     Route::get('/index', [ProposalController::class, 'index']);
@@ -174,9 +174,9 @@ Route::group(['middleware' => 'api'], function () {
     Route::get('delete_payment/{id}', [NvtPaymentController::class, 'delete_payment']);
     Route::put('update_status_payment/{id}', [NvtPaymentController::class, 'update_status_payment']);
     //import data
-    Route::post('nvt_import_data',[NvtCustomerController::class,'nvt_import_data'])->middleware(middlewareLogin::class);
-    Route::get('nvt_list_data_import',[NvtCustomerController::class,'nvt_list_data_import']);
-    Route::post('nvt_divide_data',[NvtCustomerController::class,'nvt_divide_data']);
+    Route::post('nvt_import_data', [NvtCustomerController::class, 'nvt_import_data'])->middleware(middlewareLogin::class);
+    Route::get('nvt_list_data_import', [NvtCustomerController::class, 'nvt_list_data_import']);
+    Route::post('nvt_divide_data', [NvtCustomerController::class, 'nvt_divide_data']);
 
 });
 Route::group(['middleware' => 'api'], function () {
@@ -212,8 +212,8 @@ Route::group(['middleware' => 'api'], function () {
     Route::put('/update-employee-login', [NvEmployeeController::class, 'updatEployeeLogin'])->middleware(middlewareLogin::class);
     Route::put('/updateEmployeeAvatar', [NvEmployeeController::class, 'updateEmployeeAvatar'])->middleware(middlewareLogin::class);
     //danh sách nhân viên theo phòng ban
-    Route::get('/employee_department',[NvEmployeeController::class,'employee_department']);
-    Route::get('/list_employee_department/{department_id}',[NvEmployeeController::class,'list_employee_department'])->middleware(middlewareLogin::class);
+    Route::get('/employee_department', [NvEmployeeController::class, 'employee_department']);
+    Route::get('/list_employee_department/{department_id}', [NvEmployeeController::class, 'list_employee_department'])->middleware(middlewareLogin::class);
 
 
 });
@@ -227,7 +227,7 @@ Route::prefix('groups')->group(function () {
     Route::put('update/{group_id}', [GroupController::class, 'update'])->middleware(middlewareLogin::class);
     Route::delete('delete/{group_id}', [GroupController::class, 'delete'])->middleware(middlewareLogin::class);
     Route::get('get-group-by-parent-group-id/{parent_group_id}', [GroupController::class, 'getGroupByParentGroupId'])->middleware(middlewareLogin::class);
-    Route::get('get-reports-by-group-id/{group_id}', [GroupController::class, 'getReportsByGroupId'])->middleware(MiddlewareLoginCeo::class);
+    Route::post('get-reports-by-group-id/{group_id}', [GroupController::class, 'getReportsByGroupId'])->middleware(MiddlewareLoginCeo::class);
 });
 // projects
 Route::prefix('projects')->group(function () {

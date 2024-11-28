@@ -2,11 +2,12 @@ import {getToken} from "../../utility/localStorageControl";
 
 const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
 import {createAxios} from "../../utility/createAxios";
+
 const instanceAxios = createAxios();
 const token = getToken();
 export const storeWorkConfimation = async (formData) => {
     try {
-        const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/work-confirmations/store`, { confirmations: formData }, {
+        const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/work-confirmations/store`, {confirmations: formData}, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`,
@@ -20,11 +21,10 @@ export const storeWorkConfimation = async (formData) => {
 };
 
 
-
 export const storeWorkConfimationManager = async (data) => {
     console.log(data);
     try {
-        const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/work-confirmations/manager-store`, { confirmations: data }, {
+        const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/work-confirmations/manager-store`, {confirmations: data}, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`,
@@ -99,7 +99,7 @@ export const deleteWorkConfimation = async (id) => {
 
 export const updateDetailWorkConfimation = async (formData) => {
     try {
-        const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/work-confirmations/update_detail/`, { detailconfirmations: formData }, {
+        const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/work-confirmations/update_detail/`, {detailconfirmations: formData}, {
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -142,11 +142,13 @@ export const listWorkConfimationStatus1 = async () => {
     }
 };
 
-export const updateStatus = async (id,status) => {
+export const updateStatus = async (id, status) => {
+    const token = getToken();
     try {
-        const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/work-confirmations/update_status/${id}/${status}`, {
+        const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/work-confirmations/update_status/${id}/${status}`, {}, {
             headers: {
                 'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
             },
         });
         return response.data;
