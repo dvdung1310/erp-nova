@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Select, Tag, Space, Popconfirm, Card, Spin, Col, Row, DatePicker } from 'antd';   
-import { storeCustomer, updateCustomer, ListCustomer, DeleteCustomer } from '../../apis/novaup/customer';
+import { Table, Button, Modal, Form, Input, Select, Tag, Space, Popconfirm, Card, Spin, Col, Row, Upload } from 'antd';   
+import { UploadOutlined } from '@ant-design/icons';
+import { storeCustomer, updateCustomer, ListCustomer, DeleteCustomer } from '../../apis/customers/index';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import './Customer.css';
 import dayjs from 'dayjs';
-
+const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
 const { Option } = Select;
 
-const CustomerStatus = () => {
+const CustomerList = () => {
   const [customer, setCustomer] = useState([]);
   const [customer_status, setStatuses] = useState([]);
   const [customer_sources, setSources] = useState([]);
@@ -17,11 +17,23 @@ const CustomerStatus = () => {
   const [editingStatus, setEditingStatus] = useState(null); 
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [fileModalVisible, setFileModalVisible] = useState(false);
+  const [fileUrl, setFileUrl] = useState(null);  
+  const [fileType, setFileType] = useState(null);
+  const { Search } = Input;
+  const { Option } = Select;
 
-  const fetchStatuses = async () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState(null);
+  const [selectedSource, setSelectedSource] = useState(null);
+
+  const fetchStatuses = async (filters = {}) => {
     try {
         setLoading(true);
-        const response = await ListCustomer();
+        const params = new URLSearchParams(filters).toString();
+        console.log('params',params);
+        const response = await ListCustomer(`?${params}`);
         setCustomer(response.customers);
         setStatuses(response.statuses || []);
         setSources(response.data_sources || []);
@@ -48,8 +60,10 @@ const CustomerStatus = () => {
         source_id: status.source_id,
       });
       console.log(form.getFieldValue('date'));
+      setSelectedFile(null);
     } else {
       form.resetFields();
+      setSelectedFile(null);
     }
 
     setIsModalVisible(true);
@@ -65,6 +79,9 @@ const CustomerStatus = () => {
         formData.append('email', values.email ? values.email : null);
         formData.append('status_id', values.status_id);
         formData.append('source_id', values.source_id);
+        selectedFile.forEach(file => {
+          formData.append('file_infor[]', file);
+        });
         console.log(values.status_id);
         const response = await storeCustomer(formData);
         toast.success(response.message);
@@ -87,6 +104,11 @@ const CustomerStatus = () => {
         formData.append('email', values.email ? values.email : null);
         formData.append('status_id', values.status_id);
         formData.append('source_id', values.source_id);
+        if (selectedFile && selectedFile.length > 0) {
+          selectedFile.forEach(file => {
+            formData.append('file_infor[]', file);
+          });
+        }
         console.log(formData);
         const response = await updateCustomer(formData);
         toast.success(response.message);
@@ -106,6 +128,20 @@ const CustomerStatus = () => {
     }
   };
 
+  const handleSearch = () => {
+    const params = {};
+    if (searchTerm) {
+        params.name = searchTerm;
+    }
+    if (selectedStatus) {
+        params.status_id = selectedStatus;
+    }
+    if (selectedSource) {
+        params.source_id = selectedSource;
+    }
+    fetchStatuses(params);
+};
+
   const handleCancel = () => {
     setIsModalVisible(false);
     setEditingStatus(null); 
@@ -124,11 +160,34 @@ const CustomerStatus = () => {
       });
   };
 
+  const handleUploadChange = ({ fileList }) => {
+    // setSelectedFile(fileList.length > 0 ? fileList[0].originFileObj : null);
+    setSelectedFile(fileList.map(file => file.originFileObj));
+};
+
+const handleFileClick = (file) => {
+  const files = Array.isArray(file) ? file : JSON.parse(file);
+  console.log('files', files);
+  setFileUrl(files);
+  if (files == null || files.length === 0) {
+    setFileType('null');
+  } else {
+    setFileType('multi');
+  }
+  setFileModalVisible(true);
+};
+
   const columns = [
     {
       title: 'STT',
       key: 'stt',
       render: (text, record, index) => index + 1,
+    },
+    {
+      title: 'Mã KH',
+      dataIndex: 'id',
+      key: 'id',
+      render: (text) => `KH${text}`,
     },
     {
       title: 'Tên',
@@ -151,6 +210,20 @@ const CustomerStatus = () => {
       dataIndex: 'email',
       key: 'email',
     },
+    {
+      title: 'Hóa đơn, Hợp đồng',
+      dataIndex: 'file_infor',
+      key: 'file_infor',
+      render: (file_infor) => (
+        <Button 
+          type="link" 
+          onClick={() => handleFileClick(file_infor)} // Truyền toàn bộ mảng file vào
+        >
+          Xem file
+        </Button>
+      ),
+    },
+    
     {
       title: 'Trạng thái',
       dataIndex: 'status_name',
@@ -183,7 +256,56 @@ const CustomerStatus = () => {
   return (
     <div>
       <Spin spinning={loading}>
+      
         <Card>
+          <div>
+          <Row  gutter={[16, 16]} style={{ marginBottom: '16px' , width:'100%' , display:'flex' , justifyContent:'end' , alignItems:'center'}}>
+    <Col span={4}>
+    <Input  style={{padding:'7px 10px'}}
+            placeholder="Tìm kiếm tên khách hàng"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onSearch={handleSearch}
+            enterButton
+        />
+    </Col>
+    <Col span={3}>
+      <Select
+        placeholder="Lọc theo trạng thái"
+        style={{ width: '100%' }}
+        value={selectedStatus}
+        onChange={(value) => setSelectedStatus(value)}
+        allowClear
+      >
+        {customer_status.map((status) => (
+          <Option key={status.id} value={status.id}>
+            {status.name}
+          </Option>
+        ))}
+      </Select>
+    </Col>
+    <Col span={3}>
+      <Select
+        placeholder="Lọc theo nguồn khách hàng"
+        style={{ width: '100%' }}
+        value={selectedSource}
+        onChange={(value) => setSelectedSource(value)}
+        allowClear
+      >
+        {customer_sources.map((source) => (
+          <Option key={source.id} value={source.id}>
+            {source.name_source}
+          </Option>
+        ))}
+      </Select>
+    </Col>
+    <Col span={2}>
+      <Button type="primary" onClick={handleSearch}>
+        Tìm kiếm
+      </Button>
+    </Col>
+          </Row>
+          </div>
           <div className='d-flex justify-content-between'>
             <h2 className='fw-bold'>Danh sách Khách Hàng</h2>
             <Button type="primary" onClick={() => showModal()} style={{ marginBottom: '16px' }}>
@@ -245,23 +367,58 @@ const CustomerStatus = () => {
 </Form.Item>
             </Col>
 
-          
             <Col className="gutter-row" span={12}>
               <Form.Item name="source_id" label="Nguồn khách hàng" rules={[{ required: true, message: 'Vui lòng chọn nguồn khách hàng' }]}>
                 <Select placeholder="Chọn nguồn khách hàng">
                   {customer_sources.map((source) => (
                     <Option key={source.id} value={source.id}>
-                      {source.name}
+                      {source.name_source}
                     </Option>
                   ))}
                 </Select>
               </Form.Item>
             </Col>
+
+            <Col className="gutter-row" span={24}>
+                <Upload
+                multiple
+                name="file_infor"
+                listType="picture"
+                beforeUpload={() => false} onChange={handleUploadChange}><Button icon={<UploadOutlined />}>Chọn file</Button>
+                </Upload>
+            </Col>
           </Row>
         </Form>
       </Modal>
+      <Modal
+  title="Xem file"
+  visible={fileModalVisible}
+  onCancel={() => setFileModalVisible(false)}
+  footer={null}
+  width={800}
+>
+  {fileType === 'multi' ? (
+    <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+      {fileUrl.map((file, index) => {
+        const fileExtension = file.split('.').pop().toLowerCase();
+        return fileExtension === 'pdf' ? (
+          <embed key={index} src={`${LARAVEL_SERVER}/storage/${file}`} width="100%" height="500px" type="application/pdf" />
+        ) : (
+          <img
+  key={index}
+  src={`${LARAVEL_SERVER}/storage/${file}`}
+  alt={`file-preview-${index}`}
+  style={{ width: '100%', marginBottom: '10px' }}
+/>
+        );
+      })}
+    </div>
+  ) : (
+    <div>Không có file để xem</div>
+  )}
+</Modal>
     </div>
   );
 };
 
-export default CustomerStatus;
+export default CustomerList;

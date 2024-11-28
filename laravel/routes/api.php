@@ -34,6 +34,7 @@ use App\Http\Controllers\Api\Nvu\StatusController;
 use App\Http\Controllers\Api\Nvu\SourceController;
 use App\Http\Controllers\Api\Nvu\RoomController;
 use App\Http\Controllers\Api\Nvu\CustomerController;
+use App\Http\Controllers\Api\Customer\CustomerController as CustomerMainController;
 use App\Http\Controllers\Api\Nvu\BookingController;
 use App\Http\Controllers\Api\Nvu\PaymentController;
 
@@ -138,7 +139,6 @@ Route::group(['middleware' => 'api', 'prefix' => 'novaup'], function () {
     Route::get('/deletePayment/{id}', [PaymentController::class, 'delete']);
     Route::get('/getBookingConnectCumstomer', [PaymentController::class, 'getBookingConnectCumstomer']);
 
-
 });
 
 // NovaTeen
@@ -174,6 +174,14 @@ Route::group(['middleware' => 'api'], function () {
     Route::get('delete_payment/{id}',[NvtPaymentController::class,'delete_payment']);
     Route::put('update_status_payment/{id}', [NvtPaymentController::class, 'update_status_payment']);
 
+});
+
+// Novaup
+Route::group(['middleware' => 'api', 'prefix' => 'customer'], function () {
+    Route::post('/storeCustomer', [CustomerMainController::class, 'store']);
+    Route::get('/indexCustomer', [CustomerMainController::class, 'index']);
+    Route::post('/updateCustomer', [CustomerMainController::class, 'update']);
+    Route::get('/deleteCustomer/{id}', [CustomerMainController::class, 'delete']);
 });
 Route::group(['middleware' => 'api'], function () {
     Route::resource('nvdepartment', NvDepartmentController::class);

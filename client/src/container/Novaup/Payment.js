@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Select, Tag, Space, Popconfirm, Card, Spin, Col, Row , Upload  } from 'antd';   
+import { Table, Button, Modal, Form, Input, Select, Tag, Space, Popconfirm, Card, Spin, Col, Row , Upload, message  } from 'antd';   
 import { UploadOutlined } from '@ant-design/icons';
-import { updateCustomer, DeleteCustomer  } from '../../apis/novaup/customer';
+import {  DeleteCustomer  } from '../../apis/novaup/customer';
 import { storePayment, updatePayment, ListPayment, DeletePayment , getBookingConnectCumstomer } from '../../apis/novaup/payment';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './Customer.css';
 import dayjs from 'dayjs';
-
+const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
 
 const { Option } = Select;
 
@@ -21,6 +21,8 @@ const CustomerStatus = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [isImageModalVisible, setIsImageModalVisible] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
   const fetchStatuses = async () => {
     try {
         setLoading(true);
@@ -43,13 +45,13 @@ const CustomerStatus = () => {
     setIsEditMode(!!status);
     setEditingStatus(status);
     if (status) {
-        const formattedDate = dayjs(status.date).format('DD-MM-YYYY');
         form.setFieldsValue({
             id_customer_booking: status.booking_histories[0].room_booking_id,
-            date: status.date,
+            date: status.date ? dayjs(status.date).format('YYYY-MM-DD') : null,
             money: status.money,
-            type: status.status, 
+            type: status.type, 
           });
+      console.log(form.getFieldValue('type'));
       setSelectedFile(null);
     } else {
       form.resetFields();
@@ -88,7 +90,7 @@ const CustomerStatus = () => {
         const values = await form.validateFields();
         const formData = new FormData();
         formData.append('id', editingStatus.id);
-        formData.append('id', values.id);
+        formData.append('id_customer_booking', values.id_customer_booking);
         formData.append('date', values.date); 
         formData.append('money', values.money);
         formData.append('type', values.type);
@@ -96,13 +98,13 @@ const CustomerStatus = () => {
             formData.append('image', selectedFile);
         }
         
-        const response = await updateCustomer(formData);
-        toast.success('Cập nhật nguồn khách hàng thành công!');
+        const response = await updatePayment(formData);
+        toast.success(response.message);
         setIsModalVisible(false);
         form.resetFields();
         fetchStatuses();
     } catch (error) {
-        toast.error('Cập nhật nguồn khách hàng thất bại!');
+        toast.error(error.message);
     }
   };
 
@@ -160,16 +162,35 @@ const CustomerStatus = () => {
       title: 'Ngày thanh toán',
       dataIndex: 'date',
       key: 'date',
-      render: (text) => {
-        return text ? dayjs(text).format('DD-MM-YYYY') : '';
-      },
+      render: (text) => (text ? dayjs(text).format('DD-MM-YYYY') : ''),
     },
     {
       title: 'Số tiền thu - chi',
       render: (text, record) => {
-        return record.money + 'VND';
+        const isIncome = record.type === 1;
+        const moneyFormatted = `${isIncome ? '+' : '-'}${record.money} VND`;
+        const style = {
+          color: isIncome ? 'green' : 'red',
+        };
+    
+        return <span style={style}>{moneyFormatted}</span>; 
       },
       key: 'money',
+    },
+    {
+      title: 'Ảnh',
+      dataIndex: 'image',
+      key: 'image',
+      render: (text, record) => (
+        <a
+          onClick={() => {
+            setSelectedImage(`${LARAVEL_SERVER}/storage/${record.image}`);
+            setIsImageModalVisible(true);
+          }}
+        >
+          Xem ảnh
+        </a>
+      ),
     },
     {
       title: 'Trạng thái',
@@ -290,6 +311,19 @@ const CustomerStatus = () => {
           </Row>
         </Form>
       </Modal>
+
+      <Modal
+  title="Xem ảnh"
+  visible={isImageModalVisible}
+  footer={null} 
+  onCancel={() => setIsImageModalVisible(false)} 
+>
+  <img
+    src={selectedImage} 
+    alt="Preview"
+    style={{ width: '100%' }} 
+  />
+</Modal>
     </div>
   );
 };

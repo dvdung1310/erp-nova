@@ -278,6 +278,7 @@ function MenuItems({darkMode, toggleCollapsed, topMenu, events}) {
                 </Menu.Item>
             </SubMenu>
             {/* end novaup   */}
+
             {/* novateen */}
             <SubMenu key="novateen" icon={!topMenu && <FeatherIcon icon="map-pin"/>} title="NovaTeen">
                 <Menu.Item key="nvt-home">
@@ -318,6 +319,15 @@ function MenuItems({darkMode, toggleCollapsed, topMenu, events}) {
             </SubMenu>
             {/* end novateen */}
 
+        {/* Khách hàng */}
+            <SubMenu key="customer" icon={!topMenu && <FeatherIcon icon="user-plus"/>} title="Khách hàng">
+                <Menu.Item key="list-customer">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/khach-hang/danh-sach`}>
+                        Danh sách
+                    </NavLink>
+                </Menu.Item>
+            </SubMenu>
+            {/* end khách hàng   */}
             {/**/}
             {/* start d-none */}
             <SubMenu style={{display: 'none'}}>
