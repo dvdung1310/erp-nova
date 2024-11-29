@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Select, Tag, Space, Popconfirm, Card, Spin, Col, Row, Upload } from 'antd';   
+import {Table, Button, Modal, Form, Input, Select, Tag, Space, Popconfirm, Card, Spin, Col, Row, Upload } from 'antd';   
 import { UploadOutlined } from '@ant-design/icons';
 import { storeCustomer, updateCustomer, ListCustomer, DeleteCustomer } from '../../apis/customers/index';
 import { toast } from 'react-toastify';
@@ -20,9 +20,12 @@ const CustomerList = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileModalVisible, setFileModalVisible] = useState(false);
   const [fileUrl, setFileUrl] = useState(null);  
+  const [content, setContent] = useState(null);  
+  const [contentModalVisible, setContentModalVisible] = useState(false);
   const [fileType, setFileType] = useState(null);
   const { Search } = Input;
   const { Option } = Select;
+  const { TextArea } = Input;
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState(null);
@@ -59,7 +62,7 @@ const CustomerList = () => {
         status_id: status.status_id,
         source_id: status.source_id,
       });
-      console.log(form.getFieldValue('date'));
+      console.log('status',status);
       setSelectedFile(null);
     } else {
       form.resetFields();
@@ -77,11 +80,14 @@ const CustomerList = () => {
         formData.append('phone', values.phone);
         formData.append('date', values.date); 
         formData.append('email', values.email ? values.email : null);
+        formData.append('content', values.content ? values.content : null); 
         formData.append('status_id', values.status_id);
         formData.append('source_id', values.source_id);
+        if (Array.isArray(selectedFile) && selectedFile.length > 0) {
         selectedFile.forEach(file => {
           formData.append('file_infor[]', file);
         });
+      }
         console.log(values.status_id);
         const response = await storeCustomer(formData);
         toast.success(response.message);
@@ -102,6 +108,7 @@ const CustomerList = () => {
         formData.append('phone', values.phone);
         formData.append('date', values.date); 
         formData.append('email', values.email ? values.email : null);
+         formData.append('content', values.content ? values.content : null); 
         formData.append('status_id', values.status_id);
         formData.append('source_id', values.source_id);
         if (selectedFile && selectedFile.length > 0) {
@@ -109,7 +116,6 @@ const CustomerList = () => {
             formData.append('file_infor[]', file);
           });
         }
-        console.log(formData);
         const response = await updateCustomer(formData);
         toast.success(response.message);
         setIsModalVisible(false);
@@ -177,6 +183,11 @@ const handleFileClick = (file) => {
   setFileModalVisible(true);
 };
 
+const handleContentClick = (content) => {
+  setContent(content)
+  setContentModalVisible(true);
+};
+
   const columns = [
     {
       title: 'STT',
@@ -206,6 +217,19 @@ const handleFileClick = (file) => {
       render: (text) => (text ? dayjs(text).format('DD-MM-YYYY') : ''),
     },
     {
+      title: 'Nội dung',
+      dataIndex: 'content',
+      key: 'content',
+      render: (content) => (
+        <Button 
+          type="link" 
+          onClick={() => handleContentClick(content)} 
+        >
+          Xem nội dung
+        </Button>
+      ),
+    },
+    {
       title: 'Email',
       dataIndex: 'email',
       key: 'email',
@@ -217,7 +241,7 @@ const handleFileClick = (file) => {
       render: (file_infor) => (
         <Button 
           type="link" 
-          onClick={() => handleFileClick(file_infor)} // Truyền toàn bộ mảng file vào
+          onClick={() => handleFileClick(file_infor)} 
         >
           Xem file
         </Button>
@@ -387,6 +411,11 @@ const handleFileClick = (file) => {
                 beforeUpload={() => false} onChange={handleUploadChange}><Button icon={<UploadOutlined />}>Chọn file</Button>
                 </Upload>
             </Col>
+            <Col className="gutter-row" span={24}>
+              <Form.Item name="content" label="Nội dung trao đổi">
+                <TextArea placeholder='Nhập nội dung' />
+              </Form.Item>
+            </Col>
           </Row>
         </Form>
       </Modal>
@@ -416,6 +445,17 @@ const handleFileClick = (file) => {
   ) : (
     <div>Không có file để xem</div>
   )}
+</Modal>
+
+
+<Modal
+  title="Xem nội dung"
+  visible={contentModalVisible}
+  onCancel={() => setContentModalVisible(false)}
+  footer={null}
+  width={800}
+>
+    <div>{content}</div>
 </Modal>
     </div>
   );

@@ -20,6 +20,7 @@ class SourceController extends Controller
         $status = new CustomerDataSource();
         $status->name = $request->name;
         $status->status = $request->status;
+        $status->source = 'novaup';
         $status->save();
 
         return response()->json(['message' => 'Nguồn khách hàng đã được thêm thành công!', 'status' => $status], 201);
@@ -27,7 +28,7 @@ class SourceController extends Controller
 
     public function index()
     {
-        $statuses = CustomerDataSource::all();
+        $statuses = CustomerDataSource::where('source' ,'novaup')->where('status',1)->get();
         return response()->json($statuses);
     }
 
@@ -35,7 +36,6 @@ class SourceController extends Controller
     {
         $id = $request->input('id');
         $validator = Validator::make($request->all(), [
-            'id' => 'required|exists:customer_status,id',
             'name' => 'required|string|max:255',
             'status' => 'required|boolean',
         ]);

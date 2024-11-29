@@ -17,11 +17,19 @@ const CustomerStatus = () => {
   const [editingStatus, setEditingStatus] = useState(null); 
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [content, setContent] = useState(null);  
+  const [contentModalVisible, setContentModalVisible] = useState(false);
+  const { TextArea } = Input;
 
-  const fetchStatuses = async () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState(null);
+  const [selectedSource, setSelectedSource] = useState(null);
+  const fetchStatuses = async (filters = {}) => {
     try {
         setLoading(true);
-        const response = await ListCustomer();
+        const params = new URLSearchParams(filters).toString();
+        console.log('params',params);
+        const response = await ListCustomer(`?${params}`);
         setCustomer(response.customers);
         setStatuses(response.statuses || []);
         setSources(response.data_sources || []);
@@ -64,6 +72,7 @@ const CustomerStatus = () => {
         formData.append('date', values.date); 
         formData.append('email', values.email ? values.email : null);
         formData.append('status_id', values.status_id);
+        formData.append('content', values.content ? values.content : null); 
         formData.append('source_id', values.source_id);
         console.log(values.status_id);
         const response = await storeCustomer(formData);
@@ -86,6 +95,7 @@ const CustomerStatus = () => {
         formData.append('date', values.date); 
         formData.append('email', values.email ? values.email : null);
         formData.append('status_id', values.status_id);
+        formData.append('content', values.content ? values.content : null); 
         formData.append('source_id', values.source_id);
         console.log(formData);
         const response = await updateCustomer(formData);
@@ -110,6 +120,25 @@ const CustomerStatus = () => {
     setIsModalVisible(false);
     setEditingStatus(null); 
     form.resetFields();
+  };
+
+  const handleSearch = () => {
+    const params = {};
+    if (searchTerm) {
+        params.name = searchTerm;
+    }
+    if (selectedStatus) {
+        params.status_id = selectedStatus;
+    }
+    if (selectedSource) {
+        params.source_id = selectedSource;
+    }
+    fetchStatuses(params);
+};
+
+  const handleContentClick = (content) => {
+    setContent(content)
+    setContentModalVisible(true);
   };
 
   const handleDelete = (id) => {
@@ -145,6 +174,19 @@ const CustomerStatus = () => {
       dataIndex: 'date',
       key: 'date',
       render: (text) => (text ? dayjs(text).format('DD-MM-YYYY') : ''),
+    },
+    {
+      title: 'Nội dung',
+      dataIndex: 'content',
+      key: 'content',
+      render: (content) => (
+        <Button 
+          type="link" 
+          onClick={() => handleContentClick(content)} 
+        >
+          Xem nội dung
+        </Button>
+      ),
     },
     {
       title: 'Email',
@@ -184,6 +226,54 @@ const CustomerStatus = () => {
     <div>
       <Spin spinning={loading}>
         <Card>
+        <div>
+          <Row  gutter={[16, 16]} style={{ marginBottom: '16px' , width:'100%' , display:'flex' , justifyContent:'end' , alignItems:'center'}}>
+    <Col span={4}>
+    <Input  style={{padding:'7px 10px'}}
+            placeholder="Tìm kiếm tên khách hàng"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onSearch={handleSearch}
+            enterButton
+        />
+    </Col>
+    <Col span={3}>
+      <Select
+        placeholder="Lọc theo trạng thái"
+        style={{ width: '100%' }}
+        value={selectedStatus}
+        onChange={(value) => setSelectedStatus(value)}
+        allowClear
+      >
+        {customer_status.map((status) => (
+          <Option key={status.id} value={status.id}>
+            {status.name}
+          </Option>
+        ))}
+      </Select>
+    </Col>
+    <Col span={3}>
+      <Select
+        placeholder="Lọc theo nguồn khách hàng"
+        style={{ width: '100%' }}
+        value={selectedSource}
+        onChange={(value) => setSelectedSource(value)}
+        allowClear
+      >
+        {customer_sources.map((source) => (
+          <Option key={source.id} value={source.id}>
+            {source.name}
+          </Option>
+        ))}
+      </Select>
+    </Col>
+    <Col span={2}>
+      <Button type="primary" onClick={handleSearch}>
+        Tìm kiếm
+      </Button>
+    </Col>
+          </Row>
+          </div>
           <div className='d-flex justify-content-between'>
             <h2 className='fw-bold'>Danh sách Khách Hàng</h2>
             <Button type="primary" onClick={() => showModal()} style={{ marginBottom: '16px' }}>
@@ -257,9 +347,25 @@ const CustomerStatus = () => {
                 </Select>
               </Form.Item>
             </Col>
+
+            <Col className="gutter-row" span={24}>
+              <Form.Item name="content" label="Nội dung trao đổi">
+                <TextArea placeholder='Nhập nội dung' />
+              </Form.Item>
+            </Col>
           </Row>
         </Form>
       </Modal>
+
+      <Modal
+  title="Xem nội dung"
+  visible={contentModalVisible}
+  onCancel={() => setContentModalVisible(false)}
+  footer={null}
+  width={800}
+>
+    <div>{content}</div>
+</Modal>
     </div>
   );
 };

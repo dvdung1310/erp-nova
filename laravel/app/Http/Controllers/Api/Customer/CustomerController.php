@@ -16,15 +16,14 @@ class CustomerController extends Controller
 {
     public function index(Request $request)
     {
-        
+
         try {
             $query = Customer::with(['status', 'dataSource', 'sales']);
 
             if ($request->has('status_id') && $request->status_id) {
                 $query->where('status_id', $request->status_id);
-               
             }
-            
+
             if ($request->has('source_id') && $request->source_id) {
                 $query->where('source_id', $request->source_id);
             }
@@ -47,24 +46,27 @@ class CustomerController extends Controller
             }
 
             // Thực hiện truy vấn
-            $customers = $query->get()->map(function ($customer) {
-                $userIds = $customer->sales->pluck('user_id')->toArray();
-                $salesNames = User::whereIn('id', $userIds)->pluck('name')->toArray();
-                return [
-                    'id' => $customer->id,
-                    'name' => $customer->name,
-                    'phone' => $customer->phone,
-                    'date' => $customer->date,
-                    'email' => $customer->email,
-                    'file_infor' => $customer->file_infor,
-                    'status_name' => $customer->status ? $customer->status->name : 'Không xác định',
-                    'source_name' => $customer->dataSource ? $customer->dataSource->name . ' - ' .  $customer->dataSource->source : 'Không xác định',
-                    'status_id' => $customer->status->id,
-                    'source_id' => $customer->dataSource->id,
-                    'sales_names' => $salesNames,
-                    'created_at' => $customer->created_at,
-                ];
-            });
+            $customers = $query->orderBy('date', 'desc')
+                ->get()
+                ->map(function ($customer) {
+                    $userIds = $customer->sales->pluck('user_id')->toArray();
+                    $salesNames = User::whereIn('id', $userIds)->pluck('name')->toArray();
+                    return [
+                        'id' => $customer->id,
+                        'name' => $customer->name,
+                        'phone' => $customer->phone,
+                        'date' => $customer->date,
+                        'email' => $customer->email,
+                        'file_infor' => $customer->file_infor,
+                        'content' => $customer->customer_comment,
+                        'status_name' => $customer->status ? $customer->status->name : 'Không xác định',
+                        'source_name' => $customer->dataSource ? $customer->dataSource->name . ' - ' .  $customer->dataSource->source : 'Không xác định',
+                        'status_id' => $customer->status->id ?? null,
+                        'source_id' => $customer->dataSource->id ?? null,
+                        'sales_names' => $salesNames,
+                        'created_at' => $customer->created_at,
+                    ];
+                });
 
             // Lấy danh sách status và dataSource
             $statuses = CustomerStatus::select('id', 'name', 'color')->get();
@@ -102,6 +104,7 @@ class CustomerController extends Controller
             'phone' => 'required|string|max:20',
             'date' => 'nullable',
             'email' => 'nullable|string',
+            'content' => 'nullable|string',
             // 'file_infor' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:2048',
             'status_id' => 'required|exists:customer_status,id',
             'source_id' => 'required|exists:customer_data_source,id',
@@ -118,6 +121,12 @@ class CustomerController extends Controller
         } else {
             $email = $validatedData['email'];
         }
+
+        if (empty($validatedData['content'])  || $validatedData['content'] == 'null') {
+            $content = null;
+        } else {
+            $content = $validatedData['content'];
+        }
         $filePaths = [];
         if ($request->hasFile('file_infor')) {
             foreach ($request->file('file_infor') as $file) {
@@ -131,6 +140,7 @@ class CustomerController extends Controller
                 'date' => $date,
                 'email' => $email,
                 'file_infor' => json_encode($filePaths),
+                'customer_comment' =>  $content,
                 'status_id' => $validatedData['status_id'],
                 'source_id' => $validatedData['source_id'],
             ]);
@@ -160,6 +170,7 @@ class CustomerController extends Controller
             'name' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:20',
             'date' => 'nullable',
+            'content' => 'nullable',
             'email' => 'nullable|string',
             // 'file_infor' => 'nullable|string',
             'status_id' => 'nullable|exists:customer_status,id',
@@ -179,6 +190,12 @@ class CustomerController extends Controller
                 $email = null;
             } else {
                 $email = $validatedData['email'];
+            }
+
+            if (empty($validatedData['content'])  || $validatedData['content'] == 'null') {
+                $content = null;
+            } else {
+                $content = $validatedData['content'];
             }
 
             $filePaths = [];
@@ -201,6 +218,7 @@ class CustomerController extends Controller
                 'phone' => $validatedData['phone'] ?? $customer->phone,
                 'date' => $date,
                 'email' => $email,
+                'customer_comment' =>$content,
                 'file_infor' => !empty($filePaths) ? json_encode($filePaths) : $customer->file_infor,
                 'status_id' => $validatedData['status_id'] ?? $customer->status_id,
                 'source_id' => $validatedData['source_id'] ?? $customer->source_id,
