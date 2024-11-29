@@ -75,3 +75,13 @@ export const getAllGroupParent = async () => {
     });
     return response.data;
 }
+export const getReportGroup = async (id, data) => {
+    const token = getToken();
+    const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/groups/get-reports-by-group-id/${id}`, data, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    return response.data;
+}

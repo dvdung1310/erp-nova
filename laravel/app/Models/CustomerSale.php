@@ -8,7 +8,7 @@ class CustomerSale extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'customer_id'];
+    protected $fillable = ['user_id','manager_sale','customer_id'];
 
     public function user()
     {

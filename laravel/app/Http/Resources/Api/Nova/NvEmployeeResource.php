@@ -23,6 +23,7 @@ class NvEmployeeResource extends JsonResource
             'employee_address' => $this->employee_address, 
             'employee_identity' => $this->employee_identity, 
             'employee_bank_number' => $this->employee_bank_number, 
+            'employee_date_join' => $this->employee_date_join, 
             'department_id' => $this->department_id, 
             'team_id' => $this->team_id, 
             'level_id' => $this->level_id, 

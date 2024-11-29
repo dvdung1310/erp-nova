@@ -1,4 +1,4 @@
-import { Col, Form, Input, Modal, Row, Spin, Upload } from 'antd';
+import { Col, Form, Input, Modal, Row, Spin, Upload, DatePicker } from 'antd';
 import { BasicFormWrapper } from '../../../styled';
 import { Button } from '../../../../components/buttons/buttons';
 import React, { useEffect, useState } from 'react';
@@ -7,7 +7,8 @@ import Avatar from '../../../../components/Avatar/Avatar';
 import { toast } from 'react-toastify';
 import { changePassword, getProfile, updateProfile } from '../../../../apis/work/user';
 import { employeeLogin, updatEployeeLogin } from '../../../../apis/employees/employee';
-const EmployeesInformation = ({dataSource, setDataSource}) => {
+import moment from 'moment';
+const EmployeesInformation = ({ dataSource, setDataSource }) => {
   const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
   const [loading, setLoading] = useState(false);
   const [loadingPassword, setLoadingPassword] = useState(false);
@@ -79,15 +80,23 @@ const EmployeesInformation = ({dataSource, setDataSource}) => {
     try {
       setLoading(true);
       const res = await employeeLogin();
+      
+      // Ensure employee_date_join is parsed as a moment object
+      const formattedDateJoin = res?.data?.employee_date_join 
+        ? moment(res.data.employee_date_join) 
+        : null;
+  
       form.setFieldsValue({
-        employee_name:user &&  user.employee_name,
-        employee_email:user &&  user.employee_email,
-        employee_email_nova:user &&  user.employee_email_nova,
-        employee_phone:user &&  user.employee_phone,
-        employee_address:user &&  user.employee_address,
-        employee_identity:user &&  user.employee_identity,
-        employee_bank_number:user &&  user.employee_bank_number,
+        employee_name: res?.data?.employee_name,
+        employee_email: res?.data?.employee_email,
+        employee_email_nova: res?.data?.employee_email_nova,
+        employee_phone: res?.data?.employee_phone,
+        employee_address: res?.data?.employee_address,
+        employee_identity: res?.data?.employee_identity,
+        employee_bank_number: res?.data?.employee_bank_number,
+        employee_date_join: formattedDateJoin, // Set formatted date here
       });
+      
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -116,6 +125,12 @@ const EmployeesInformation = ({dataSource, setDataSource}) => {
     try {
       setLoadingUpdate(true);
       const values = form.getFieldsValue();
+
+      // Chuyển đổi `employee_date_join` sang chuỗi nếu cần
+      if (values.employee_date_join) {
+        values.employee_date_join = values.employee_date_join.format('YYYY-MM-DD');
+      }
+
       const res = await updatEployeeLogin(values);
 
       if (res.error) {
@@ -127,20 +142,15 @@ const EmployeesInformation = ({dataSource, setDataSource}) => {
         return;
       }
 
-      // Cập nhật lại các giá trị trong form sau khi cập nhật thành công
+      // Cập nhật giao diện sau khi lưu thành công
       toast.success('Cập nhật thông tin thành công', {
         autoClose: 1000,
         position: 'top-right',
       });
-      // Đặt lại các giá trị mới cho form
+
       form.setFieldsValue({
-        employee_name: res.data.employee_name,
-        employee_email: res.data.employee_email,
-        employee_email_nova: res.data.employee_email_nova,
-        employee_phone: res.data.employee_phone,
-        employee_address: res.data.employee_address,
-        employee_identity: res.data.employee_identity,
-        employee_bank_number: res.data.employee_bank_number,
+        ...res.data,
+        employee_date_join: res.data.employee_date_join ? moment(res.data.employee_date_join) : null,
       });
       setImagePreview(user.avatar ? `${LARAVEL_SERVER}${user.avatar}` : null);
       setDataSource(res?.data);
@@ -235,6 +245,15 @@ const EmployeesInformation = ({dataSource, setDataSource}) => {
                       <Col xl={12} md={12} xs={24}>
                         <Form.Item label="Số tài khoản" name="employee_bank_number">
                           <Input />
+                        </Form.Item>
+                      </Col>
+                      <Col xl={24} md={24} xs={24}>
+                        <Form.Item
+                          label="Ngày vào làm"
+                          name="employee_date_join"
+                          rules={[{ message: 'Vui lòng nhập ngày vào làm', required: true }]}
+                        >
+                          <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" placeholder="Chọn ngày vào làm" />
                         </Form.Item>
                       </Col>
                       <Col xl={24} md={24} xs={24}>

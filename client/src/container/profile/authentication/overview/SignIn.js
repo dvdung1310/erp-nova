@@ -1,6 +1,6 @@
 import React, {useCallback, useState} from 'react';
 import {Form, Input, Button, Spin} from 'antd';
-import {NavLink, useHistory} from "react-router-dom";
+import {NavLink, useHistory} from 'react-router-dom';
 import Cookies from 'js-cookie';
 import {toast} from 'react-toastify';
 import {AuthWrapper} from './style';
@@ -25,7 +25,7 @@ function SignIn() {
             const data = form.getFieldsValue();
             const res = await login(data);
             setItem('accessToken', res?.data?.accessToken)
-            setItem('role_id', res?.data?.role_id)
+            // setItem('role_id', res?.data?.role_id)
             setItem('user_id', res?.data?.user_id)
             dispatch(setRoleId(res?.data?.role_id))
             Cookies.set('logedIn', true);
@@ -50,6 +50,14 @@ function SignIn() {
             <div className="auth-contents">
                 <Form name="login" form={form} onFinish={handleSubmit} layout="vertical">
                     <Heading as="h3" className='text-center'>
+                        <div style={{textAlign: 'center'}}>
+                            <img
+                                src={require('../../../../static/img/auth/logo_novaedu.png')}
+                                style={{width: '200px'}}
+                                alt=" hình ảnh"
+                            />
+                            <hr style={{margin: '20px 10px'}}/>
+                        </div>
                         Đăng nhập hệ thống
                     </Heading>
                     <Form.Item

@@ -14,6 +14,7 @@ class Group extends Model
     public $incrementing = true;
     protected $fillable = [
         'parent_group_id',
+        'department_id',
         'group_name',
         'color',
         'group_description',
@@ -29,6 +30,7 @@ class Group extends Model
     {
         return $this->hasMany(Group::class, 'parent_group_id');
     }
+
     public function leader()
     {
         return $this->belongsTo(User::class, 'leader_id');

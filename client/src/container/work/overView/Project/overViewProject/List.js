@@ -39,11 +39,12 @@ import {
 import {toast} from "react-toastify";
 import {FaUserTie} from "react-icons/fa";
 import CopyProject from "./CopyProject";
+import {IoEnterOutline} from "react-icons/io5";
 
 const dateFormat = 'MM/DD/YYYY';
 
 // eslint-disable-next-line react/prop-types
-function ProjectLists({listProject, listUser = []}) {
+function ProjectLists({listProject, listUser = [], isHome}) {
     const [listUserData, setListUser] = useState(listUser);
     const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
     const [form] = Form.useForm();
@@ -603,6 +604,7 @@ function ProjectLists({listProject, listUser = []}) {
                 project_id,
                 project_name,
                 project_status,
+                group_id,
                 project_members,
                 leader,
                 success,
@@ -711,62 +713,79 @@ function ProjectLists({listProject, listUser = []}) {
                     </div>
                 ),
                 action: (
-                    <Dropdown
-                        className="wide-dropdwon"
-                        action='click'
-                        content={
-                            <div className='popover-content'>
-                                <div className='action-item' onClick={() => handleEditClick('name', value)}>
-                                    <MdEdit size={30} className='d-block ms-1 fs-4 text-secondary'/>
-                                    <span>Sửa tên, mô tả</span>
+                    <>
+                        {!isHome && (
+                            <Dropdown
+                                className="wide-dropdwon"
+                                action='click'
+                                content={
+                                    <div className='popover-content'>
+                                        <div className='action-item' onClick={() => handleEditClick('name', value)}>
+                                            <MdEdit size={30} className='d-block ms-1 fs-4 text-secondary'/>
+                                            <span>Sửa tên, mô tả</span>
+                                        </div>
+                                        <div className='action-item'
+                                             onClick={() => handleEditClick('status', value)}>
+                                            <GrInProgress size={30} className='d-block ms-1 fs-4 text-secondary'/>
+                                            <span>Cập nhật trạng thái</span>
+                                        </div>
+                                        <div className='action-item' onClick={() => handleEditClick('members', value)}>
+                                            <MdGroups size={30} className='d-block ms-1 fs-4 text-secondary'/>
+                                            <span>Thành viên</span>
+                                        </div>
+                                        <div className='action-item' onClick={() => handleEditClick('leader', value)}>
+                                            <FaUserTie size={30} className='d-block ms-1 fs-4 text-secondary'/>
+                                            <span>Người phụ trách</span>
+                                        </div>
+                                        <div className='action-item'
+                                             onClick={() => handleEditClick('start_date', value)}>
+                                            <MdOutlineDateRange size={30} className='d-block ms-1 fs-4 text-secondary'/>
+                                            <span>Sửa ngày bắt đầu</span>
+                                        </div>
+                                        <div className='action-item'
+                                             onClick={() => handleEditClick('end_date', value)}>
+                                            <MdOutlineDateRange size={30}
+                                                                className='d-block ms-1 fs-4 text-secondary'/>
+                                            <span>Sửa ngày kết thúc</span>
+                                        </div>
+                                        <div className='action-item'
+                                             onClick={() => handleEditClick('copy', value)}>
+                                            <MdContentCopy size={30}
+                                                           className='d-block ms-1 fs-4 text-secondary'/>
+                                            <span>Sao chép dự án</span>
+                                        </div>
+                                        <div className='action-item'
+                                             onClick={() => handleEditClick('setting', value)}>
+                                            <MdOutlineSettings size={30}
+                                                               className='d-block ms-1 fs-4 text-secondary'/>
+                                            <span>Cài đặt nhắc nhở</span>
+                                        </div>
+                                        <div className='action-item' onClick={() => handleEditClick('delete', value)}>
+                                            <MdDelete color='red' size={30} className='icon-delete'/>
+                                            <span>Xóa dự án</span>
+                                        </div>
+                                    </div>
+                                }
+                            >
+                                <div role='button' style={{cursor: 'pointer'}}>
+                                    <FeatherIcon icon="more-horizontal" size={18}/>
                                 </div>
-                                <div className='action-item'
-                                     onClick={() => handleEditClick('status', value)}>
-                                    <GrInProgress size={30} className='d-block ms-1 fs-4 text-secondary'/>
-                                    <span>Cập nhật trạng thái</span>
+                            </Dropdown>
+                        )}
+                        {
+                            isHome && (
+                                <div className='btn p-1' title='Xem dự án'
+                                     style={{cursor: 'pointer'}}
+                                     onClick={() => {
+                                         history.push(`/admin/lam-viec/nhom-lam-viec/${group_id}`)
+                                     }}
+                                >
+                                    <IoEnterOutline color='gray' size={30}/>
                                 </div>
-                                <div className='action-item' onClick={() => handleEditClick('members', value)}>
-                                    <MdGroups size={30} className='d-block ms-1 fs-4 text-secondary'/>
-                                    <span>Thành viên</span>
-                                </div>
-                                <div className='action-item' onClick={() => handleEditClick('leader', value)}>
-                                    <FaUserTie size={30} className='d-block ms-1 fs-4 text-secondary'/>
-                                    <span>Người phụ trách</span>
-                                </div>
-                                <div className='action-item'
-                                     onClick={() => handleEditClick('start_date', value)}>
-                                    <MdOutlineDateRange size={30} className='d-block ms-1 fs-4 text-secondary'/>
-                                    <span>Sửa ngày bắt đầu</span>
-                                </div>
-                                <div className='action-item'
-                                     onClick={() => handleEditClick('end_date', value)}>
-                                    <MdOutlineDateRange size={30}
-                                                        className='d-block ms-1 fs-4 text-secondary'/>
-                                    <span>Sửa ngày kết thúc</span>
-                                </div>
-                                <div className='action-item'
-                                     onClick={() => handleEditClick('copy', value)}>
-                                    <MdContentCopy size={30}
-                                                   className='d-block ms-1 fs-4 text-secondary'/>
-                                    <span>Sao chép dự án</span>
-                                </div>
-                                <div className='action-item'
-                                     onClick={() => handleEditClick('setting', value)}>
-                                    <MdOutlineSettings size={30}
-                                                       className='d-block ms-1 fs-4 text-secondary'/>
-                                    <span>Cài đặt nhắc nhở</span>
-                                </div>
-                                <div className='action-item' onClick={() => handleEditClick('delete', value)}>
-                                    <MdDelete color='red' size={30} className='icon-delete'/>
-                                    <span>Xóa dự án</span>
-                                </div>
-                            </div>
+                            )
                         }
-                    >
-                        <div role='button' style={{cursor: 'pointer'}}>
-                            <FeatherIcon icon="more-horizontal" size={18}/>
-                        </div>
-                    </Dropdown>
+                    </>
+
                 ),
             });
         });

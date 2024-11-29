@@ -12,7 +12,7 @@ import {createGroup} from "../../../../../apis/work/group";
 
 const dateFormat = 'MM/DD/YYYY';
 
-function CreateGroup({visible, onCancel, group_id, listUser = [], admin = false}) {
+function CreateGroup({visible, onCancel, group_id, listUser = [], admin = false, listDepartments}) {
     const [listUserData, setListUser] = useState(listUser);
     const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
     const location = useLocation();
@@ -67,6 +67,13 @@ function CreateGroup({visible, onCancel, group_id, listUser = [], admin = false}
                     autoClose: 1000,
                 });
             }
+            if (admin && !values.department_id) {
+                setIsLoading(false);
+                return toast.warn('Chọn phòng ban', {
+                    position: "top-right",
+                    autoClose: 1000,
+                });
+            }
             if (!values.color) {
                 setIsLoading(false);
                 return toast.warn('Màu không được để trống', {
@@ -86,6 +93,7 @@ function CreateGroup({visible, onCancel, group_id, listUser = [], admin = false}
                 group_description: values.group_description,
                 parent_group_id: group_id,
                 color: values.color,
+                department_id: values.department_id ? values.department_id : null,
                 leader_id: selectedMembers.id,
             };
             const res = await createGroup(data);
@@ -168,9 +176,33 @@ function CreateGroup({visible, onCancel, group_id, listUser = [], admin = false}
                         <Form.Item name="group_description" label="">
                             <Input.TextArea rows={2} placeholder="Mô tả"/>
                         </Form.Item>
-                        <Form.Item name="color" label="Chọn màu">
+                        <Form.Item name="color" label="Chọn màu"
+                                   rules={[{required: true, message: 'Vui lòng chọn màu!'}]}>
                             <Input type="color" placeholder="Chọn màu"/>
                         </Form.Item>
+                        {
+                            admin && (
+                                <Form.Item name="department_id" label="Chọn phòng ban"
+                                           rules={[{required: true, message: 'Vui lòng chọn phòng ban!'}]}
+                                >
+                                    <Select
+                                        showSearch
+                                        placeholder="Chọn phòng ban"
+                                        optionFilterProp="children"
+                                        filterOption={(input, option) =>
+                                            option?.children?.toLowerCase()?.indexOf(input.toLowerCase()) >= 0
+                                        }
+                                    >
+                                        {
+                                            listDepartments && listDepartments?.map((department, index) => (
+                                                <Select.Option key={index}
+                                                               value={department.department_id}>{department.department_name}</Select.Option>
+                                            ))
+                                        }
+                                    </Select>
+                                </Form.Item>
+                            )
+                        }
                         <Form.Item name="leader" label="Chọn trưởng nhóm">
                             <Input
                                 type="text"

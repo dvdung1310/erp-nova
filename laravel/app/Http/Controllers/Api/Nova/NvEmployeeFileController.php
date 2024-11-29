@@ -86,20 +86,26 @@ class NvEmployeeFileController extends Controller
     public function store(Request $request)
     {
         try {
-            // Kiểm tra và xử lý file upload
-            $cvPath = null; // Biến để lưu đường dẫn file
-
+            $cvPath = null;
+    
             if ($request->hasFile('file')) {
                 $file = $request->file('file');
-
-                // Kiểm tra xem file có hợp lệ không
+    
                 if ($file->isValid()) {
-                    // Lưu file vào thư mục 'uploads/cvs' trong storage
+                    $allowedMimeTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+                    $fileMimeType = $file->getMimeType();
+    
+                    if (!in_array($fileMimeType, $allowedMimeTypes)) {
+                        return response()->json([
+                            'error' => true,
+                            'message' => 'Chỉ hỗ trợ upload file PDF hoặc ảnh.',
+                        ]);
+                    }
+    
                     $cvPath = $file->store('uploads/employee', 'public');
                 }
             }
-
-            // Tạo ứng viên mới và lưu thông tin vào database
+    
             $employeeFile = CrmEmployeeFileModel::create([
                 'file_name' => $request->input('file_name'),
                 'file_discription' => $request->input('file_discription'),
@@ -108,9 +114,9 @@ class NvEmployeeFileController extends Controller
                 'employee_id' => $request->input('employee_id'),
                 'file_status' => $request->input('file_status'),
                 'candidates_status' => 0,
-                'file' => $cvPath, // Lưu đường dẫn file vào database
+                'file' => $cvPath,
             ]);
-
+    
             return response()->json([
                 'error' => false,
                 'message' => 'Hồ sơ được lưu thành công.',
@@ -119,11 +125,11 @@ class NvEmployeeFileController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
-                'message' => 'Không thể lưu hồ sơn: ' . $e->getMessage(),
-                'data' => [],
+                'message' => 'Không thể lưu hồ sơ: ' . $e->getMessage(),
             ]);
         }
     }
+    
     public function update(Request $request, $id)
     {
         try {

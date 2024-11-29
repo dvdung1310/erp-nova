@@ -37,6 +37,17 @@ export const getNotifications = async () => {
     );
     return response.data;
 }
+export const getNotificationWarning = async () => {
+    const token = getToken();
+    const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/notifications/get-notification-warning-by-user-id`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        }
+    );
+    return response.data;
+}
 export const getNotificationPagination = async (url) => {
     const token = getToken();
     const response = await instanceAxios.get(url, {

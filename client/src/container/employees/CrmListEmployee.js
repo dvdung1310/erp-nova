@@ -20,15 +20,20 @@ import {
   updateEmployees,
   storeEmployees,
   updateRoleUser,
+  searchEmployee,
 } from '../../apis/employees/employee';
 import { UserCard } from '../pages/style';
 
 const EmployeeFile = lazy(() => import('./CrmEmployeeFile'));
+const EmployeeDepartment = lazy(() => import('./CrmEmployeeDepartment'));
 const { Option } = Select;
 
 function CrmEmployees() {
   const { path } = useRouteMatch();
   const [dataSource, setDataSource] = useState([]);
+  const [allData, setAllData] = useState([]);
+  const [employeeDepartment, setemployeeDepartment] = useState([]);
+  const [searchKeyword, setSearchKeyword] = useState('');
   const [userLogin, setUserLogin] = useState(null);
   const [roleUser, setRoleUser] = useState([]);
   const [roleSelected, setroleSelected] = useState([]);
@@ -42,6 +47,7 @@ function CrmEmployees() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState('');
   const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
+
   // Fetch employees data
   const fetchData = async () => {
     setLoading(true);
@@ -49,8 +55,10 @@ function CrmEmployees() {
       const res = await getEmployees();
       if (!res.error) {
         setDataSource(res.data);
+        setAllData(res.data);
         setUserLogin(res.user_login);
         setRoleUser(res.rule_employee);
+        setemployeeDepartment(res.employee_department);
       } else {
         message.error(res.message);
       }
@@ -76,12 +84,21 @@ function CrmEmployees() {
       message.error('Không thể tải dữ liệu tạo mới.');
     }
   };
-
   useEffect(() => {
     fetchData();
-    fetchCreateData(); // Fetch create data on component mount
+    fetchCreateData();
   }, []);
-
+  const handleSearch = () => {
+    const filteredData = allData.filter((employee) => {
+      const keyword = searchKeyword.toLowerCase();
+      return (
+        employee.employee_name?.toLowerCase().includes(keyword) || // Tìm kiếm theo tên
+        employee.employee_email?.toLowerCase().includes(keyword) || // Tìm kiếm theo email
+        employee.department_name?.toLowerCase().includes(keyword) // Tìm kiếm theo phòng ban
+      );
+    });
+    setDataSource(filteredData); // Cập nhật danh sách nhân sự
+  };
   // Open modal for editing or adding an employee
   const handleOpenModal = (employee = null) => {
     setEditingEmployee(employee);
@@ -163,7 +180,9 @@ function CrmEmployees() {
     // Đóng modal và reset form
     setIsModalOpen(false);
     form.resetFields(); // Xóa toàn bộ giá trị trong form
-};
+  };
+  const colors = ['#ffcccc', '#ccffcc', '#ccccff', '#ffffcc', '#ccffff', '#ffccff'];
+
   return (
     <Main style={{ background: '#fff' }}>
       <Switch>
@@ -171,11 +190,62 @@ function CrmEmployees() {
           <Row gutter={15}>
             <Col xs={24}>
               <div style={{ marginTop: '30px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    marginBottom: '30px',
+                    alignItems: 'center',
+                  }}
+                >
                   <h3>DANH SÁCH NHÂN SỰ</h3>
-                  <Button type="primary" onClick={() => handleOpenModal()} style={{ marginBottom: 16 }}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    {/* Search Form */}
+                    <Input
+                      placeholder="Tìm kiếm nhân sự"
+                      style={{ width: 200, height: '40px' }}
+                      value={searchKeyword}
+                      onChange={(e) => {
+                        setSearchKeyword(e.target.value);
+                        handleSearch();
+                      }}
+                    />
+                  </div>
+                  <Button type="primary" onClick={() => handleOpenModal()} style={{ height: '40px' }}>
                     Thêm mới nhân sự
                   </Button>
+                </div>
+                <div>
+                  <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+                    {employeeDepartment.map((department, index) => (
+                      <Col key={index} style={{ marginBottom: '20px' }} className="gutter-row" span={6}>
+                        <div
+                          style={{
+                            display: 'block', // Để cả box trở thành link
+                            padding: '16px',
+                            backgroundColor: colors[index % colors.length], // Chọn màu theo thứ tự
+                            textAlign: 'center',
+                            borderRadius: '8px',
+                            color: 'black',
+                            textDecoration: 'none', // Xóa gạch chân
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                          }}
+                        >
+                          {' '}
+                          <NavLink
+                            to={`/admin/nhan-su/nhan-vien-theo-phong/${department.department_id}`}
+                            style={{
+                              color: 'inherit',
+                              textDecoration: 'none',
+                            }}
+                          >
+                            <h3>{department.department_name}</h3>
+                            <p>Số lượng nhân viên: {department.employee_count}</p>
+                          </NavLink>
+                        </div>
+                      </Col>
+                    ))}
+                  </Row>
                 </div>
                 {loading ? (
                   <Spin tip="Loading..." />
@@ -320,6 +390,11 @@ function CrmEmployees() {
             <EmployeeFile />
           </Suspense>
         </Route>
+        {/* <Route path={`/admin/nhan-su/nhan-vien-theo-phong/:department_id`}>
+          <Suspense fallback={<div>Loading...</div>}>
+            <EmployeeFile />
+          </Suspense>
+        </Route> */}
       </Switch>
 
       <Modal
@@ -422,7 +497,7 @@ function CrmEmployees() {
             Update
           </Button>,
         ]} // Tùy chỉnh footer
-        maskClosable  // Cho phép đóng modal khi click ra ngoài
+        maskClosable // Cho phép đóng modal khi click ra ngoài
       >
         <Form
           id="updateRoleForm" // Thêm ID để gắn nút submit vào form

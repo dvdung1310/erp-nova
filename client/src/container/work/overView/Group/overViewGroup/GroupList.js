@@ -1,7 +1,7 @@
 import './GroupList.scss';
 import React, {useState} from "react";
 import {Link, useHistory, useLocation} from "react-router-dom";
-import {Card, Col, Form, Input, List, Progress, Row, Spin} from 'antd';
+import {Card, Col, Form, Input, List, Progress, Row, Select, Spin} from 'antd';
 import {Dropdown} from "../../../../../components/dropdown/dropdown";
 import {MdDelete, MdEdit, MdOutlineRemoveRedEye} from "react-icons/md";
 import FeatherIcon from "feather-icons-react";
@@ -16,8 +16,9 @@ import {FaClipboardList} from "react-icons/fa";
 import TaskList from "../../Task/overViewTask/TaskList";
 import {CiWarning} from "react-icons/ci";
 import {IoWarningOutline} from "react-icons/io5";
+import {TbReportAnalytics} from "react-icons/tb";
 
-const ListGroupComponent = ({listGroup, listUser = []}) => {
+const ListGroupComponent = ({listGroup, listUser = [], listDepartments}) => {
     const URL_LARAVEL = process.env.REACT_APP_LARAVEL_SERVER;
     const [form] = Form.useForm();
     const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
@@ -68,6 +69,7 @@ const ListGroupComponent = ({listGroup, listUser = []}) => {
             case 'name':
                 form.setFieldsValue({
                     group_name: value.group_name,
+                    department_id: value.department_id,
                     group_description: value.group_description,
                     color: value.color,
                 });
@@ -89,6 +91,9 @@ const ListGroupComponent = ({listGroup, listUser = []}) => {
                 setTaskOverdue(taskOverdueArray);
                 handleShowModalTaskOverdue();
                 break;
+            case 'report':
+                history.push('/admin/lam-viec/bao-cao/' + value?.group_id);
+                break;
             default:
                 break
         }
@@ -100,6 +105,13 @@ const ListGroupComponent = ({listGroup, listUser = []}) => {
             if (!values.group_name) {
                 setIsLoading(false);
                 return toast.warn('Tên nhóm không được để trống', {
+                    position: "top-right",
+                    autoClose: 1000,
+                });
+            }
+            if (!values?.department_id) {
+                setIsLoading(false);
+                return toast.warn('Chọn phòng ban', {
                     position: "top-right",
                     autoClose: 1000,
                 });
@@ -121,6 +133,7 @@ const ListGroupComponent = ({listGroup, listUser = []}) => {
             const payload = {
                 group_name: values.group_name,
                 group_description: values.group_description,
+                department_id: values.department_id,
                 color: values.color,
                 leader_id: selectedMembers?.id,
             }
@@ -217,6 +230,14 @@ const ListGroupComponent = ({listGroup, listUser = []}) => {
                                                         </Link>
                                                     </div>
                                                     <div style={{display: 'flex', alignItems: 'center'}}>
+                                                        <div className='action-item'
+                                                             style={{marginRight: '10px'}}
+                                                             title='Báo cáo công việc'
+                                                             onClick={() => handleEditClick('report', group)}>
+                                                            <TbReportAnalytics size={20}
+
+                                                                               className='d-block ms-1 fs-4 text-secondary'/>
+                                                        </div>
                                                         <div className='action-item'
                                                              style={{marginRight: '10px'}}
                                                              title='Công việc quá hạn'
@@ -322,7 +343,7 @@ const ListGroupComponent = ({listGroup, listUser = []}) => {
             {/*modal update*/}
             <Modal
                 type="primary"
-                title="Tạo dự án"
+                title="Cập nhật dự án"
                 visible={showModalEdit}
                 footer={[
                     <div key="1" className="project-modal-footer">
@@ -352,6 +373,23 @@ const ListGroupComponent = ({listGroup, listUser = []}) => {
                             </Form.Item>
                             <Form.Item name="color" label="Chọn màu">
                                 <Input type="color" placeholder="Chọn màu"/>
+                            </Form.Item>
+                            <Form.Item name="department_id" label="Chọn phòng ban">
+                                <Select
+                                    showSearch
+                                    placeholder="Chọn phòng ban"
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) =>
+                                        option?.children?.toLowerCase()?.indexOf(input.toLowerCase()) >= 0
+                                    }
+                                >
+                                    {
+                                        listDepartments && listDepartments?.map((department, index) => (
+                                            <Select.Option key={index}
+                                                           value={department.department_id}>{department.department_name}</Select.Option>
+                                        ))
+                                    }
+                                </Select>
                             </Form.Item>
                             <Form.Item name="leader" label="Chọn trưởng nhóm">
                                 <Input

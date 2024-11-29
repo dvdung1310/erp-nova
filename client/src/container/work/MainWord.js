@@ -1,4 +1,3 @@
-import {getItem} from "../../utility/localStorageControl";
 import React, {useEffect, useState} from "react";
 import {getTaskUnfinishedByUserId} from "../../apis/work/task";
 import {getAllUsers} from "../../apis/work/user";
@@ -16,6 +15,7 @@ import CreateGroup from "./overView/Group/overViewGroup/CreateGroup";
 import {useLocation} from "react-router-dom";
 import {toast} from "react-toastify";
 import {useSelector} from "react-redux";
+import {getDepartment} from "../../apis/employees/employee";
 
 const MainWord = () => {
     const role_id = useSelector(state => state?.userRole?.role_id)
@@ -25,6 +25,7 @@ const MainWord = () => {
     const [listUser, setListUser] = useState([])
     const [listGroup, setListGroup] = useState([])
     const [tasks, setTasks] = useState([])
+    const [listDepartments, setListDepartments] = useState([])
     const [showModal, setShowModal] = useState(false)
     const onCancelGroup = () => {
         setShowModal(false)
@@ -41,9 +42,10 @@ const MainWord = () => {
                 setListProject(res.data)
                 setListUser(users.data)
             } else {
-                const [res, users] = await Promise.all([getGroupByCeo(), getAllUsers()]);
+                const [res, users, departments] = await Promise.all([getGroupByCeo(), getAllUsers(), getDepartment()]);
                 setListGroup(res.data)
                 setListUser(users.data)
+                setListDepartments(departments.data)
             }
 
             setLoading(false)
@@ -59,6 +61,9 @@ const MainWord = () => {
     useEffect(() => {
         if (role_id) {
             fetchApi()
+        }
+        if (!role_id) {
+            setLoading(true)
         }
     }, [role_id, state])
 
@@ -103,12 +108,14 @@ const MainWord = () => {
                                     listProject={listProject}
                                     listUser={listUser}/>}
                             {role_id && (role_id === 1 || role_id === 2) &&
-                                <ListGroupComponent listGroup={listGroup} listUser={listUser}/>}
+                                <ListGroupComponent listDepartments={listDepartments} listGroup={listGroup}
+                                                    listUser={listUser}/>}
                         </div>
                     </>}
                 </div>
             </div>
-            <CreateGroup group_id={null} listUser={listUser} onCancel={onCancelGroup} visible={showModal} admin/>
+            <CreateGroup listDepartments={listDepartments} group_id={null} listUser={listUser} onCancel={onCancelGroup}
+                         visible={showModal} admin/>
         </div>
     );
 }

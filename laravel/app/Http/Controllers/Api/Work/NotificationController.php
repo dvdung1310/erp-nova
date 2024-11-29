@@ -116,7 +116,27 @@ class NotificationController extends Controller
         try {
             $user_id = auth()->user()->id;
             $notifications = Notification::where('user_id', $user_id)
+                ->where('notification_type', '!=', 2)
                 ->with('createByUser') // Assuming the relationship is defined in the Notification model
+                ->orderBy('notification_status', 'asc')
+                ->orderBy('created_at', 'desc')
+                ->get();
+            return response()->json([
+                'error' => false,
+                'message' => 'Project updated successfully',
+                'data' => $notifications
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()]);
+        }
+    }
+
+    public function getNotificationWarningByUserId()
+    {
+        try {
+            $user_id = auth()->user()->id;
+            $notifications = Notification::where('user_id', $user_id)
+                ->where('notification_type', '=', 2)
                 ->orderBy('notification_status', 'asc')
                 ->orderBy('created_at', 'desc')
                 ->get();
@@ -158,6 +178,7 @@ class NotificationController extends Controller
             ], 400);
         }
     }
+
 
     public function getNotificationByUserIdPaginate()
     {

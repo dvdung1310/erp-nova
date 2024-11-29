@@ -168,7 +168,7 @@ function AuthInfo() {
 
     return (
         <InfoWraper>
-            {/*<Message/>*/}
+            <Message/>
             <Notification/>
             {/*<Settings/>*/}
             {/*<Support/>*/}

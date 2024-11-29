@@ -13,6 +13,6 @@ class CrmEmployeeModel extends Model
     protected $primaryKey = 'employee_id';
     protected $fillable = [
         'employee_name', 'employee_email', 'employee_email_nova', 'employee_phone', 'employee_address', 'employee_identity',
-        'employee_bank_number', 'department_id', 'team_id', 'level_id', 'employee_status', 'account_id'
+        'employee_bank_number','employee_date_join', 'department_id', 'team_id', 'level_id', 'employee_status', 'account_id'
     ];
 }

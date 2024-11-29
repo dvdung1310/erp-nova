@@ -22,8 +22,8 @@ const AuthLayout = (WraperContent) => {
                 <br />
                 <br />
                 <Heading as="h1">
-                  StrikingDash React <br />
-                  Web Application
+                ERP NOVAEDU <br />
+                Phần mềm quản trị nội bộ Doanh nghiệp
                 </Heading>
                 <img
                   className="auth-content-figure"

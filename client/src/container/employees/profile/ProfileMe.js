@@ -14,7 +14,7 @@ import { employeeLogin, updateEmployeeAvatar } from '../../../apis/employees/emp
 import { changePassword, getProfile, updateProfile } from '../../../apis/work/user';
 import { SnippetsOutlined, ProductOutlined } from '@ant-design/icons';
 import Avatar from '../../../components/Avatar/Avatar';
-
+import moment from 'moment';
 const UserCards = lazy(() => import('../../pages/overview/UserCard'));
 const Overview = lazy(() => import('./overview/Overview'));
 const EditInfomationEmployee = lazy(() => import('./overview/EditInfomationEmployee'));
@@ -36,7 +36,6 @@ function MyProfile() {
     try {
       setLoading(true);
       const res = await employeeLogin();
-      console.log(res);
 
       setDataSource(res.data);
       setLoading(false);
@@ -162,6 +161,16 @@ function MyProfile() {
                       </li>
                       <li>
                         Số tài khoản: &ensp;<span>{dataSource.employee_bank_number}</span>
+                      </li>
+                      <li>
+                        Thời gian tham gia: &ensp;
+                        <span>
+                          {dataSource.employee_date_join
+                            ? `${moment().diff(moment(dataSource.employee_date_join), 'days')} ngày / ${
+                                dataSource.employee_date_join
+                              }`
+                            : 'Không xác định'}
+                        </span>
                       </li>
                     </ul>
                   </address>

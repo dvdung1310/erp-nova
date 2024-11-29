@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Devices;
+use App\Models\Notification;
 use App\Models\Project;
 use App\Models\Task;
 use Carbon\Carbon;
@@ -69,13 +70,35 @@ class CheckTasksDeadline extends Command
                         $content = 'Công việc ' . $task_name . ' cần hoàn thành trong vòng ' . $remainingTime . ' nữa';
                         if ($task->task_status == 1 || $task->task_status == 2) {
                             if ($timeDifference > 0 && $timeDifference <= $deadlineThreshold->timestamp - $now->timestamp) {
-                                $payload = [
-                                    'members' => $members,
-                                    'devices' => $devices,
-                                    'content' => $content,
-                                    'pathname' => $pathname,
-                                ];
-                                Http::post($this->nodeUrl . '/check-dateline-task', $payload);
+                                foreach ($members as $user_id) {
+                                    $notifications[] = [
+                                        'user_id' => $user_id,
+                                        'create_by_user_id' => $user_id,
+                                        'notification_title' => $content,
+                                        'notification_type' => 2,
+                                        'notification_link' => $this->ClientUrl . $pathname,
+                                        'created_at' => now(),
+                                        'updated_at' => now(),
+                                    ];
+                                }
+                                Notification::insert($notifications);
+                                $notification = Notification::where('notification_title', $content)->first();
+                                $members = $members->toArray();
+                                foreach ($members as $user_id) {
+                                    $devices = Devices::where('user_id', '=', $user_id)
+                                        ->get();
+                                    $devices = $devices->map(function ($device) {
+                                        return json_decode($device->endpoint, true);
+                                    })->filter()->values()->toArray();
+                                    $payload = [
+                                        'user_id' => $user_id,
+                                        'devices' => $devices,
+                                        'content' => $content,
+                                        'notification' => $notification,
+                                        'pathname' => $pathname,
+                                    ];
+                                    Http::post($this->nodeUrl . '/check-dateline-task', $payload);
+                                }
                                 $this->info('Công việc ' . $task_name . ' cần hoàn thành trong vòng ' . $remainingTime . ' tới');
                             }
                         }

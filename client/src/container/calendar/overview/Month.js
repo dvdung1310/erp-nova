@@ -24,6 +24,7 @@ function MonthCalendar() {
       isVisible: state.Calender.eventVisible,
     };
   });
+  console.log(events)
   const [state, setState] = useState({
     date: new Date(),
     container: null,
