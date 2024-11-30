@@ -1,5 +1,5 @@
 import {useHistory, useLocation, useParams} from "react-router-dom";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {checkStatus} from "../../../../../utility/checkValue";
 import RichTextEditor from 'react-rte';
 import {
@@ -8,7 +8,7 @@ import {
     updateDescriptionTask,
     updateEndDateTask,
     updateMemberTask,
-    updateNameTask,
+    updateNameTask, updateProgress, updateScoreTask,
     updateStartDateTask,
     updateStatusTask
 } from "../../../../../apis/work/task";
@@ -41,7 +41,7 @@ import {
     DatePicker,
     TimePicker,
     Button,
-    Space
+    Space, Progress, Slider
 } from 'antd';
 import {AnimatePresence, motion} from "framer-motion";
 import {MdCheck, MdDelete, MdOutlineDateRange} from "react-icons/md";
@@ -56,6 +56,7 @@ import FeatherIcon from "feather-icons-react";
 //
 import dayjs from 'dayjs';
 import {IoEnterOutline} from "react-icons/io5";
+import {useSelector} from "react-redux";
 
 const getComparator = (order, orderBy) => {
     return (a, b) => {
@@ -80,11 +81,28 @@ const stableSort = (array, comparator) => {
 
 const TaskList = (props) => {
     //
+    const location = useLocation();
+    const socketConnection = useSelector(state => state?.userSocket?.socketConnection);
+    const [taskSelectedSocket, setTaskSelectedSocket] = useState(location?.state?.task_id);
     const [selectedOption, setSelectedOption] = useState('datetime');
     const [startDate, setStartDate] = useState();
     const [startTime, setStartTime] = useState();
     const [endDate, setEndDate] = useState();
     const [endTime, setEndTime] = useState();
+    //soket
+    useEffect(() => {
+        if (socketConnection) {
+            console.log('socketConnection', socketConnection);
+            socketConnection.off('view-notification');
+            socketConnection.on('view-notification', (data) => {
+                console.log('new-notification', data);
+                setTaskSelectedSocket(data?.task_id);
+            })
+            return () => {
+                socketConnection.off('view-notification');
+            }
+        }
+    }, [socketConnection]);
 
     const handleOptionChange = (event) => {
         setEndTime('')
@@ -97,11 +115,12 @@ const TaskList = (props) => {
     };
     const history = useHistory();
     const [form] = Form.useForm();
-    const {listUser, tasks, setTasks, isHome} = props;
+    const {listUser, tasks, setTasks, isHome, project} = props;
     const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
     const params = useParams()
     const {id} = params;
     const {pathname} = useLocation();
+
     const [loading, setLoading] = useState(false);
     const [loadingCreate, setLoadingCreate] = useState(false);
     const [loadingDelete, setLoadingDelete] = useState(false);
@@ -115,10 +134,14 @@ const TaskList = (props) => {
     const [taskSelected, setTaskSelected] = useState(null);
     const [statusAnchorEl, setStatusAnchorEl] = useState(null)
     const [nameAnchorEl, setNameAnchorEl] = useState(null)
+    const [scoreKPIAnchorEl, setScoreKPIAnchorEl] = useState(null)
+    const [progressAnchorEl, setProgressAnchorEl] = useState(null)
     const [userAnchorEl, setUserAnchorEl] = useState(null)
     const [startDateAnchorEl, setStartDateAnchorEl] = useState(null);
     const [endDateAnchorEl, setEndDateAnchorEl] = useState(null);
     const [task_name, setTaskName] = useState('')
+    const [scoreKPI, setScoreKPI] = useState(0)
+    const [progress, setProgress] = useState(0)
 
     const [showModalUpdateDescription, setShowModalUpdateDescription] = useState(false);
     const handleShowModalUpdateDescription = () => {
@@ -189,6 +212,22 @@ const TaskList = (props) => {
         setSelectedTask(task);
         setTaskName(task.task_name);
     };
+    const handleScoreKPIClick = (event, task) => {
+        if (isHome) {
+            return;
+        }
+        setScoreKPIAnchorEl(event.currentTarget);
+        setSelectedTask(task);
+        setScoreKPI(task.task_score_kpi);
+    }
+    const handleProgressClick = (event, task) => {
+        if (isHome) {
+            return;
+        }
+        setProgressAnchorEl(event.currentTarget);
+        setSelectedTask(task);
+        setProgress(task.task_progress);
+    }
     const handleUserClick = (event, task) => {
         if (isHome) {
             return;
@@ -241,6 +280,8 @@ const TaskList = (props) => {
         setSelectedTask(null);
         setStartDateAnchorEl(null);
         setEndDateAnchorEl(null);
+        setScoreKPIAnchorEl(null)
+        setProgressAnchorEl(null)
     };
     const handleupdateDescription = async () => {
         if (selectedTask) {
@@ -295,6 +336,99 @@ const TaskList = (props) => {
             handleClose()
         }
     };
+    const handleScoreKPISave = async (e) => {
+        e.preventDefault()
+        e.stopPropagation();
+        if (selectedTask) {
+            try {
+                setLoadingUpdate(true);
+                if (scoreKPI < 0) {
+                    toast.error('Điểm KPI không hợp lệ', {
+                        position: "top-right", autoClose: 1000
+                    })
+                    setLoadingUpdate(false);
+                    return;
+                }
+                const totalScore = tasks.reduce((total, task) => total + task.task_score_kpi, 0);
+                const existingScore = selectedTask ? selectedTask.task_score_kpi : 0;
+                const newTotalScore = totalScore - existingScore + Number(scoreKPI);
+
+                console.log(newTotalScore, scoreKPI);
+                if (project?.project_type === 0) {
+                    if (newTotalScore > 60) {
+                        toast.error('Tổng điểm KPI không được vượt quá 60', {
+                            position: "top-right", autoClose: 1000
+                        });
+                        setLoadingUpdate(false);
+                        return;
+                    }
+                } else {
+                    if (newTotalScore > 20) {
+                        toast.error('Tổng điểm KPI không được vượt quá 20', {
+                            position: "top-right", autoClose: 1000
+                        });
+                        setLoadingUpdate(false);
+                        return;
+                    }
+                }
+
+                const payload = {
+                    task_score_kpi: Number(scoreKPI), pathname
+                }
+                const res = await updateScoreTask(payload, selectedTask.task_id)
+                setTasks(tasks.map((task) => task.task_id === selectedTask.task_id ? res.data : task))
+                toast.success('Thực hiện cập nhật điểm KPI công việc thành công', {
+                    position: "top-right", autoClose: 1000
+                })
+                setLoadingUpdate(false);
+
+            } catch (error) {
+                setLoadingUpdate(false);
+                toast.error('Đã xảy ra lỗi', {
+                    autoClose: 1000,
+                    position: 'top-right'
+                })
+                console.log(error);
+            }
+            handleClose()
+        }
+
+    }
+    const handleProgressSave = async (e) => {
+        e.preventDefault()
+        e.stopPropagation();
+        if (selectedTask) {
+            try {
+                setLoadingUpdate(true);
+                if (Number(progress) < 0 || Number(progress) > 100) {
+                    toast.error('Tiến độ công việc không hợp lệ', {
+                        position: "top-right", autoClose: 1000
+                    })
+                    setLoadingUpdate(false);
+                    return;
+                }
+                const payload = {
+                    task_progress: Number(progress),
+                    pathname
+                }
+                const res = await updateProgress(payload, selectedTask.task_id)
+                setTasks(tasks.map((task) => task.task_id === selectedTask.task_id ? res.data : task))
+                toast.success('Thực hiện cập nhật tiến độ công việc thành công', {
+                    position: "top-right", autoClose: 1000
+                })
+                setLoadingUpdate(false);
+
+            } catch (error) {
+                setLoadingUpdate(false);
+                toast.error('Đã xảy ra lỗi', {
+                    autoClose: 1000,
+                    position: 'top-right'
+                })
+                console.log(error);
+            }
+            handleClose()
+        }
+    }
 
     const handleStartDateSave = async () => {
         if (selectedTask) {
@@ -541,10 +675,14 @@ const TaskList = (props) => {
     const statusOpen = Boolean(statusAnchorEl)
     const startDateOpen = Boolean(startDateAnchorEl);
     const endDateOpen = Boolean(endDateAnchorEl);
+    const scoreKPIOpen = Boolean(scoreKPIAnchorEl)
+    const progressOpen = Boolean(progressAnchorEl)
 
 //
     const userId = userOpen ? 'start-user' : undefined;
     const nameId = nameOpen ? 'start-name' : undefined;
+    const progressId = progressOpen ? 'start-progress' : undefined;
+    const scoreKPIId = nameOpen ? 'start-score-kpi' : undefined;
     const statusId = statusOpen ? 'start-status' : undefined
     const startDateId = startDateOpen ? 'start-date-popover' : undefined;
     const endDateId = endDateOpen ? 'end-date-popover' : undefined;
@@ -585,7 +723,9 @@ const TaskList = (props) => {
                             <TableCell>
                                 Thời gian
                             </TableCell>
-
+                            <TableCell>
+                                Tiến độ
+                            </TableCell>
                             <TableCell>
                                 Ngày bắt đầu
                             </TableCell>
@@ -594,6 +734,9 @@ const TaskList = (props) => {
                             </TableCell>
                             <TableCell>
                                 Ghi chú
+                            </TableCell>
+                            <TableCell>
+                                Điểm KPI
                             </TableCell>
                             <TableCell style={{width: '200px'}}>
                                 Người thực hiện
@@ -606,6 +749,7 @@ const TaskList = (props) => {
                     <TableBody>
                         <AnimatePresence>
                             {sortedTasks.length > 0 && sortedTasks?.map((task, index) => {
+                                    console.log(taskSelectedSocket)
                                     const endDate = new Date(task.task_end_date);
                                     const now = new Date();
                                     const diffTime = endDate - now;
@@ -621,7 +765,9 @@ const TaskList = (props) => {
                                             transition={{duration: 0.5}}   // Adjust animation speed
                                             whileHover={{background: '#f1f2f4'}}     // Hover animation
                                             style={{
-                                                willChange: 'inherit', backfaceVisibility: 'inherit'
+                                                willChange: 'inherit',
+                                                backfaceVisibility: 'inherit',
+                                                backgroundColor: taskSelectedSocket === task.task_id ? '#b9bbbe' : '#fff'
                                             }} // Đưa phần tử lên layer mới
                                         >
                                             <TableCell className="table-cell" style={{
@@ -665,6 +811,15 @@ const TaskList = (props) => {
                                             <TableCell className="table-cell">
                                                 {/* eslint-disable-next-line no-restricted-globals */}
                                                 {isNaN(Math.floor((new Date(task.task_end_date) - new Date(task.task_start_date)) / (1000 * 60 * 60 * 24))) ? '' : `${Math.floor((new Date(task.task_end_date) - new Date(task.task_start_date)) / (1000 * 60 * 60 * 24))} Ngày`}
+                                            </TableCell>
+
+                                            <TableCell className="table-cell"
+                                                       onClick={(event) => handleProgressClick(event, task)}
+                                            >
+                                                <div style={{display: 'flex', alignItems: 'center'}}>
+                                                    <Progress percent={task?.task_progress} size="small"
+                                                              style={{width: '80%'}}/>
+                                                </div>
                                             </TableCell>
                                             <TableCell className="table-cell"
                                                        onClick={(event) => handleStartDateClick(event, task)}>
@@ -730,6 +885,11 @@ const TaskList = (props) => {
 
                                                     </>
                                                 )}
+                                            </TableCell>
+                                            <TableCell className="table-cell"
+                                                       onClick={(event) => handleScoreKPIClick(event, task)}
+                                            >
+                                                {task?.task_score_kpi}
                                             </TableCell>
                                             <TableCell className="table-cell"
                                                        onClick={(event) => handleUserClick(event, task)}
@@ -912,7 +1072,81 @@ const TaskList = (props) => {
                         </Button>
                     </form>
                 </Popover>
+                {/* Popover to edit score task*/}
+                <Popover
+                    id={scoreKPIId}
+                    open={scoreKPIOpen}
+                    anchorEl={scoreKPIAnchorEl}
+                    onClose={handleClose}
+                    anchorOrigin={{
+                        vertical: 'bottom', horizontal: 'left',
+                    }}
+                    transformOrigin={{
+                        vertical: 'top', horizontal: 'left',
+                    }}
+                >
+                    <form style={{padding: '16px'}} onSubmit={(e) => {
+                        if (loadingUpdate) return;
+                        handleScoreKPISave(e)
+                    }}>
+                        <TextField
+                            label="Cập nhật điểm kpi"
+                            type='number'
+                            value={scoreKPI}
+                            autoFocus
+                            className='fs-6'
+                            onChange={(e) => setScoreKPI(e.target.value)}
+                            fullWidth
+                        />
+                        <Button type='primary'
+                                onClick={(e) => {
+                                    if (loadingUpdate) return;
+                                    handleScoreKPISave(e)
+                                }}
+                                style={{marginTop: '8px', minWidth: '200px'}}>
+                            {loadingUpdate ? <div>
+                                <Spin/>
+                            </div> : 'Lưu'}
+                        </Button>
+                    </form>
+                </Popover>
+                {/* Popover to progress task */}
+                <Popover
+                    id={progressId}
+                    open={progressOpen}
+                    anchorEl={progressAnchorEl}
+                    onClose={handleClose}
+                    anchorOrigin={{
+                        vertical: 'bottom', horizontal: 'left',
+                    }}
+                    transformOrigin={{
+                        vertical: 'top', horizontal: 'left',
+                    }}
+                >
+                    <div style={{padding: '16px'}}>
+                        <div style={{display: 'flex', alignItems: 'center', minWidth: '300px'}}>
+                            <Slider
+                                min={0}
+                                max={100}
+                                value={progress}
+                                onChange={(value) => setProgress(value)}
+                                style={{width: '80%'}}
+                            />
+                            <span style={{marginLeft: '8px'}}>{progress}%</span>
+                        </div>
+                        <Button type='primary'
+                                onClick={(e) => {
+                                    if (loadingUpdate) return;
+                                    handleProgressSave(e)
+                                }}
+                                style={{marginTop: '8px', minWidth: '200px'}}>
+                            {loadingUpdate ? <div>
+                                <Spin/>
+                            </div> : 'Lưu'}
+                        </Button>
+                    </div>
 
+                </Popover>
                 {/* Popover to edit start date */}
                 <Popover
                     id={startDateId}

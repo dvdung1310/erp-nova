@@ -40,6 +40,7 @@ class ProjectController extends Controller
                 'project_name' => 'required|max:255',
                 'project_description' => 'nullable|string',
                 'group_id' => 'required',
+                'project_type' => 'required',
                 'pathname' => 'nullable|string',
                 'project_start_date' => 'required',
                 'project_end_date' => 'required',
@@ -421,6 +422,55 @@ class ProjectController extends Controller
                 'data' => null
             ], 400);
         }
+    }
+
+    public function updateProjectType(Request $request, $project_id)
+    {
+        try {
+            $project = Project::find($project_id);
+            if (!$project) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Project not found',
+                    'data' => null
+                ], 404);
+            }
+            $user_id = auth()->user()->id;
+            $role_id = auth()->user()->role_id;
+            $group = Group::where('group_id', $project->group_id)->first();
+            $leader_id = $group->leader_id;
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2 && $leader_id != $user_id) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Bạn không có quyền thực hiện hành động này',
+                    'data' => $role_id
+                ], 403);
+            }
+            $validatedData = $request->validate([
+                'project_type' => 'required',
+            ]);
+            $project->update($validatedData);
+            $projectResponse = Project::with(['projectMembers.user', 'leader'])
+                ->withCount([
+                    'tasks as total_tasks',
+                    'tasks as completed_tasks' => function ($query) {
+                        $query->where('task_status', 2);
+                    }
+                ])
+                ->find($project_id);
+            return response()->json([
+                'error' => false,
+                'message' => 'Project updated successfully',
+                'data' => $projectResponse
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+
     }
 
     public function updateStatus(Request $request, $project_id)

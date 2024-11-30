@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Badge, Spin} from 'antd';
 import {motion} from 'framer-motion';
 import FeatherIcon from 'feather-icons-react';
-import {Link, useHistory} from 'react-router-dom';
+import {Link, useHistory, useLocation, useRouteMatch} from 'react-router-dom';
 import {useSelector} from 'react-redux';
 import {Scrollbars} from 'react-custom-scrollbars';
 import {Popover} from '../../popup/popup';
@@ -13,10 +13,12 @@ import 'moment/locale/vi';
 import {toast} from "react-toastify";
 import PropTypes from "prop-types";
 import {AtbdTopDropdwon} from "./auth-info-style";
+import {getItem} from "../../../utility/localStorageControl";
 
 moment.locale('vi');
 
 function NotificationBox() {
+    const location = useLocation();
     const [activeTab, setActiveTab] = useState('recent');
     const [notification, setNotification] = useState([]);
     const [notificationUnread, setNotificationUnread] = useState([]);
@@ -25,6 +27,7 @@ function NotificationBox() {
     const [newNotification, setNewNotification] = useState(false);
     const [loadingClick, setLoadingClick] = useState(false);
     const socketConnection = useSelector(state => state?.userSocket?.socketConnection);
+    const user_id = getItem('user_id');
     const {rtl} = useSelector(state => {
         return {
             rtl: state.ChangeLayoutMode.rtlData,
@@ -87,9 +90,25 @@ function NotificationBox() {
                 url = new URL(`${item?.notification_link}/${item?.notification_id}`);
                 pathname = url.pathname;
             }
+            const oldPath = location.pathname;
 
             if (item.notification_status === 1) {
-                history.push(pathname);
+                if (oldPath !== pathname) {
+                    history.push(pathname, {
+                        task_id: item.task_id
+                    });
+                    return;
+                }
+                if (socketConnection) {
+                    if (item.task_id) {
+                        const payload = {
+                            user_id,
+                            task_id: item.task_id
+                        }
+                        socketConnection.emit('view-notification', payload);
+                    }
+                }
+
                 setActiveTab('recent');
             } else {
                 setLoadingClick(true);
@@ -129,7 +148,22 @@ function NotificationBox() {
                 });
 
                 setActiveTab('recent');
-                history.push(pathname);
+                if (oldPath !== pathname) {
+                    history.push(pathname, {
+                        task_id: item.task_id
+                    });
+                    setLoadingClick(false);
+                    return;
+                }
+                if (socketConnection) {
+                    if (item.task_id) {
+                        const payload = {
+                            user_id,
+                            task_id: item.task_id
+                        }
+                        socketConnection.emit('view-notification', payload);
+                    }
+                }
                 setLoadingClick(false);
             }
         } catch (error) {

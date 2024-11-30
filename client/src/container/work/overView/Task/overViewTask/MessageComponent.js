@@ -195,7 +195,7 @@ const MessageComponent = ({handleCloseComment, task}) => {
                                                            margin: '10px 0'
                                                        }}>
                                                           {moment(item?.created_at).format('HH:mm [ngày] DD/MM/YYYY')}
-                                                           <strong>{item?.user?.name}</strong>: {item?.text}
+                                                           <strong>{` ${item?.user?.name}`}</strong>: {item?.text}
                                                         </span>
                                                         </> :
                                                         <>

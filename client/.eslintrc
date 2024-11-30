@@ -50,6 +50,7 @@
     "no-unneeded-ternary": "off",
     "no-case-declarations": "off",
     "react/no-this-in-sfc": "off",
+    "no-lonely-if": "off",
     "react/jsx-filename-extension": [
       0,
       {

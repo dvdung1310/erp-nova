@@ -33,13 +33,14 @@ import {BasicFormWrapper} from "../../../../styled";
 import {
     deleteProject, joinProject,
     updateEndDateProject, updateLeaderProject, updateMemberProject,
-    updateNameProject, updateNotifyBeforeEndTimeProject,
+    updateNameProject, updateNotifyBeforeEndTimeProject, updateProjectType,
     updateStartDateProject, updateStatusProject
 } from "../../../../../apis/work/project";
 import {toast} from "react-toastify";
 import {FaUserTie} from "react-icons/fa";
 import CopyProject from "./CopyProject";
 import {IoEnterOutline} from "react-icons/io5";
+import {FiType} from "react-icons/fi";
 
 const dateFormat = 'MM/DD/YYYY';
 
@@ -68,6 +69,7 @@ function ProjectLists({listProject, listUser = [], isHome}) {
     const [showModalUpdateStartDate, setShowModalUpdateStartDate] = useState(false);
     const [showModalUpdateEndDate, setShowModalUpdateEndDate] = useState(false);
     const [showModalConfirm, setShowModalConfirm] = useState(false);
+    const [showModalUpdateType, setShowModalUpdateType] = useState(false);
     //
     const [editorState, setEditorState] = useState(RichTextEditor.createEmptyValue());
     const handleChangeEditer = (value) => {
@@ -76,7 +78,9 @@ function ProjectLists({listProject, listUser = [], isHome}) {
     const handleShowModalUpdateLeader = () => {
         setShowModalUpdateLeader(true);
     }
-
+    const handleShowModalUpdateType = () => {
+        setShowModalUpdateType(true);
+    }
     const handleShowModalUpdateName = () => {
         setShowModalUpdateName(true);
     }
@@ -153,6 +157,7 @@ function ProjectLists({listProject, listUser = [], isHome}) {
         setShowModalUpdateLeader(false);
         setShowModalCopy(false);
         setShowModalSetting(false);
+        setShowModalUpdateType(false)
     }
     //
     const {projects} = state;
@@ -180,6 +185,10 @@ function ProjectLists({listProject, listUser = [], isHome}) {
                 });
                 setSelectedProject(value);
                 handleShowModalUpdateStatus();
+                break;
+            case 'type':
+                setSelectedProject(value);
+                handleShowModalUpdateType();
                 break;
             case 'members':
                 setSelectedProject(value);
@@ -595,6 +604,43 @@ function ProjectLists({listProject, listUser = [], isHome}) {
         console.log(selectedProject)
         console.log(notifyBeforeEndTime)
     }
+    const handleUpdateType = async () => {
+        try {
+            setLoadingUpdate(true);
+            const payload = {
+                project_type: selectedProject?.project_type,
+            }
+            const res = await updateProjectType(payload, selectedProject?.project_id);
+            if (res.error) {
+                toast.error(res?.message, {
+                    position: "top-right",
+                    autoClose: 1000,
+                })
+                setLoadingUpdate(false);
+                return;
+            }
+            toast.success('Cập nhật loại dự án thành công', {
+                position: "top-right",
+                autoClose: 1000,
+            });
+            form.resetFields();
+            handleCancel();
+            history.push(pathname, {
+                key: 'updateProject',
+                data: res?.data
+            });
+
+            setLoadingUpdate(false);
+
+        } catch (e) {
+            setLoadingUpdate(false);
+            toast.error('Đã xảy ra lỗi', {
+                autoClose: 1000,
+                position: 'top-right'
+            })
+            console.log(e);
+        }
+    }
     //
     const dataSource = [];
     if (projects?.length)
@@ -719,51 +765,66 @@ function ProjectLists({listProject, listUser = [], isHome}) {
                                 className="wide-dropdwon"
                                 action='click'
                                 content={
-                                    <div className='popover-content'>
-                                        <div className='action-item' onClick={() => handleEditClick('name', value)}>
-                                            <MdEdit size={30} className='d-block ms-1 fs-4 text-secondary'/>
-                                            <span>Sửa tên, mô tả</span>
+                                    <div className='popover-content' style={{display: 'flex'}}>
+                                        <div style={{marginRight: '20px'}}>
+                                            <div className='action-item' onClick={() => handleEditClick('name', value)}>
+                                                <MdEdit size={30} className='d-block ms-1 fs-4 text-secondary'/>
+                                                <span>Sửa tên, mô tả</span>
+                                            </div>
+                                            <div className='action-item'
+                                                 onClick={() => handleEditClick('status', value)}>
+                                                <GrInProgress size={30} className='d-block ms-1 fs-4 text-secondary'/>
+                                                <span>Cập nhật trạng thái</span>
+                                            </div>
+                                            <div className='action-item'
+                                                 onClick={() => handleEditClick('type', value)}>
+                                                <FiType size={30} className='d-block ms-1 fs-4 text-secondary'/>
+                                                <span>Cập nhật loại dự án</span>
+                                            </div>
+                                            <div className='action-item'
+                                                 onClick={() => handleEditClick('members', value)}>
+                                                <MdGroups size={30} className='d-block ms-1 fs-4 text-secondary'/>
+                                                <span>Thành viên</span>
+                                            </div>
+                                            <div className='action-item'
+                                                 onClick={() => handleEditClick('leader', value)}>
+                                                <FaUserTie size={30} className='d-block ms-1 fs-4 text-secondary'/>
+                                                <span>Người phụ trách</span>
+                                            </div>
                                         </div>
-                                        <div className='action-item'
-                                             onClick={() => handleEditClick('status', value)}>
-                                            <GrInProgress size={30} className='d-block ms-1 fs-4 text-secondary'/>
-                                            <span>Cập nhật trạng thái</span>
-                                        </div>
-                                        <div className='action-item' onClick={() => handleEditClick('members', value)}>
-                                            <MdGroups size={30} className='d-block ms-1 fs-4 text-secondary'/>
-                                            <span>Thành viên</span>
-                                        </div>
-                                        <div className='action-item' onClick={() => handleEditClick('leader', value)}>
-                                            <FaUserTie size={30} className='d-block ms-1 fs-4 text-secondary'/>
-                                            <span>Người phụ trách</span>
-                                        </div>
-                                        <div className='action-item'
-                                             onClick={() => handleEditClick('start_date', value)}>
-                                            <MdOutlineDateRange size={30} className='d-block ms-1 fs-4 text-secondary'/>
-                                            <span>Sửa ngày bắt đầu</span>
-                                        </div>
-                                        <div className='action-item'
-                                             onClick={() => handleEditClick('end_date', value)}>
-                                            <MdOutlineDateRange size={30}
-                                                                className='d-block ms-1 fs-4 text-secondary'/>
-                                            <span>Sửa ngày kết thúc</span>
-                                        </div>
-                                        <div className='action-item'
-                                             onClick={() => handleEditClick('copy', value)}>
-                                            <MdContentCopy size={30}
-                                                           className='d-block ms-1 fs-4 text-secondary'/>
-                                            <span>Sao chép dự án</span>
-                                        </div>
-                                        <div className='action-item'
-                                             onClick={() => handleEditClick('setting', value)}>
-                                            <MdOutlineSettings size={30}
+                                        <div>
+                                            <div className='action-item'
+                                                 onClick={() => handleEditClick('start_date', value)}>
+                                                <MdOutlineDateRange size={30}
+                                                                    className='d-block ms-1 fs-4 text-secondary'/>
+                                                <span>Sửa ngày bắt đầu</span>
+                                            </div>
+                                            <div className='action-item'
+                                                 onClick={() => handleEditClick('end_date', value)}>
+                                                <MdOutlineDateRange size={30}
+                                                                    className='d-block ms-1 fs-4 text-secondary'/>
+                                                <span>Sửa ngày kết thúc</span>
+                                            </div>
+                                            <div className='action-item'
+                                                 onClick={() => handleEditClick('copy', value)}>
+                                                <MdContentCopy size={30}
                                                                className='d-block ms-1 fs-4 text-secondary'/>
-                                            <span>Cài đặt nhắc nhở</span>
+                                                <span>Sao chép dự án</span>
+                                            </div>
+                                            <div className='action-item'
+                                                 onClick={() => handleEditClick('setting', value)}>
+                                                <MdOutlineSettings size={30}
+                                                                   className='d-block ms-1 fs-4 text-secondary'/>
+                                                <span>Cài đặt nhắc nhở</span>
+                                            </div>
+                                            <div className='action-item'
+                                                 onClick={() => handleEditClick('delete', value)}>
+                                                <MdDelete color='red' size={30} className='icon-delete'/>
+                                                <span>Xóa dự án</span>
+                                            </div>
                                         </div>
-                                        <div className='action-item' onClick={() => handleEditClick('delete', value)}>
-                                            <MdDelete color='red' size={30} className='icon-delete'/>
-                                            <span>Xóa dự án</span>
-                                        </div>
+
+
                                     </div>
                                 }
                             >
@@ -1037,9 +1098,9 @@ function ProjectLists({listProject, listUser = [], isHome}) {
                                 }}
                                 value={selectedProject?.project_status}  // Set the default checked value
                             >
-                                <Radio value="0">Đang chờ (Tiến độ hoàn thành = 0%)</Radio>
-                                <Radio value="1">Đang làm (Tiến độ hoàn thành 0% {"->"} 100%)</Radio>
-                                <Radio value="2">Hoàn thành (Tiến độ hoàn thành = 100%)</Radio>
+                                <Radio value={0}>Đang chờ (Tiến độ hoàn thành = 0%)</Radio>
+                                <Radio value={1}>Đang làm (Tiến độ hoàn thành 0% {"->"} 100%)</Radio>
+                                <Radio value={2}>Hoàn thành (Tiến độ hoàn thành = 100%)</Radio>
                             </Radio.Group>
                         </Form.Item>
                     </BasicFormWrapper>
@@ -1291,7 +1352,47 @@ function ProjectLists({listProject, listUser = [], isHome}) {
 
 
             </Modal>
-
+            {/*    modal update type*/}
+            <Modal
+                type='primary'
+                title=" Cập nhật loại dự án"
+                visible={showModalUpdateType}
+                onCancel={handleCancel}
+                footer={[
+                    <div key="1" className="project-modal-footer">
+                        <Button size="default" type="primary" key="submit" onClick={handleUpdateType}
+                                style={{
+                                    backgroundColor: loadingUpdate ? "#8c94ff" : "#5f63f2",
+                                    minWidth: '150px',
+                                }}
+                        >
+                            {loadingUpdate ? <div>
+                                <Spin/>
+                            </div> : 'Cập nhật'}
+                        </Button>
+                    </div>,
+                ]}
+            >
+                <div className="project-modal">
+                    <BasicFormWrapper>
+                        <Form.Item label="Loại dự án">
+                            <Radio.Group
+                                name="project_type"
+                                onChange={(e) => {
+                                    setSelectedProject({
+                                        ...selectedProject,
+                                        project_type: e.target.value
+                                    });
+                                }}
+                                value={selectedProject?.project_type}  // Set the default checked value
+                            >
+                                <Radio value={0}>Dự án chuyên môn</Radio>
+                                <Radio value={1}>Dự án phát sinh</Radio>
+                            </Radio.Group>
+                        </Form.Item>
+                    </BasicFormWrapper>
+                </div>
+            </Modal>
 
         </Row>
     );

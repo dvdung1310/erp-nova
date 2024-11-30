@@ -13,6 +13,7 @@ import {checkRole} from "../../../../../utility/checkValue";
 
 const dateFormat = 'MM/DD/YYYY';
 import RichTextEditor from 'react-rte';
+import {FormControl, FormControlLabel, Radio, RadioGroup} from "@mui/material";
 
 function CreateProject({visible, onCancel, group_id, listUser = []}) {
     const [listUserData, setListUser] = useState(listUser);
@@ -29,6 +30,10 @@ function CreateProject({visible, onCancel, group_id, listUser = []}) {
     });
     //
     const [editorState, setEditorState] = useState(RichTextEditor.createEmptyValue());
+    const [selectedOption, setSelectedOption] = useState('0');
+    const handleOptionChange = (event) => {
+        setSelectedOption(event.target.value);
+    };
     const handleChangeEditer = (value) => {
         setEditorState(value);
     };
@@ -102,6 +107,7 @@ function CreateProject({visible, onCancel, group_id, listUser = []}) {
                 project_start_date: data?.project_start_date?.format('YYYY-MM-DD'),
                 project_end_date: data?.project_end_date?.format('YYYY-MM-DD'),
                 group_id,
+                project_type: selectedOption,
                 leader_id: selectedMembers?.id,
                 pathname
             }
@@ -120,6 +126,8 @@ function CreateProject({visible, onCancel, group_id, listUser = []}) {
             });
             form.resetFields();
             onCancel();
+            setSelectedMembers({})
+            setSelectedOption('0');
             setEditorState(RichTextEditor.createEmptyValue());
             history.push(pathname, {
                 key: 'createProject',
@@ -200,6 +208,14 @@ function CreateProject({visible, onCancel, group_id, listUser = []}) {
                                 </Form.Item>
                             </Col>
                         </Row>
+                        <FormControl component="fieldset" style={{margin: '10px 0'}}>
+                            <RadioGroup value={selectedOption} onChange={handleOptionChange}
+                                        style={{flexDirection: 'row'}}>
+                                <FormControlLabel value="0" control={<Radio/>}
+                                                  label="Dự án chuyên môn (mặc định)"/>
+                                <FormControlLabel value="1" control={<Radio/>} label="Dự án phát sinh"/>
+                            </RadioGroup>
+                        </FormControl>
                         <Form.Item style={{marginTop: '10px'}} name="leader" label="Chọn người phụ trách"
                         >
                             <Input

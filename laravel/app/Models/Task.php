@@ -16,10 +16,12 @@ class Task extends Model
         'project_id',
         'task_name',
         'task_description',
+        'task_progress',
         'task_priority', // 0: low, 1: medium, 2: high
         'task_status', // 0: not started, 1: in progress, 2: completed 3: leader confrimed 4:paused
         'task_start_date',
         'task_end_date',
+        'task_score_kpi',
         'create_by_user_id',
         'task_date_update_status_completed',
     ];

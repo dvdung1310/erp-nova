@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->string('project_name');
             $table->text('project_description')->nullable();
             $table->text('leader_id')->nullable();
+            $table->tinyInteger('project_type')->default(0);
             $table->unsignedInteger('group_id'); // Ensure this matches the type in work_groups
             $table->tinyInteger('project_status')->default(0);
             $table->date('project_start_date');
