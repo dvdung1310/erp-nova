@@ -14,10 +14,23 @@ use Carbon\Carbon;
 
 class CustomerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $customers = Customer::with(['status', 'dataSource', 'sales'])
+            $query = Customer::with(['status', 'dataSource', 'sales']);
+            if ($request->has('status_id') && $request->status_id) {
+                $query->where('status_id', $request->status_id);
+            }
+
+            if ($request->has('source_id') && $request->source_id) {
+                $query->where('source_id', $request->source_id);
+            }
+
+            if ($request->has('name') && $request->name) {
+                $query->where('name', 'like', '%' . $request->name . '%');
+            }
+
+            $customers = $query->orderBy('date', 'desc')
                 ->whereHas('dataSource', function ($query) {
                     $query->where('source', 'novaup'); 
                 })
@@ -32,6 +45,7 @@ class CustomerController extends Controller
                         'date' => $customer->date,
                         'email' => $customer->email,
                         'file_infor' => $customer->file_infor,
+                        'content' => $customer->customer_comment,
                         'status_name' => $customer->status ? $customer->status->name : 'Không xác định',
                         'source_name' => $customer->dataSource ? $customer->dataSource->name : 'Không xác định',
                         'status_id' => $customer->status->id,
@@ -69,6 +83,7 @@ class CustomerController extends Controller
             'date' => 'nullable',
             'email' => 'nullable|string',
             'file_infor' => 'nullable|string',
+            'content' => 'nullable|string',
             'status_id' => 'required|exists:customer_status,id',
             'source_id' => 'required|exists:customer_data_source,id',
         ]);
@@ -84,6 +99,11 @@ class CustomerController extends Controller
         } else {
             $email = $validatedData['email'];
         }
+        if (empty($validatedData['content'])  || $validatedData['content'] == 'null') {
+            $content = null;
+        } else {
+            $content = $validatedData['content'];
+        }
         try {
             $customer = Customer::create([
                 'name' => $validatedData['name'],
@@ -91,6 +111,7 @@ class CustomerController extends Controller
                 'date' => $date,
                 'email' => $email,
                 'file_infor' => $validatedData['file_infor'] ?? null,
+                'customer_comment' =>  $content,
                 'status_id' => $validatedData['status_id'],
                 'source_id' => $validatedData['source_id'],
             ]);
@@ -121,6 +142,7 @@ class CustomerController extends Controller
             'phone' => 'nullable|string|max:20',
             'date' => 'nullable',
             'email' => 'nullable|string',
+            'content' => 'nullable',
             'file_infor' => 'nullable|string',
             'status_id' => 'nullable|exists:customer_status,id',
             'source_id' => 'nullable|exists:customer_data_source,id',
@@ -140,12 +162,18 @@ class CustomerController extends Controller
             } else {
                 $email = $validatedData['email'];
             }
+            if (empty($validatedData['content'])  || $validatedData['content'] == 'null') {
+                $content = null;
+            } else {
+                $content = $validatedData['content'];
+            }
             $customer->update([
                 'name' => $validatedData['name'] ?? $customer->name,
                 'phone' => $validatedData['phone'] ?? $customer->phone,
                 'date' => $date,
                 'email' => $email,
                 'file_infor' => $validatedData['file_infor'] ?? $customer->file_infor ?? null,
+                'customer_comment' =>$content,
                 'status_id' => $validatedData['status_id'] ?? $customer->status_id,
                 'source_id' => $validatedData['source_id'] ?? $customer->source_id,
             ]);

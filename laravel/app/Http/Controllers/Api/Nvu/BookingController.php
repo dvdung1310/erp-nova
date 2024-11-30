@@ -36,7 +36,10 @@ class BookingController extends Controller
     public function index()
     {
         $rooms = NvuRoom::where('status',1)->get(['id','name','color']);
-        $customers= Customer::where('status_id',1)->get(['id','name']);
+        $customers= Customer::with(['status', 'dataSource'])    
+        ->whereHas('dataSource', function ($query) {
+            $query->where('source', 'novaup'); 
+        })->get(['id','name']);
         $bookings= NvuRoomBooking::with(['room','customer'])->get();
         return response()->json(
             [
