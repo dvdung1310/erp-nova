@@ -109,18 +109,18 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
       <SubMenu key="novaup" icon={!topMenu && <FeatherIcon icon="map-pin" />} title="Novaup">
         <Menu.Item key="nvu-customer">
           <NavLink onClick={toggleCollapsed} to={`${path}/novaup/khach-hang`}>
-            Khách hàng 
+            Khách hàng
           </NavLink>
         </Menu.Item>
         <Menu.Item key="nvu-status">
           <NavLink onClick={toggleCollapsed} to={`${path}/novaup/trang-thai`}>
-           Trạng thái khách hàng
+            Trạng thái khách hàng
           </NavLink>
         </Menu.Item>
 
         <Menu.Item key="nvu-source">
           <NavLink onClick={toggleCollapsed} to={`${path}/novaup/nguon-khach-hang`}>
-          Nguồn khách hàng
+            Nguồn khách hàng
           </NavLink>
         </Menu.Item>
         <Menu.Item key="nvu-revenue">
@@ -140,7 +140,7 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
         </Menu.Item>
       </SubMenu>
       {/* end novaup   */}
-    
+
       {/*home*/}
       <Menu.Item key="home" icon={<FeatherIcon icon="home" />}>
         <NavLink to={`${path}`}>Trang chủ</NavLink>
@@ -153,12 +153,12 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
             Danh sách nhân sự
           </NavLink>
         </Menu.Item>
-        <Menu.Item  className="pl-custom-sidebar" key="list_department">
+        <Menu.Item className="pl-custom-sidebar" key="list_department">
           <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/phong-ban`}>
             Phòng ban
           </NavLink>
         </Menu.Item>
-       
+
         <Menu.Item className="pl-custom-sidebar" key="works-chedule">
           <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/lich-lam-viec`}>
             Lịch làm việc
@@ -176,7 +176,7 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
           </NavLink>
         </Menu.Item>
 
-        <Menu.Item className='pl-custom-sidebar' key="de-xuat">
+        <Menu.Item className="pl-custom-sidebar" key="de-xuat">
           <NavLink onClick={toggleCollapsed} to={`${path}/de-xuat/danh-sach`}>
             Đề xuất
           </NavLink>
@@ -240,7 +240,7 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
         icon={!topMenu && <FeatherIcon icon="home" />}
         title="Tuyển dụng"
       >
-        <Menu.Item className='pl-custom-sidebar' key="de-xuat">
+        <Menu.Item className="pl-custom-sidebar" key="de-xuat">
           <NavLink onClick={toggleCollapsed} to={`${path}/tuyen-dung`}>
             Chỉ tiêu tuyển dụng
           </NavLink>
@@ -249,7 +249,7 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
       {/* end tuyển dụng   */}
       {/**/}
       {/* work */}
-      
+
       <SubMenu key="work" icon={!topMenu && <FeatherIcon icon="briefcase" />} title="Làm việc">
         <Menu.Item key="inbox">
           <NavLink onClick={toggleCollapsed} to={`${path}/lam-viec`}>
@@ -275,8 +275,8 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
             </Menu.Item>
           ))}
       </SubMenu>
-        {/* novateen */}
-        <SubMenu key="novateen" icon={!topMenu && <FeatherIcon icon="map-pin" />} title="NovaTeen">
+      {/* novateen */}
+      <SubMenu key="novateen" icon={!topMenu && <FeatherIcon icon="map-pin" />} title="NovaTeen">
         <Menu.Item key="nvt-home">
           <NavLink onClick={toggleCollapsed} to={`${path}/novateen/khach-hang`}>
             Khách hàng
@@ -284,12 +284,12 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
         </Menu.Item>
         <Menu.Item key="nvt-data">
           <NavLink onClick={toggleCollapsed} to={`${path}/novateen/data-import`}>
-           Data import
+            Data import
           </NavLink>
         </Menu.Item>
         <Menu.Item key="nvt-bill">
           <NavLink onClick={toggleCollapsed} to={`${path}/novateen/doanh-thu`}>
-          Doanh thu
+            Doanh thu
           </NavLink>
         </Menu.Item>
         {/* cấu hình novateen */}
@@ -314,7 +314,9 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
         </Menu>
       </SubMenu>
       {/* end novateen */}
-      {/**/}
+      <Menu.Item key="cdn" icon={<FeatherIcon icon="home" />}>
+        <NavLink to={`${path}/luu-tru/all`}>Lưu trữ</NavLink>
+      </Menu.Item>
       {/* start d-none */}
       <SubMenu style={{ display: 'none' }}>
         <SubMenu className="d-none" key="layout" icon={!topMenu && <FeatherIcon icon="layout" />} title="Layouts">
