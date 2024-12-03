@@ -180,20 +180,35 @@ const DetailWorkConfimation = () => {
         {
             title: 'Nội dung Công việc',
             dataIndex: 'work_content',
+            width: 300,
             render: (_, record, index) => (
-                <Input
-                    value={record.work_content}
-                    onChange={(e) => handleInputChange(index, 'work_content', e.target.value)}
+                <Input.TextArea
+                    style={{
+                     maxHeight: '120px',
+                     overflowY: 'auto',
+                     whiteSpace: 'normal',
+                    wordWrap: 'break-word',
+                    }}
+    value={record.work_content}
+    onChange={(e) => handleInputChange(index, 'work_content', e.target.value)}
                 />
             )
         },
         {
             title: 'Lý do xác nhận',
             dataIndex: 'reason',
+            width: 300,
             render: (_, record, index) => (
-                <Input
+                <Input.TextArea
+                style={{
+                    maxHeight: '120px',
+                    overflowY: 'auto',
+                    whiteSpace: 'normal',
+                   wordWrap: 'break-word',
+                   }}
                     value={record.reason}
                     onChange={(e) => handleInputChange(index, 'reason', e.target.value)}
+                    autoSize={{ minRows: 1, maxRows: 4 }}
                 />
             )
         },
@@ -281,6 +296,7 @@ const DetailWorkConfimation = () => {
                             pagination={false}
                             tableLayout="fixed"
                             rowKey={(record) => record.stt}
+                            scroll={{ x: 1000 }}
                         />
 
 

@@ -191,7 +191,7 @@ class WorkConfirmationController extends Controller
     public function listWorkConfimationUser()
     {
         $employee = CrmEmployeeModel::where('account_id', Auth::id())->first();
-        $listWork = EmployeeWorkConfirmation::where('employee_id', $employee->employee_id)->get();
+        $listWork = EmployeeWorkConfirmation::where('employee_id', $employee->employee_id)->orderBy('created_at','desc')->get();
 
         foreach ($listWork as $work) {
             if ($work->manager_id) {
@@ -224,7 +224,7 @@ class WorkConfirmationController extends Controller
 
     public function getEmployeeConfirmations()
     {
-        $confirmations = EmployeeWorkConfirmation::whereJsonContains('manager_id', Auth::id())
+        $confirmations = EmployeeWorkConfirmation::whereJsonContains('manager_id', Auth::id())->orderBy('created_at','desc')
             ->get(['id', 'employee_id', 'created_at', 'updated_at', 'status']);
         $confirmations = $confirmations->map(function ($confirmation) {
             $employee = CrmEmployeeModel::where('employee_id', $confirmation->employee_id)->first();
@@ -239,7 +239,7 @@ class WorkConfirmationController extends Controller
 
     public function listWorkConfimationStatus1()
     {
-        $confirmations = EmployeeWorkConfirmation::all();
+        $confirmations = EmployeeWorkConfirmation::orderBy('created_at','desc')->get();
         $confirmations = $confirmations->map(function ($confirmation) {
             $employee = CrmEmployeeModel::where('employee_id', $confirmation->employee_id)->first();
             $user = User::where('id', $employee->account_id)->first();
