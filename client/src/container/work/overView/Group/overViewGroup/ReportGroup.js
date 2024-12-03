@@ -96,7 +96,7 @@ const ReportGroup = () => {
                         >
                             {text?.avatar ? null : 'U'}
                         </Avatar>
-                        <Text>{text?.name}</Text>
+                        <Text>{` ${text?.name}`}</Text>
                     </div>
                 )
             }

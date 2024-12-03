@@ -472,6 +472,66 @@ class GroupController extends Controller
         return false;
     }
 
+    // get report by group all
+    public function getReportGroupAll(Request $request)
+    {
+        try {
+            $groups = Group::whereNull('parent_group_id')
+                ->with('leader')
+                ->get();
+            $allGroupsProjectsAndTasks = [];
+            foreach ($groups as $group) {
+                $groupData = [
+                    'group_id' => $group->group_id,
+                    'group_name' => $group->group_name,
+                    'color' => $group->color,
+                    'leader' => $group->leader,
+                    'total_projects' => 0,
+                    'list_project' => [],
+                ];
+                $this->getProjectsAndTasksFromGroupAll(
+                    $group, $groupData['total_projects'], $groupData['list_project']
+                );
+                $allGroupsProjectsAndTasks[] = $groupData;
+            }
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Groups, projects, and tasks fetched successfully',
+                'data' => $allGroupsProjectsAndTasks
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+    }
+
+    private function getProjectsAndTasksFromGroupAll(
+        $group, &$totalProjects, &$listProject = []
+    )
+    {
+        $projects = Project::where('group_id', $group->group_id)
+            ->with(['tasks.users'])
+            ->orderBy('created_at', 'desc') // or 'desc' for descending order
+            ->get();
+
+        foreach ($projects as $project) {
+            $totalProjects++;
+            $listProject[] = $project;
+        }
+
+        $childGroups = Group::where('parent_group_id', $group->group_id)->get();
+        foreach ($childGroups as $childGroup) {
+            $this->getProjectsAndTasksFromGroupAll($childGroup, $totalProjects, $listProject);
+        }
+    }
+
+
+    //
+
     public function getAllProjectsAndTasksInGroups(): JsonResponse
     {
         try {
@@ -516,7 +576,7 @@ class GroupController extends Controller
     private function getProjectsAndTasksFromGroup($group, &$totalProjects, &$totalTasks, &$totalCompletedTasks, &$totalDoingTasks, &$totalWaitingTasks, &$TotalOverdueTasks, &$taskDeadlineWeek = [], &$taskOverdueWeek = [])
     {
         $projects = Project::where('group_id', $group->group_id)
-            ->with(['tasks'])
+            ->with(['tasks.users'])
             ->get();
 
         foreach ($projects as $project) {

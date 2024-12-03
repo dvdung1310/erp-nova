@@ -28,8 +28,7 @@ const ProviderConfig = () => {
         const accessToken = getToken();
         if (accessToken) {
             setIsLoggedIn(true);
-        }
-        else {
+        } else {
             setIsLoggedIn(false);
         }
     }, []);
@@ -63,11 +62,12 @@ const ProviderConfig = () => {
                         </div>
                     ) : (
                         <Router basename={process.env.PUBLIC_URL}>
-                        {!isLoggedIn ? <Route path="/" component={Auth} /> : <ProtectedRoute path="/admin" component={Admin} isLoggedIn={isLoggedIn} />}
-                        {isLoggedIn && (path === process.env.PUBLIC_URL || path === `${process.env.PUBLIC_URL}/`) && (
-                            <Redirect to="/admin" />
-                        )}
-                    </Router>
+                            {!isLoggedIn ? <Route path="/" component={Auth}/> :
+                                <ProtectedRoute path="/admin" component={Admin} isLoggedIn={isLoggedIn}/>}
+                            {isLoggedIn && (path === process.env.PUBLIC_URL || path === `${process.env.PUBLIC_URL}/`) && (
+                                <Redirect to="/admin"/>
+                            )}
+                        </Router>
                     )}
                 </ReactReduxFirebaseProvider>
             </ThemeProvider>

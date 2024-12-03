@@ -235,6 +235,7 @@ Route::prefix('groups')->group(function () {
     Route::put('update/{group_id}', [GroupController::class, 'update'])->middleware(middlewareLogin::class);
     Route::delete('delete/{group_id}', [GroupController::class, 'delete'])->middleware(middlewareLogin::class);
     Route::get('get-group-by-parent-group-id/{parent_group_id}', [GroupController::class, 'getGroupByParentGroupId'])->middleware(middlewareLogin::class);
+    Route::get('get-report-group-all', [GroupController::class, 'getReportGroupAll'])->middleware(MiddlewareLoginCeo::class);
     Route::post('get-reports-by-group-id/{group_id}', [GroupController::class, 'getReportsByGroupId'])->middleware(MiddlewareLoginCeo::class);
 });
 // projects

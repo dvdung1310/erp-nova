@@ -97,12 +97,20 @@ const TaskList = (props) => {
             socketConnection.on('view-notification', (data) => {
                 console.log('new-notification', data);
                 setTaskSelectedSocket(data?.task_id);
+                // setSelectedTask(tasks.filter((task) => task.task_id === data.task_id)[0]);
+                // setShowComment(true);
             })
             return () => {
                 socketConnection.off('view-notification');
             }
         }
     }, [socketConnection]);
+    useEffect(() => {
+        if (taskSelectedSocket) {
+            setSelectedTask(tasks.filter((task) => task.task_id === taskSelectedSocket)[0]);
+            setShowComment(true);
+        }
+    }, [taskSelectedSocket])
 
     const handleOptionChange = (event) => {
         setEndTime('')

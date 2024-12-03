@@ -35,6 +35,9 @@
 }
 
 @media only screen and (max-width: 450px) {
+  .ant-layout-content {
+    overflow: auto;
+  }
   .ant-modal.modal-project {
     width: 100% !important;
   }
@@ -70,6 +73,8 @@
   }
   .message-component {
     .comment {
+      flex-direction: row !important;
+
       .comment_description {
         display: none;
       }
@@ -92,6 +97,10 @@
   }
   .ant-col {
     width: 100%;
+  }
+  .ant-popover-placement-bottomLeft .ant-popover-arrow {
+    right: 70px !important;
+    left: initial !important;
   }
 }
 

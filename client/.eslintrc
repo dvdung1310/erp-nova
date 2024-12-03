@@ -51,6 +51,7 @@
     "no-case-declarations": "off",
     "react/no-this-in-sfc": "off",
     "no-lonely-if": "off",
+    "no-use-before-define": "off",
     "react/jsx-filename-extension": [
       0,
       {
