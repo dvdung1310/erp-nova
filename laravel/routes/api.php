@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Cdn\DocumentController;
 use App\Http\Controllers\Api\Nova\ExamController;
 use App\Http\Controllers\Api\Nova\NvCategoryFileController;
 use App\Http\Controllers\Api\Nova\NvDepartmentTeamController;
@@ -225,7 +226,25 @@ Route::group(['middleware' => 'api'], function () {
 
 
 });
-// work
+// tài liệu
+Route::group(['middleware' => 'api'], function () {
+    Route::get('/all-document',[DocumentController::class,'index'])->middleware(middlewareLogin::class); 
+    Route::post('/store-folder',[DocumentController::class,'store_folder'])->middleware(middlewareLogin::class); 
+    Route::post('/store-file',[DocumentController::class,'store_file'])->middleware(middlewareLogin::class); 
+    Route::post('/rename-folder/{id}',[DocumentController::class,'rename_folder'])->middleware(middlewareLogin::class); 
+    Route::get('/delete-file/{id}',[DocumentController::class,'delete_file'])->middleware(middlewareLogin::class); 
+    Route::get('/show-folder/{id}',[DocumentController::class,'show_folder'])->middleware(middlewareLogin::class); 
+    Route::post('/store-folder-child/{id}',[DocumentController::class,'store_folder_child'])->middleware(middlewareLogin::class); 
+    Route::get('/check-download-file/{id}',[DocumentController::class,'check_download_file'])->middleware(middlewareLogin::class); 
+    Route::get('/show-file-share/{id}',[DocumentController::class,'show_file_share']); 
+    Route::get('/show-folder-share/{id}',[DocumentController::class,'show_folder_share']); 
+    Route::post('/share-file/{id}',[DocumentController::class,'share_file']); 
+    Route::post('/share-folder/{id}',[DocumentController::class,'share_folder']); 
+    //Tài liệu của tôi
+    Route::get('/my-document',[DocumentController::class,'my_document'])->middleware(middlewareLogin::class); 
+    Route::get('/document-share-me',[DocumentController::class,'document_share_me'])->middleware(middlewareLogin::class); 
+
+});
 //groups
 Route::prefix('groups')->group(function () {
     Route::get('get-all-group-parent', [GroupController::class, 'getAllGroupParent'])->middleware(middlewareLogin::class);

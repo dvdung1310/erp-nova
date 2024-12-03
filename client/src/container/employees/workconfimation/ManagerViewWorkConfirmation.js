@@ -149,8 +149,15 @@ const ManagerViewWorkConfirmation = () => {
         {
             title: 'Nội dung Công việc',
             dataIndex: 'work_content',
+            width: 300,
             render: (_, record, index) => (
-                <Input
+                <Input.TextArea
+                style={{
+                 maxHeight: '120px',
+                 overflowY: 'auto',
+                 whiteSpace: 'normal',
+                wordWrap: 'break-word',
+                }}
                     value={record.work_content}
                     onChange={(e) => handleInputChange(index, 'work_content', e.target.value)}
                 />
@@ -159,8 +166,15 @@ const ManagerViewWorkConfirmation = () => {
         {
             title: 'Lý do xác nhận',
             dataIndex: 'reason',
+            width: 300,
             render: (_, record, index) => (
-                <Input
+                <Input.TextArea
+                style={{
+                 maxHeight: '120px',
+                 overflowY: 'auto',
+                 whiteSpace: 'normal',
+                wordWrap: 'break-word',
+                }}
                     value={record.reason}
                     onChange={(e) => handleInputChange(index, 'reason', e.target.value)}
                 />

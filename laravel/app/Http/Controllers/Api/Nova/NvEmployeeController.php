@@ -183,7 +183,7 @@ class NvEmployeeController extends Controller
                 $user['name'] = $employee_name;
                 $user['email'] = $employee_email;
                 $user['password'] = bcrypt(123456);
-                $user['role_id'] = $request->level_id;
+                // $user['role_id'] = $request->level_id;
                 $user->save();
                 $user_id = $user->id;
                 $employee = new CrmEmployeeModel();

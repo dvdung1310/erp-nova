@@ -284,7 +284,7 @@ const handleContentClick = (content) => {
         <Card>
           <div>
           <Row  gutter={[16, 16]} style={{ marginBottom: '16px' , width:'100%' , display:'flex' , justifyContent:'end' , alignItems:'center'}}>
-    <Col span={4}>
+    <Col xs={24} sm={12} md={8} lg={3}>
     <Input  style={{padding:'7px 10px'}}
             placeholder="Tìm kiếm tên khách hàng"
             value={searchTerm}
@@ -293,7 +293,7 @@ const handleContentClick = (content) => {
             enterButton
         />
     </Col>
-    <Col span={3}>
+    <Col xs={24} sm={12} md={8} lg={3}>
       <Select
         placeholder="Lọc theo trạng thái"
         style={{ width: '100%' }}
@@ -308,7 +308,7 @@ const handleContentClick = (content) => {
         ))}
       </Select>
     </Col>
-    <Col span={3}>
+    <Col xs={24} sm={12} md={8} lg={3}>
       <Select
         placeholder="Lọc theo nguồn khách hàng"
         style={{ width: '100%' }}
@@ -323,7 +323,7 @@ const handleContentClick = (content) => {
         ))}
       </Select>
     </Col>
-    <Col span={2}>
+    <Col xs={24} sm={12} md={8} lg={3}>
       <Button type="primary" onClick={handleSearch}>
         Tìm kiếm
       </Button>
@@ -336,7 +336,7 @@ const handleContentClick = (content) => {
               Thêm khách hàng
             </Button>
           </div>
-          <Table columns={columns} dataSource={customer} rowKey="id" />
+          <Table columns={columns} dataSource={customer} rowKey="id" scroll={{ x: 1000 }} />
         </Card>
       </Spin>
 

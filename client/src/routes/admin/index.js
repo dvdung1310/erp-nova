@@ -12,6 +12,7 @@ import Axios from './axios';
 import Gallery from './gallery';
 import Novaup from "./Novaup";
 import Novateen from "./novateen";
+import Cdn from "./Cdn";
 import Customer from "./customer";
 import Employees from "./employees";
 import Proposal from "./proposal";
@@ -37,6 +38,7 @@ const Calendar = lazy(() => import('../../container/calendar/Calendar'));
 // const FileManager = lazy(() => import('../../container/fileManager/FileManager'));
 const Kanban = lazy(() => import('../../container/kanban/Index'));
 const Task = lazy(() => import('../../container/task/Index'));
+// const Cdn = lazy(() => import('../../container/cdn/index'));
 // const Recruit = lazy(() => import('../../container/task/Index'));
 import {io} from "socket.io-client";
 import {useDispatch} from "react-redux";
@@ -135,6 +137,7 @@ function Admin() {
                 {/**/}
                 <Route path={`${path}/novaup`} component={Novaup}/>
                 <Route path={`${path}/novateen`} component={Novateen}/>
+                <Route path={`${path}/luu-tru`} component={Cdn}/>
                 <Route path={`${path}/nhan-su`} component={Employees}/>
                 <Route path={`${path}/de-xuat`} component={Proposal}/>
                 <Route path={`${path}/lam-viec`} component={Work}/>
