@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link,useNavigate,NavLink,useRouteMatch,useParams} from 'react-router-dom';
-import { Row, Col, Popover, Button, Modal, Input, message, Progress, Spin } from 'antd'; // Import Modal và Input
+import { Link, useNavigate, NavLink, useRouteMatch,useParams} from 'react-router-dom';
+import { Row, Col, Popover, Button, Modal, Input, message, Progress, Spin, Form, Select, Checkbox } from 'antd'; // Import Modal và Input
 import FeatherIcon from 'feather-icons-react';
 import {
   FaFolderPlus,
@@ -18,12 +18,28 @@ import {
 import { FaEllipsisVertical } from 'react-icons/fa6';
 import { RiFolderUploadFill, RiDeleteBin5Line } from 'react-icons/ri';
 import { MdDriveFileRenameOutline } from 'react-icons/md';
-import { allDocument, storeFolderChild, storeFolderFile, renameFolder, deleteFile,showFolder } from '../../../apis/cdn/index';
-
-function All() {
+import {
+  allDocument,
+  storeFolderChild, 
+  storeFolderFile,
+  renameFolder,
+  deleteFile,
+  checkDownloadFile,
+  showFileShare,
+  shareFile,
+  showFolderShare,
+  shareFolder,
+  showFolder
+} from '../../../apis/cdn/index';
+const { Option, OptGroup } = Select;
+const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
+function folder_detail() {
   const { path } = useRouteMatch();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isFileModalVisible, setIsFileModalVisible] = useState(false);
+  const [fileModalShare, setFileModalShare] = useState(false);
+  const [folderModalShare, setFolderModalShare] = useState(false);
+  const [detailFileModel, setDetailFileModel] = useState(false);
   const [folders, setFolders] = useState([]);
   const [Files, setFile] = useState([]);
   const [folderName, setFolderName] = useState('');
@@ -31,10 +47,17 @@ function All() {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedFolder, setSelectedFolder] = useState(null);
+  const [canDownload, setCanDownload] = useState(false);
+  const [fileUrl, setFileUrl] = useState('');
+  const [form] = Form.useForm();
+  const [allEmployee, setAllEmployee] = useState([]);
   const { id } = useParams();
   const fetchDocument = async () => {
     try {
       setLoading(true);
+      console.log('====================================');
+      console.log(path);
+      console.log('====================================');
       const response = await showFolder(id);
       setFolders(response.data.document_folder || []);
       setFile(response.data.document_file || []);
@@ -44,11 +67,9 @@ function All() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchDocument();
   }, [id]);
-
   // Hiển thị modal
   const showModalCreateFolder = () => {
     setIsModalVisible(true);
@@ -63,6 +84,9 @@ function All() {
   const handleCancel = () => {
     setIsModalVisible(false);
     setIsFileModalVisible(false);
+    setFileModalShare(false);
+    setFolderModalShare(false);
+    setDetailFileModel(false);
     setFolderName(''); // Reset tên folder
   };
 
@@ -116,36 +140,36 @@ function All() {
 
   const handleFileSelect = async (files) => {
     try {
-        const fileArray = Array.from(files);
-        const formData = new FormData();
-        fileArray.forEach((file) => {
-            formData.append('files[]', file); // Append files to FormData
-        });
+      const fileArray = Array.from(files);
+      const formData = new FormData();
+      fileArray.forEach((file) => {
+        formData.append('files[]', file); // Append files to FormData
+      });
 
-        // Create a config object to monitor the upload progress
-        const config = {
-            onUploadProgress: (progressEvent) => {
-                const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                setUploadProgress(percent); // Update the progress state
-            },
-        };
+      // Create a config object to monitor the upload progress
+      const config = {
+        onUploadProgress: (progressEvent) => {
+          const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          setUploadProgress(percent); // Update the progress state
+        },
+      };
 
-        // Send file data to the backend API
-        const response = await storeFolderFile(formData, config, id);
+      // Send file data to the backend API
+      const response = await storeFolderFile(formData, config, id);
 
-        if (response.data.success) {
-            message.success('Tải tệp lên thành công!');
-            setUploadProgress(0); // Reset progress after success
-            fetchDocument();
-        } else {
-            message.error('Tải tệp lên thất bại!');
-        }
-    } catch (error) {
-        console.error('Error uploading files:', error);
+      if (response.data.success) {
+        message.success('Tải tệp lên thành công!');
+        setUploadProgress(0); // Reset progress after success
+        fetchDocument();
+      } else {
         message.error('Tải tệp lên thất bại!');
-        setUploadProgress(0); // Reset progress on error
+      }
+    } catch (error) {
+      console.error('Error uploading files:', error);
+      message.error('Tải tệp lên thất bại!');
+      setUploadProgress(0); // Reset progress on error
     }
-};
+  };
   const showRenameModal = (folder) => {
     setSelectedFolder(folder);
     setFolderName(folder.file_name);
@@ -160,7 +184,69 @@ function All() {
     setFolderName(fileNameWithoutExtension);
     setIsFileModalVisible(true);
   };
-
+  const showModalShareFile = async (file) => {
+    try {
+      const response = await showFileShare(file.id);
+      console.log('====================================');
+      console.log(response);
+      console.log('====================================');
+      setFileModalShare(true);
+      setFolderName(file.id);
+      setAllEmployee(response.employee);
+    } catch (error) {
+      console.error('Lỗi khi lấy danh sách nhân viên:', error);
+    }
+  };
+  const handleShareFile = async () => {
+    try {
+      // Lấy dữ liệu từ form
+      const formData = form.getFieldsValue();
+      const id = folderName; // ID của file
+      const { user_id, role } = formData; // user_id và role từ form
+      // Gửi yêu cầu chia sẻ file
+      const response = await shareFile(id, { user_id, role });
+      console.log('Response:', response);
+      if (response.success) {
+        message.success('Chia sẻ file thành công!');
+        setFileModalShare(false);
+        setFolderName('');
+      } else {
+        message.error('Chia sẻ file thất bại!');
+      }
+    } catch (error) {
+      message.error('Chia sẻ file thất bại!');
+    }
+  };
+  const showModalShareFolder = async (folder) => {
+    try {
+      const response = await showFolderShare(folder.id);
+      setFolderModalShare(true);
+      setFolderName(folder.id);
+      setAllEmployee(response.employee);
+    } catch (error) {
+      console.error('Lỗi khi lấy danh sách nhân viên:', error);
+    }
+  };
+  const handleShareFolder = async () => {
+    try {
+      // Lấy dữ liệu từ form
+      const formData = form.getFieldsValue();
+      const id = folderName; // ID của file
+      const { user_id, role } = formData; // user_id và role từ form
+      // Gửi yêu cầu chia sẻ file
+      const response = await shareFolder(id, { user_id, role });
+      console.log('Response:', response);
+      if (response.success) {
+        message.success('Chia sẻ file thành công!');
+        setFolderModalShare(false);
+        setFolderName('');
+      } else {
+        message.error('Chia sẻ file thất bại!');
+      }
+    } catch (error) {
+      message.error('Chia sẻ file thất bại!');
+    }
+  };
   const handleUpdateFileName = async () => {
     try {
       // Đảm bảo chỉ đổi tên file mà không làm mất phần đuôi
@@ -212,6 +298,39 @@ function All() {
     });
   };
 
+  const checkDownloadPermission = async (fileId) => {
+    try {
+      const response = await checkDownloadFile(fileId); // Gọi API kiểm tra quyền tải
+  
+      if (response.data.can_download) {
+        setCanDownload(true);
+        setFileUrl(response.data.file_url); // Cập nhật URL của file để tải xuống
+        message.success('Tải file thành công!');
+  
+        // Tạo một thẻ <a> ẩn để tải file về
+        const a = document.createElement('a');
+        a.href = response.data.file_url; // URL của file
+        a.download = response.data.file_name || '';  // Thêm tên file nếu muốn, ví dụ: a.download = 'file_example.jpg';
+        
+        // Thêm thẻ vào DOM để kích hoạt sự kiện tải về
+        document.body.appendChild(a);
+        
+        // Trigger sự kiện click để tải file
+        a.click();
+        
+        // Loại bỏ thẻ sau khi tải xong
+        document.body.removeChild(a);
+      } else {
+        setCanDownload(false);
+        message.error(response.data.message);
+      }
+    } catch (error) {
+      console.error('Error checking download permission:', error);
+      setCanDownload(false);
+      message.error('Tải file thất bại');
+    }
+  };
+
   // Nội dung Popover
   const content = (
     <div>
@@ -260,13 +379,13 @@ function All() {
         </a>
       </p>
       <p>
-        <a href="#">
+        <a href="#" onClick={() => showModalShareFolder(folder)}>
           <FaShareSquare /> Chia sẻ thư mục
         </a>
       </p>
       <hr />
       <p>
-        <a href="#">
+        <a href="#" onClick={() => handleDeleteFile(folder)}>
           <RiDeleteBin5Line />
           Chuyển vào thùng rác
         </a>
@@ -277,8 +396,16 @@ function All() {
   const option_file = (file) => (
     <div>
       <p>
-        <a href="#">
+        <a
+          onClick={async (e) => {
+            e.preventDefault(); // Ngăn hành động mặc định
+            await checkDownloadPermission(file.id); // Kiểm tra và tải file
+          }}
+        >
           <FaCloudDownloadAlt /> Tải xuống file
+          <a href={`http://127.0.0.1:8000/${file.file_storage_path}`} hidden className="abc">
+            a
+          </a>
         </a>
       </p>
       <hr />
@@ -288,7 +415,7 @@ function All() {
         </a>
       </p>
       <p>
-        <a href="#">
+        <a href="#" onClick={() => showModalShareFile(file)}>
           <FaShareSquare /> Chia sẻ file
         </a>
       </p>
@@ -322,6 +449,90 @@ function All() {
         return <FaFileAlt size={24} />;
     }
   };
+  const handleFileClick = (file) => {
+    setFolderName(file);
+    setDetailFileModel(true);
+  };
+  const renderFileContent = (file) => {
+    if (!file || !file.file_name || !file.file_storage_path) {
+      return <p>Không thể tải nội dung tệp.</p>;
+    }
+  
+    const baseUrl = LARAVEL_SERVER; // URL của server Laravel
+    const fullPath = `${baseUrl}${file.file_storage_path}`; // Đường dẫn đầy đủ tới file
+  
+    const fileExtension = file.file_name.includes('.')
+      ? file.file_name.split('.').pop().toLowerCase()
+      : '';
+  
+    if (['png', 'jpg', 'jpeg', 'gif'].includes(fileExtension)) {
+      // Hiển thị hình ảnh
+      return <img src={fullPath} alt={file.file_name} style={{ width: '100%' }} />;
+    }
+  
+    if (['pdf'].includes(fileExtension)) {
+      // Hiển thị PDF
+      return <iframe src={fullPath} title={file.file_name} style={{ width: '100%', height: '500px' }} />;
+    }
+  
+    if (['doc', 'docx', 'xls', 'xlsx'].includes(fileExtension)) {
+      // Hiển thị tệp Word/Excel qua Google Docs Viewer
+      return (
+        <iframe
+          src={`https://docs.google.com/gview?url=${fullPath}&embedded=true`}
+          title={file.file_name}
+          style={{ width: '100%', height: '500px' }}
+        />
+      );
+    }
+  
+    if (['txt', 'csv'].includes(fileExtension)) {
+      // Hiển thị tệp văn bản
+      return (
+        <iframe
+          src={fullPath}
+          title={file.file_name}
+          style={{ width: '100%', height: '500px' }}
+        />
+      );
+    }
+  
+    if (['mp4', 'webm', 'ogg'].includes(fileExtension)) {
+      return (
+        <video controls style={{ width: '100%' }}>
+          <source src={fullPath} type={`video/${fileExtension}`} />
+          <track
+            src="/path/to/captions.vtt"  // Path to your captions file (WebVTT format)
+            kind="subtitles"
+            srcLang="en"
+            label="English"
+          />
+          Trình duyệt của bạn không hỗ trợ phát video.
+        </video>
+      );
+    }
+  
+    if (['mp3', 'wav'].includes(fileExtension)) {
+      return (
+        <audio controls style={{ width: '100%' }}>
+          <source src={fullPath} type={`audio/${fileExtension}`} />
+          <track
+            src="/path/to/descriptions.vtt"  // Path to your description file (WebVTT format)
+            kind="descriptions"
+            srcLang="en"
+            label="English"
+          />
+          Trình duyệt của bạn không hỗ trợ phát âm thanh.
+        </audio>
+      );
+    }
+  
+    // Định dạng không được hỗ trợ
+    return <p>Không thể xem trước tệp này.</p>;
+  };
+  
+  
+  
 
   return (
     <div style={{ background: '#fff', borderRadius: '10px', padding: '20px' }}>
@@ -345,48 +556,49 @@ function All() {
       <div>
         <h4>Thư mục</h4>
       </div>
-      {
-        loading?<div className='spin'>
-          <Spin/>
-        </div>:
-      <Row gutter={24} style={{ marginTop: '30px' }}>
-    
-        {folders.length > 0 ? (
-          folders.map((folder, index) => (
-            <Col key={index} xxl={8} xl={12} lg={12} sm={12} xs={24}>
-              <div
-                style={{
-                  background: 'rgb(240,244,249)',
-                  padding: '20px',
-                  borderRadius: '10px',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: '20px',
-                  cursor: 'pointer',
-                }}
-              >
-              <NavLink to={`/admin/luu-tru/all/${folder.id}`}
-                  style={{ textDecoration: 'none', color: 'inherit', display:'flex', alignItems:'center'}} // Optional styling
+      {loading ? (
+        <div className="spin">
+          <Spin />
+        </div>
+      ) : (
+        <Row gutter={24} style={{ marginTop: '30px' }}>
+          {folders.length > 0 ? (
+            folders.map((folder, index) => (
+              <Col key={index} xxl={8} xl={12} lg={12} sm={12} xs={24}>
+                <div
+                  style={{
+                    background: 'rgb(240,244,249)',
+                    padding: '20px',
+                    borderRadius: '10px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '20px',
+                    cursor: 'pointer',
+                  }}
                 >
-                  <FaFolder style={{marginRight:'10px'}}/>
-                  <p style={{ marginBottom: '0', fontWeight: '500' }}>{folder.file_name}</p>
-              </NavLink>
-                <div>
-                  <Popover placement="bottomRight" content={option_folder(folder)} trigger="click">
-                    <a href="#">
-                      <FaEllipsisVertical />
-                    </a>
-                  </Popover>
+                  <NavLink
+                     to={`/admin/luu-tru/all/${folder.id}`}
+                    style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }} // Optional styling
+                  >
+                    <FaFolder style={{ marginRight: '10px' }} />
+                    <p style={{ marginBottom: '0', fontWeight: '500' }}>{folder.file_name}</p>
+                  </NavLink>
+                  <div>
+                    <Popover placement="bottomRight" content={option_folder(folder)} trigger="click">
+                      <a href="#">
+                        <FaEllipsisVertical />
+                      </a>
+                    </Popover>
+                  </div>
                 </div>
-              </div>
-            </Col>
-          ))
-        ) : (
-          <p>Chưa có thư mục nào</p>
-        )}
-      </Row>
-       }
+              </Col>
+            ))
+          ) : (
+            <p>Chưa có thư mục nào</p>
+          )}
+        </Row>
+      )}
       <div>
         <h4>Tệp</h4>
       </div>
@@ -407,8 +619,10 @@ function All() {
                   position: 'relative',
                   height: '150px',
                 }}
+               
               >
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}
+                 onClick={() => handleFileClick(file)}>
                   {getFileIcon(file.file_name)}
                   <p
                     style={{
@@ -471,8 +685,73 @@ function All() {
       >
         <Input value={folderName} onChange={(e) => setFolderName(e.target.value)} placeholder="Nhập tên File" />
       </Modal>
+      {/* -----------------------m---------model share file---------------------------------------- */}
+      <Modal title={'Chia sẻ File'} visible={fileModalShare} onCancel={handleCancel} onOk={handleShareFile}>
+        <Form form={form} layout="vertical">
+          <Form.Item
+            label="Thêm người chia sẻ"
+            name="user_id"
+            rules={[{ required: true, message: 'Vui lòng chọn người chia sẻ!' }]}
+          >
+            <Select mode="multiple" style={{ width: '100%' }} placeholder="Chọn người chia sẻ">
+              {allEmployee.map((employee) => (
+                <Option key={employee.id} value={employee.id}>
+                  {employee.name} {/* Thay 'name' bằng trường hiển thị của nhân viên */}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label="Quyền sử dụng"
+            name="role"
+            rules={[{ required: true, message: 'Vui lòng chọn quyền sử dụng!' }]}
+          >
+            <Checkbox.Group style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
+              <Checkbox checked value="0">
+                Chỉ xem
+              </Checkbox>
+              <Checkbox value="1">Chỉnh sửa</Checkbox>
+              <Checkbox value="2">Tải xuống</Checkbox>
+            </Checkbox.Group>
+          </Form.Item>
+        </Form>
+      </Modal>
+      {/* -----------------------m---------model share folder---------------------------------------- */}
+      <Modal title={'Chia sẻ thư mục'} visible={folderModalShare} onCancel={handleCancel} onOk={handleShareFolder}>
+        <Form form={form} layout="vertical">
+          <Form.Item
+            label="Thêm người chia sẻ"
+            name="user_id"
+            rules={[{ required: true, message: 'Vui lòng chọn người chia sẻ!' }]}
+          >
+            <Select mode="multiple" style={{ width: '100%' }} placeholder="Chọn người chia sẻ">
+              {allEmployee.map((employee) => (
+                <Option key={employee.id} value={employee.id}>
+                  {employee.name} {/* Thay 'name' bằng trường hiển thị của nhân viên */}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label="Quyền sử dụng"
+            name="role"
+            rules={[{ required: true, message: 'Vui lòng chọn quyền sử dụng!' }]}
+          >
+            <Select placeholder="Vui lòng chọn quyền sử dụng">
+              <Select.Option value="0">Chỉ xem</Select.Option>
+              <Select.Option value="1">Chỉnh sửa</Select.Option>
+              <Select.Option value="2">Tải xuống</Select.Option>
+            </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
+      <Modal visible={detailFileModel} title={folderName?.file_name} footer={null} onCancel={handleCancel} width={1000}>
+        {renderFileContent(folderName)}
+      </Modal>
     </div>
   );
 }
 
-export default All;
+export default folder_detail;

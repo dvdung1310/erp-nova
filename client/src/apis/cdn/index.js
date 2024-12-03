@@ -162,3 +162,73 @@ export const checkDownloadFile = async (id) => {
         throw error;
     }
 };
+export const showFileShare = async (id) => {
+    try {
+      const response = await axios.get(`${LARAVEL_SERVER}/api/show-file-share/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error Customer:', error.response ? error.response.data : error.message);
+      throw error;
+    }
+};
+export const shareFile = async (id, data) => {
+    try {
+      const response = await axios.post(`${LARAVEL_SERVER}/api/share-file/${id}`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Error Customer:', error.response ? error.response.data : error.message);
+      throw error;
+    }
+  };
+  export const showFolderShare = async (id) => {
+    try {
+      const response = await axios.get(`${LARAVEL_SERVER}/api/show-folder-share/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error Customer:', error.response ? error.response.data : error.message);
+      throw error;
+    }
+};
+export const shareFolder = async (id, data) => {
+    try {
+      const response = await axios.post(`${LARAVEL_SERVER}/api/share-folder/${id}`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Error Customer:', error.response ? error.response.data : error.message);
+      throw error;
+    }
+  };
+  export const myDocument = async (data) => {
+    try {
+        const response = await instanceAxios.get(
+            `${LARAVEL_SERVER}/api/my-document`,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
+        return response;
+    } catch (error) {
+        console.error('Error Customer:', error.response ? error.response.data : error.message);
+        throw error;
+    }
+};
+export const myDocumentShare = async (data) => {
+    try {
+        const response = await instanceAxios.get(
+            `${LARAVEL_SERVER}/api/document-share-me`,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
+        return response;
+    } catch (error) {
+        console.error('Error Customer:', error.response ? error.response.data : error.message);
+        throw error;
+    }
+};

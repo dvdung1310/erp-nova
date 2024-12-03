@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, NavLink, useRouteMatch } from 'react-router-dom';
-import { Row, Col, Popover, Button, Modal, Input, message, Progress, Spin } from 'antd'; // Import Modal và Input
+import { Row, Col, Popover, Button, Modal, Input, message, Progress, Spin, Form, Select, Checkbox } from 'antd'; // Import Modal và Input
 import FeatherIcon from 'feather-icons-react';
 import {
   FaFolderPlus,
@@ -25,12 +25,20 @@ import {
   renameFolder,
   deleteFile,
   checkDownloadFile,
+  showFileShare,
+  shareFile,
+  showFolderShare,
+  shareFolder,
 } from '../../../apis/cdn/index';
-
+const { Option, OptGroup } = Select;
+const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
 function All() {
   const { path } = useRouteMatch();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isFileModalVisible, setIsFileModalVisible] = useState(false);
+  const [fileModalShare, setFileModalShare] = useState(false);
+  const [folderModalShare, setFolderModalShare] = useState(false);
+  const [detailFileModel, setDetailFileModel] = useState(false);
   const [folders, setFolders] = useState([]);
   const [Files, setFile] = useState([]);
   const [folderName, setFolderName] = useState('');
@@ -40,7 +48,8 @@ function All() {
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [canDownload, setCanDownload] = useState(false);
   const [fileUrl, setFileUrl] = useState('');
-
+  const [form] = Form.useForm();
+  const [allEmployee, setAllEmployee] = useState([]);
   const fetchDocument = async () => {
     try {
       setLoading(true);
@@ -72,6 +81,9 @@ function All() {
   const handleCancel = () => {
     setIsModalVisible(false);
     setIsFileModalVisible(false);
+    setFileModalShare(false);
+    setFolderModalShare(false);
+    setDetailFileModel(false);
     setFolderName(''); // Reset tên folder
   };
 
@@ -169,7 +181,69 @@ function All() {
     setFolderName(fileNameWithoutExtension);
     setIsFileModalVisible(true);
   };
-
+  const showModalShareFile = async (file) => {
+    try {
+      const response = await showFileShare(file.id);
+      console.log('====================================');
+      console.log(response);
+      console.log('====================================');
+      setFileModalShare(true);
+      setFolderName(file.id);
+      setAllEmployee(response.employee);
+    } catch (error) {
+      console.error('Lỗi khi lấy danh sách nhân viên:', error);
+    }
+  };
+  const handleShareFile = async () => {
+    try {
+      // Lấy dữ liệu từ form
+      const formData = form.getFieldsValue();
+      const id = folderName; // ID của file
+      const { user_id, role } = formData; // user_id và role từ form
+      // Gửi yêu cầu chia sẻ file
+      const response = await shareFile(id, { user_id, role });
+      console.log('Response:', response);
+      if (response.success) {
+        message.success('Chia sẻ file thành công!');
+        setFileModalShare(false);
+        setFolderName('');
+      } else {
+        message.error('Chia sẻ file thất bại!');
+      }
+    } catch (error) {
+      message.error('Chia sẻ file thất bại!');
+    }
+  };
+  const showModalShareFolder = async (folder) => {
+    try {
+      const response = await showFolderShare(folder.id);
+      setFolderModalShare(true);
+      setFolderName(folder.id);
+      setAllEmployee(response.employee);
+    } catch (error) {
+      console.error('Lỗi khi lấy danh sách nhân viên:', error);
+    }
+  };
+  const handleShareFolder = async () => {
+    try {
+      // Lấy dữ liệu từ form
+      const formData = form.getFieldsValue();
+      const id = folderName; // ID của file
+      const { user_id, role } = formData; // user_id và role từ form
+      // Gửi yêu cầu chia sẻ file
+      const response = await shareFolder(id, { user_id, role });
+      console.log('Response:', response);
+      if (response.success) {
+        message.success('Chia sẻ file thành công!');
+        setFolderModalShare(false);
+        setFolderName('');
+      } else {
+        message.error('Chia sẻ file thất bại!');
+      }
+    } catch (error) {
+      message.error('Chia sẻ file thất bại!');
+    }
+  };
   const handleUpdateFileName = async () => {
     try {
       // Đảm bảo chỉ đổi tên file mà không làm mất phần đuôi
@@ -302,13 +376,13 @@ function All() {
         </a>
       </p>
       <p>
-        <a href="#">
+        <a href="#" onClick={() => showModalShareFolder(folder)}>
           <FaShareSquare /> Chia sẻ thư mục
         </a>
       </p>
       <hr />
       <p>
-        <a href="#">
+        <a href="#" onClick={() => handleDeleteFile(folder)}>
           <RiDeleteBin5Line />
           Chuyển vào thùng rác
         </a>
@@ -320,25 +394,17 @@ function All() {
     <div>
       <p>
         <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault(); // Ngừng hành động mặc định của thẻ <a>
-            checkDownloadPermission(file.id); // Kiểm tra quyền tải trước khi cho phép tải
+          onClick={async (e) => {
+            e.preventDefault(); // Ngăn hành động mặc định
+            await checkDownloadPermission(file.id); // Kiểm tra và tải file
           }}
         >
           <FaCloudDownloadAlt /> Tải xuống file
+          <a href={`http://127.0.0.1:8000/${file.file_storage_path}`} hidden className="abc">
+            a
+          </a>
         </a>
       </p>
-
-      {canDownload ? (
-        <p>
-          <a href={fileUrl} download>
-            Tải file ngay
-          </a>
-        </p>
-      ) : (
-        ''
-      )}
       <hr />
       <p>
         <a href="#" onClick={() => showRenameFileModal(file)}>
@@ -346,7 +412,7 @@ function All() {
         </a>
       </p>
       <p>
-        <a href="#">
+        <a href="#" onClick={() => showModalShareFile(file)}>
           <FaShareSquare /> Chia sẻ file
         </a>
       </p>
@@ -380,6 +446,90 @@ function All() {
         return <FaFileAlt size={24} />;
     }
   };
+  const handleFileClick = (file) => {
+    setFolderName(file);
+    setDetailFileModel(true);
+  };
+  const renderFileContent = (file) => {
+    if (!file || !file.file_name || !file.file_storage_path) {
+      return <p>Không thể tải nội dung tệp.</p>;
+    }
+  
+    const baseUrl = LARAVEL_SERVER; // URL của server Laravel
+    const fullPath = `${baseUrl}${file.file_storage_path}`; // Đường dẫn đầy đủ tới file
+  
+    const fileExtension = file.file_name.includes('.')
+      ? file.file_name.split('.').pop().toLowerCase()
+      : '';
+  
+    if (['png', 'jpg', 'jpeg', 'gif'].includes(fileExtension)) {
+      // Hiển thị hình ảnh
+      return <img src={fullPath} alt={file.file_name} style={{ width: '100%' }} />;
+    }
+  
+    if (['pdf'].includes(fileExtension)) {
+      // Hiển thị PDF
+      return <iframe src={fullPath} title={file.file_name} style={{ width: '100%', height: '500px' }} />;
+    }
+  
+    if (['doc', 'docx', 'xls', 'xlsx'].includes(fileExtension)) {
+      // Hiển thị tệp Word/Excel qua Google Docs Viewer
+      return (
+        <iframe
+          src={`https://docs.google.com/gview?url=${fullPath}&embedded=true`}
+          title={file.file_name}
+          style={{ width: '100%', height: '500px' }}
+        />
+      );
+    }
+  
+    if (['txt', 'csv'].includes(fileExtension)) {
+      // Hiển thị tệp văn bản
+      return (
+        <iframe
+          src={fullPath}
+          title={file.file_name}
+          style={{ width: '100%', height: '500px' }}
+        />
+      );
+    }
+  
+    if (['mp4', 'webm', 'ogg'].includes(fileExtension)) {
+      return (
+        <video controls style={{ width: '100%' }}>
+          <source src={fullPath} type={`video/${fileExtension}`} />
+          <track
+            src="/path/to/captions.vtt"  // Path to your captions file (WebVTT format)
+            kind="subtitles"
+            srcLang="en"
+            label="English"
+          />
+          Trình duyệt của bạn không hỗ trợ phát video.
+        </video>
+      );
+    }
+  
+    if (['mp3', 'wav'].includes(fileExtension)) {
+      return (
+        <audio controls style={{ width: '100%' }}>
+          <source src={fullPath} type={`audio/${fileExtension}`} />
+          <track
+            src="/path/to/descriptions.vtt"  // Path to your description file (WebVTT format)
+            kind="descriptions"
+            srcLang="en"
+            label="English"
+          />
+          Trình duyệt của bạn không hỗ trợ phát âm thanh.
+        </audio>
+      );
+    }
+  
+    // Định dạng không được hỗ trợ
+    return <p>Không thể xem trước tệp này.</p>;
+  };
+  
+  
+  
 
   return (
     <div style={{ background: '#fff', borderRadius: '10px', padding: '20px' }}>
@@ -466,8 +616,10 @@ function All() {
                   position: 'relative',
                   height: '150px',
                 }}
+               
               >
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}
+                 onClick={() => handleFileClick(file)}>
                   {getFileIcon(file.file_name)}
                   <p
                     style={{
@@ -529,6 +681,71 @@ function All() {
         onOk={handleUpdateFileName} // Khi nhấn "OK", gọi hàm lưu
       >
         <Input value={folderName} onChange={(e) => setFolderName(e.target.value)} placeholder="Nhập tên File" />
+      </Modal>
+      {/* -----------------------m---------model share file---------------------------------------- */}
+      <Modal title={'Chia sẻ File'} visible={fileModalShare} onCancel={handleCancel} onOk={handleShareFile}>
+        <Form form={form} layout="vertical">
+          <Form.Item
+            label="Thêm người chia sẻ"
+            name="user_id"
+            rules={[{ required: true, message: 'Vui lòng chọn người chia sẻ!' }]}
+          >
+            <Select mode="multiple" style={{ width: '100%' }} placeholder="Chọn người chia sẻ">
+              {allEmployee.map((employee) => (
+                <Option key={employee.id} value={employee.id}>
+                  {employee.name} {/* Thay 'name' bằng trường hiển thị của nhân viên */}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label="Quyền sử dụng"
+            name="role"
+            rules={[{ required: true, message: 'Vui lòng chọn quyền sử dụng!' }]}
+          >
+            <Checkbox.Group style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
+              <Checkbox checked value="0">
+                Chỉ xem
+              </Checkbox>
+              <Checkbox value="1">Chỉnh sửa</Checkbox>
+              <Checkbox value="2">Tải xuống</Checkbox>
+            </Checkbox.Group>
+          </Form.Item>
+        </Form>
+      </Modal>
+      {/* -----------------------m---------model share folder---------------------------------------- */}
+      <Modal title={'Chia sẻ thư mục'} visible={folderModalShare} onCancel={handleCancel} onOk={handleShareFolder}>
+        <Form form={form} layout="vertical">
+          <Form.Item
+            label="Thêm người chia sẻ"
+            name="user_id"
+            rules={[{ required: true, message: 'Vui lòng chọn người chia sẻ!' }]}
+          >
+            <Select mode="multiple" style={{ width: '100%' }} placeholder="Chọn người chia sẻ">
+              {allEmployee.map((employee) => (
+                <Option key={employee.id} value={employee.id}>
+                  {employee.name} {/* Thay 'name' bằng trường hiển thị của nhân viên */}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label="Quyền sử dụng"
+            name="role"
+            rules={[{ required: true, message: 'Vui lòng chọn quyền sử dụng!' }]}
+          >
+            <Select placeholder="Vui lòng chọn quyền sử dụng">
+              <Select.Option value="0">Chỉ xem</Select.Option>
+              <Select.Option value="1">Chỉnh sửa</Select.Option>
+              <Select.Option value="2">Tải xuống</Select.Option>
+            </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
+      <Modal visible={detailFileModel} title={folderName?.file_name} footer={null} onCancel={handleCancel} width={1000}>
+        {renderFileContent(folderName)}
       </Modal>
     </div>
   );

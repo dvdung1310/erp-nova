@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, NavLink, useRouteMatch } from 'react-router-dom';
+import { Link, useNavigate, NavLink, useRouteMatch,useParams} from 'react-router-dom';
 import { Row, Col, Popover, Button, Modal, Input, message, Progress, Spin, Form, Select, Checkbox } from 'antd'; // Import Modal và Input
 import FeatherIcon from 'feather-icons-react';
 import {
@@ -19,9 +19,9 @@ import { FaEllipsisVertical } from 'react-icons/fa6';
 import { RiFolderUploadFill, RiDeleteBin5Line } from 'react-icons/ri';
 import { MdDriveFileRenameOutline } from 'react-icons/md';
 import {
-  myDocumentShare,
-  storeFolder,
-  storeFile,
+  allDocument,
+  storeFolderChild, 
+  storeFolderFile,
   renameFolder,
   deleteFile,
   checkDownloadFile,
@@ -29,10 +29,11 @@ import {
   shareFile,
   showFolderShare,
   shareFolder,
+  showFolder
 } from '../../../apis/cdn/index';
 const { Option, OptGroup } = Select;
 const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
-function All() {
+function folder_mydocument() {
   const { path } = useRouteMatch();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isFileModalVisible, setIsFileModalVisible] = useState(false);
@@ -50,10 +51,14 @@ function All() {
   const [fileUrl, setFileUrl] = useState('');
   const [form] = Form.useForm();
   const [allEmployee, setAllEmployee] = useState([]);
+  const { id } = useParams();
   const fetchDocument = async () => {
     try {
       setLoading(true);
-      const response = await myDocumentShare();
+      console.log('====================================');
+      console.log(path);
+      console.log('====================================');
+      const response = await showFolder(id);
       setFolders(response.data.document_folder || []);
       setFile(response.data.document_file || []);
       setLoading(false);
@@ -62,11 +67,9 @@ function All() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchDocument();
-  }, []);
-
+  }, [id]);
   // Hiển thị modal
   const showModalCreateFolder = () => {
     setIsModalVisible(true);
@@ -96,7 +99,7 @@ function All() {
 
     try {
       setLoading(true);
-      const response = await storeFolder({ file_name: folderName });
+      const response = await storeFolderChild({ file_name: folderName ,id});
       if (response.data.success === true) {
         message.success(`Tạo Folder thành công!`);
         setIsModalVisible(false);
@@ -140,7 +143,7 @@ function All() {
       const fileArray = Array.from(files);
       const formData = new FormData();
       fileArray.forEach((file) => {
-        formData.append('files[]', file);
+        formData.append('files[]', file); // Append files to FormData
       });
 
       // Create a config object to monitor the upload progress
@@ -152,7 +155,7 @@ function All() {
       };
 
       // Send file data to the backend API
-      const response = await storeFile(formData, config);
+      const response = await storeFolderFile(formData, config, id);
 
       if (response.data.success) {
         message.success('Tải tệp lên thành công!');
@@ -533,7 +536,23 @@ function All() {
 
   return (
     <div style={{ background: '#fff', borderRadius: '10px', padding: '20px' }}>
-     
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '20px',
+        }}
+      >
+        <h3 style={{ margin: 0 }}> </h3>
+        <Popover placement="bottomRight" content={content} trigger="click">
+          <Button size="small" type="primary">
+            <FeatherIcon icon="plus" size={14} />
+            Tùy chọn
+          </Button>
+        </Popover>
+      </div>
+      <hr />
       <div>
         <h4>Thư mục</h4>
       </div>
@@ -559,7 +578,7 @@ function All() {
                   }}
                 >
                   <NavLink
-                    to={`${path}/${folder.id}`}
+                     to={`/admin/luu-tru/tai-lieu-cua-toi/${folder.id}`}
                     style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }} // Optional styling
                   >
                     <FaFolder style={{ marginRight: '10px' }} />
@@ -735,4 +754,4 @@ function All() {
   );
 }
 
-export default All;
+export default folder_mydocument;

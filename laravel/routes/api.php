@@ -214,6 +214,14 @@ Route::group(['middleware' => 'api'], function () {
     Route::get('/show-folder/{id}',[DocumentController::class,'show_folder'])->middleware(middlewareLogin::class); 
     Route::post('/store-folder-child/{id}',[DocumentController::class,'store_folder_child'])->middleware(middlewareLogin::class); 
     Route::get('/check-download-file/{id}',[DocumentController::class,'check_download_file'])->middleware(middlewareLogin::class); 
+    Route::get('/show-file-share/{id}',[DocumentController::class,'show_file_share']); 
+    Route::get('/show-folder-share/{id}',[DocumentController::class,'show_folder_share']); 
+    Route::post('/share-file/{id}',[DocumentController::class,'share_file']); 
+    Route::post('/share-folder/{id}',[DocumentController::class,'share_folder']); 
+    //Tài liệu của tôi
+    Route::get('/my-document',[DocumentController::class,'my_document'])->middleware(middlewareLogin::class); 
+    Route::get('/document-share-me',[DocumentController::class,'document_share_me'])->middleware(middlewareLogin::class); 
+
 });
 //groups
 Route::prefix('groups')->group(function () {

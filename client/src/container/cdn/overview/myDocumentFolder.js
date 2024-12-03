@@ -19,7 +19,7 @@ import { FaEllipsisVertical } from 'react-icons/fa6';
 import { RiFolderUploadFill, RiDeleteBin5Line } from 'react-icons/ri';
 import { MdDriveFileRenameOutline } from 'react-icons/md';
 import {
-  myDocumentShare,
+  myDocument,
   storeFolder,
   storeFile,
   renameFolder,
@@ -32,7 +32,7 @@ import {
 } from '../../../apis/cdn/index';
 const { Option, OptGroup } = Select;
 const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
-function All() {
+function myDocumentFolder() {
   const { path } = useRouteMatch();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isFileModalVisible, setIsFileModalVisible] = useState(false);
@@ -53,7 +53,7 @@ function All() {
   const fetchDocument = async () => {
     try {
       setLoading(true);
-      const response = await myDocumentShare();
+      const response = await myDocument();
       setFolders(response.data.document_folder || []);
       setFile(response.data.document_file || []);
       setLoading(false);
@@ -533,7 +533,23 @@ function All() {
 
   return (
     <div style={{ background: '#fff', borderRadius: '10px', padding: '20px' }}>
-     
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '20px',
+        }}
+      >
+        <h3 style={{ margin: 0 }}>Gần đây</h3>
+        <Popover placement="bottomRight" content={content} trigger="click">
+          <Button size="small" type="primary">
+            <FeatherIcon icon="plus" size={14} />
+            Tùy chọn
+          </Button>
+        </Popover>
+      </div>
+      <hr />
       <div>
         <h4>Thư mục</h4>
       </div>
@@ -735,4 +751,4 @@ function All() {
   );
 }
 
-export default All;
+export default myDocumentFolder;

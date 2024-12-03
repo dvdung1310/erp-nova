@@ -8,7 +8,6 @@ function WorkRouter() {
     return (
         <Switch>
             <Route  path={`${path}`} component={dashboaed}/>
-        
         </Switch>
     );
 }

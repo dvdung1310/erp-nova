@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Api\Cdn;
 
 use App\Http\Controllers\Controller;
 use App\Models\CdnFileModel;
+use App\Models\CdnFilePermissionModel;
+use App\Models\CdnFileShareModel;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -18,6 +21,53 @@ class DocumentController extends Controller
             $user_id = auth()->user()->id;
             $document_folder = CdnFileModel::where('is_folder', 1)->where('is_deleted', 0)->where('parent_id', null)->orderBy('id', 'desc')->get();
             $document_file = CdnFileModel::where('is_folder', 0)->where('is_deleted', 0)->where('parent_id', null)->orderBy('id', 'desc')->get();
+            return response()->json([
+                'success' => true,
+                'message' => 'Tạo thư mục thành công',
+                'document_folder' => $document_folder,
+                'document_file' => $document_file,
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tạo thư mục thất bại',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function my_document(){
+        try {
+            $user_id = auth()->user()->id;
+            $document_folder = CdnFileModel::where('is_folder', 1)->where('is_deleted', 0)->where('parent_id', null)->where('created_by',$user_id)->orderBy('id', 'desc')->get();
+            $document_file = CdnFileModel::where('is_folder', 0)->where('is_deleted', 0)->where('parent_id', null)->where('created_by',$user_id)->orderBy('id', 'desc')->get();
+            return response()->json([
+                'success' => true,
+                'message' => 'Tạo thư mục thành công',
+                'document_folder' => $document_folder,
+                'document_file' => $document_file,
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tạo thư mục thất bại',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function document_share_me(){
+        try {
+            $user_id = auth()->user()->id;
+            $document_folder = CdnFileModel::join('cdn_file_permissions','cdn_file.id','=','cdn_file_permissions.file_id')
+            ->select('cdn_file.*','cdn_file_permissions.user_id','cdn_file_permissions.permission')
+            ->where('is_folder', 1)->where('is_deleted', 0)->where('parent_id', null)
+            ->where('created_by',$user_id)->orderBy('id', 'desc')
+            ->where('cdn_file_permissions.user_id',$user_id)
+            ->get();
+            $document_file = CdnFileModel::join('cdn_file_share','cdn_file.id','=','cdn_file_share.file_id')
+            ->select('cdn_file.*','cdn_file_share.user_id','cdn_file_share.can_edit','cdn_file_share.can_download')
+            ->where('is_folder', 0)->where('is_deleted', 0)
+            ->where('parent_id', null)->where('created_by',$user_id)->orderBy('id', 'desc')
+            ->where('cdn_file_share.user_id',$user_id)->get();
             return response()->json([
                 'success' => true,
                 'message' => 'Tạo thư mục thành công',
@@ -89,6 +139,63 @@ class DocumentController extends Controller
                 'message' => 'Bạn không có quyền tải file này.',
                 'error' => $e->getMessage(),
             ], 403); // Trả về lỗi nếu không thỏa mãn điều kiện
+        }
+    }
+
+    public function show_file_share($id)
+    {
+        try {
+            $file = CdnFileShareModel::where('file_id', $id)->get();
+            $data = User::all();
+            return response()->json([
+                'success' => true,
+                'message' => 'Danh sách nhân viên',
+                'data' => $file,
+                'employee' => $data,
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function share_file(Request $request, $id)
+    {
+        try {
+            // Lấy dữ liệu từ request
+            $user_ids = $request->user_id;
+            $roles = $request->role;
+
+            // Kiểm tra dữ liệu
+            if (!$user_ids || !$roles) {
+                return response()->json(['error' => 'Thiếu dữ liệu user_id hoặc role'], 400);
+            }
+
+            // Duyệt qua từng user_id
+            foreach ($user_ids as $user_id) {
+                // Tạo một bản ghi mới cho mỗi user_id
+                $data = new CdnFileShareModel();
+                $data->file_id = $id;
+                $data->user_id = $user_id;
+
+                // Gán quyền dựa trên role
+                $data->can_edit = in_array("1", $roles); // Quyền chỉnh sửa
+                $data->can_download = in_array("2", $roles); // Quyền tải xuống
+
+                // Lưu bản ghi vào cơ sở dữ liệu
+                $data->save();
+            }
+            return response()->json([
+                'success' => true,
+                'message' => 'Tạo thư mục thành công',
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tạo thư mục thất bại',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 
@@ -166,7 +273,7 @@ class DocumentController extends Controller
 
             // Xác thực file được tải lên
             $request->validate([
-                'files.*' => 'required|file|mimes:jpg,png,pdf,docx,txt,xls,xlsx|max:10240', // Thêm xls, xlsx vào mimes
+                'files.*' => 'required|file|max:10240', // Không giới hạn loại tệp nào
             ]);
 
             // Mảng để lưu thông tin các tệp đã tải lên
@@ -220,7 +327,7 @@ class DocumentController extends Controller
 
             // Kiểm tra và validate
             $request->validate([
-                'files.*' => 'required|file|mimes:jpg,png,pdf,docx,txt,xls,xlsx|max:10240',
+                'files.*' => 'required|file|max:10240', // Không giới hạn loại tệp nào
             ]);
 
             if (!$request->hasFile('files')) {
@@ -328,6 +435,57 @@ class DocumentController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Xóa file tạm thời thất bại! ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function show_folder_share($id)
+    {
+        try {
+            $file = CdnFilePermissionModel::where('file_id', $id)->get();
+            $data = User::all();
+            return response()->json([
+                'success' => true,
+                'message' => 'Danh sách nhân viên',
+                'data' => $file,
+                'employee' => $data,
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function share_folder(Request $request, $id)
+    {
+        try {
+            // Lấy dữ liệu từ request
+            $user_ids = $request->user_id;
+            $roles = $request->role;
+
+            // Kiểm tra dữ liệu
+            if (!$user_ids || !$roles) {
+                return response()->json(['error' => 'Thiếu dữ liệu user_id hoặc role'], 400);
+            }
+
+            // Duyệt qua từng user_id
+            foreach ($user_ids as $user_id) {
+                // Tạo một bản ghi mới cho mỗi user_id
+                $data = new CdnFilePermissionModel();
+                $data->file_id = $id;
+                $data->user_id = $user_id;
+                $data->permission = $roles;
+                $data->save();
+            }
+            return response()->json([
+                'success' => true,
+                'message' => 'Tạo thư mục thành công',
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tạo thư mục thất bại',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
