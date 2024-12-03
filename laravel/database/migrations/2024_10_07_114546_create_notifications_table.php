@@ -19,6 +19,9 @@ return new class extends Migration {
             $table->tinyInteger('notification_status')->default(0); // 0 = unread, 1 = read
             $table->text('notification_title');
             $table->text('notification_link');
+            $table->text('notification_content');
+            $table->string('notification_type');
+            $table->string('notification_file')->nullable();
             $table->timestamps();
         });
     }

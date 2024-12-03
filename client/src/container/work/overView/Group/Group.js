@@ -24,6 +24,7 @@ const Group = () => {
                 getGroupByParentId(id),
                 getAllUsers()
             ]);
+            console.log(groups)
             setListGroup(groups?.data);
             setCurrentGroup(groups?.data?.currentGroup)
             setListUser(users?.data);

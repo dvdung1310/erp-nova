@@ -14,7 +14,7 @@ import {
     Spin,
     Radio,
     List,
-    Badge
+    Badge, Select, InputNumber
 } from 'antd';
 import {useSelector} from 'react-redux';
 import {Link, useHistory, useLocation} from 'react-router-dom';
@@ -26,23 +26,25 @@ import {Dropdown} from '../../../../../components/dropdown/dropdown';
 import moment from "moment";
 import Avatar from "../../../../../components/Avatar/Avatar";
 import {checkRole, checkStatus} from "../../../../../utility/checkValue";
-import {MdDelete, MdEdit, MdGroups, MdOutlineDateRange} from "react-icons/md";
+import {MdContentCopy, MdDelete, MdEdit, MdGroups, MdOutlineDateRange, MdOutlineSettings} from "react-icons/md";
 import {GrInProgress} from "react-icons/gr";
 import {Modal} from "../../../../../components/modals/antd-modals";
 import {BasicFormWrapper} from "../../../../styled";
 import {
     deleteProject, joinProject,
     updateEndDateProject, updateLeaderProject, updateMemberProject,
-    updateNameProject,
+    updateNameProject, updateNotifyBeforeEndTimeProject,
     updateStartDateProject, updateStatusProject
 } from "../../../../../apis/work/project";
 import {toast} from "react-toastify";
 import {FaUserTie} from "react-icons/fa";
+import CopyProject from "./CopyProject";
+import {IoEnterOutline} from "react-icons/io5";
 
 const dateFormat = 'MM/DD/YYYY';
 
 // eslint-disable-next-line react/prop-types
-function ProjectLists({listProject, listUser = []}) {
+function ProjectLists({listProject, listUser = [], isHome}) {
     const [listUserData, setListUser] = useState(listUser);
     const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
     const [form] = Form.useForm();
@@ -56,6 +58,7 @@ function ProjectLists({listProject, listUser = []}) {
     });
     const [selectedProject, setSelectedProject] = useState(null);
     const [loadingUpdate, setLoadingUpdate] = useState(false);
+    const [notifyBeforeEndTime, setNotifyBeforeEndTime] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     //
     const [showModalUpdateLeader, setShowModalUpdateLeader] = useState(false);
@@ -106,6 +109,16 @@ function ProjectLists({listProject, listUser = []}) {
     const [selectedMembers, setSelectedMembers] = useState([]);
     const [selectedLeader, setSelectedLeader] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
+    //
+    const [showModalCopy, setShowModalCopy] = useState(false);
+    const [showModalSetting, setShowModalSetting] = useState(false);
+    const handleShowModalSetting = () => {
+        setShowModalSetting(true);
+    }
+
+    const handleShowModalCopy = () => {
+        setShowModalCopy(true);
+    }
 
     const handleSearchChange = (e) => setSearchTerm(e.target.value);
 
@@ -138,6 +151,8 @@ function ProjectLists({listProject, listUser = []}) {
         setShowModalUpdateEndDate(false);
         setShowModalConfirm(false);
         setShowModalUpdateLeader(false);
+        setShowModalCopy(false);
+        setShowModalSetting(false);
     }
     //
     const {projects} = state;
@@ -206,6 +221,15 @@ function ProjectLists({listProject, listUser = []}) {
                     id: value?.leader_id,
                 });
                 handleShowModalUpdateLeader();
+                break;
+            case 'copy':
+                setSelectedProject(value);
+                handleShowModalCopy();
+                break;
+            case 'setting':
+                setSelectedProject(value);
+                setNotifyBeforeEndTime(value?.notify_before_end_time);
+                handleShowModalSetting();
                 break;
             default:
                 break;
@@ -532,7 +556,45 @@ function ProjectLists({listProject, listUser = []}) {
             console.log(e);
         }
     }
+    const handleUpdateRemind = async () => {
+        try {
+            setLoadingUpdate(true);
+            const payload = {
+                notify_before_end_time: notifyBeforeEndTime,
+                pathname
+            }
+            const res = await updateNotifyBeforeEndTimeProject(payload, selectedProject?.project_id);
+            if (res.error) {
+                toast.error(res?.message, {
+                    position: "top-right",
+                    autoClose: 1000,
+                })
+                setLoadingUpdate(false);
+                return;
+            }
+            toast.success('Cập nhật nhắc nhở dự án thành công', {
+                position: "top-right",
+                autoClose: 1000,
+            });
+            form.resetFields();
+            handleCancel();
+            history.push(pathname, {
+                key: 'updateProject',
+                data: res?.data
+            });
 
+            setLoadingUpdate(false);
+
+        } catch (e) {
+            console.log(e)
+            toast.error('Đã có lỗi xảy ra', {
+                autoClose: 1000,
+                position: 'top-right'
+            })
+        }
+        console.log(selectedProject)
+        console.log(notifyBeforeEndTime)
+    }
     //
     const dataSource = [];
     if (projects?.length)
@@ -542,6 +604,7 @@ function ProjectLists({listProject, listUser = []}) {
                 project_id,
                 project_name,
                 project_status,
+                group_id,
                 project_members,
                 leader,
                 success,
@@ -650,50 +713,79 @@ function ProjectLists({listProject, listUser = []}) {
                     </div>
                 ),
                 action: (
-                    <Dropdown
-                        className="wide-dropdwon"
-                        action='click'
-                        content={
-                            <div className='popover-content'>
-                                <div className='action-item' onClick={() => handleEditClick('name', value)}>
-                                    <MdEdit size={30} className='d-block ms-1 fs-4 text-secondary'/>
-                                    <span>Sửa tên, mô tả</span>
+                    <>
+                        {!isHome && (
+                            <Dropdown
+                                className="wide-dropdwon"
+                                action='click'
+                                content={
+                                    <div className='popover-content'>
+                                        <div className='action-item' onClick={() => handleEditClick('name', value)}>
+                                            <MdEdit size={30} className='d-block ms-1 fs-4 text-secondary'/>
+                                            <span>Sửa tên, mô tả</span>
+                                        </div>
+                                        <div className='action-item'
+                                             onClick={() => handleEditClick('status', value)}>
+                                            <GrInProgress size={30} className='d-block ms-1 fs-4 text-secondary'/>
+                                            <span>Cập nhật trạng thái</span>
+                                        </div>
+                                        <div className='action-item' onClick={() => handleEditClick('members', value)}>
+                                            <MdGroups size={30} className='d-block ms-1 fs-4 text-secondary'/>
+                                            <span>Thành viên</span>
+                                        </div>
+                                        <div className='action-item' onClick={() => handleEditClick('leader', value)}>
+                                            <FaUserTie size={30} className='d-block ms-1 fs-4 text-secondary'/>
+                                            <span>Người phụ trách</span>
+                                        </div>
+                                        <div className='action-item'
+                                             onClick={() => handleEditClick('start_date', value)}>
+                                            <MdOutlineDateRange size={30} className='d-block ms-1 fs-4 text-secondary'/>
+                                            <span>Sửa ngày bắt đầu</span>
+                                        </div>
+                                        <div className='action-item'
+                                             onClick={() => handleEditClick('end_date', value)}>
+                                            <MdOutlineDateRange size={30}
+                                                                className='d-block ms-1 fs-4 text-secondary'/>
+                                            <span>Sửa ngày kết thúc</span>
+                                        </div>
+                                        <div className='action-item'
+                                             onClick={() => handleEditClick('copy', value)}>
+                                            <MdContentCopy size={30}
+                                                           className='d-block ms-1 fs-4 text-secondary'/>
+                                            <span>Sao chép dự án</span>
+                                        </div>
+                                        <div className='action-item'
+                                             onClick={() => handleEditClick('setting', value)}>
+                                            <MdOutlineSettings size={30}
+                                                               className='d-block ms-1 fs-4 text-secondary'/>
+                                            <span>Cài đặt nhắc nhở</span>
+                                        </div>
+                                        <div className='action-item' onClick={() => handleEditClick('delete', value)}>
+                                            <MdDelete color='red' size={30} className='icon-delete'/>
+                                            <span>Xóa dự án</span>
+                                        </div>
+                                    </div>
+                                }
+                            >
+                                <div role='button' style={{cursor: 'pointer'}}>
+                                    <FeatherIcon icon="more-horizontal" size={18}/>
                                 </div>
-                                <div className='action-item'
-                                     onClick={() => handleEditClick('status', value)}>
-                                    <GrInProgress size={30} className='d-block ms-1 fs-4 text-secondary'/>
-                                    <span>Cập nhật trạng thái</span>
+                            </Dropdown>
+                        )}
+                        {
+                            isHome && (
+                                <div className='btn p-1' title='Xem dự án'
+                                     style={{cursor: 'pointer'}}
+                                     onClick={() => {
+                                         history.push(`/admin/lam-viec/nhom-lam-viec/${group_id}`)
+                                     }}
+                                >
+                                    <IoEnterOutline color='gray' size={30}/>
                                 </div>
-                                <div className='action-item' onClick={() => handleEditClick('members', value)}>
-                                    <MdGroups size={30} className='d-block ms-1 fs-4 text-secondary'/>
-                                    <span>Thành viên</span>
-                                </div>
-                                <div className='action-item' onClick={() => handleEditClick('leader', value)}>
-                                    <FaUserTie size={30} className='d-block ms-1 fs-4 text-secondary'/>
-                                    <span>Người phụ trách</span>
-                                </div>
-                                <div className='action-item'
-                                     onClick={() => handleEditClick('start_date', value)}>
-                                    <MdOutlineDateRange size={30} className='d-block ms-1 fs-4 text-secondary'/>
-                                    <span>Sửa ngày bắt đầu</span>
-                                </div>
-                                <div className='action-item'
-                                     onClick={() => handleEditClick('end_date', value)}>
-                                    <MdOutlineDateRange size={30}
-                                                        className='d-block ms-1 fs-4 text-secondary'/>
-                                    <span>Sửa ngày kết thúc</span>
-                                </div>
-                                <div className='action-item' onClick={() => handleEditClick('delete', value)}>
-                                    <MdDelete color='red' size={30} className='icon-delete'/>
-                                    <span>Xóa dự án</span>
-                                </div>
-                            </div>
+                            )
                         }
-                    >
-                        <div role='button' style={{cursor: 'pointer'}}>
-                            <FeatherIcon icon="more-horizontal" size={18}/>
-                        </div>
-                    </Dropdown>
+                    </>
+
                 ),
             });
         });
@@ -1170,6 +1262,37 @@ function ProjectLists({listProject, listUser = []}) {
                     </BasicFormWrapper>
                 </div>
             </Modal>
+            {
+                selectedProject &&
+                <CopyProject visible={showModalCopy} onCancel={handleCancel} project={selectedProject}/>
+            }
+            {/*    modal update notification before end time*/}
+            <Modal
+                visible={showModalSetting}
+                onCancel={handleCancel}
+                centered
+                title="Cài đặt nhắc nhở dự án"
+                footer={[
+                    <Button key="cancel" onClick={handleCancel}>
+                        Đóng
+                    </Button>,
+                    <Button key="submit" type="primary" onClick={handleUpdateRemind}>
+                        Hoàn thành
+                    </Button>,
+                ]}
+            >
+                <div>
+                    <label style={{marginBottom: '10px', display: 'block'}}>Thời gian nhắc nhở (giờ) <span
+                        style={{color: 'red'}}>*</span></label>
+                    < InputNumber style={{width: '100%'}} min={0} value={notifyBeforeEndTime}
+                                  defaultValue={notifyBeforeEndTime}
+                                  onChange={(value) => setNotifyBeforeEndTime(value)}/>
+                </div>
+
+
+            </Modal>
+
+
         </Row>
     );
 }

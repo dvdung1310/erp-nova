@@ -110,6 +110,7 @@ const ListPropose = () => {
       formData.append('description', values.description);
       formData.append('file', selectedFile);
       formData.append('members', JSON.stringify(members));
+      formData.append('pathname', '/admin/de-xuat/leader-xac-nhan-de-xuat')
       const response = await storeProposal(formData);
       toast.success(response.message);
       fetchProposals();

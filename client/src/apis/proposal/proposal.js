@@ -2,13 +2,14 @@ import {getToken} from "../../utility/localStorageControl";
 
 const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
 import {createAxios} from "../../utility/createAxios";
+
 const instanceAxios = createAxios();
 const token = getToken();
 export const storeProposal = async (formData) => {
     try {
-        const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/proposal/store`,  formData , {
+        const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/proposal/store`, formData, {
             headers: {
-               'Content-Type': 'multipart/form-data',
+                'Content-Type': 'multipart/form-data',
                 Authorization: `Bearer ${token}`,
             },
         });
@@ -21,9 +22,9 @@ export const storeProposal = async (formData) => {
 
 export const updateProposal = async (formData) => {
     try {
-        const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/proposal/update`,  formData , {
+        const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/proposal/update`, formData, {
             headers: {
-               'Content-Type': 'multipart/form-data',
+                'Content-Type': 'multipart/form-data',
                 Authorization: `Bearer ${token}`,
             },
         });
@@ -96,9 +97,10 @@ export const CheckProposalByListUser = async () => {
     }
 };
 
-export const updateStatus = async (id,status) => {
+export const updateStatus = async (id, status) => {
     try {
-        const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/proposal/update_status/${id}/${status}`, {
+        const token = getToken();
+        const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/proposal/update_status/${id}/${status}`, {}, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`,

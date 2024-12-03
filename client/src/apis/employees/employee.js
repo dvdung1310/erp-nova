@@ -187,7 +187,7 @@ export const updatEployeeLogin = async (formData) => {
 export const updateEmployeeAvatar = async (formData) => {
     try {
         const token = getToken();
-        const response = await axios.post(`${LARAVEL_SERVER}/api/updateEmployeeAvatar/?_method=PUT`, formData, {
+        const response = await axios.post(`${LARAVEL_SERVER}/api/updateEmployeeAvatar`, formData, {
             headers: {'Content-Type': 'multipart/form-data', 'Authorization': `Bearer ${token}`},
         });
         return response.data;

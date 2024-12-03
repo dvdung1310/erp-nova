@@ -7,6 +7,8 @@ import propTypes from 'prop-types';
 import { NavTitle } from './style';
 import versions from '../demoData/changelog.json';
 import { getGroupByUserId } from '../apis/work/group';
+import { FaPeopleArrows } from 'react-icons/fa';
+import { FaUsersLine } from 'react-icons/fa6';
 
 const { SubMenu } = Menu;
 
@@ -105,41 +107,6 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
           </NavLink>
         </Menu.Item>
       </SubMenu>
-      {/* novaup */}
-      <SubMenu key="novaup" icon={!topMenu && <FeatherIcon icon="map-pin" />} title="Novaup">
-        <Menu.Item key="nvu-customer">
-          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/khach-hang`}>
-            Khách hàng
-          </NavLink>
-        </Menu.Item>
-        <Menu.Item key="nvu-status">
-          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/trang-thai`}>
-            Trạng thái khách hàng
-          </NavLink>
-        </Menu.Item>
-
-        <Menu.Item key="nvu-source">
-          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/nguon-khach-hang`}>
-            Nguồn khách hàng
-          </NavLink>
-        </Menu.Item>
-        <Menu.Item key="nvu-revenue">
-          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/doanh-thu`}>
-            Doanh thu
-          </NavLink>
-        </Menu.Item>
-        <Menu.Item key="nvu-room">
-          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/phong`}>
-            Phòng
-          </NavLink>
-        </Menu.Item>
-        <Menu.Item key="nvu-boking">
-          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/dat-phong/month`}>
-            Đặt phòng
-          </NavLink>
-        </Menu.Item>
-      </SubMenu>
-      {/* end novaup   */}
 
       {/*home*/}
       <Menu.Item key="home" icon={<FeatherIcon icon="home" />}>
@@ -275,6 +242,45 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
             </Menu.Item>
           ))}
       </SubMenu>
+      <Menu.Item key="cdn" icon={<FeatherIcon icon="home" />}>
+        <NavLink to={`${path}/luu-tru/all`}>Lưu trữ</NavLink>
+      </Menu.Item>
+      {/* novaup */}
+      <SubMenu key="novaup" icon={!topMenu && <FeatherIcon icon="map-pin" />} title="Novaup">
+        <Menu.Item key="nvu-customer">
+          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/khach-hang`}>
+            Khách hàng
+          </NavLink>
+        </Menu.Item>
+        <Menu.Item key="nvu-status">
+          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/trang-thai`}>
+            Trạng thái khách hàng
+          </NavLink>
+        </Menu.Item>
+
+        <Menu.Item key="nvu-source">
+          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/nguon-khach-hang`}>
+            Nguồn khách hàng
+          </NavLink>
+        </Menu.Item>
+        <Menu.Item key="nvu-revenue">
+          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/doanh-thu`}>
+            Doanh thu
+          </NavLink>
+        </Menu.Item>
+        <Menu.Item key="nvu-room">
+          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/phong`}>
+            Phòng
+          </NavLink>
+        </Menu.Item>
+        <Menu.Item key="nvu-boking">
+          <NavLink onClick={toggleCollapsed} to={`${path}/novaup/dat-phong/month`}>
+            Đặt phòng
+          </NavLink>
+        </Menu.Item>
+      </SubMenu>
+      {/* end novaup   */}
+
       {/* novateen */}
       <SubMenu key="novateen" icon={!topMenu && <FeatherIcon icon="map-pin" />} title="NovaTeen">
         <Menu.Item key="nvt-home">
@@ -314,9 +320,17 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
         </Menu>
       </SubMenu>
       {/* end novateen */}
-      <Menu.Item key="cdn" icon={<FeatherIcon icon="home" />}>
-        <NavLink to={`${path}/luu-tru/all`}>Lưu trữ</NavLink>
-      </Menu.Item>
+
+      {/* Khách hàng */}
+      <SubMenu key="customer" icon={!topMenu && <FeatherIcon icon="user-plus" />} title="Khách hàng">
+        <Menu.Item key="list-customer">
+          <NavLink onClick={toggleCollapsed} to={`${path}/khach-hang/danh-sach`}>
+            Danh sách
+          </NavLink>
+        </Menu.Item>
+      </SubMenu>
+      {/* end khách hàng   */}
+      {/**/}
       {/* start d-none */}
       <SubMenu style={{ display: 'none' }}>
         <SubMenu className="d-none" key="layout" icon={!topMenu && <FeatherIcon icon="layout" />} title="Layouts">

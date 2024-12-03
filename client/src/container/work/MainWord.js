@@ -1,4 +1,3 @@
-import {getItem} from "../../utility/localStorageControl";
 import React, {useEffect, useState} from "react";
 import {getTaskUnfinishedByUserId} from "../../apis/work/task";
 import {getAllUsers} from "../../apis/work/user";
@@ -15,15 +14,18 @@ import {ProjectHeader} from "./overView/Project/style";
 import CreateGroup from "./overView/Group/overViewGroup/CreateGroup";
 import {useLocation} from "react-router-dom";
 import {toast} from "react-toastify";
+import {useSelector} from "react-redux";
+import {getDepartment} from "../../apis/employees/employee";
 
 const MainWord = () => {
-    const role_id = getItem('role_id')
+    const role_id = useSelector(state => state?.userRole?.role_id)
     const {state} = useLocation()
     const [loading, setLoading] = useState(false)
     const [listProject, setListProject] = useState([])
     const [listUser, setListUser] = useState([])
     const [listGroup, setListGroup] = useState([])
     const [tasks, setTasks] = useState([])
+    const [listDepartments, setListDepartments] = useState([])
     const [showModal, setShowModal] = useState(false)
     const onCancelGroup = () => {
         setShowModal(false)
@@ -35,15 +37,15 @@ const MainWord = () => {
             if (role_id === 5) {
                 const res = await getTaskUnfinishedByUserId()
                 setTasks(res.data?.tasks)
-
             } else if (role_id === 3 || role_id === 4) {
                 const [res, users] = await Promise.all([getProjectByUserId(), getAllUsers()]);
                 setListProject(res.data)
                 setListUser(users.data)
             } else {
-                const [res, users] = await Promise.all([getGroupByCeo(), getAllUsers()]);
+                const [res, users, departments] = await Promise.all([getGroupByCeo(), getAllUsers(), getDepartment()]);
                 setListGroup(res.data)
                 setListUser(users.data)
+                setListDepartments(departments.data)
             }
 
             setLoading(false)
@@ -57,7 +59,12 @@ const MainWord = () => {
         }
     }
     useEffect(() => {
-        fetchApi()
+        if (role_id) {
+            fetchApi()
+        }
+        if (!role_id) {
+            setLoading(true)
+        }
     }, [role_id, state])
 
     return (
@@ -69,10 +76,10 @@ const MainWord = () => {
                     <PageHeader
                         ghost
                         title={
-                            role_id === 5 ? 'Danh sách công việc cần làm' :
+                            role_id && (role_id === 5 ? 'Danh sách công việc cần làm' :
                                 (role_id === 3 || role_id === 4) ? 'Danh sách dự án' :
                                     (role_id === 1 || role_id === 2) ? 'Danh sách nhóm' :
-                                        ''
+                                        '')
                         }
                         buttons={role_id && (role_id === 1 || role_id === 2) && [
                             <Button onClick={() => setShowModal(true)} key="1" type="primary" size="default">
@@ -101,12 +108,14 @@ const MainWord = () => {
                                     listProject={listProject}
                                     listUser={listUser}/>}
                             {role_id && (role_id === 1 || role_id === 2) &&
-                                <ListGroupComponent listGroup={listGroup} listUser={listUser}/>}
+                                <ListGroupComponent listDepartments={listDepartments} listGroup={listGroup}
+                                                    listUser={listUser}/>}
                         </div>
                     </>}
                 </div>
             </div>
-            <CreateGroup group_id={null} listUser={listUser} onCancel={onCancelGroup} visible={showModal} admin/>
+            <CreateGroup listDepartments={listDepartments} group_id={null} listUser={listUser} onCancel={onCancelGroup}
+                         visible={showModal} admin/>
         </div>
     );
 }

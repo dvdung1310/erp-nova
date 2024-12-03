@@ -35,9 +35,9 @@ export const updateCustomer = async (formData) => {
 };
 
 
-export const ListCustomer = async () => {
+export const ListCustomer = async (params) => {
     try {
-        const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/novaup/indexCustomer`, {
+        const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/novaup/indexCustomer${params}`, {
             headers: {
                 'Content-Type': 'application/json',
             },

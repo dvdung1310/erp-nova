@@ -176,6 +176,7 @@ function CreateProject({visible, onCancel, group_id, listUser = []}) {
                         <Form.Item name="project_description" label="">
                             <div className="group">
                                 <RichTextEditor
+                                    style={{minHeight: '100px'}}
                                     className='custom-rich-text-editor'
                                     placeholder="Nhập mô tả dự án"
                                     name={'project_description'}
@@ -227,9 +228,10 @@ function CreateProject({visible, onCancel, group_id, listUser = []}) {
                                             title={member.name}
                                             description={
                                                 <>
-                                                    <small className="text-muted">{member.email}</small>
+                                                    <small className="text-muted">{member.email} </small>
                                                     <br/>
-                                                    <strong className="text-muted">{checkRole(member.role_id)}</strong>
+                                                    <strong
+                                                        className="text-muted">{member?.department_name} - {member?.level_name}</strong>
                                                 </>
                                             }
                                         />

@@ -20,6 +20,7 @@ import {BasicFormWrapper} from "../../../container/styled";
 import {toast} from "react-toastify";
 import {getProfile} from "../../../apis/work/user";
 import {checkRole} from "../../../utility/checkValue";
+import {setRoleId} from "../../../redux/users/actionCreator";
 
 function AuthInfo() {
     const dispatch = useDispatch();
@@ -31,6 +32,7 @@ function AuthInfo() {
     const fetchProfile = async () => {
         try {
             const res = await getProfile();
+            dispatch(setRoleId(res?.data?.role_id))
             setProfile(res?.data)
         } catch (error) {
             removeItem('accessToken');
@@ -49,7 +51,7 @@ function AuthInfo() {
         if (socketConnection) {
             socketConnection.on('update-profile', async (data) => {
                 console.log(data)
-               setProfile(data)
+                setProfile(data)
             })
         }
     }, [socketConnection]);
@@ -166,7 +168,7 @@ function AuthInfo() {
 
     return (
         <InfoWraper>
-            {/*<Message/>*/}
+            <Message/>
             <Notification/>
             {/*<Settings/>*/}
             {/*<Support/>*/}

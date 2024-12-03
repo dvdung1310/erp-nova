@@ -47,6 +47,9 @@
     "prefer-template": "off",
     "react/jsx-curly-brace-presence": "off",
     "jsx-a11y/no-noninteractive-element-interactions": "off",
+    "no-unneeded-ternary": "off",
+    "no-case-declarations": "off",
+    "react/no-this-in-sfc": "off",
     "react/jsx-filename-extension": [
       0,
       {

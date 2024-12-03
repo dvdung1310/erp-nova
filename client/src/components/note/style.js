@@ -6,7 +6,7 @@ const Card = Styled.div`
     }
     .ant-card .ant-card-body{        
         border-radius: 15px !important;
-        color: ${({ theme }) => theme['gray-color']};    
+        color: ${({theme}) => theme['gray-color']};    
         padding-bottom: 20px !important;
         padding-top: 20px !important;
         transition: .35s;
@@ -14,8 +14,7 @@ const Card = Styled.div`
             display: flex;
             align-items: center;
             font-size: 16px;
-            margin-bottom: 16px;
-            color: ${({ theme }) => theme['dark-color']};
+            color: ${({theme}) => theme['dark-color']};
             justify-content: space-between;
             svg{
                 color: #5A5F7D !important;
@@ -28,7 +27,9 @@ const Card = Styled.div`
                 height: 7px;
                 display: inline-block;
                 border-radius: 50%;
-               ${({ theme }) => (!theme.rtl ? 'margin-left' : 'margin-right')} : 8px;
+               ${({theme}) => (!theme.rtl ? 'margin-left' : 'margin-right')} : 8px;
+             
+               
                &.personal{
                 background: #5F63F2;
                }
@@ -43,6 +44,12 @@ const Card = Styled.div`
                }
             }
         }
+        p {
+            font-size: 30px;
+            font-weight: 500;
+            color: ${({theme}) => theme['dark-color']};
+            margin-bottom: 0;
+        }
         .actions{
             display: flex;
             justify-content: space-between;
@@ -52,13 +59,13 @@ const Card = Styled.div`
                 svg,
                 i,
                 span{
-                    color: ${({ theme }) => theme['gray-color']} !important;
+                    color: ${({theme}) => theme['gray-color']} !important;
                 }
                 &.active{
                     svg,
                     i,
                     span{
-                        color: ${({ theme }) => theme['warning-color']} !important;
+                        color: ${({theme}) => theme['warning-color']} !important;
                     } 
                 } 
             }
@@ -70,7 +77,7 @@ const Card = Styled.div`
                     svg,
                     i,
                     span{
-                        color: ${({ theme }) => theme['gray-color']} !important;
+                        color: ${({theme}) => theme['gray-color']} !important;
                     }
                 }
             }
@@ -81,6 +88,42 @@ const Card = Styled.div`
             }
         }        
     } 
+      &.total_projects .ant-card .ant-card-body{
+        background: #5f63f280;
+        &:hover{
+            background: #5f63f2;
+        }
+    }
+    &.total_tasks .ant-card .ant-card-body{
+        background: #20c99780;
+        &:hover{
+            background: #20c997;
+        }
+    }
+    &.total_completed_tasks .ant-card .ant-card-body{
+        background: #42a04787;
+        &:hover{
+            background: #42a047;
+        }
+    }
+    &.total_doing_tasks .ant-card .ant-card-body{
+        background: #0288d175;
+        &:hover{
+            background: #0288d1;
+        }
+    }  
+    &.total_waiting_tasks .ant-card .ant-card-body{
+        background: #ed6c0282;
+        &:hover{
+            background: #ed6c02;
+        }
+    }
+    &.total_overdue_tasks .ant-card .ant-card-body{
+        background: #d32f2f99;
+        &:hover{
+            background: #e15151;
+        }
+    }  
     &.personal .ant-card .ant-card-body{
         background: #5F63F240;
         &:hover{
@@ -107,4 +150,4 @@ const Card = Styled.div`
     }  
 `;
 
-export { Card };
+export {Card};

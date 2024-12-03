@@ -18,13 +18,15 @@ class Notification extends Model
         'task_id',
         'project_id',
         'notification_status', // 0 = unread, 1 = read
-        'notification_type',
+        'notification_type', // 0 = user, 1 = common, 2 = warning
+        'notification_file',
         'notification_content',
         'notification_title',
         'notification_link',
     ];
     protected $attributes = [
         'notification_status' => 0,
+
     ];
 
     public function createByUser()

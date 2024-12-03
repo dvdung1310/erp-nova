@@ -30,6 +30,7 @@ class PaymentController extends Controller
                         'date' => $payment->date,
                         'image' => $payment->image,
                         'status' => $payment->status,
+                        'type' => $payment->type,
                         'sale_names' => $salesNames,
                         'booking_histories' => $payment->bookingHistories->map(function ($bookingHistory) {
                             return [
@@ -68,7 +69,7 @@ class PaymentController extends Controller
             'image' => 'nullable|file|mimes:jpeg,png,pdf,doc,docx|max:2048',
         ]);
 
-
+        $customer = NvuRoomBooking::where('id',$validatedData['id_customer_booking'])->first();
         $filePath = null;
         if ($request->hasFile('image')) {
             $filePath = $request->file('image')->store('novaup', 'public');
@@ -81,6 +82,8 @@ class PaymentController extends Controller
                 'date' => $validatedData['date'],
                 'image' => $filePath,
                 'status' => 0,
+                'type' => $validatedData['type'],
+                'customer_id' => $customer->customer_id,
                 'sale_id' => Auth::id()
             ]);
             NvuBookingHistory::create([
@@ -104,26 +107,28 @@ class PaymentController extends Controller
     public function update(Request $request)
     {
         $validatedData = $request->validate([
+            'id' => 'required',
             'id_customer_booking' => 'required',
             'date' => 'required',
             'money' => 'required',
             'type' => 'required',
             'image' => 'nullable|file|mimes:jpeg,png,pdf,doc,docx|max:2048',
         ]);
-
-        $filePath = null;
-        if ($request->hasFile('image')) {
-            $filePath = $request->file('image')->store('novaup', 'public');
-        }
-
+       
         try {
             $customerPaymentHistory = CustomerPaymentHistory::findOrFail($validatedData['id']);
+
+            $filePath = $customerPaymentHistory->image;
+            if ($request->hasFile('image')) {
+            $filePath = $request->file('image')->store('novaup', 'public');
+            }
 
             $customerPaymentHistory->update([
                 'name' => $validatedData['id_customer_booking'],
                 'money' =>  $validatedData['money'],
                 'date' => $validatedData['date'],
                 'image' => $filePath,
+                'type' => $validatedData['type'],
                 'status' => 0,
             ]);
 

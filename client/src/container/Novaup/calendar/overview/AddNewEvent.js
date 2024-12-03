@@ -55,6 +55,9 @@ function AddNewEvent({ defaultValue, onHandleAddEvent , bookings }) {
         console.log('du-lieu:',formData);
         const response = await storeBooking(formData);
         toast.success(response.message);
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
         if (onHandleAddEvent) {
           onHandleAddEvent(response.data);
         }

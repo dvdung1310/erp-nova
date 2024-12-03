@@ -17,6 +17,9 @@
   border-radius: 12px; /* Custom border radius */
   padding: 0; /* Custom padding */
   box-shadow: 0 0 0 1px #fff; /* Custom box shadow */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .ant-scroll-number-only {
@@ -34,7 +37,7 @@
 @media only screen and (max-width: 450px) {
   .ant-modal-content {
     padding: 10px !important;
-    min-width: 200px;
+    min-width: 200px !important;
   }
   .ant-modal-body {
     padding: 10px !important;
@@ -64,6 +67,10 @@
   }
   .message-component {
     .comment {
+      .comment_description {
+        display: none;
+      }
+
       .message {
         height: 300px !important;
       }
@@ -94,6 +101,7 @@
 
     .RichTextEditor__editor___1QqIU .public-DraftEditor-content {
       border: 1px solid #E3E6EF;
+      min-height: 100px;
     }
 
     .custom-rich-text-editor .RichTextEditor__toolbar {
@@ -115,10 +123,63 @@
 
     .RichTextEditor__editor___1QqIU .public-DraftEditor-content {
       border: 1px solid #E3E6EF;
+      min-height: 100px;
     }
 
     .custom-rich-text-editor .RichTextEditor__toolbar {
       display: none;
+    }
+  }
+}
+
+.modal-notification {
+  max-width: 800px !important;
+  width: inherit !important;
+
+  .ant-modal-body {
+    .ant-upload-list {
+      bottom: 25%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+    }
+  }
+}
+
+.modal-copy-project {
+  .ant-modal-content {
+    height: 600px;
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+      width: 8px; /* Width of the scrollbar */
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1; /* Background of the scrollbar track */
+      border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #888; /* Color of the scrollbar thumb */
+      border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: #555; /* Color of the scrollbar thumb on hover */
+    }
+  }
+}
+
+.modal-main {
+  width: 80% !important;
+
+  .ant-modal-content {
+    min-width: 800px;
+
+    .ant-modal-body {
+      max-height: 500px;
+      overflow: auto;
     }
   }
 }

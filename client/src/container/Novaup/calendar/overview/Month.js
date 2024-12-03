@@ -53,7 +53,7 @@ function MonthCalendar({ bookings }) {
             container: containers,
             date,
             currentLabel,
-            width: getInput.current ? getInput.current.clientWidth : '100%',
+            width: getInput.current !== null && getInput?.current?.clientWidth ,
             defaultValue : getDate,
           });
 
@@ -68,7 +68,7 @@ function MonthCalendar({ bookings }) {
       defaultValue,
       date,
       currentLabel,
-      width: getInput.current ? getInput.current.clientWidth : '100%',
+      width: getInput.current !== null && getInput?.current?.clientWidth, 
     });
     setDataBooking(bookings.data_booking);
   }, [date, currentLabel, defaultValue , bookings, dispatch]);
@@ -79,6 +79,9 @@ function MonthCalendar({ bookings }) {
     const data = events.filter(item => item.id !== id);
     const response = await DeleteBooking(id);
     toast.success(response.message);
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
     dispatch(calendarDeleteData(data));
   };
 
@@ -90,7 +93,8 @@ function MonthCalendar({ bookings }) {
         const endDate = moment(booking.end_time);
         if (value.isBetween(startDate, endDate, 'day', '[]') || value.isSame(startDate, 'day') || value.isSame(endDate, 'day')) {
           const total_Days = endDate.diff(startDate, 'days') + 1;
-  
+          console.log('endDate',endDate)
+          console.log('startDate',startDate)
           listData.push({
             id: booking.id,
             title: `${booking.customer.name} - ${booking.room.name}`,

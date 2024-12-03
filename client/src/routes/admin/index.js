@@ -13,6 +13,7 @@ import Gallery from './gallery';
 import Novaup from "./Novaup";
 import Novateen from "./novateen";
 import Cdn from "./Cdn";
+import Customer from "./customer";
 import Employees from "./employees";
 import Proposal from "./proposal";
 import withAdminLayout from '../../layout/withAdminLayout';
@@ -142,6 +143,7 @@ function Admin() {
                 <Route path={`${path}/lam-viec`} component={Work}/>
                 <Route path={`${path}/tuyen-dung`} component={Recruit}/>
                 <Route path={`${path}/thong-bao`} component={NotificationRouter}/>
+                <Route path={`${path}/khach-hang`} component={Customer}/>
             </Suspense>
         </Switch>
     );

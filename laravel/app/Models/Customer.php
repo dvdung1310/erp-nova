@@ -9,7 +9,7 @@ class Customer extends Model
     use HasFactory;
 
     protected $table = 'customers';
-    protected $fillable = ['name', 'phone', 'date', 'email', 'file_infor', 'status_id', 'source_id'];
+    protected $fillable = ['name', 'source', 'phone', 'date', 'email', 'file_infor' , 'customer_comment', 'status_id', 'source_id'];
 
     public function status()
     {

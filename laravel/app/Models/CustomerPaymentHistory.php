@@ -9,7 +9,7 @@ class CustomerPaymentHistory extends Model
 {
     use HasFactory;
     protected $table = 'customer_payment_history';
-    protected $fillable = ['customer_id', 'money', 'date', 'image', 'sale_id', 'status'];
+    protected $fillable = ['name','customer_id', 'money', 'date', 'image', 'sale_id', 'status' , 'type'];
 
 
     public function bookingHistories()

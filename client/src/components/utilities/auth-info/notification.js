@@ -30,15 +30,6 @@ function NotificationBox() {
             rtl: state.ChangeLayoutMode.rtlData,
         };
     });
-    const notificationVariants = {
-        hidden: {opacity: 0, y: -20},
-        visible: {opacity: 1, y: 0, transition: {duration: 0.5}}
-    };
-
-    const itemVariants = {
-        hidden: {opacity: 0, x: -20},
-        visible: {opacity: 1, x: 0, transition: {duration: 0.3}}
-    };
     const notificationIconVariants = {
         initial: {scale: 1},
         animate: {
@@ -68,8 +59,8 @@ function NotificationBox() {
 
     useEffect(() => {
         if (socketConnection) {
-            console.log('socketConnection', socketConnection);
             const receiveNotification = async (data) => {
+                console.log(data, 'data');
                 setNotification(prevNotifications => [data, ...prevNotifications]);
                 setNotificationRender(prevNotifications => [data, ...prevNotifications]);
                 setNotificationUnread(prevUnreadNotifications => [data, ...prevUnreadNotifications]);
@@ -90,8 +81,13 @@ function NotificationBox() {
     const handleUpdateStatusNotification = async (item) => {
         try {
             console.log(item)
-            const url = new URL(item?.notification_link);
-            const pathname = url.pathname;
+            let url = new URL(item?.notification_link);
+            let pathname = url.pathname;
+            if (item.notification_type === 1) {
+                url = new URL(`${item?.notification_link}/${item?.notification_id}`);
+                pathname = url.pathname;
+            }
+
             if (item.notification_status === 1) {
                 history.push(pathname);
                 setActiveTab('recent');
@@ -239,7 +235,7 @@ function NotificationBox() {
                                         <div className="notification-content d-flex">
                                             <div className="notification-text">
                                                 <Heading as="h5">
-                                                    {`${notification?.create_by_user?.name} ${notification?.notification_title}`}
+                                                    {`${notification?.create_by_user?.name ?? notification?.createByUserName} ${notification?.notification_title}`}
                                                 </Heading>
                                                 <p> {moment(notification?.created_at).fromNow()} &nbsp;
                                                     {moment(notification?.created_at).format('HH:mm DD/MM/YYYY')}</p>
