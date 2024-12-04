@@ -24,6 +24,7 @@ function NotificationBox() {
     const [notificationUnread, setNotificationUnread] = useState([]);
     const [notificationRender, setNotificationRender] = useState([]);
     const history = useHistory();
+    const [isPopoverVisible, setIsPopoverVisible] = useState(false);
     const [newNotification, setNewNotification] = useState(false);
     const [loadingClick, setLoadingClick] = useState(false);
     const socketConnection = useSelector(state => state?.userSocket?.socketConnection);
@@ -108,7 +109,7 @@ function NotificationBox() {
                         socketConnection.emit('view-notification', payload);
                     }
                 }
-
+                setIsPopoverVisible(false);
                 setActiveTab('recent');
             } else {
                 setLoadingClick(true);
@@ -153,6 +154,7 @@ function NotificationBox() {
                         task_id: item.task_id
                     });
                     setLoadingClick(false);
+                    setIsPopoverVisible(false);
                     return;
                 }
                 if (socketConnection) {
@@ -165,6 +167,7 @@ function NotificationBox() {
                     }
                 }
                 setLoadingClick(false);
+                setIsPopoverVisible(false);
             }
         } catch (error) {
             setLoadingClick(false);
@@ -298,7 +301,7 @@ function NotificationBox() {
 
     return (
         <div className="notification">
-            <Popover placement="bottomLeft" content={content} action="click">
+            <Popover placement="bottomLeft" content={content} action="click"  visible={!isPopoverVisible} onVisibleChange={setIsPopoverVisible}>
                 <Badge
                     count={notificationUnread?.length > 9 ? '9+' : notificationUnread?.length}
                     offset={[-8, -5]} className="custom-badge">

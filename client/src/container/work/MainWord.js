@@ -12,7 +12,7 @@ import {Button} from "../../components/buttons/buttons";
 import FeatherIcon from "feather-icons-react";
 import {ProjectHeader} from "./overView/Project/style";
 import CreateGroup from "./overView/Group/overViewGroup/CreateGroup";
-import {useLocation} from "react-router-dom";
+import {useHistory, useLocation} from "react-router-dom";
 import {toast} from "react-toastify";
 import {useSelector} from "react-redux";
 import {getDepartment} from "../../apis/employees/employee";
@@ -27,6 +27,7 @@ const MainWord = () => {
     const [tasks, setTasks] = useState([])
     const [listDepartments, setListDepartments] = useState([])
     const [showModal, setShowModal] = useState(false)
+    const history = useHistory()
     const onCancelGroup = () => {
         setShowModal(false)
     }
@@ -82,6 +83,11 @@ const MainWord = () => {
                                         '')
                         }
                         buttons={role_id && (role_id === 1 || role_id === 2) && [
+                            <Button onClick={() => {
+                                history.push('/admin/lam-viec/bao-cao-nhom')
+                            }} key="1" type="primary" size="default">
+                                <FeatherIcon icon="monitor" size={16}/> Xem báo cáo
+                            </Button>,
                             <Button onClick={() => setShowModal(true)} key="1" type="primary" size="default">
                                 <FeatherIcon icon="plus" size={16}/> Tạo nhóm mới
                             </Button>,
