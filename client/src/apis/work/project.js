@@ -134,3 +134,14 @@ export const updateNotifyBeforeEndTimeProject = async (data, id) => {
     );
     return response.data;
 }
+export const updateProjectType = async (data, id) => {
+    const token = getToken();
+    const response = await instanceAxios.put(`${LARAVEL_SERVER}/api/projects/update-type/${id}`, data, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        }
+    );
+    return response.data;
+}

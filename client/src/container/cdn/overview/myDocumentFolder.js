@@ -54,6 +54,9 @@ function myDocumentFolder() {
     try {
       setLoading(true);
       const response = await myDocument();
+      console.log('====================================');
+      console.log(path);
+      console.log('====================================');
       setFolders(response.data.document_folder || []);
       setFile(response.data.document_file || []);
       setLoading(false);
@@ -400,7 +403,7 @@ function myDocumentFolder() {
           }}
         >
           <FaCloudDownloadAlt /> Tải xuống file
-          <a href={`http://127.0.0.1:8000/${file.file_storage_path}`} hidden className="abc">
+          <a href={`${LARAVEL_SERVER/file.file_storage_path}`} hidden className="abc">
             a
           </a>
         </a>
@@ -575,7 +578,7 @@ function myDocumentFolder() {
                   }}
                 >
                   <NavLink
-                    to={`${path}/${folder.id}`}
+                     to={`/admin/luu-tru/tai-lieu/${folder.id}`}
                     style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }} // Optional styling
                   >
                     <FaFolder style={{ marginRight: '10px' }} />

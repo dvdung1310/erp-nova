@@ -44,7 +44,7 @@ export const storeFile = async (data) => {
             `${LARAVEL_SERVER}/api/store-file`,data,
             {
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${token}`
                 }
             }
@@ -131,9 +131,9 @@ export const storeFolderFile = async (formData, config, id) => {
             `${LARAVEL_SERVER}/api/store-folder-file/${id}`, // Use id in the URL
             formData,
             {
-                ...config, // Include the upload progress configuration
+                ...config,
                 headers: {
-                    'Content-Type': 'multipart/form-data', // Required for file uploads
+                    'Content-Type': 'multipart/form-data', 
                     'Authorization': `Bearer ${token}`,
                 },
             }
@@ -229,6 +229,59 @@ export const myDocumentShare = async (data) => {
         return response;
     } catch (error) {
         console.error('Error Customer:', error.response ? error.response.data : error.message);
+        throw error;
+    }
+};
+export const trashDocument = async (data) => {
+    try {
+        const response = await instanceAxios.get(
+            `${LARAVEL_SERVER}/api/document-trash`,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
+        return response;
+    } catch (error) {
+        console.error('Error Customer:', error.response ? error.response.data : error.message);
+        throw error;
+    }
+};
+export const reStoreFile = async (id) => {
+    try {
+        const response = await instanceAxios.get(
+            `${LARAVEL_SERVER}/api/re-store/${id}`, 
+          
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+            }
+        );
+        return response;
+    } catch (error) {
+        console.error('Error uploading files:', error.response ? error.response.data : error.message);
+        throw error;
+    }
+};
+export const removeFile = async (id) => {
+    try {
+        const response = await instanceAxios.get(
+            `${LARAVEL_SERVER}/api/remove-file/${id}`, 
+          
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+            }
+        );
+        return response;
+    } catch (error) {
+        console.error('Error uploading files:', error.response ? error.response.data : error.message);
         throw error;
     }
 };

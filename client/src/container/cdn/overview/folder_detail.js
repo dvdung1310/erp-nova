@@ -578,7 +578,7 @@ function folder_detail() {
                   }}
                 >
                   <NavLink
-                     to={`/admin/luu-tru/all/${folder.id}`}
+                     to={`/admin/luu-tru/tai-lieu/${folder.id}`}
                     style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }} // Optional styling
                   >
                     <FaFolder style={{ marginRight: '10px' }} />

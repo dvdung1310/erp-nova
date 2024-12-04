@@ -22,7 +22,11 @@ io.on('connection', async (socket) => {
     const userId = socket.handshake.auth.user_id;
     socket.join(userId);
     clients[userId] = socket.id;
-    // Khi client đăng ký nhận thông báo
+    socket.on('view-notification', (data) => {
+        if (clients[data.user_id]) {
+            io.to(clients[data.user_id]).emit('view-notification', data);
+        }
+    })
     // Khi client ngắt kết nối
     socket.on('disconnect', () => {
         console.log('Người dùng ngắt kết nối', socket.id);
@@ -364,6 +368,73 @@ app.post('/update-name-task', (req, res) => {
         console.log(error);
     }
 })
+app.post('/update-score-kpi-task', (req, res) => {
+    try {
+        const {devices, createByUserName, notification, createByUserId, taskName, pathname, members} = req.body;
+        const payload = JSON.stringify({
+            title: 'THông báo mới', body: `${createByUserName} Đã cập nhật điểm kpi công việc: ${taskName}`, data: {
+                url: `${CLIENT_URL}${pathname}`
+            }
+        });
+        // Gửi thông báo đến các client
+        sendNotificationSocket(createByUserName, notification, members, createByUserId);
+        // Gửi thông báo đến các thiết bị
+        devices.forEach(subscription => {
+            if (subscription && subscription.endpoint) {
+                webpush.sendNotification(subscription, payload)
+                    .catch(error => {
+                        console.error('Lỗi khi gửi thông báo:', error);
+                        res.status(500).json({message: "Lỗi khi gửi thông báo"});
+                    });
+            } else {
+                console.error('Lỗi khi gửi thông báo: Subscription is missing an endpoint.');
+                res.status(400).json({message: "Subscription is missing an endpoint"});
+            }
+        });
+        res.status(200).json({
+            message: "Update task success"
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi khi gửi thông báo"
+        });
+        console.log(error);
+    }
+})
+app.post('/update-progress-task', (req, res) => {
+    try {
+        const {devices, createByUserName, notification, createByUserId, taskName, pathname, members} = req.body;
+        const payload = JSON.stringify({
+            title: 'THông báo mới', body: `${createByUserName} Đã cập nhật tiến độ công việc: ${taskName}`, data: {
+                url: `${CLIENT_URL}${pathname}`
+            }
+        });
+        // Gửi thông báo đến các client
+        sendNotificationSocket(createByUserName, notification, members, createByUserId);
+        // Gửi thông báo đến các thiết bị
+        devices.forEach(subscription => {
+            if (subscription && subscription.endpoint) {
+                webpush.sendNotification(subscription, payload)
+                    .catch(error => {
+                        console.error('Lỗi khi gửi thông báo:', error);
+                        res.status(500).json({message: "Lỗi khi gửi thông báo"});
+                    });
+            } else {
+                console.error('Lỗi khi gửi thông báo: Subscription is missing an endpoint.');
+                res.status(400).json({message: "Subscription is missing an endpoint"});
+            }
+        });
+        res.status(200).json({
+            message: "Update task success"
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi khi gửi thông báo"
+        });
+        console.log(error);
+    }
+})
+
 app.post('/update-description-task', (req, res) => {
     try {
         const {devices, createByUserName, notification, createByUserId, taskName, pathname, members} = req.body;

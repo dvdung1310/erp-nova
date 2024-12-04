@@ -82,6 +82,25 @@ class DocumentController extends Controller
             ], 500);
         }
     }
+    public function document_trash(){
+        try {
+            $user_id = auth()->user()->id;
+            $document_folder = CdnFileModel::where('is_folder', 1)->where('is_deleted', 1)->where('parent_id', null)->where('created_by',$user_id)->orderBy('id', 'desc')->get();
+            $document_file = CdnFileModel::where('is_folder', 0)->where('is_deleted', 1)->where('parent_id', null)->where('created_by',$user_id)->orderBy('id', 'desc')->get();
+            return response()->json([
+                'success' => true,
+                'message' => 'Tạo thư mục thành công',
+                'document_folder' => $document_folder,
+                'document_file' => $document_file,
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tạo thư mục thất bại',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
     public function show_folder($id)
     {
         try {
@@ -490,38 +509,98 @@ class DocumentController extends Controller
         }
     }
 
-
-
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
+    public function re_store($id){
+        try {
+            $user_id = auth()->user()->id;
+            $folder = CdnFileModel::findOrFail($id);
+            $folder->is_deleted = 0;
+            $folder->save();
+            return response()->json([
+                'success' => true,
+                'message' => 'Khôi phục thành công!',
+               
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Khôi phục thất bại!',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function remove_file($id)
     {
-        //
+        if (!$id) {
+            return response()->json(['success' => false, 'message' => 'Không tìm thấy File']);
+        }
+    
+        try {
+            // Lấy thông tin tệp hoặc thư mục
+            $fileOrFolder = CdnFileModel::find($id);
+    
+            if (!$fileOrFolder) {
+                return response()->json(['success' => false, 'message' => 'Không tìm thấy file hoặc thư mục.']);
+            }
+    
+            // Nếu là thư mục, xóa tất cả con bên trong (bao gồm cả file)
+            if ($fileOrFolder->is_folder) {
+                $this->deleteFolderAndChildren($id);
+            } else {
+                // Nếu là tệp, xóa tệp khỏi hệ thống tệp và cơ sở dữ liệu
+                if ($fileOrFolder->file_storage_path) {
+                    $this->deleteFileFromStorage($fileOrFolder->file_storage_path);
+                }
+                $fileOrFolder->delete(); // Xóa khỏi cơ sở dữ liệu
+            }
+    
+            return response()->json(['success' => true, 'message' => 'Xóa tệp hoặc thư mục thành công.']);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Đã xảy ra lỗi khi xóa file hoặc thư mục.',
+                'error' => $e->getMessage()
+            ]);
+        }
     }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    
+    // Hàm đệ quy xóa tất cả các con trong thư mục
+    private function deleteFolderAndChildren($folderId)
     {
-        //
+        $children = CdnFileModel::where('parent_id', $folderId)->get();
+    
+        foreach ($children as $child) {
+            if ($child->is_folder) {
+                // Gọi đệ quy nếu là thư mục
+                $this->deleteFolderAndChildren($child->id);
+            } else {
+                // Xóa file khỏi hệ thống tệp
+                if ($child->file_storage_path) {
+                    $this->deleteFileFromStorage($child->file_storage_path);
+                }
+            }
+    
+            // Xóa mục hiện tại khỏi cơ sở dữ liệu
+            $child->delete();
+        }
+    
+        // Xóa thư mục gốc sau khi xóa tất cả con
+        $folder = CdnFileModel::find($folderId);
+        $folder->delete();
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    
+    // Hàm xóa file khỏi hệ thống lưu trữ
+    private function deleteFileFromStorage($filePath)
     {
-        //
+        try {
+            // Convert URL thành đường dẫn tương đối (nếu cần)
+            $relativePath = str_replace('/storage/', '', parse_url($filePath, PHP_URL_PATH));
+    
+            // Xóa file từ hệ thống lưu trữ
+            if (Storage::exists('public/' . $relativePath)) {
+                Storage::delete('public/' . $relativePath);
+            }
+        } catch (\Exception $e) {
+          return $e->getMessage();
+        }
     }
 }

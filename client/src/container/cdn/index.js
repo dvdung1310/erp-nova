@@ -20,7 +20,6 @@ const MyDocument = lazy(() => import('./overview/myDocumentFolder'));
 const ShareMe = lazy(() => import('./overview/shareMe'));
 const DocumentDelete = lazy(() => import('./overview/documentDelete'));
 const FolderDetail = lazy(() => import('./overview/folder_detail'));
-const FolderDetailMyDocument = lazy(() => import('./overview/folder_mydocument'));
 
 const { Option } = Select;
 function Note() {
@@ -145,17 +144,17 @@ function Note() {
                               </NavLink>
                             </li>
                             <li>
-                              <NavLink to={`${path}/tai-lieu-cua-toi`}>
+                              <NavLink to={`${path}/cua-toi`}>
                               <FaRegFolderOpen /> Tài liệu của tôi
                               </NavLink>
                             </li>
                             <li>
-                              <NavLink to={`${path}/tai-lieu-duoc-chia-se`}>
+                              <NavLink to={`${path}/duoc-chia-se`}>
                               <FaFileExport /> Được chia sẻ với tôi
                               </NavLink>
                             </li>
                             <li>
-                              <NavLink to={`${path}/tai-lieu-xoa`}>
+                              <NavLink to={`${path}/thung-rac`}>
                               <FaTrash /> Thùng rác
                               </NavLink>
                             </li>
@@ -178,17 +177,17 @@ function Note() {
                               </NavLink>
                             </li>
                             <li>
-                              <NavLink to={`${path}/tai-lieu-cua-toi`} onClick={collapseSidebar}>
+                              <NavLink to={`${path}/cua-toi`} onClick={collapseSidebar}>
                                 <Bullet className="work" /> Tài liệu của tôi
                               </NavLink>
                             </li>
                             <li>
-                              <NavLink to={`${path}/tai-lieu-duoc-chia-se`} onClick={collapseSidebar}>
+                              <NavLink to={`${path}/duoc-chia-se`} onClick={collapseSidebar}>
                                 <Bullet className="social" /> Được chia sẻ với tôi
                               </NavLink>
                             </li>
                             <li>
-                              <NavLink to={`${path}/tai-lieu-xoa`} onClick={collapseSidebar}>
+                              <NavLink to={`${path}/thung-rac`} onClick={collapseSidebar}>
                                 <Bullet className="important" /> Thùng rác
                               </NavLink>
                             </li>
@@ -210,11 +209,10 @@ function Note() {
                   }
                 >
                   <Route exact path={`${path}/all`} component={All} />
-                  <Route exact path={`${path}/all/:id`} component={FolderDetail} />
-                  <Route path={`${path}/tai-lieu-cua-toi`} component={MyDocument} />
-                  <Route path={`${path}/tai-lieu-cua-toi/:id`} component={FolderDetailMyDocument} />
-                  <Route path={`${path}/tai-lieu-duoc-chia-se`} component={ShareMe} />
-                  <Route path={`${path}/tai-lieu-xoa`} component={DocumentDelete} />
+                  <Route exact path={`${path}/tai-lieu/:id`} component={FolderDetail} />
+                  <Route path={`${path}/cua-toi`} component={MyDocument} />
+                  <Route path={`${path}/duoc-chia-se`} component={ShareMe} />
+                  <Route path={`${path}/thung-rac`} component={DocumentDelete} />
                 </Suspense>
               </Switch>
             </Col>

@@ -35,6 +35,9 @@
 }
 
 @media only screen and (max-width: 450px) {
+  .ant-modal.modal-project {
+    width: 100% !important;
+  }
   .ant-modal-content {
     padding: 10px !important;
     min-width: 200px !important;
@@ -93,6 +96,8 @@
 }
 
 .modal-project {
+  //width: 50% !important;
+
   .ant-modal-content {
 
     .RichTextEditor__root___2QXK- .EditorToolbar__root___3_Aqz {

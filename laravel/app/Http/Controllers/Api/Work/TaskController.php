@@ -528,6 +528,210 @@ class TaskController extends Controller
         }
     }
 
+    public function updateProgress(Request $request, $task_id)
+    {
+        try {
+            $task = Task::with('users')->find($task_id);
+            if (!$task) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Task not found',
+                    'data' => null
+                ], 404);
+            }
+            $validatedData = $request->validate([
+                'task_progress' => 'required|numeric',
+            ]);
+            $members = $task->users->pluck('id');
+            $project = Project::find($task->project_id);
+            $leader_id = $project->leader_id;
+            $members[] = $leader_id;
+            $members = array_unique($members->toArray());
+            $user_id = auth()->user()->id;
+            $role_id = auth()->user()->role_id;
+            $project = Project::find($task->project_id);
+            $group_id = $project->group_id;
+            $group = Group::find($group_id);
+            $oldProgress = $task->task_progress;
+            if ($validatedData['task_progress'] == 100) {
+                $validatedData['task_status'] = 2;
+                $validatedData['task_date_update_status_completed'] = now();
+            }
+            $task->update($validatedData);
+            // insert comment
+            $message = Message::create([
+                'text' => 'Cập nhật tiến độ công việc' . ' ' . $oldProgress . '% ' . '->' . ' ' . $task->task_progress . '%',
+                'message_type' => 3,
+                'message_by_user_id' => $user_id,
+            ]);
+            MessageTask::create([
+                'message_id' => $message->message_id,
+                'task_id' => $task->task_id,
+            ]);
+            //
+            $pathname = $request->input('pathname');
+            $createByUserName = auth()->user()->name;
+            $create_by_user_id = auth()->user()->id;
+            $notifications = [];
+            foreach ($members as $user_id) {
+                if ($user_id != $create_by_user_id) {
+                    $notifications[] = [
+                        'user_id' => $user_id,
+                        'task_id' => $task_id,
+                        'notification_status' => 0,
+                        'create_by_user_id' => $create_by_user_id,
+                        'notification_title' => ' Đã cập nhật tiến độ công việc: ' . $task->task_name . ' ' . $oldProgress . '% ' . '->' . ' ' . $task->task_progress . '%',
+                        'notification_link' => $this->ClientUrl . $pathname,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+            }
+            Notification::insert($notifications);
+
+            $devices = Devices::whereIn('user_id', $members)
+                ->where('user_id', '!=', $create_by_user_id)
+                ->get();
+            $devices = $devices->map(function ($device) {
+                return json_decode($device->endpoint, true);
+            })->filter()->values()->toArray();
+            $notification = Notification::where('task_id', $task_id)
+                ->where('create_by_user_id', $create_by_user_id)
+                ->with('createByUser')
+                ->latest()
+                ->first();
+            if (!empty($notifications)) {
+                $taskName = $task->task_name;
+                $payload = [
+                    'members' => $members,
+                    'devices' => $devices,
+                    'createByUserName' => $createByUserName,
+                    'taskName' => $taskName,
+                    'notification' => $notification,
+                    'createByUserId' => $create_by_user_id,
+                    'pathname' => $pathname,
+                ];
+                Http::post($this->nodeUrl . '/update-progress-task', $payload);
+            }
+//
+            return response()->json([
+                'error' => false,
+                'message' => 'Task updated successfully',
+                'data' => $task
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+
+    }
+
+    public function updateScoreKpi(Request $request, $task_id)
+    {
+        try {
+            $task = Task::with('users')->find($task_id);
+            if (!$task) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Task not found',
+                    'data' => null
+                ], 404);
+            }
+            $validatedData = $request->validate([
+                'task_score_kpi' => 'required|numeric',
+            ]);
+            $members = $task->users->pluck('id');
+            $project = Project::find($task->project_id);
+            $leader_id = $project->leader_id;
+            $members[] = $leader_id;
+            $members = array_unique($members->toArray());
+            $user_id = auth()->user()->id;
+            $role_id = auth()->user()->role_id;
+            $project = Project::find($task->project_id);
+            $group_id = $project->group_id;
+            $group = Group::find($group_id);
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2 && $group->leader_id != $user_id) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Bạn không có quyền thực hiện hành động này',
+                    'data' => $role_id
+                ], 403);
+            }
+            $task->update($validatedData);
+            // insert comment
+            $message = Message::create([
+                'text' => 'Cập nhật điểm kpi công việc ',
+                'message_type' => 3,
+                'message_by_user_id' => $user_id,
+            ]);
+            MessageTask::create([
+                'message_id' => $message->message_id,
+                'task_id' => $task->task_id,
+            ]);
+            //
+            $pathname = $request->input('pathname');
+            $createByUserName = auth()->user()->name;
+            $create_by_user_id = auth()->user()->id;
+            $notifications = [];
+            foreach ($members as $user_id) {
+                if ($user_id != $create_by_user_id) {
+                    $notifications[] = [
+                        'user_id' => $user_id,
+                        'task_id' => $task_id,
+                        'notification_status' => 0,
+                        'create_by_user_id' => $create_by_user_id,
+                        'notification_title' => ' Đã cập nhật điểm kpi công việc: ' . $task->task_name,
+                        'notification_link' => $this->ClientUrl . $pathname,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+            }
+            Notification::insert($notifications);
+
+            $devices = Devices::whereIn('user_id', $members)
+                ->where('user_id', '!=', $create_by_user_id)
+                ->get();
+            $devices = $devices->map(function ($device) {
+                return json_decode($device->endpoint, true);
+            })->filter()->values()->toArray();
+            $notification = Notification::where('task_id', $task_id)
+                ->where('create_by_user_id', $create_by_user_id)
+                ->with('createByUser')
+                ->latest()
+                ->first();
+            if (!empty($notifications)) {
+                $taskName = $task->task_name;
+                $payload = [
+                    'members' => $members,
+                    'devices' => $devices,
+                    'createByUserName' => $createByUserName,
+                    'taskName' => $taskName,
+                    'notification' => $notification,
+                    'createByUserId' => $create_by_user_id,
+                    'pathname' => $pathname,
+                ];
+                Http::post($this->nodeUrl . '/update-score-kpi-task', $payload);
+            }
+//
+            return response()->json([
+                'error' => false,
+                'message' => 'Task name updated successfully',
+                'data' => $task
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+
+    }
+
     public function updateDescription(Request $request, $task_id)
     {
         try {
@@ -647,6 +851,7 @@ class TaskController extends Controller
             ]);
 
             if ($validatedData['task_status'] == 2 || $validatedData['task_status'] == 3) {
+                $validatedData['task_progress'] = 100;
                 $validatedData['task_date_update_status_completed'] = now();
             }
             if ($validatedData['task_status'] == 3) {
@@ -717,7 +922,7 @@ class TaskController extends Controller
                         'user_id' => $user_id,
                         'task_id' => $task_id,
                         'create_by_user_id' => $create_by_user_id,
-                        'notification_title' => ' Đã cập nhật tên công việc: ' . $task->task_name . '(' . $statusMessage . ')',
+                        'notification_title' => ' Đã cập nhật trạng thái công việc: ' . $task->task_name . '(' . $statusMessage . ')',
                         'notification_link' => $this->ClientUrl . $pathname,
                         'created_at' => now(),
                         'updated_at' => now(),

@@ -13,10 +13,11 @@ import Avatar from "../../../../../components/Avatar/Avatar";
 import {Doughnut, HorizontalBar} from "react-chartjs-2";
 import {DatePickerWrapper} from "../../../../styled";
 import moment from "moment/moment";
+
 moment.locale('vi');
 const {Text} = Typography;
 //
-const { RangePicker} = DatePicker;
+const {RangePicker} = DatePicker;
 
 const ReportGroup = () => {
     const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
@@ -33,6 +34,7 @@ const ReportGroup = () => {
     const [totalDoingTaskPercent, setTotalDoingTaskPercent] = useState(0);
     const [totalCompletedTaskPercent, setTotalCompletedTaskPercent] = useState(0);
     const [totalOverdueTaskPercent, setTotalOverdueTaskPercent] = useState(0);
+    const [totalPausedTaskPercent, setTotalPausedTaskPercent] = useState(0);
     //
     const [startDateCustom, setStartDateCustom] = useState(null);
     const [endDateCustom, setEndDateCustom] = useState(null);
@@ -59,6 +61,7 @@ const ReportGroup = () => {
             setTotalDoingTaskPercent(Math.round((response?.data?.total_doing_tasks / totalTask) * 100));
             setTotalCompletedTaskPercent(Math.round((response?.data?.total_completed_tasks / totalTask) * 100));
             setTotalOverdueTaskPercent(Math.round((response?.data?.total_overdue_tasks / totalTask) * 100));
+            setTotalPausedTaskPercent(Math.round((response?.data?.total_paused_tasks / totalTask) * 100));
             setTaskByUsers(response?.data?.taskByUsers);
 
             setLoading(false);
@@ -128,15 +131,20 @@ const ReportGroup = () => {
             dataIndex: "total_completed_tasks",
             key: "total_completed_tasks",
         },
+        {
+            title: 'Tạm dùng',
+            dataIndex: 'total_paused_tasks',
+            key: 'total_paused_tasks',
+        }
     ];
     // chart
     const dataChart = {
-        labels: ["Đang chờ", "Đang làm", "Hoàn thành", "Quá hạn"],
+        labels: ["Đang chờ", "Đang làm", "Hoàn thành", "Quá hạn", "Tạm dừng"],
         datasets: [
             {
-                data: [totalWaitingTaskPercent, totalDoingTaskPercent, totalCompletedTaskPercent, totalOverdueTaskPercent], // Dữ liệu ví dụ
-                backgroundColor: ["#ed6c0282", "#0288d175", "#42a04787", "#d32f2f99"], // Màu sắc từng phần
-                hoverBackgroundColor: ["#ed6c02", "#0288d1", "#42a047", "#e15151"],
+                data: [totalWaitingTaskPercent, totalDoingTaskPercent, totalCompletedTaskPercent, totalOverdueTaskPercent, totalPausedTaskPercent], // Dữ liệu ví dụ
+                backgroundColor: ["#ed6c0282", "#0288d175", "#42a04787", "#d32f2f99", "#9e9e9e7a"], // Màu sắc từng phần
+                hoverBackgroundColor: ["#ed6c02", "#0288d1", "#42a047", "#e15151", "#9e9e9e"],
             },
         ],
     };
@@ -192,6 +200,11 @@ const ReportGroup = () => {
                         item.totalTasksOverdueCompleted + item.totalTasksOverdueInProgress
                 ),
             },
+            {
+                label: "Tạm dừng",
+                backgroundColor: "#9E9E9E",
+                data: taskByUsers.map((item) => item.total_paused_tasks),
+            }
         ],
     };
 
@@ -214,11 +227,12 @@ const ReportGroup = () => {
             ],
         },
         legend: {
-            position: "top",
+            position: "bottom",
             labels: {
                 fontSize: 12,
                 padding: 15,
                 boxWidth: 10,
+                cursor: "pointer",
             },
         },
         animation: {

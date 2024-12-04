@@ -124,6 +124,12 @@ const Card = Styled.div`
             background: #e15151;
         }
     }  
+      &.total_paused_tasks .ant-card .ant-card-body{
+        background: #9e9e9e7a;
+        &:hover{
+            background: #9e9e9e;
+        }
+    }  
     &.personal .ant-card .ant-card-body{
         background: #5F63F240;
         &:hover{
