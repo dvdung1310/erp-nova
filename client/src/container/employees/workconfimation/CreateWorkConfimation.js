@@ -1,16 +1,18 @@
-import { Row, Col, Input, Card, Button, Form, message } from "antd"; 
+import { Row, Col, Input, Card, Button, Form, Upload } from "antd"; 
 import { useState } from "react";
-import {toast} from "react-toastify";
-import {useHistory} from 'react-router-dom';
+import { toast } from "react-toastify";
+import { useHistory } from 'react-router-dom';
+import { UploadOutlined } from '@ant-design/icons';
 import 'react-toastify/dist/ReactToastify.css';
 import { storeWorkConfimation } from '../../../apis/employees/workconfimation';
 import './WorkConfimation.css';
 
 const CreateWorkConfirmation = () => {
-    const [formData, setFormData] = useState([{ workDate: '', time: '', workNumber: '', workContent: '', reason: '' }]);
+    const [formData, setFormData] = useState([{ workDate: '', time: '', workNumber: '', workContent: '', reason: '', image: null }]);
     const history = useHistory();
+
     const handleAddRowWork = () => {
-        setFormData([...formData, { workDate: '', time: '', workNumber: '', workContent: '', reason: '' }]);
+        setFormData([...formData, { workDate: '', time: '', workNumber: '', workContent: '', reason: '', image: null }]);
     };
 
     const handleRemoveRow = (index) => {
@@ -27,9 +29,28 @@ const CreateWorkConfirmation = () => {
         setFormData(newFormData);
     };
 
+    const handleUploadChange = (index, { fileList }) => {
+        const newFormData = [...formData];
+        newFormData[index].image = fileList.length > 0 ? fileList[0].originFileObj : null;
+        setFormData(newFormData);
+    };
+
     const handleSubmit = async () => {
         try {
-            const response = await storeWorkConfimation(formData);
+            const data = new FormData();
+            formData.forEach((item, index) => {
+            data.append(`confirmations[${index}][workDate]`, item.workDate);
+            data.append(`confirmations[${index}][time]`, item.time);
+            data.append(`confirmations[${index}][workNumber]`, item.workNumber);
+            data.append(`confirmations[${index}][workContent]`, item.workContent);
+            data.append(`confirmations[${index}][reason]`, item.reason);
+
+            if (item.image) {
+                data.append(`confirmations[${index}][image]`, item.image);
+            }
+            });
+            console.log(data);
+            const response = await storeWorkConfimation(data);
             toast.success(response.message);
             setTimeout(() => {
                 history.push(`/admin/nhan-su/chi-tiet-xac-nhan-cong/${response.workConfirmationId}`);
@@ -45,8 +66,12 @@ const CreateWorkConfirmation = () => {
                 <Form layout="vertical" onFinish={handleSubmit}>
                     {formData.map((row, index) => (
                         <Row key={index} gutter={16}>
-                            <Col md={4} xs={12}>
-                                <Form.Item name={`workDate[${index}]`} label="Ngày" rules={[{ required: true, message: 'Vui lòng chọn ngày' }]}>
+                            <Col md={3} xs={12}>
+                                <Form.Item 
+                                    name={`workDate[${index}]`} 
+                                    label="Ngày" 
+                                    rules={[{ required: true, message: 'Vui lòng chọn ngày' }]}
+                                >
                                     <Input 
                                         type="date" 
                                         name="workDate" 
@@ -56,7 +81,11 @@ const CreateWorkConfirmation = () => {
                                 </Form.Item>
                             </Col>
                             <Col md={3} xs={12}>
-                                <Form.Item name={`time[${index}]`} label="Thời gian" rules={[{ required: true, message: 'Vui lòng nhập thời gian' }]}>
+                                <Form.Item 
+                                    name={`time[${index}]`} 
+                                    label="Thời gian" 
+                                    rules={[{ required: true, message: 'Vui lòng nhập thời gian' }]}
+                                >
                                     <Input 
                                         name="time" 
                                         value={row.time} 
@@ -65,8 +94,12 @@ const CreateWorkConfirmation = () => {
                                     />
                                 </Form.Item>
                             </Col>
-                            <Col md={3} xs={12}>
-                                <Form.Item name={`workNumber[${index}]`} label="Số công" rules={[{ required: true, message: 'Vui lòng chọn số công' }]}>
+                            <Col md={2} xs={12}>
+                                <Form.Item 
+                                    name={`workNumber[${index}]`} 
+                                    label="Số công" 
+                                    rules={[{ required: true, message: 'Vui lòng chọn số công' }]}
+                                >
                                     <Input 
                                         type="number" 
                                         name="workNumber" 
@@ -76,8 +109,12 @@ const CreateWorkConfirmation = () => {
                                     />
                                 </Form.Item>
                             </Col>
-                            <Col md={6} xs={12}>
-                                <Form.Item name={`workContent[${index}]`} label="Nội dung công việc"  rules={[{ required: true, message: 'Vui lòng nhập nội dung công việc' }]}>
+                            <Col md={5} xs={12}>
+                                <Form.Item 
+                                    name={`workContent[${index}]`} 
+                                    label="Nội dung công việc"  
+                                    rules={[{ required: true, message: 'Vui lòng nhập nội dung công việc' }]}
+                                >
                                     <Input 
                                         name="workContent" 
                                         value={row.workContent} 
@@ -87,7 +124,11 @@ const CreateWorkConfirmation = () => {
                                 </Form.Item>
                             </Col>
                             <Col md={6} xs={12}>
-                                <Form.Item name={`reason[${index}]`} label="Lý do cần xác nhận công" rules={[{ required: true, message: 'Vui lòng nhập lý do' }]}>
+                                <Form.Item 
+                                    name={`reason[${index}]`} 
+                                    label="Lý do cần xác nhận công" 
+                                    rules={[{ required: true, message: 'Vui lòng nhập lý do' }]}
+                                >
                                     <Input 
                                         name="reason" 
                                         value={row.reason} 
@@ -96,6 +137,20 @@ const CreateWorkConfirmation = () => {
                                     />
                                 </Form.Item>
                             </Col>
+
+                            <Col md={3} xs={12}>
+                                <Form.Item name={`image[${index}]`} label="Hình ảnh">
+                                    <Upload
+                                        name={`image[${index}]`}
+                                        listType="picture"
+                                        beforeUpload={() => false} 
+                                        onChange={(info) => handleUploadChange(index, info)}
+                                    >
+                                        <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
+                                    </Upload>
+                                </Form.Item>
+                            </Col>
+
                             <Col md={2} xs={12}>
                                 <Button 
                                     type="danger" 

@@ -486,11 +486,11 @@ class GroupController extends Controller
                     'group_name' => $group->group_name,
                     'color' => $group->color,
                     'leader' => $group->leader,
-                    'total_projects' => 0,
-                    'list_project' => [],
+                    'total_tasks' => 0,
+                    'list_tasks' => [],
                 ];
                 $this->getProjectsAndTasksFromGroupAll(
-                    $group, $groupData['total_projects'], $groupData['list_project']
+                    $group, $groupData['total_tasks'], $groupData['list_tasks']
                 );
                 $allGroupsProjectsAndTasks[] = $groupData;
             }
@@ -510,22 +510,31 @@ class GroupController extends Controller
     }
 
     private function getProjectsAndTasksFromGroupAll(
-        $group, &$totalProjects, &$listProject = []
+        $group, &$totalTasks, &$listTasks = []
     )
     {
         $projects = Project::where('group_id', $group->group_id)
             ->with(['tasks.users'])
-            ->orderBy('created_at', 'desc') // or 'desc' for descending order
             ->get();
+        $startDate = now()->startOfMonth();
+        $endDate = now()->endOfMonth();
+        $projects->filter(function ($project) use ($startDate, $endDate) {
+            $tasks = $project->tasks->filter(function ($task) use ($startDate, $endDate) {
+                return $task->task_start_date >= $startDate && $task->task_end_date <= $endDate;
+            });
+            $project->tasks = $tasks;
+            return $tasks->count() > 0;
+        });
 
         foreach ($projects as $project) {
-            $totalProjects++;
-            $listProject[] = $project;
+            $tasks = $project->tasks->load('project');
+            $totalTasks += $tasks->count();
+            $listTasks = array_merge($listTasks, $tasks->toArray());
         }
 
         $childGroups = Group::where('parent_group_id', $group->group_id)->get();
         foreach ($childGroups as $childGroup) {
-            $this->getProjectsAndTasksFromGroupAll($childGroup, $totalProjects, $listProject);
+            $this->getProjectsAndTasksFromGroupAll($childGroup, $totalTasks, $listTasks);
         }
     }
 
@@ -536,6 +545,7 @@ class GroupController extends Controller
     {
         try {
             $groups = Group::whereNull('parent_group_id')
+                ->where('group_id', '!=', 47)
                 ->with('leader')
                 ->get();
             $allGroupsProjectsAndTasks = [];

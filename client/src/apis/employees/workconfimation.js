@@ -7,9 +7,9 @@ const instanceAxios = createAxios();
 const token = getToken();
 export const storeWorkConfimation = async (formData) => {
     try {
-        const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/work-confirmations/store`, {confirmations: formData}, {
+        const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/work-confirmations/store`, formData, {
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'multipart/form-data',
                 Authorization: `Bearer ${token}`,
             },
         });
@@ -146,6 +146,22 @@ export const updateStatus = async (id, status) => {
     const token = getToken();
     try {
         const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/work-confirmations/update_status/${id}/${status}`, {}, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error saving work storeWorkConfimation:', error.response ? error.response.data : error.message);
+        throw error;
+    }
+};
+
+export const updateStatusDetail = async (id, status) => {
+    const token = getToken();
+    try {
+        const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/work-confirmations/update_status_detail/${id}/${status}`, {}, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`,

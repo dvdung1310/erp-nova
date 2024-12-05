@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Row, Col, Input, Card, Button, Table, Typography, Spin  ,Form , Tag } from 'antd';
+import { Row, Col, Input, Card, Button, Table, Typography, Spin  ,Form , Tag , Modal } from 'antd';
 import {toast} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { useParams } from 'react-router-dom';
@@ -41,6 +41,9 @@ const ManagerViewWorkConfirmation = () => {
     const opentModelDayOff = () => {
         setShowModalUpdateMembers(true);
     }
+
+    const [isImageModalVisible, setIsImageModalVisible] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
 
     const [selectedMembers, setSelectedMembers] = useState([]);
 
@@ -180,6 +183,38 @@ const ManagerViewWorkConfirmation = () => {
                 />
             )
         },
+        {
+            title : 'Ảnh',
+            dataIndex:'image',
+            with:80,
+            render: (text, record) => (
+                <a
+                  onClick={() => {
+                    setSelectedImage(`${LARAVEL_SERVER}/storage/${record.image}`);
+                    setIsImageModalVisible(true);
+                  }}
+                >
+                  Xem ảnh
+                </a>
+              ),
+        },
+        {
+            title: 'Trạng thái',
+            dataIndex: 'status_detail',
+            width: 150,
+            render: (_, record, index) => {
+                if (record.status_detail === 1) {
+                    return <Tag color="green">Đã duyệt</Tag>;
+                } 
+                if (record.status_detail === 0) {
+                    return <Tag color="red">Không duyệt</Tag>;
+                } 
+
+                if (record.status_detail === null) {
+                    return <Tag color="gray">Đang chờ</Tag>;
+                } 
+            }
+        },
     ];
 
     return (
@@ -213,9 +248,9 @@ const ManagerViewWorkConfirmation = () => {
                         <Col span={16}>
                             <Text strong>Chức vụ: <span className='ms-2' style={{ fontSize:'18px' , marginLeft:'15px' }}>{data.level_name}</span></Text>
                         </Col>
-                        <Col span={16}>
-                            <Text strong>Trạng thái: <span className='ms-2' style={{ fontSize:'18px' , marginLeft:'15px' }}>{getStatusTag(data.status)}</span></Text>
-                        </Col>
+                        {/* <Col span={16}>
+                            <Text strong>Trạng thái: <span className='ms-2' style={{ fontSize:'18px' , marginLeft:'15px' }}>{getStatusTag(data.status_detail)}</span></Text>
+                        </Col> */}
                     </Row>
                 </div>
 
@@ -229,7 +264,12 @@ const ManagerViewWorkConfirmation = () => {
                     pagination={false}
                     tableLayout="fixed"
                     rowKey={(record) => record.stt}
+                    scroll={{x: 'max-content'}}
+                    style={{borderRadius: "8px", overflow: "hidden"}}
                 />
+                <Modal title="Xem ảnh"  visible={isImageModalVisible} footer={null}  onCancel={() => setIsImageModalVisible(false)} >
+                        <img src={selectedImage}  alt="Preview" style={{ width: '100%' }}  />
+                </Modal>
             </Card>
             )}
         </div>

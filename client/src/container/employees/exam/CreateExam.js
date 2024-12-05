@@ -7,7 +7,7 @@ import { HorizontalFormStyleWrap } from './Style';
 import { Cards } from '../../../components/cards/frame/cards-frame';
 import { BasicFormWrapper } from '../../styled';
 import { storeExam }  from '../../../apis/employees/exam';
-
+import { useHistory , useParams } from 'react-router-dom';
 const CreateExam = () => {
     const [form] = Form.useForm(); 
     const [examData, setExamData] = useState({
@@ -24,7 +24,9 @@ const CreateExam = () => {
             image: fileList.length > 0 ? fileList[0].originFileObj : null,
         }));
     };
-
+    const history = useHistory();
+    const { type: type_exam } = useParams();
+    console.log('type',type_exam);
     const onFinish = async (values) => {
         try {
             const formData = new FormData();
@@ -51,12 +53,16 @@ const CreateExam = () => {
         <div className='d-flex justify-content-center align-items-center'>
             <BasicFormWrapper className='create-exam' style={{ width: '45%' }}>
                 <HorizontalFormStyleWrap>
-                    <Cards title="Tạo đề thi mới">
+                    <Cards>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                    <h3 style={{ margin: 0 }}>Tạo kho đề</h3>
+                    <Button   type="primary"  onClick={() => history.push(`/admin/nhan-su/danh-sach-de`)}> Danh sách Kho đề</Button>
+                     </div>
                         <Form
                             form={form}
                             name="create_exam"
                             layout="horizontal"
-                            onFinish={onFinish} // Sử dụng onFinish của Ant Design
+                            onFinish={onFinish} 
                         >
                             <Row align="middle">
                                 <Col lg={8} md={9} xs={24}>

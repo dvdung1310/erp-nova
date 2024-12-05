@@ -45,6 +45,10 @@ class WorkConfirmationController extends Controller
         ]);
 
         foreach ($request->confirmations as $confirmation) {
+            $filePath = null;
+            if (isset($confirmation['image']) && $confirmation['image'] instanceof \Illuminate\Http\UploadedFile) {
+                $filePath = $confirmation['image']->store('confirmations', 'public');
+            }
             EmployeeWorkConfirmationDetails::create([
                 'work_confirmation_id' => $workConfirmation->id,
                 'work_date' => $confirmation['workDate'],
@@ -52,6 +56,7 @@ class WorkConfirmationController extends Controller
                 'work_number' => $confirmation['workNumber'],
                 'work_content' => $confirmation['workContent'],
                 'reason' => $confirmation['reason'],
+                'image' => $filePath,
             ]);
         }
 
@@ -137,7 +142,7 @@ class WorkConfirmationController extends Controller
         $department_name = CrmDepartmentModel::where('department_id', $employeeWorkConfirmation->employee->department_id)->pluck('department_name')->first();
         // chức vụ
         $employee = CrmEmployeeModel::where('account_id', Auth::id())->first();
-        $level_name = CrmEmployeeLevelModel::where('level_id', $employee->level_id)->pluck('level_name')->first();
+        $level_name = CrmEmployeeLevelModel::where('level_id', $employeeWorkConfirmation->employee->level_id)->pluck('level_name')->first();
         $result = [
             'work_confirmation_id' => $id,
             'status' => $employeeWorkConfirmation->status,
@@ -152,7 +157,9 @@ class WorkConfirmationController extends Controller
                     'time' => $detail->time,
                     'work_number' => $detail->work_number,
                     'work_content' => $detail->work_content,
-                    'reason' => $detail->reason
+                    'reason' => $detail->reason,
+                    'image' => $detail->image,
+                    'status_detail' => $detail->status
                 ];
             })
         ];
@@ -191,15 +198,38 @@ class WorkConfirmationController extends Controller
     public function listWorkConfimationUser()
     {
         $employee = CrmEmployeeModel::where('account_id', Auth::id())->first();
-        $listWork = EmployeeWorkConfirmation::where('employee_id', $employee->employee_id)->orderBy('created_at','desc')->get();
+        $listWork = EmployeeWorkConfirmation::where('employee_id', $employee->employee_id)->orderBy('created_at', 'desc')->get();
+
+        // foreach ($listWork as $work) {
+        //     if ($work->manager_id) {
+        //         $managerIds = json_decode($work->manager_id);
+        //         $managers = User::whereIn('id', $managerIds)->get(['id', 'name', 'avatar']);
+        //         $work->managers = $managers;
+        //     } else {
+        //         $work->managers = [];
+        //     }
+        // }
 
         foreach ($listWork as $work) {
+            // Lấy danh sách manager từ manager_id (nếu có)
             if ($work->manager_id) {
                 $managerIds = json_decode($work->manager_id);
                 $managers = User::whereIn('id', $managerIds)->get(['id', 'name', 'avatar']);
                 $work->managers = $managers;
             } else {
                 $work->managers = [];
+            }
+            $details = EmployeeWorkConfirmationDetails::where('work_confirmation_id', $work->id)->get();
+            if ($details->isEmpty()) {
+                $work->status_detail = 0;
+            } else {
+                foreach ($details as $item) {
+                    if ($item->status ===  1 || $item->status ===  0) {
+                        $work->status_detail = 1;
+                    } else {
+                        $work->status_detail = 0;
+                    }
+                }
             }
         }
 
@@ -224,13 +254,25 @@ class WorkConfirmationController extends Controller
 
     public function getEmployeeConfirmations()
     {
-        $confirmations = EmployeeWorkConfirmation::whereJsonContains('manager_id', Auth::id())->orderBy('created_at','desc')
+        $confirmations = EmployeeWorkConfirmation::whereJsonContains('manager_id', Auth::id())->orderBy('created_at', 'desc')
             ->get(['id', 'employee_id', 'created_at', 'updated_at', 'status']);
         $confirmations = $confirmations->map(function ($confirmation) {
             $employee = CrmEmployeeModel::where('employee_id', $confirmation->employee_id)->first();
             $user = User::where('id', $employee->account_id)->first();
             $confirmation->employee_name = $employee ? $employee->employee_name : null;
             $confirmation->avatar = $user ? $user->avatar : null;
+            $details = EmployeeWorkConfirmationDetails::where('work_confirmation_id', $confirmation->id)->get();
+            if ($details->isEmpty()) {
+                $confirmation->status_detail = 0;
+            } else {
+                foreach ($details as $item) {
+                    if ($item->status ===  1 || $item->status ===  0) {
+                        $confirmation->status_detail = 1;
+                    } else {
+                        $confirmation->status_detail = 0;
+                    }
+                }
+            }
             return $confirmation;
         });
 
@@ -239,12 +281,25 @@ class WorkConfirmationController extends Controller
 
     public function listWorkConfimationStatus1()
     {
-        $confirmations = EmployeeWorkConfirmation::orderBy('created_at','desc')->get();
+        $confirmations = EmployeeWorkConfirmation::orderBy('created_at', 'desc')->get();
+
         $confirmations = $confirmations->map(function ($confirmation) {
             $employee = CrmEmployeeModel::where('employee_id', $confirmation->employee_id)->first();
             $user = User::where('id', $employee->account_id)->first();
             $confirmation->employee_name = $employee ? $employee->employee_name : null;
             $confirmation->avatar = $user ? $user->avatar : null;
+            $details = EmployeeWorkConfirmationDetails::where('work_confirmation_id', $confirmation->id)->get();
+            if ($details->isEmpty()) {
+                $confirmation->status_detail = 0;
+            } else {
+                foreach ($details as $item) {
+                    if ($item->status ===  1 || $item->status ===  0) {
+                        $confirmation->status_detail = 1;
+                    } else {
+                        $confirmation->status_detail = 0;
+                    }
+                }
+            }
             return $confirmation;
         });
         return response()->json($confirmations);
@@ -304,6 +359,16 @@ class WorkConfirmationController extends Controller
         return response()->json([
             'message' => 'Hoàn thành xác nhận công',
             'data' => $user_id
+        ], 200);
+    }
+
+    public function updateStatusEmployee_work_confirmation_details($id, $status)
+    {
+        $EmployeeWorkConfirmationDetails = EmployeeWorkConfirmationDetails::find($id);
+        $EmployeeWorkConfirmationDetails->status = $status;
+        $EmployeeWorkConfirmationDetails->save();
+        return response()->json([
+            'message' => 'Hoàn thành xác nhận công',
         ], 200);
     }
 }
