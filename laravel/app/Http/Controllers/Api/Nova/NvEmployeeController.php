@@ -306,20 +306,15 @@ class NvEmployeeController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(CrmEmployeeModel $nvemployee)
+    public function destroy($nvemployee)
     {
         try {
-            $nvemployee = CrmEmployeeModel::find($nvemployee->employee_id);
+            $employee_id = $nvemployee;
+            $nvemployee = CrmEmployeeModel::find($employee_id);
             $user_id = $nvemployee->account_id;
-            if (!$nvemployee) {
-                return response()->json([
-                    'error' => true,
-                    'message' => 'No customers found.',
-                    'data' => []
-                ]);
-            }
-            $nvemployee->delete();
-            $delete_user = User::where('id', $user_id)->delete();
+            CrmEmployeeModel::where('employee_id',$employee_id)->delete();
+            User::where('id', $user_id)->delete();
+            CrmEmployeeFileModel::where('employee_id',$user_id)->delete();
             return response()->json([
                 'error' => false, // Đã sửa thành true
                 'message' => 'Xóa nhân sự thành công!',

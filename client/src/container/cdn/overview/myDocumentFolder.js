@@ -303,30 +303,28 @@ function myDocumentFolder() {
       const response = await checkDownloadFile(fileId); // Gọi API kiểm tra quyền tải
   
       if (response.data.can_download) {
-        setCanDownload(true);
-        setFileUrl(response.data.file_url); // Cập nhật URL của file để tải xuống
         message.success('Tải file thành công!');
   
-        // Tạo một thẻ <a> ẩn để tải file về
+        // Tạo thẻ <a> và kích hoạt sự kiện tải về
         const a = document.createElement('a');
-        a.href = response.data.file_url; // URL của file
-        a.download = response.data.file_name || '';  // Thêm tên file nếu muốn, ví dụ: a.download = 'file_example.jpg';
-        
+        a.href = response.data.file_url;  // URL của file
+  
+        // Đảm bảo tên file có trong response
+        a.download = response.data.file_name || 'file_download';
+  
         // Thêm thẻ vào DOM để kích hoạt sự kiện tải về
         document.body.appendChild(a);
-        
-        // Trigger sự kiện click để tải file
+  
+        // Kích hoạt sự kiện click để tải file
         a.click();
-        
-        // Loại bỏ thẻ sau khi tải xong
+  
+        // Loại bỏ thẻ <a> sau khi tải xong
         document.body.removeChild(a);
       } else {
-        setCanDownload(false);
-        message.error(response.data.message);
+        message.error(response.data.message || 'Không có quyền tải file');
       }
     } catch (error) {
       console.error('Error checking download permission:', error);
-      setCanDownload(false);
       message.error('Tải file thất bại');
     }
   };
@@ -393,40 +391,42 @@ function myDocumentFolder() {
     </div>
   );
 
-  const option_file = (file) => (
-    <div>
-      <p>
-        <a
-          onClick={async (e) => {
-            e.preventDefault(); // Ngăn hành động mặc định
-            await checkDownloadPermission(file.id); // Kiểm tra và tải file
-          }}
-        >
-          <FaCloudDownloadAlt /> Tải xuống file
-          <a href={`${LARAVEL_SERVER/file.file_storage_path}`} hidden className="abc">
-            a
+  const option_file = (file) => {
+    const handleDownloadClick = async (e) => {
+      e.preventDefault(); // Ngăn hành động mặc định
+      await checkDownloadPermission(file.id); // Kiểm tra và tải file
+    };
+  
+    return (
+      <div>
+        <p>
+          <a
+            href="#"
+            onClick={handleDownloadClick}
+          >
+            <FaCloudDownloadAlt /> Tải xuống file
           </a>
-        </a>
-      </p>
-      <hr />
-      <p>
-        <a href="#" onClick={() => showRenameFileModal(file)}>
-          <MdDriveFileRenameOutline /> Đổi tên file
-        </a>
-      </p>
-      <p>
-        <a href="#" onClick={() => showModalShareFile(file)}>
-          <FaShareSquare /> Chia sẻ file
-        </a>
-      </p>
-      <hr />
-      <p>
-        <a href="#" onClick={() => handleDeleteFile(file)}>
-          <RiDeleteBin5Line /> Chuyển vào thùng rác
-        </a>
-      </p>
-    </div>
-  );
+        </p>
+        <hr />
+        <p>
+          <a href="#" onClick={() => showRenameFileModal(file)}>
+            <MdDriveFileRenameOutline /> Đổi tên file
+          </a>
+        </p>
+        <p>
+          <a href="#" onClick={() => showModalShareFile(file)}>
+            <FaShareSquare /> Chia sẻ file
+          </a>
+        </p>
+        <hr />
+        <p>
+          <a href="#" onClick={() => handleDeleteFile(file)}>
+            <RiDeleteBin5Line /> Chuyển vào thùng rác
+          </a>
+        </p>
+      </div>
+    );
+  };
 
   const getFileIcon = (fileName) => {
     const ext = fileName.split('.').pop().toLowerCase();

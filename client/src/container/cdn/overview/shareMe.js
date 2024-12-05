@@ -2,22 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, NavLink, useRouteMatch } from 'react-router-dom';
 import { Row, Col, Popover, Button, Modal, Input, message, Progress, Spin, Form, Select, Checkbox } from 'antd'; // Import Modal và Input
 import FeatherIcon from 'feather-icons-react';
-import {
-  FaFolderPlus,
-  FaFileUpload,
-  FaFolder,
-  FaFileAlt,
-  FaFilePdf,
-  FaFileImage,
-  FaFileAudio,
-  FaFileVideo,
-  FaFileExcel,
-  FaCloudDownloadAlt,
-  FaShareSquare,
-} from 'react-icons/fa';
+import {FaFolderPlus,FaFileUpload,FaFolder,FaFileAlt,FaFilePdf,FaFileImage,FaFileAudio,FaFileVideo,FaFileExcel,FaCloudDownloadAlt,FaShareSquare,} from 'react-icons/fa';
 import { FaEllipsisVertical } from 'react-icons/fa6';
 import { RiFolderUploadFill, RiDeleteBin5Line } from 'react-icons/ri';
 import { MdDriveFileRenameOutline } from 'react-icons/md';
+import styles from './style.css';
 import {
   myDocumentShare,
   storeFolder,
@@ -184,9 +173,6 @@ function All() {
   const showModalShareFile = async (file) => {
     try {
       const response = await showFileShare(file.id);
-      console.log('====================================');
-      console.log(response);
-      console.log('====================================');
       setFileModalShare(true);
       setFolderName(file.id);
       setAllEmployee(response.employee);
@@ -300,33 +286,32 @@ function All() {
       const response = await checkDownloadFile(fileId); // Gọi API kiểm tra quyền tải
   
       if (response.data.can_download) {
-        setCanDownload(true);
-        setFileUrl(response.data.file_url); // Cập nhật URL của file để tải xuống
         message.success('Tải file thành công!');
-  
-        // Tạo một thẻ <a> ẩn để tải file về
-        const a = document.createElement('a');
-        a.href = response.data.file_url; // URL của file
-        a.download = response.data.file_name || '';  // Thêm tên file nếu muốn, ví dụ: a.download = 'file_example.jpg';
         
+        // Tạo thẻ <a> và kích hoạt sự kiện tải về
+        const a = document.createElement('a');
+        a.href = response.data.file_url;  // URL của file
+  
+        // Đảm bảo tên file có trong response
+        a.download = response.data.file_name || 'file_download';
+  
         // Thêm thẻ vào DOM để kích hoạt sự kiện tải về
         document.body.appendChild(a);
-        
-        // Trigger sự kiện click để tải file
+  
+        // Kích hoạt sự kiện click để tải file
         a.click();
-        
-        // Loại bỏ thẻ sau khi tải xong
+  
+        // Loại bỏ thẻ <a> sau khi tải xong
         document.body.removeChild(a);
       } else {
-        setCanDownload(false);
-        message.error(response.data.message);
+        message.error(response.data.message || 'Không có quyền tải file');
       }
     } catch (error) {
       console.error('Error checking download permission:', error);
-      setCanDownload(false);
       message.error('Tải file thất bại');
     }
   };
+  
 
   // Nội dung Popover
   const content = (
@@ -362,68 +347,104 @@ function All() {
     </div>
   );
   // Nội dung Popover
-  const option_folder = (folder) => (
-    <div>
-      <p>
-        <a href="#">
-          <FaCloudDownloadAlt /> Tải xuống thư mục
-        </a>
-      </p>
-      <hr />
-      <p>
-        <a href="#" onClick={() => showRenameModal(folder)}>
-          <MdDriveFileRenameOutline /> Đổi tên thư mục
-        </a>
-      </p>
-      <p>
-        <a href="#" onClick={() => showModalShareFolder(folder)}>
-          <FaShareSquare /> Chia sẻ thư mục
-        </a>
-      </p>
-      <hr />
-      <p>
-        <a href="#" onClick={() => handleDeleteFile(folder)}>
-          <RiDeleteBin5Line />
-          Chuyển vào thùng rác
-        </a>
-      </p>
-    </div>
-  );
-
-  const option_file = (file) => (
-    <div>
-      <p>
-        <a
-          onClick={async (e) => {
-            e.preventDefault(); // Ngăn hành động mặc định
-            await checkDownloadPermission(file.id); // Kiểm tra và tải file
-          }}
-        >
-          <FaCloudDownloadAlt /> Tải xuống file
-          <a href={`http://127.0.0.1:8000/${file.file_storage_path}`} hidden className="abc">
-            a
+  const option_folder = (folder) => {
+    const isEditable = folder.permission === 2 || folder.permission === 3;
+    const isShareable = folder.permission === 3;
+  
+    return (
+      <div>
+        {/* Đổi tên thư mục */}
+        <p>
+          <a
+            href="#"
+            className={isEditable ? "" : "disabled-link faded"} // Vô hiệu hóa nếu không có quyền
+            onClick={(e) => {
+              if (isEditable) {
+                showRenameModal(folder);
+              } else {
+                e.preventDefault(); // Ngăn hành động nếu không có quyền
+              }
+            }}
+          >
+            <MdDriveFileRenameOutline /> Đổi tên thư mục
           </a>
-        </a>
-      </p>
-      <hr />
-      <p>
-        <a href="#" onClick={() => showRenameFileModal(file)}>
-          <MdDriveFileRenameOutline /> Đổi tên file
-        </a>
-      </p>
-      <p>
-        <a href="#" onClick={() => showModalShareFile(file)}>
-          <FaShareSquare /> Chia sẻ file
-        </a>
-      </p>
-      <hr />
-      <p>
-        <a href="#" onClick={() => handleDeleteFile(file)}>
-          <RiDeleteBin5Line /> Chuyển vào thùng rác
-        </a>
-      </p>
-    </div>
-  );
+        </p>
+  
+        {/* Chia sẻ thư mục */}
+        <p>
+          <a
+            href="#"
+            className={isShareable ? "" : "disabled-link faded"} // Vô hiệu hóa nếu không có quyền
+            onClick={(e) => {
+              if (isShareable) {
+                showModalShareFolder(folder);
+              } else {
+                e.preventDefault(); // Ngăn hành động nếu không có quyền
+              }
+            }}
+          >
+            <FaShareSquare /> Chia sẻ thư mục
+          </a>
+        </p>
+      </div>
+    );
+  };
+  
+  const option_file = (file) => {
+    const canDownload = file.can_download === 1;
+    const canEdit = file.can_edit === 1;
+  
+    const handleDownloadClick = async (e) => {
+      e.preventDefault(); // Ngăn hành động mặc định
+      if (canDownload) {
+        await checkDownloadPermission(file.id); // Kiểm tra và tải file
+      }
+    };
+  
+    return (
+      <div>
+        {/* Tải xuống file */}
+        <p>
+          <a
+            href="#"
+            onClick={handleDownloadClick}
+            className={canDownload ? "" : "disabled-link faded"} // Vô hiệu hóa nếu không có quyền
+          >
+            <FaCloudDownloadAlt /> Tải xuống file
+          </a>
+        </p>
+  
+        {/* Đổi tên file */}
+        {canEdit && (
+          <>
+            <hr />
+            <p>
+              <a
+                href="#"
+                onClick={() => showRenameFileModal(file)}
+                className={canEdit ? "" : "disabled-link faded"} // Vô hiệu hóa nếu không có quyền
+              >
+                <MdDriveFileRenameOutline /> Đổi tên file
+              </a>
+            </p>
+          </>
+        )}
+  
+        {/* Chia sẻ file */}
+        {(!canEdit && canDownload) && (
+          <p>
+            <a
+              href="#"
+              className="disabled-link faded"
+              onClick={(e) => e.preventDefault()}
+            >
+              <FaShareSquare /> Chia sẻ file
+            </a>
+          </p>
+        )}
+      </div>
+    );
+  };
 
   const getFileIcon = (fileName) => {
     const ext = fileName.split('.').pop().toLowerCase();

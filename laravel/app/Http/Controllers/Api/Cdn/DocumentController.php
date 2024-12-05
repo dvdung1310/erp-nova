@@ -144,7 +144,8 @@ class DocumentController extends Controller
                 return response()->json([
                     'can_download' => true,
                     'file_id' => $id,
-                    'file_url' => url($check_rule->file_storage_path) // Trả về URL đầy đủ của file
+                    'file_url' => url($check_rule->file_storage_path),
+                    'file_name' => $check_rule->file_name
                 ]);
             } else {
                 return response()->json([
@@ -185,34 +186,43 @@ class DocumentController extends Controller
             // Lấy dữ liệu từ request
             $user_ids = $request->user_id;
             $roles = $request->role;
-
+    
             // Kiểm tra dữ liệu
             if (!$user_ids || !$roles) {
                 return response()->json(['error' => 'Thiếu dữ liệu user_id hoặc role'], 400);
             }
-
+    
             // Duyệt qua từng user_id
             foreach ($user_ids as $user_id) {
-                // Tạo một bản ghi mới cho mỗi user_id
-                $data = new CdnFileShareModel();
-                $data->file_id = $id;
-                $data->user_id = $user_id;
-
-                // Gán quyền dựa trên role
-                $data->can_edit = in_array("1", $roles); // Quyền chỉnh sửa
-                $data->can_download = in_array("2", $roles); // Quyền tải xuống
-
-                // Lưu bản ghi vào cơ sở dữ liệu
-                $data->save();
+                // Kiểm tra xem bản ghi đã tồn tại hay chưa
+                $existingShare = CdnFileShareModel::where('file_id', $id)
+                    ->where('user_id', $user_id)
+                    ->first();
+    
+                if ($existingShare) {
+                    // Nếu đã tồn tại, cập nhật quyền
+                    $existingShare->can_edit = in_array("1", $roles); // Quyền chỉnh sửa
+                    $existingShare->can_download = in_array("2", $roles); // Quyền tải xuống
+                    $existingShare->save();
+                } else {
+                    // Nếu chưa tồn tại, thêm mới bản ghi
+                    $data = new CdnFileShareModel();
+                    $data->file_id = $id;
+                    $data->user_id = $user_id;
+                    $data->can_edit = in_array("1", $roles); // Quyền chỉnh sửa
+                    $data->can_download = in_array("2", $roles); // Quyền tải xuống
+                    $data->save();
+                }
             }
+    
             return response()->json([
                 'success' => true,
-                'message' => 'Tạo thư mục thành công',
+                'message' => 'Quyền đã được cập nhật hoặc tạo mới thành công',
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Tạo thư mục thất bại',
+                'message' => 'Thao tác thất bại',
                 'error' => $e->getMessage(),
             ], 500);
         }
@@ -476,38 +486,50 @@ class DocumentController extends Controller
         }
     }
     public function share_folder(Request $request, $id)
-    {
-        try {
-            // Lấy dữ liệu từ request
-            $user_ids = $request->user_id;
-            $roles = $request->role;
+{
+    try {
+        // Lấy dữ liệu từ request
+        $user_ids = $request->user_id;
+        $roles = $request->role;
 
-            // Kiểm tra dữ liệu
-            if (!$user_ids || !$roles) {
-                return response()->json(['error' => 'Thiếu dữ liệu user_id hoặc role'], 400);
-            }
+        // Kiểm tra dữ liệu
+        if (!$user_ids || !$roles) {
+            return response()->json(['error' => 'Thiếu dữ liệu user_id hoặc role'], 400);
+        }
 
-            // Duyệt qua từng user_id
-            foreach ($user_ids as $user_id) {
-                // Tạo một bản ghi mới cho mỗi user_id
+        // Duyệt qua từng user_id
+        foreach ($user_ids as $user_id) {
+            // Kiểm tra xem bản ghi đã tồn tại hay chưa
+            $existingPermission = CdnFilePermissionModel::where('file_id', $id)
+                ->where('user_id', $user_id)
+                ->first();
+
+            if ($existingPermission) {
+                // Nếu đã tồn tại, cập nhật quyền
+                $existingPermission->permission = $roles;
+                $existingPermission->save();
+            } else {
+                // Nếu chưa tồn tại, thêm mới bản ghi
                 $data = new CdnFilePermissionModel();
                 $data->file_id = $id;
                 $data->user_id = $user_id;
                 $data->permission = $roles;
                 $data->save();
             }
-            return response()->json([
-                'success' => true,
-                'message' => 'Tạo thư mục thành công',
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Tạo thư mục thất bại',
-                'error' => $e->getMessage(),
-            ], 500);
         }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Quyền đã được cập nhật hoặc tạo mới thành công',
+        ], 201);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Thao tác thất bại',
+            'error' => $e->getMessage(),
+        ], 500);
     }
+}
 
     public function re_store($id){
         try {

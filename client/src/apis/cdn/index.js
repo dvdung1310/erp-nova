@@ -146,22 +146,21 @@ export const storeFolderFile = async (formData, config, id) => {
 };
 export const checkDownloadFile = async (id) => {
     try {
-        const response = await instanceAxios.get(
-            `${LARAVEL_SERVER}/api/check-download-file/${id}`, 
-          
-            {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${token}`,
-                },
-            }
-        );
-        return response;
+      const response = await instanceAxios.get(
+        `${LARAVEL_SERVER}/api/check-download-file/${id}`, 
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${token}`,
+          },
+        }
+      );
+      return response;
     } catch (error) {
-        console.error('Error uploading files:', error.response ? error.response.data : error.message);
-        throw error;
+      console.error('Error checking download file:', error.response ? error.response.data : error.message);
+      throw error;
     }
-};
+  };
 export const showFileShare = async (id) => {
     try {
       const response = await axios.get(`${LARAVEL_SERVER}/api/show-file-share/${id}`);
