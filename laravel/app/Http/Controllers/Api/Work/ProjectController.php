@@ -1079,14 +1079,18 @@ class ProjectController extends Controller
     {
         try {
             $user_id = auth()->user()->id;
-            $projects = ProjectMember::where('user_id', $user_id)
-                ->with(['project' => function ($query) {
-                    $query->with(['projectMembers.user'])->orderBy('created_at');
+            $projects = Project::whereHas('projectMembers', function ($query) use ($user_id) {
+                $query->where('user_id', $user_id);
+            })
+                ->with(['projectMembers.user', 'leader'])
+                ->withCount(['tasks as total_tasks', 'tasks as completed_tasks' => function ($query) {
+                    $query->whereIn('task_status', [2, 3]);
                 }])
+                ->orWhere('leader_id', $user_id) // Filter projects by leader_id
+                ->orderBy('created_at')
                 ->get()
-                ->map(function ($projectMember) {
-                    $project = $projectMember->project;
-                    $project->user = $projectMember->user; // Add user information to the project
+                ->map(function ($project) {
+                    $project->user = $project->projectMembers->first()->user; // Add user information to the project
                     return $project;
                 });
 

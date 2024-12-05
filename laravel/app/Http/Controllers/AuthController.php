@@ -99,7 +99,6 @@ class AuthController extends Controller
             return response()->json([
                 'data' => [
                     'accessToken' => $accessToken,
-                    'role_id' => $role_id,
                     'user_id' => $user_id
                 ],
                 'error' => false,

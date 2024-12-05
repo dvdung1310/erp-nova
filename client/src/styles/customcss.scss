@@ -2,7 +2,10 @@
   min-width: 400px;
   padding: 20px !important;
 }
-
+.ant-card-head {
+  display: block !important;
+  height: initial !important;
+}
 .ant-layout-content {
 }
 

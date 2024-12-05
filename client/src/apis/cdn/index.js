@@ -44,7 +44,7 @@ export const storeFile = async (data) => {
             `${LARAVEL_SERVER}/api/store-file`,data,
             {
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${token}`
                 }
             }

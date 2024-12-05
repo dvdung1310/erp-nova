@@ -106,8 +106,8 @@ function CreateProject({visible, onCancel, group_id, listUser = []}) {
                 project_description: editorState.toString('html'),
                 project_start_date: data?.project_start_date?.format('YYYY-MM-DD'),
                 project_end_date: data?.project_end_date?.format('YYYY-MM-DD'),
+                project_type: 0,
                 group_id,
-                project_type: selectedOption,
                 leader_id: selectedMembers?.id,
                 pathname
             }
@@ -208,14 +208,6 @@ function CreateProject({visible, onCancel, group_id, listUser = []}) {
                                 </Form.Item>
                             </Col>
                         </Row>
-                        <FormControl component="fieldset" style={{margin: '10px 0'}}>
-                            <RadioGroup value={selectedOption} onChange={handleOptionChange}
-                                        style={{flexDirection: 'row'}}>
-                                <FormControlLabel value="0" control={<Radio/>}
-                                                  label="Dự án chuyên môn (mặc định)"/>
-                                <FormControlLabel value="1" control={<Radio/>} label="Dự án phát sinh"/>
-                            </RadioGroup>
-                        </FormControl>
                         <Form.Item style={{marginTop: '10px'}} name="leader" label="Chọn người phụ trách"
                         >
                             <Input

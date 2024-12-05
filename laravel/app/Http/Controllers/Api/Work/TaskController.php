@@ -645,14 +645,11 @@ class TaskController extends Controller
             ]);
             $members = $task->users->pluck('id');
             $project = Project::find($task->project_id);
-            $leader_id = $project->leader_id;
-            $members[] = $leader_id;
-            $members = array_unique($members->toArray());
-            $user_id = auth()->user()->id;
-            $role_id = auth()->user()->role_id;
-            $project = Project::find($task->project_id);
+            // checl role
             $group_id = $project->group_id;
+            $role_id = auth()->user()->role_id;
             $group = Group::find($group_id);
+            $user_id = auth()->user()->id;
             if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2 && $group->leader_id != $user_id) {
                 return response()->json([
                     'error' => true,
@@ -660,6 +657,41 @@ class TaskController extends Controller
                     'data' => $role_id
                 ], 403);
             }
+            // check score kpi user
+            $scoreKpi = $validatedData['task_score_kpi'];
+            $listUser = $task->users;
+            $selectedTask = Task::find($task_id);
+            $startMonth = Carbon::now()->startOfMonth();
+            $endMonth = Carbon::now()->endOfMonth();
+            foreach ($listUser as $user) {
+                $taskByUserInMonth = Task::whereHas('users', function ($query) use ($user) {
+                    $query->where('users.id', $user->id);
+                })
+                    ->where('task_start_date', '>=', $startMonth)
+                    ->where('task_end_date', '<=', $endMonth)
+                    ->get();
+                if ($taskByUserInMonth->isEmpty()) {
+                    continue;
+                }
+                $totalScoreKpi = 0;
+                foreach ($taskByUserInMonth as $taskItem) {
+                    $totalScoreKpi += $taskItem->task_score_kpi;
+                }
+
+                $existingScore = $selectedTask ? $selectedTask->task_score_kpi : 0;
+                $newTotalScore = $totalScoreKpi - $existingScore + $scoreKpi;
+
+                if ($newTotalScore > 80) {
+                    return response()->json([
+                        'error' => true,
+                        'message' => 'Điểm kpi của ' . $user->name . ' trong tháng đã vượt quá 80 điểm còn lại' . ' ' . (80 - $totalScoreKpi + $existingScore) . ' điểm',
+                        'data' => $taskByUserInMonth
+                    ], 400);
+                }
+            }
+            $leader_id = $project->leader_id;
+            $members[] = $leader_id;
+            $members = array_unique($members->toArray());
             $task->update($validatedData);
             // insert comment
             $message = Message::create([
@@ -720,7 +752,7 @@ class TaskController extends Controller
             return response()->json([
                 'error' => false,
                 'message' => 'Task name updated successfully',
-                'data' => $task
+                'data' => $task,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([

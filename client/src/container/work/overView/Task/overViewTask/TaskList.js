@@ -123,7 +123,7 @@ const TaskList = (props) => {
     };
     const history = useHistory();
     const [form] = Form.useForm();
-    const {listUser, tasks, setTasks, isHome, project} = props;
+    const {listUser, tasks, setTasks, isHome, project, report} = props;
     const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
     const params = useParams()
     const {id} = params;
@@ -357,27 +357,12 @@ const TaskList = (props) => {
                     setLoadingUpdate(false);
                     return;
                 }
-                const totalScore = tasks.reduce((total, task) => total + task.task_score_kpi, 0);
-                const existingScore = selectedTask ? selectedTask.task_score_kpi : 0;
-                const newTotalScore = totalScore - existingScore + Number(scoreKPI);
-
-                console.log(newTotalScore, scoreKPI);
-                if (project?.project_type === 0) {
-                    if (newTotalScore > 60) {
-                        toast.error('Tổng điểm KPI không được vượt quá 60', {
-                            position: "top-right", autoClose: 1000
-                        });
-                        setLoadingUpdate(false);
-                        return;
-                    }
-                } else {
-                    if (newTotalScore > 20) {
-                        toast.error('Tổng điểm KPI không được vượt quá 20', {
-                            position: "top-right", autoClose: 1000
-                        });
-                        setLoadingUpdate(false);
-                        return;
-                    }
+                if (scoreKPI > 80) {
+                    toast.error('Điểm KPI không được vượt quá 80', {
+                        position: "top-right", autoClose: 1000
+                    })
+                    setLoadingUpdate(false);
+                    return;
                 }
 
                 const payload = {
@@ -744,7 +729,7 @@ const TaskList = (props) => {
                                 Ghi chú
                             </TableCell>
                             <TableCell>
-                                Điểm KPI
+                                {report ? 'Dự án' : 'Điểm KPI'}
                             </TableCell>
                             <TableCell style={{width: '200px'}}>
                                 Người thực hiện
@@ -791,7 +776,7 @@ const TaskList = (props) => {
                                                 onClick={(event) => handleNameClick(event, task)}
                                             >
                                                 {task?.task_name || '....'}
-                                                {isHome && (
+                                                {isHome && !report && (
                                                     <>
                                                         <br/>
                                                         <span><strong>Dự án:</strong> {task?.project?.project_name}</span>
@@ -895,9 +880,9 @@ const TaskList = (props) => {
                                                 )}
                                             </TableCell>
                                             <TableCell className="table-cell"
-                                                       onClick={(event) => handleScoreKPIClick(event, task)}
+                                                       // onClick={(event) => handleScoreKPIClick(event, task)}
                                             >
-                                                {task?.task_score_kpi}
+                                                {report ? task?.project?.project_name : task?.task_score_kpi}
                                             </TableCell>
                                             <TableCell className="table-cell"
                                                        onClick={(event) => handleUserClick(event, task)}

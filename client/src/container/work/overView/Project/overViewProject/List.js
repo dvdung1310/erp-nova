@@ -777,11 +777,6 @@ function ProjectLists({listProject, listUser = [], isHome}) {
                                                 <span>Cập nhật trạng thái</span>
                                             </div>
                                             <div className='action-item'
-                                                 onClick={() => handleEditClick('type', value)}>
-                                                <FiType size={30} className='d-block ms-1 fs-4 text-secondary'/>
-                                                <span>Cập nhật loại dự án</span>
-                                            </div>
-                                            <div className='action-item'
                                                  onClick={() => handleEditClick('members', value)}>
                                                 <MdGroups size={30} className='d-block ms-1 fs-4 text-secondary'/>
                                                 <span>Thành viên</span>
