@@ -149,6 +149,26 @@ function MenuItems({darkMode, toggleCollapsed, topMenu, events}) {
                         Đề xuất
                     </NavLink>
                 </Menu.Item>
+                   <Menu.Item style={{display: 'none'}} className='pl-custom-sidebar' key="exam-list">
+                     <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-de`}>
+                       Kho đề
+                     </NavLink>
+                   </Menu.Item>
+                   <Menu.Item style={{display: 'none'}} className='pl-custom-sidebar' key="document-list">
+                     <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-ta-lieu`}>
+                       Kho tài liệu
+                     </NavLink>
+                   </Menu.Item>
+                   <Menu.Item style={{display: 'none'}} className='pl-custom-sidebar' key="khoa-hoc-list">
+                     <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-de`}>
+                       Khóa học
+                     </NavLink>
+                   </Menu.Item>
+                   <Menu.Item style={{display: 'none'}} className='pl-custom-sidebar'   key="exam-add">
+                     <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/tao-de`}>
+                       Tạo đề
+                     </NavLink>
+                   </Menu.Item>
                 {/*<Menu.Item key="nvu-home">*/}
                 {/*  <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su`}>*/}
                 {/*    Nhân sự*/}

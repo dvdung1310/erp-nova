@@ -32,6 +32,7 @@ function ListWorkConfirmationStatus() {
         const fetchData = async () => {
             try {
                 const response = await listWorkConfimationStatus1(); 
+                console.log('response',response);
                 if (response) {
                     setData(response); 
                     setFilteredData(response);
@@ -110,7 +111,7 @@ function ListWorkConfirmationStatus() {
                                         <strong>Ngày tạo:</strong> <span style={{ fontSize:'18px' , marginLeft:'10px'}}>{new Date(user.created_at).toLocaleString()}</span>
                                     </div>
                                     <div>
-                                        <strong>Trạng thái:</strong> <span style={{ fontSize:'18px' , marginLeft:'10px'}}>{getStatusTag(user.status)}</span>
+                                        <strong>Trạng thái:</strong> <span style={{ fontSize:'18px' , marginLeft:'10px'}}>{getStatusTag(user.status_detail)}</span>
                                     </div>
                                     <div style={{ marginTop: '15px', textAlign: 'center' }}>
                                         <Button

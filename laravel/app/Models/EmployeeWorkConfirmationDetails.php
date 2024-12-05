@@ -18,7 +18,9 @@ class EmployeeWorkConfirmationDetails extends Model
         'time',
         'work_number',
         'work_content',
-        'reason'
+        'reason',
+        'image',
+        'status',
     ];
 
     public function workConfirmation()

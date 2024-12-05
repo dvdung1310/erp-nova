@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Row, Col, Input, Card, Button, Table, Typography, Spin  ,Form , Tag } from 'antd';
+import { Row, Col, Input, Card, Button, Table, Typography, Spin  ,Modal , Tag } from 'antd';
 import {toast} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { useParams } from 'react-router-dom';
-import { detailWorkConfimation  , updateDetailWorkConfimation , updateStatus} from '../../../apis/employees/workconfimation';
+import { detailWorkConfimation  , updateDetailWorkConfimation , updateStatus , updateStatusDetail} from '../../../apis/employees/workconfimation';
 import {getAllUsers} from '../../../apis/employees/employee';
 const { Title, Text } = Typography;
 const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
@@ -31,19 +31,11 @@ const ManagerCheckWorkConfirmation = () => {
         department_id: '',
         work_confirmation_details: [],
     });
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [selectedId, setSelectedId] = useState(null);
     const [listUserData, setListUser] = useState([]);
-    const [showModalUpdateMembers, setShowModalUpdateMembers] = useState(false);
-    const [form] = Form.useForm();
-    const [searchTerm, setSearchTerm] = useState('');
-    const handleCancel = () => {
-        setShowModalUpdateMembers(false);
-    };
-    const opentModelDayOff = () => {
-        setShowModalUpdateMembers(true);
-    }
-
-    const [selectedMembers, setSelectedMembers] = useState([]);
-
+    const [isImageModalVisible, setIsImageModalVisible] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
     const fetchData = async () => {
         try {
             setLoading(true);
@@ -66,7 +58,7 @@ const ManagerCheckWorkConfirmation = () => {
                     toast.success(update_status.message);
                     fetchData();
                 } catch (error) {
-                    toast.error('Bạn đã xóa đề thi thất bại');
+                    toast.error('Lỗi');
                 }
     };
 
@@ -74,29 +66,29 @@ const ManagerCheckWorkConfirmation = () => {
         fetchData();
     }, [workConfirmationId]);
 
-  
-    const handleSearchChange = (e) => setSearchTerm(e.target.value);
-
-    const handleSelectMember = (member) => {
-        if (!selectedMembers.some((selected) => selected.email === member.email)) {
-            setSelectedMembers([...selectedMembers, member]);
-        }
-    };
-
-    const handleRemoveMember = (email) => {
-        setSelectedMembers(selectedMembers.filter((member) => member.email !== email));
-    };
     const handleInputChange = (index, field, value) => {
         const updatedDetails = [...data.work_confirmation_details];
         updatedDetails[index][field] = value;
         setData({ ...data, work_confirmation_details: updatedDetails });
     };
 
-    const filteredMembers = listUserData?.filter(
-        (member) =>
-            member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            member.email.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
+    const handleModel = (index) => {
+        const recordId = data.work_confirmation_details[index]?.id;
+        console.log('recordId',recordId);
+        setSelectedId(recordId); // Lưu id vào state
+        setIsModalVisible(true); // Hiển thị modal
+    };
+
+    const handleModalAction = async (status) => {
+        try {
+            await updateStatusDetail(selectedId, status); // Gửi API với ID và trạng thái
+            toast.success(`Cập nhật trạng thái thành công`);
+            fetchData(); // Cập nhật lại danh sách
+            setIsModalVisible(false); // Đóng modal
+        } catch (error) {
+            toast.error('Cập nhật trạng thái thất bại');
+        }
+    };
 
     const handleUpdateRow = async (index) => {
         const updatedDetail = data.work_confirmation_details[index];
@@ -180,16 +172,63 @@ const ManagerCheckWorkConfirmation = () => {
                 />
             )
         },
+        {
+            title : 'Ảnh',
+            dataIndex:'image',
+            with:300,
+            render: (_,record, index) => (
+                <div style={{width:'50px'}}
+                  onClick={() => {
+                    setSelectedImage(`${LARAVEL_SERVER}/storage/${record.image}`);
+                    setIsImageModalVisible(true);
+                  }}
+                >
+                  Xem ảnh
+                </div>
+              ),
+        },
+
+        {
+            title: 'Trạng thái',
+            dataIndex: 'status_detail',
+            render: (_, record, index) => {
+                if (record.status_detail === 1) {
+                    return <Tag color="green">Đã duyệt</Tag>;
+                } 
+                if (record.status_detail === 0) {
+                    return <Tag color="red">Không duyệt</Tag>;
+                } 
+
+                if (record.status_detail === null) {
+                    return <Tag color="gray">Đang chờ</Tag>;
+                } 
+            }
+        },
 
         {
             title: 'Chức năng',
-            width: 180,
+            width: 300,
             key: 'action',
-            render: (_, __, index) => (
+            render: (_, record, index) => {
+                return(
                 <>
-                    <Button type="primary" onClick={() => handleUpdateRow(index)} style={{ marginRight: 8 }}>Sửa</Button>
-                </>
-            ),
+                    <Button 
+                        type="primary"
+                        onClick={() => handleUpdateRow(index)}
+                        style={{ marginRight: 8, marginBottom:'10px'}}
+                    >
+                        Sửa
+                    </Button>
+                    <Button
+                        type="primary"
+                        onClick={() => handleModel(index)}
+                        style={{ marginRight: 8 }}
+                    >
+                        Xác nhận
+                    </Button>
+                </>)
+                    
+            },
         },
     ];
 
@@ -209,7 +248,7 @@ const ManagerCheckWorkConfirmation = () => {
                     </div>
                 </div>
                 <Title level={3} style={{ textAlign: 'center', marginBottom: '5px' }}>Giấy xác nhận công</Title>
-                <Text strong>Kính gửi:</Text> <Text>Phòng Hành Chính Nhân Sự</Text>
+                <Text strong style={{ fontSize:'18px' }}>Kính gửi:</Text> <Text style={{ fontSize:'18px' , marginLeft:'15px' }}>Phòng Hành Chính Nhân Sự</Text>
                 <div style={{ marginTop: '0px' }}>
                     <Row gutter={16}>
                         <Col span={16}>
@@ -224,9 +263,9 @@ const ManagerCheckWorkConfirmation = () => {
                         <Col span={16}>
                             <Text strong>Chức vụ: <span className='ms-2' style={{ fontSize:'18px' , marginLeft:'15px' }}>{data.level_name}</span></Text>
                         </Col>
-                        <Col span={16}>
+                        {/* <Col span={16}>
                             <Text strong>Trạng thái: <span className='ms-2' style={{ fontSize:'18px' , marginLeft:'15px' }}>{getStatusTag(data.status)}</span></Text>
-                        </Col>
+                        </Col> */}
                     </Row>
                 </div>
 
@@ -240,13 +279,27 @@ const ManagerCheckWorkConfirmation = () => {
                     pagination={false}
                     tableLayout="fixed"
                     rowKey={(record) => record.stt}
+                    scroll={{x: 'max-content'}}
+                    style={{borderRadius: "8px", overflow: "hidden"}}
                 />
 
-                <div style={{ marginTop: '10px', textAlign: 'end' }}>
+                <div style={{ marginTop: '10px', textAlign: 'end' , display:'none'}}>
                     <Button style={{marginRight:'15px'}} onClick={() => handleUpdateStatus(data.work_confirmation_id,1)} type="primary">Duyệt</Button>
                     <Button type="danger" onClick={() => handleUpdateStatus(data.work_confirmation_id,2)}>Không duyệt</Button>
                 </div>
+                <Modal title="Xác nhận" visible={isModalVisible} onCancel={() => setIsModalVisible(false)}  footer={null} >
+                <div style={{ textAlign: 'right' }}>
+                <Button type="primary" style={{ marginRight: 8 }} onClick={() => handleModalAction(1)}  > Duyệt</Button>
+                <Button type="danger" onClick={() => handleModalAction(0)}>Không duyệt</Button>
+                </div>
+                </Modal>
+
+                <Modal title="Xem ảnh"  visible={isImageModalVisible} footer={null}  onCancel={() => setIsImageModalVisible(false)} >
+                        <img src={selectedImage}  alt="Preview" style={{ width: '100%' }}  />
+                </Modal>
             </Card>
+
+            
             )}
         </div>
     );

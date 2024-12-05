@@ -89,6 +89,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'work-confirmations'], function
     Route::get('list_employee', [WorkConfirmationController::class, 'getEmployeeConfirmations']);
     Route::post('update_detail', [WorkConfirmationController::class, 'updateDetailWorkConfimation']);
     Route::post('update_status/{id}/{status}', [WorkConfirmationController::class, 'updateStatus'])->middleware(middlewareLogin::class);
+    Route::post('update_status_detail/{id}/{status}', [WorkConfirmationController::class, 'updateStatusEmployee_work_confirmation_details'])->middleware(middlewareLogin::class);
     Route::get('listbyuser', [WorkConfirmationController::class, 'listWorkConfimationUser']);
     Route::get('danh-sach-cong-da-duyet', [WorkConfirmationController::class, 'listWorkConfimationStatus1']);
 });

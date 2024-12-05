@@ -37,6 +37,9 @@ const DetailWorkConfimation = () => {
         setShowModalUpdateMembers(true);
     }
 
+    const [isImageModalVisible, setIsImageModalVisible] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
+
     const [selectedMembers, setSelectedMembers] = useState([]);
 
     const fetchData = async () => {
@@ -214,13 +217,47 @@ const DetailWorkConfimation = () => {
         },
 
         {
+            title : 'Ảnh',
+            dataIndex:'image',
+            with:80,
+            render: (text, record) => (
+                <a
+                  onClick={() => {
+                    setSelectedImage(`${LARAVEL_SERVER}/storage/${record.image}`);
+                    setIsImageModalVisible(true);
+                  }}
+                >
+                  Xem ảnh
+                </a>
+              ),
+        },
+
+        {
+            title: 'Trạng thái',
+            dataIndex: 'status_detail',
+            width: 150,
+            render: (_, record, index) => {
+                if (record.status_detail === 1) {
+                    return <Tag color="green">Đã duyệt</Tag>;
+                } 
+                if (record.status_detail === 0) {
+                    return <Tag color="red">Không duyệt</Tag>;
+                } 
+
+                if (record.status_detail === null) {
+                    return <Tag color="gray">Đang chờ</Tag>;
+                } 
+            }
+        },
+
+        {
             title: 'Chức năng',
             width: 180,
             key: 'action',
-            render: (_, __, index) => (
+            render: (_, record, index) => (
                 <>
                     {
-                        data.status === 0 && <>
+                        record.status_detail !== 0 && record.status_detail !== 1 && <>
                             <Button type="primary" onClick={() => handleUpdateRow(index)}
                                     style={{marginRight: 8}}>Sửa</Button>
                             <Button type="danger"
@@ -249,7 +286,7 @@ const DetailWorkConfimation = () => {
                             </div>
                         </div>
                         <Title level={3} style={{textAlign: 'center', marginBottom: '5px'}}>Giấy xác nhận công</Title>
-                        <Text strong>Kính gửi:</Text> <Text>Phòng Hành Chính Nhân Sự</Text>
+                        <Text strong style={{fontSize: '18px'}}>Kính gửi:</Text> <Text style={{fontSize: '18px', marginLeft: '15px'}}>Phòng Hành Chính Nhân Sự</Text>
                         <div style={{marginTop: '0px'}}>
                             <Row gutter={16}>
                                 <Col span={16}>
@@ -277,12 +314,12 @@ const DetailWorkConfimation = () => {
                                     }}>{data.level_name}</span></Text>
                                 </Col>
 
-                                <Col span={16}>
+                                {/* <Col span={16}>
                                     <Text strong>Trạng thái: <span className='ms-2' style={{
                                         fontSize: '18px',
                                         marginLeft: '15px'
                                     }}>{getStatusTag(data.status)}</span></Text>
-                                </Col>
+                                </Col> */}
                             </Row>
                         </div>
 
@@ -296,15 +333,16 @@ const DetailWorkConfimation = () => {
                             pagination={false}
                             tableLayout="fixed"
                             rowKey={(record) => record.stt}
-                            scroll={{ x: 1000 }}
+                            scroll={{x: 'max-content'}}
+                            style={{borderRadius: "8px", overflow: "hidden"}}
                         />
 
 
-                        {data.status === 0 && (
-                            <div style={{marginTop: '10px', textAlign: 'center'}}>
-                                <Button type="primary" onClick={opentModelDayOff}>Gửi xác nhận</Button>
-                            </div>
-                        )}
+{data.status_detail !== 0 && data.status_detail !== 1 && (
+    <div style={{marginTop: '10px', textAlign: 'center'}}>
+        <Button type="primary" onClick={opentModelDayOff}>Gửi xác nhận</Button>
+    </div>
+)}
 
                         {/* Modal to manage selected members */}
                         <Modal
@@ -397,6 +435,9 @@ const DetailWorkConfimation = () => {
                                     </Button>
                                 </div>
                             </Form>
+                        </Modal>
+                        <Modal title="Xem ảnh"  visible={isImageModalVisible} footer={null}  onCancel={() => setIsImageModalVisible(false)} >
+                        <img src={selectedImage}  alt="Preview" style={{ width: '100%' }}  />
                         </Modal>
                     </Card>
                 )}
