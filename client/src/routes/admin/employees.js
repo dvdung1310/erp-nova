@@ -44,7 +44,7 @@ function Employees() {
             <Route path={`${path}/profile/:employee_id`} component={CrmEmployeeProfile}/>
             <Route path={`${path}/lich-lam-viec`} component={FullWorkSchedule}/>
             <Route path={`${path}/dang-ki/lich-lam-viec`} component={CreateWorksSchedule}/>
-            <Route path={`${path}/tao-de`} component={CreateExam}/>
+            <Route path={`${path}/tao-de/:type`} component={CreateExam}/>
             <Route path={`${path}/de-thi/:id`} component={DetailExam} />
             <Route path={`${path}/lam-bai-thi/:id`} component={StartExam} />
             <Route path={`${path}/ket-qua-bai-thi/:id`} component={ResultExam} />

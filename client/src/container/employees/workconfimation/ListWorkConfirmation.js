@@ -23,6 +23,7 @@ function ListWorkConfirmation() {
     setLoading(true);
     try {
       const response = await listWorkConfimationUser();
+      console.log('response',response)
       setState((prevState) => ({
         ...prevState,
         confirmations: response || [],
@@ -77,6 +78,7 @@ function ListWorkConfirmation() {
     stt: index + 1,
     createdAt: new Date(confirmation.created_at).toLocaleDateString(),
     status: getStatusTag(confirmation.status),
+    status_detail: getStatusTag(confirmation.status_detail),
     invitedAvatars: (
       <Avatar.Group>
         {confirmation.managers && confirmation.managers.map((manager) => (
@@ -96,7 +98,7 @@ function ListWorkConfirmation() {
       <>
         <Button style={{marginRight:'15px'}} type="primary" onClick={() => history.push(`/admin/nhan-su/chi-tiet-xac-nhan-cong/${confirmation.id}`)}>Chi tiết</Button>
         {
-          confirmation.status === 0 && 
+          confirmation.status_detail === 0 && 
           <Button type="danger" onClick={() =>handleDelete(confirmation.id)}>Xóa</Button>
         }
         
@@ -118,8 +120,8 @@ function ListWorkConfirmation() {
     },
     {
       title: 'Trạng thái',
-      dataIndex: 'status',
-      key: 'status',
+      dataIndex: 'status_detail',
+      key: 'status_detail',
     },
     {
       title: 'Người được mời xác nhận',

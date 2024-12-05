@@ -48,7 +48,7 @@ function CheckWorkConfirmation() {
 
     <div style={{ padding: '20px' }} className='check-work-confirmation'>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-                          <h2>Danh sách nhân sự xác nhận công <span style={{ color: '#5F63F2', fontSize: '25px' }}></span></h2>
+                          <h2>Danh sách nhân sự xác nhận công<span style={{ color: '#5F63F2', fontSize: '25px' }}></span></h2>
                           <Button type="primary" onClick={() => history.push(`/admin/nhan-su/danh-sach-xac-nhan-cong`)}>
                               Danh sách xác nhận công
                           </Button>
@@ -86,7 +86,7 @@ function CheckWorkConfirmation() {
                     <strong>Ngày tạo:</strong> <span style={{ fontSize:'18px' , marginLeft:'10px'}}>{new Date(user.created_at).toLocaleString()}</span>
                   </div>
                   <div>
-                    <strong>Trạng thái:</strong> <span style={{ fontSize:'18px' , marginLeft:'10px'}}>{getStatusTag(user.status)}</span>
+                    <strong>Trạng thái:</strong> <span style={{ fontSize:'18px' , marginLeft:'10px'}}>{getStatusTag(user.status_detail)}</span>
                   </div>
                   <div style={{ marginTop: '15px', textAlign: 'center' }}>
                     <Button

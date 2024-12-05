@@ -161,13 +161,13 @@ const ExamTable = () => {
 
     return (
         <>
-            <Cards title="Danh sách đề thi">
-                <Table
-                    dataSource={dataSource}
-                    columns={columns}
-                    rowKey="id"
-                />
-                <ToastContainer />
+            <Cards>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <h3 style={{ margin: 0 }}>Danh Sách Kho Đề</h3>
+            <Button   type="tao-de"  onClick={() => history.push(`/admin/nhan-su/tao-de/1`)}> Tạo đề </Button>
+            </div>
+            <Table  dataSource={dataSource} columns={columns} rowKey="id"/>
+            <ToastContainer />
             </Cards>
             <Modal
                 title="Cập nhật đề thi"
