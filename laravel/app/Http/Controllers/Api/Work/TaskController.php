@@ -11,6 +11,7 @@ use App\Models\Notification;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskMember;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -29,7 +30,7 @@ class TaskController extends Controller
         $this->ClientUrl = env('CLIENT_URL');
     }
 
-    public function create(Request $request)
+    public function create(Request $request): JsonResponse
     {
         try {
             $validatedData = $request->validate([
@@ -93,7 +94,7 @@ class TaskController extends Controller
 
     }
 
-    public function getTaskByProjectId(Request $request, $project_id)
+    public function getTaskByProjectId(Request $request, $project_id): JsonResponse
     {
         try {
             $user_id = auth()->user()->id;
@@ -178,6 +179,34 @@ class TaskController extends Controller
             $taskMembers = TaskMember::where('task_id', $task_id)->pluck('user_id')->toArray();
             $membersToAdd = array_values(array_diff($members, $taskMembers));
             $membersToRemove = array_values(array_diff($taskMembers, $members));
+            if (!empty($membersToAdd)) {
+                foreach ($membersToAdd as $user_id) {
+                    // check score kpi user
+                    $taskByUserInMonth = Task::whereHas('users', function ($query) use ($user_id) {
+                        $query->where('users.id', $user_id);
+                    })
+//                    ->where('task_start_date', '>=', $startMonth)
+//                    ->where('task_end_date', '<=', $endMonth)
+                        ->get();
+                    if ($taskByUserInMonth->isEmpty()) {
+                        continue;
+                    }
+                    $totalScoreKpi = 0;
+                    foreach ($taskByUserInMonth as $taskItem) {
+                        $totalScoreKpi += $taskItem->task_score_kpi;
+                    }
+                    $userName = User::where('id', $user_id)->first()->name;
+
+                    if ($totalScoreKpi >= 80) {
+                        return response()->json([
+                            'error' => true,
+                            'message' => 'Điểm kpi của ' . $userName . ' trong tháng đã vượt quá 80 điểm, còn lại ' . (80 - $totalScoreKpi) . ' điểm',
+                            'data' => $totalScoreKpi
+                        ], 400);
+                    }
+                    //
+                }
+            }
             TaskMember::where('task_id', $task_id)->delete();
             $membersData = [];
             foreach ($members as $user_id) {
@@ -306,7 +335,7 @@ class TaskController extends Controller
 
     }
 
-    public function update(Request $request, $task_id)
+    public function update(Request $request, $task_id): JsonResponse
     {
         try {
             $task = Task::find($task_id);
@@ -356,7 +385,7 @@ class TaskController extends Controller
     }
 
 
-    public function delete(Request $request, $task_id)
+    public function delete(Request $request, $task_id): JsonResponse
     {
         try {
             $task = Task::find($task_id);
@@ -528,7 +557,7 @@ class TaskController extends Controller
         }
     }
 
-    public function updateProgress(Request $request, $task_id)
+    public function updateProgress(Request $request, $task_id): JsonResponse
     {
         try {
             $task = Task::with('users')->find($task_id);
@@ -629,7 +658,7 @@ class TaskController extends Controller
 
     }
 
-    public function updateScoreKpi(Request $request, $task_id)
+    public function updateScoreKpi(Request $request, $task_id): JsonResponse
     {
         try {
             $task = Task::with('users')->find($task_id);
@@ -660,15 +689,14 @@ class TaskController extends Controller
             // check score kpi user
             $scoreKpi = $validatedData['task_score_kpi'];
             $listUser = $task->users;
-            $selectedTask = Task::find($task_id);
             $startMonth = Carbon::now()->startOfMonth();
             $endMonth = Carbon::now()->endOfMonth();
             foreach ($listUser as $user) {
                 $taskByUserInMonth = Task::whereHas('users', function ($query) use ($user) {
                     $query->where('users.id', $user->id);
                 })
-                    ->where('task_start_date', '>=', $startMonth)
-                    ->where('task_end_date', '<=', $endMonth)
+//                    ->where('task_start_date', '>=', $startMonth)
+//                    ->where('task_end_date', '<=', $endMonth)
                     ->get();
                 if ($taskByUserInMonth->isEmpty()) {
                     continue;
@@ -678,24 +706,26 @@ class TaskController extends Controller
                     $totalScoreKpi += $taskItem->task_score_kpi;
                 }
 
-                $existingScore = $selectedTask ? $selectedTask->task_score_kpi : 0;
-                $newTotalScore = $totalScoreKpi - $existingScore + $scoreKpi;
-
-                if ($newTotalScore > 80) {
-                    return response()->json([
-                        'error' => true,
-                        'message' => 'Điểm kpi của ' . $user->name . ' trong tháng đã vượt quá 80 điểm còn lại' . ' ' . (80 - $totalScoreKpi + $existingScore) . ' điểm',
-                        'data' => $taskByUserInMonth
-                    ], 400);
+                if (in_array($task_id, $taskByUserInMonth->pluck('task_id')->toArray())) {
+                    $existingScore = $task ? $task->task_score_kpi : 0;
+                    $newTotalScore = $totalScoreKpi - $existingScore + $scoreKpi;
+                    if ($newTotalScore > 80) {
+                        return response()->json([
+                            'error' => true,
+                            'message' => 'Điểm kpi của ' . $user->name . ' trong tháng đã vượt quá 80 điểm còn lại' . ' ' . (80 - $totalScoreKpi + $existingScore) . ' điểm',
+                            'data' => $newTotalScore
+                        ], 400);
+                    }
                 }
             }
             $leader_id = $project->leader_id;
             $members[] = $leader_id;
             $members = array_unique($members->toArray());
+            $oldScoreKpi = $task->task_score_kpi;
             $task->update($validatedData);
             // insert comment
             $message = Message::create([
-                'text' => 'Cập nhật điểm kpi công việc ',
+                'text' => 'Cập nhật điểm kpi công việc ' . $oldScoreKpi . ' -> ' . $task->task_score_kpi,
                 'message_type' => 3,
                 'message_by_user_id' => $user_id,
             ]);
@@ -715,7 +745,7 @@ class TaskController extends Controller
                         'task_id' => $task_id,
                         'notification_status' => 0,
                         'create_by_user_id' => $create_by_user_id,
-                        'notification_title' => ' Đã cập nhật điểm kpi công việc: ' . $task->task_name,
+                        'notification_title' => ' Đã cập nhật điểm kpi công việc: ' . $task->task_name . ' ' . $oldScoreKpi . '->' . $task->task_score_kpi,
                         'notification_link' => $this->ClientUrl . $pathname,
                         'created_at' => now(),
                         'updated_at' => now(),
@@ -764,7 +794,7 @@ class TaskController extends Controller
 
     }
 
-    public function updateDescription(Request $request, $task_id)
+    public function updateDescription(Request $request, $task_id): JsonResponse
     {
         try {
             $task = Task::with('users')->find($task_id);
@@ -867,7 +897,7 @@ class TaskController extends Controller
 
     }
 
-    public function updateStatus(Request $request, $task_id)
+    public function updateStatus(Request $request, $task_id): JsonResponse
     {
         try {
             $task = Task::with('users')->find($task_id);
@@ -1006,7 +1036,7 @@ class TaskController extends Controller
 
     }
 
-    public function updateStartDate(Request $request, $task_id)
+    public function updateStartDate(Request $request, $task_id): JsonResponse
     {
         try {
             $task = Task::with('users')->find($task_id);
@@ -1109,7 +1139,7 @@ class TaskController extends Controller
 
     }
 
-    public function updateEndDate(Request $request, $task_id)
+    public function updateEndDate(Request $request, $task_id): JsonResponse
     {
         try {
             $task = Task::with('users')->find($task_id);
@@ -1211,7 +1241,7 @@ class TaskController extends Controller
 
     }
 
-    public function updatePriority(Request $request, $task_id)
+    public function updatePriority(Request $request, $task_id): JsonResponse
     {
         try {
             $task = Task::with('users')->find($task_id);
@@ -1241,7 +1271,7 @@ class TaskController extends Controller
 
     }
 
-    public function getTaskUnfinishedByUserId(Request $request)
+    public function getTaskUnfinishedByUserId(Request $request): JsonResponse
     {
         try {
             $user_id = auth()->user()->id;

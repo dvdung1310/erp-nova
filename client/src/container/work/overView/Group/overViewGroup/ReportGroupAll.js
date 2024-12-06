@@ -49,12 +49,15 @@ const ReportGroupAll = () => {
                                 <Collapse accordion defaultActiveKey='0' bordered={false}
                                           style={{background: '#f4f5f7'}}>
                                     {
-                                        data?.length > 0 ? data?.map((item, index) => {
+                                        data?.length > 0 ? data?.sort((a, b) => b.list_tasks.length - a.list_tasks.length)?.map((item, index) => {
                                             return (
-                                                <Panel header={item?.group_name} key={index.toString()} style={{
+                                                <Panel
+                                                    header={`${item?.group_name} (${item?.list_tasks?.length} công việc)`}
+                                                    key={index.toString()} style={{
                                                     background: `linear-gradient(45deg, rgba(${parseInt(item?.color.slice(1, 3), 16)}, ${parseInt(item?.color.slice(3, 5), 16)}, ${parseInt(item?.color.slice(5, 7), 16)}, 0.2), #dadada)`,
                                                     margin: '16px 0',
                                                     borderRadius: '5px',
+                                                    fontWeight: 'bold'
                                                 }}>
                                                     {
                                                         item?.list_tasks?.length > 0 ?

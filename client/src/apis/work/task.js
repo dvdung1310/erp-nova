@@ -71,6 +71,15 @@ export const updateStatusTask = async (data, id) => {
     });
     return response.data;
 }
+export const updatePriorityTask = async (data, id) => {
+    const token = getToken();
+    const response = await instanceAxios.put(`${LARAVEL_SERVER}/api/tasks/update-priority/${id}`, data, {
+        headers: {
+            'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`
+        }
+    });
+    return response.data;
+}
 export const updateStartDateTask = async (data, id) => {
     const token = getToken();
     const response = await instanceAxios.put(`${LARAVEL_SERVER}/api/tasks/update-start-date/${id}`, data, {
