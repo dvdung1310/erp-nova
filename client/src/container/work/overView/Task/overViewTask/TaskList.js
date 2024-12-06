@@ -1,6 +1,6 @@
 import {useHistory, useLocation, useParams} from "react-router-dom";
 import React, {useEffect, useState} from "react";
-import {checkStatus} from "../../../../../utility/checkValue";
+import {checkPriority, checkStatus} from "../../../../../utility/checkValue";
 import RichTextEditor from 'react-rte';
 import {
     createTask,
@@ -8,7 +8,7 @@ import {
     updateDescriptionTask,
     updateEndDateTask,
     updateMemberTask,
-    updateNameTask, updateProgress, updateScoreTask,
+    updateNameTask, updatePriorityTask, updateProgress, updateScoreTask,
     updateStartDateTask,
     updateStatusTask
 } from "../../../../../apis/work/task";
@@ -136,11 +136,13 @@ const TaskList = (props) => {
     const [selectedTask, setSelectedTask] = useState(null);
     const [selectedUser, setSelectedUser] = useState([]);
     const [selectedStatus, setSelectedStatus] = useState(''); // Default status
+    const [selectedPriority, setSelectedPriority] = useState(''); // Default priority
     const [showModalConfirm, setShowModalConfirm] = useState(false);
     const [showModalCreate, setShowModalCreate] = useState(false);
     const [showModalInfo, setShowModalInfo] = useState(false);
     const [taskSelected, setTaskSelected] = useState(null);
     const [statusAnchorEl, setStatusAnchorEl] = useState(null)
+    const [priorityAnchorEl, setPriorityAnchorEl] = useState(null)
     const [nameAnchorEl, setNameAnchorEl] = useState(null)
     const [scoreKPIAnchorEl, setScoreKPIAnchorEl] = useState(null)
     const [progressAnchorEl, setProgressAnchorEl] = useState(null)
@@ -202,8 +204,8 @@ const TaskList = (props) => {
 
     //
     // Sorting state
-    const [order, setOrder] = useState('asc');
-    const [orderBy, setOrderBy] = useState('task_name');
+    const [order, setOrder] = useState('desc');
+    const [orderBy, setOrderBy] = useState('task_priority');
 
     // Handle sort request
     const handleRequestSort = (property) => {
@@ -255,6 +257,14 @@ const TaskList = (props) => {
             setSelectedStatus(task?.task_status);
         }
     };
+    const handPriorityClick = (event, task) => {
+        if (isHome) {
+            return;
+        }
+        setPriorityAnchorEl(event.currentTarget);
+        setSelectedTask(task);
+        setSelectedPriority(task?.task_priority);
+    }
 
     const handleStartDateClick = (event, task) => {
         if (isHome) {
@@ -290,6 +300,7 @@ const TaskList = (props) => {
         setEndDateAnchorEl(null);
         setScoreKPIAnchorEl(null)
         setProgressAnchorEl(null)
+        setPriorityAnchorEl(null)
     };
     const handleupdateDescription = async () => {
         if (selectedTask) {
@@ -369,6 +380,7 @@ const TaskList = (props) => {
                     task_score_kpi: Number(scoreKPI), pathname
                 }
                 const res = await updateScoreTask(payload, selectedTask.task_id)
+                console.log(res)
                 setTasks(tasks.map((task) => task.task_id === selectedTask.task_id ? res.data : task))
                 toast.success('Thực hiện cập nhật điểm KPI công việc thành công', {
                     position: "top-right", autoClose: 1000
@@ -377,8 +389,8 @@ const TaskList = (props) => {
 
             } catch (error) {
                 setLoadingUpdate(false);
-                toast.error('Đã xảy ra lỗi', {
-                    autoClose: 1000,
+                toast.error(error?.response?.data?.message, {
+                    autoClose: 3000,
                     position: 'top-right'
                 })
                 console.log(error);
@@ -521,7 +533,7 @@ const TaskList = (props) => {
                 setLoadingUpdate(false);
             } catch (error) {
                 setLoadingUpdate(false);
-                toast.error('Đã xảy ra lỗi', {
+                toast.error(error?.response?.data?.message, {
                     autoClose: 1000,
                     position: 'top-right'
                 })
@@ -558,6 +570,32 @@ const TaskList = (props) => {
         }
 
     };
+    const handlePriorityChange = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (selectedTask) {
+            try {
+                setLoadingUpdate(true);
+                const payload = {
+                    task_priority: event.target.value, pathname
+                }
+                const res = await updatePriorityTask(payload, selectedTask.task_id)
+                setTasks(tasks.map((task) => task.task_id === selectedTask.task_id ? res.data : task))
+                toast.success('Thực hiện cập nhật độ ưu tiên công việc thành công', {
+                    position: "top-right", autoClose: 1000
+                })
+                setLoadingUpdate(false);
+            } catch (error) {
+                setLoadingUpdate(false);
+                toast.error('Đã xảy ra lỗi', {
+                    autoClose: 1000,
+                    position: 'top-right'
+                })
+                console.log(error);
+            }
+            handleClose();
+        }
+    }
     //confirm create task
     const handleConfirmCreateTask = () => {
         setStartDate('')
@@ -666,6 +704,7 @@ const TaskList = (props) => {
     const userOpen = Boolean(userAnchorEl);
     const nameOpen = Boolean(nameAnchorEl);
     const statusOpen = Boolean(statusAnchorEl)
+    const priorityOpen = Boolean(priorityAnchorEl)
     const startDateOpen = Boolean(startDateAnchorEl);
     const endDateOpen = Boolean(endDateAnchorEl);
     const scoreKPIOpen = Boolean(scoreKPIAnchorEl)
@@ -677,6 +716,7 @@ const TaskList = (props) => {
     const progressId = progressOpen ? 'start-progress' : undefined;
     const scoreKPIId = nameOpen ? 'start-score-kpi' : undefined;
     const statusId = statusOpen ? 'start-status' : undefined
+    const priorityId = statusOpen ? 'start-priority' : undefined
     const startDateId = startDateOpen ? 'start-date-popover' : undefined;
     const endDateId = endDateOpen ? 'end-date-popover' : undefined;
 
@@ -708,7 +748,11 @@ const TaskList = (props) => {
                                     Tên công việc
                                 </TableSortLabel>
                             </TableCell>
-
+                            {
+                                report && <TableCell>
+                                    Dự án
+                                </TableCell>
+                            }
                             {/* Sortable Status Column */}
                             <TableCell>
                                 Trạng thái
@@ -720,6 +764,9 @@ const TaskList = (props) => {
                                 Tiến độ
                             </TableCell>
                             <TableCell>
+                                Độ ưu tiên
+                            </TableCell>
+                            <TableCell>
                                 Ngày bắt đầu
                             </TableCell>
                             <TableCell>
@@ -728,9 +775,13 @@ const TaskList = (props) => {
                             <TableCell>
                                 Ghi chú
                             </TableCell>
-                            <TableCell>
-                                {report ? 'Dự án' : 'Điểm KPI'}
-                            </TableCell>
+                            {
+                                !report &&
+                                <TableCell>
+                                    Điểm KPI
+                                </TableCell>
+                            }
+
                             <TableCell style={{width: '200px'}}>
                                 Người thực hiện
                             </TableCell>
@@ -783,16 +834,26 @@ const TaskList = (props) => {
                                                     </>
                                                 )}
                                             </TableCell>
+                                            {
+                                                report && <TableCell>
+                                                    {task?.project?.project_name}
+                                                </TableCell>
+                                            }
                                             <TableCell
                                                 onClick={(event) => handleStatusClick(event, task)}
                                                 className={`table-cell ${task?.task_status?.toString() !== '0' ? 'table-cell-clickable' : ''}`}
                                             >
                                                 <Chip
-                                                    style={{fontSize: '12px'}}
+                                                    style={{
+                                                        fontSize: '12px',
+                                                        backgroundColor: checkStatus(task?.task_status).color,
+                                                        color: '#fff'
+                                                    }}
                                                     label={checkStatus(task?.task_status).status}
                                                     className="chip-status"
-                                                    icon={task?.task_status?.toString() === '3' ? <MdCheck/> : null}
-                                                    color={(task?.task_status?.toString() === '2' || task?.task_status?.toString() === '3') ? 'success' : task?.task_status?.toString() === '1' ? 'info' : task?.task_status?.toString() === '0' ? 'warning' : '#fff'}
+                                                    icon={task?.task_status?.toString() === '3' ?
+                                                        <MdCheck style={{color: '#fff'}}/> : null}
+                                                    // color={(task?.task_status?.toString() === '2' || task?.task_status?.toString() === '3') ? 'success' : task?.task_status?.toString() === '1' ? 'info' : task?.task_status?.toString() === '0' ? 'warning' : '#fff'}
                                                 />
                                                 {task?.task_status?.toString() !== '4' && new Date(task.task_end_date) < new Date() && (task?.task_status?.toString() !== '2' && task?.task_status?.toString() !== '3') && (
                                                     <Chip label="Quá hạn" style={{fontSize: '12px'}}
@@ -813,6 +874,20 @@ const TaskList = (props) => {
                                                     <Progress percent={task?.task_progress} size="small"
                                                               style={{width: '80%'}}/>
                                                 </div>
+                                            </TableCell>
+                                            <TableCell className="table-cell"
+                                                       onClick={(event) => handPriorityClick(event, task)}
+                                            >
+                                                <Chip
+                                                    style={{
+                                                        fontSize: '12px',
+                                                        backgroundColor: checkPriority(task?.task_priority).color,
+                                                        color: '#fff'
+                                                    }}
+                                                    label={checkPriority(task?.task_priority).status}
+                                                    className="chip-status"
+                                                    // color={checkPriority(task?.task_priority).color}
+                                                />
                                             </TableCell>
                                             <TableCell className="table-cell"
                                                        onClick={(event) => handleStartDateClick(event, task)}>
@@ -879,11 +954,15 @@ const TaskList = (props) => {
                                                     </>
                                                 )}
                                             </TableCell>
-                                            <TableCell className="table-cell"
-                                                       // onClick={(event) => handleScoreKPIClick(event, task)}
-                                            >
-                                                {report ? task?.project?.project_name : task?.task_score_kpi}
-                                            </TableCell>
+                                            {
+                                                !report &&
+                                                <TableCell className="table-cell"
+                                                           onClick={(event) => handleScoreKPIClick(event, task)}
+                                                >
+                                                    {task?.task_score_kpi}
+                                                </TableCell>
+                                            }
+
                                             <TableCell className="table-cell"
                                                        onClick={(event) => handleUserClick(event, task)}
                                             >
@@ -1019,11 +1098,51 @@ const TaskList = (props) => {
                             <FormControlLabel value="1" control={<Radio/>}
                                               label="Đang làm (0% < Tiến độ hoàn thành < 100%)"/>
                             <FormControlLabel value="2" control={<Radio/>}
-                                              label="Hoàn thành (Tiến độ hoàn thành = 100%)"/>
+                                              label="Chờ xác nhận (Tiến độ hoàn thành = 100%)"/>
                             <FormControlLabel value="3" control={<Radio/>}
                                               label="Xác nhận hoàn thành (leader xác nhận)"/>
                             <FormControlLabel value="4" control={<Radio/>}
                                               label="Tạm dừng"/>
+                        </RadioGroup>
+                    </FormControl>
+                </Popover>
+                {/*update pro*/}
+                <Popover
+                    id={priorityId}
+                    open={priorityOpen}
+                    anchorEl={priorityAnchorEl}
+                    onClose={handleClose}
+                    anchorOrigin={{
+                        vertical: 'bottom', horizontal: 'left',
+                    }}
+                    transformOrigin={{
+                        vertical: 'top', horizontal: 'left',
+                    }}
+                >
+                    <Typography sx={{p: 2}}>Cập nhật độ ưu tiên công việc</Typography>
+                    {loadingUpdate && <div style={{
+                        position: 'absolute',
+                        left: '0',
+                        right: '0',
+                        top: '0',
+                        bottom: '0',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: '2',
+                        background: 'rgba(255, 255, 255, 0.5)',
+
+                    }}>
+                        <Spin/>
+                    </div>}
+                    <FormControl component="fieldset" sx={{padding: 2}}>
+                        <RadioGroup value={selectedPriority} onChange={handlePriorityChange}>
+                            <FormControlLabel value={0} control={<Radio/>}
+                                              label="Thấp"/>
+                            <FormControlLabel value={1} control={<Radio/>}
+                                              label="Trung bình"/>
+                            <FormControlLabel value={2} control={<Radio/>}
+                                              label="Cao"/>
                         </RadioGroup>
                     </FormControl>
                 </Popover>
