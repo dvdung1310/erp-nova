@@ -108,9 +108,14 @@ class DocumentController extends Controller
     {
         try {
             $user_id = auth()->user()->id;
-            $document_folder = CdnFileModel::join('cdn_file_permissions','cdn_file.id','=','cdn_file_permissions.file_id')
-            ->select('cdn_file.*','cdn_file_permissions.permission')
-            ->where('is_folder', 1)->where('is_deleted', 0)->where('parent_id', $id)->orderBy('id', 'desc')->get();
+            $document_folder = CdnFileModel::join('cdn_file_permissions', 'cdn_file.id', '=', 'cdn_file_permissions.file_id')
+            ->select('cdn_file.*', 'cdn_file_permissions.permission')
+            ->where('is_folder', 1)
+            ->where('is_deleted', 0)
+            ->where('parent_id', $id)
+            ->distinct('cdn_file_permissions.file_id') // Chỉ lấy các file_id duy nhất
+            ->orderBy('cdn_file.id', 'desc')
+            ->get();
             $document_file = CdnFileModel::where('is_folder', 0)->where('is_deleted', 0)->where('parent_id', $id)->orderBy('id', 'desc')->get();
             $role_folder = CdnFilePermissionModel::where('file_id', $id)->first();
             return response()->json([
