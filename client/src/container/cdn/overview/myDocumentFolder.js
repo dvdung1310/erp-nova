@@ -355,11 +355,11 @@ function myDocumentFolder() {
           </div>
         )}
       </p>
-      <p>
+      {/* <p>
         <a href="#">
           <RiFolderUploadFill /> Tải thư mục lên
         </a>
-      </p>
+      </p> */}
     </div>
   );
   // Nội dung Popover

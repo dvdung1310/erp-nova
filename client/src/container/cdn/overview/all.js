@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, NavLink, useRouteMatch } from 'react-router-dom';
+import { Link, useNavigate, NavLink, useRouteMatch,useLocation } from 'react-router-dom';
 import { Row, Col, Popover, Button, Modal, Input, message, Progress, Spin, Form, Select, Checkbox } from 'antd'; // Import Modal và Input
 import FeatherIcon from 'feather-icons-react';
 import {
@@ -525,11 +525,10 @@ function All() {
     // Định dạng không được hỗ trợ
     return <p>Không thể xem trước tệp này.</p>;
   };
-  
-  
-  
-
+ 
   return (
+    <>
+   
     <div style={{ background: '#fff', borderRadius: '10px', padding: '20px' }}>
       <div
         style={{
@@ -746,6 +745,7 @@ function All() {
         {renderFileContent(folderName)}
       </Modal>
     </div>
+    </>
   );
 }
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, NavLink, useRouteMatch,useParams} from 'react-router-dom';
+import { Link, useNavigate, NavLink, useRouteMatch, useParams } from 'react-router-dom';
 import { Row, Col, Popover, Button, Modal, Input, message, Progress, Spin, Form, Select, Checkbox } from 'antd'; // Import Modal và Input
 import FeatherIcon from 'feather-icons-react';
 import {
@@ -18,9 +18,12 @@ import {
 import { FaEllipsisVertical } from 'react-icons/fa6';
 import { RiFolderUploadFill, RiDeleteBin5Line } from 'react-icons/ri';
 import { MdDriveFileRenameOutline } from 'react-icons/md';
+import styles from './style.css';
 import {
-  allDocument,
-  storeFolderChild, 
+  myDocumentShare,
+  storeFolder,
+  storeFile,
+  storeFolderChild,
   storeFolderFile,
   renameFolder,
   deleteFile,
@@ -29,10 +32,11 @@ import {
   shareFile,
   showFolderShare,
   shareFolder,
+  showFolder,
 } from '../../../apis/cdn/index';
 const { Option, OptGroup } = Select;
 const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
-function folder_detail() {
+function detail_document_share() {
   const { path } = useRouteMatch();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isFileModalVisible, setIsFileModalVisible] = useState(false);
@@ -50,13 +54,15 @@ function folder_detail() {
   const [fileUrl, setFileUrl] = useState('');
   const [form] = Form.useForm();
   const [allEmployee, setAllEmployee] = useState([]);
+  const [roleFolder, setRoleFolder] = useState('');
   const { id } = useParams();
   const fetchDocument = async () => {
     try {
       setLoading(true);
-      const response = await allDocument();
+      const response = await showFolder(id);
       setFolders(response.data.document_folder || []);
       setFile(response.data.document_file || []);
+      setRoleFolder(response.data.role_folder.permission || '')
       setLoading(false);
     } catch (error) {
       console.error('Error fetching ListSource:', error);
@@ -97,7 +103,7 @@ function folder_detail() {
 
     try {
       setLoading(true);
-      const response = await storeFolderChild({ file_name: folderName ,id});
+      const response = await storeFolderChild({ file_name: folderName, id });
       if (response.data.success === true) {
         message.success(`Tạo Folder thành công!`);
         setIsModalVisible(false);
@@ -141,7 +147,7 @@ function folder_detail() {
       const fileArray = Array.from(files);
       const formData = new FormData();
       fileArray.forEach((file) => {
-        formData.append('files[]', file); // Append files to FormData
+        formData.append('files[]', file);
       });
 
       // Create a config object to monitor the upload progress
@@ -153,7 +159,7 @@ function folder_detail() {
       };
 
       // Send file data to the backend API
-      const response = await storeFolderFile(formData, config, id);
+       const response = await storeFolderFile(formData, config, id);
 
       if (response.data.success) {
         message.success('Tải tệp lên thành công!');
@@ -185,9 +191,6 @@ function folder_detail() {
   const showModalShareFile = async (file) => {
     try {
       const response = await showFileShare(file.id);
-      console.log('====================================');
-      console.log(response);
-      console.log('====================================');
       setFileModalShare(true);
       setFolderName(file.id);
       setAllEmployee(response.employee);
@@ -299,132 +302,264 @@ function folder_detail() {
   const checkDownloadPermission = async (fileId) => {
     try {
       const response = await checkDownloadFile(fileId); // Gọi API kiểm tra quyền tải
-  
+
       if (response.data.can_download) {
-        setCanDownload(true);
-        setFileUrl(response.data.file_url); // Cập nhật URL của file để tải xuống
         message.success('Tải file thành công!');
-  
-        // Tạo một thẻ <a> ẩn để tải file về
+
+        // Tạo thẻ <a> và kích hoạt sự kiện tải về
         const a = document.createElement('a');
         a.href = response.data.file_url; // URL của file
-        a.download = response.data.file_name || '';  // Thêm tên file nếu muốn, ví dụ: a.download = 'file_example.jpg';
-        
+
+        // Đảm bảo tên file có trong response
+        a.download = response.data.file_name || 'file_download';
+
         // Thêm thẻ vào DOM để kích hoạt sự kiện tải về
         document.body.appendChild(a);
-        
-        // Trigger sự kiện click để tải file
+
+        // Kích hoạt sự kiện click để tải file
         a.click();
-        
-        // Loại bỏ thẻ sau khi tải xong
+
+        // Loại bỏ thẻ <a> sau khi tải xong
         document.body.removeChild(a);
       } else {
-        setCanDownload(false);
-        message.error(response.data.message);
+        message.error(response.data.message || 'Không có quyền tải file');
       }
     } catch (error) {
       console.error('Error checking download permission:', error);
-      setCanDownload(false);
       message.error('Tải file thất bại');
     }
   };
-
   // Nội dung Popover
-  const content = (
-    <div>
-      <p onClick={showModalCreateFolder}>
-        <a href="#">
-          <FaFolderPlus /> Thêm mới thư mục
-        </a>
-      </p>
-      <hr />
-      <p onClick={() => document.getElementById('fileUploadInput').click()}>
-        <a href="#">
-          <FaFileUpload /> Tải tệp lên
-        </a>
-        <input
-          id="fileUploadInput"
-          type="file"
-          multiple
-          style={{ display: 'none' }}
-          onChange={(e) => handleFileSelect(e.target.files)}
-        />
-        {uploadProgress > 0 && (
-          <div style={{ marginTop: '10px' }}>
-            <Progress percent={uploadProgress} />
-          </div>
-        )}
-      </p>
-      <p>
-        <a href="#">
-          <RiFolderUploadFill /> Tải thư mục lên
-        </a>
-      </p>
-    </div>
-  );
-  // Nội dung Popover
-  const option_folder = (folder) => (
-    <div>
-      <p>
-        <a href="#">
-          <FaCloudDownloadAlt /> Tải xuống thư mục
-        </a>
-      </p>
-      <hr />
-      <p>
-        <a href="#" onClick={() => showRenameModal(folder)}>
-          <MdDriveFileRenameOutline /> Đổi tên thư mục
-        </a>
-      </p>
-      <p>
-        <a href="#" onClick={() => showModalShareFolder(folder)}>
-          <FaShareSquare /> Chia sẻ thư mục
-        </a>
-      </p>
-      <hr />
-      <p>
-        <a href="#" onClick={() => handleDeleteFile(folder)}>
-          <RiDeleteBin5Line />
-          Chuyển vào thùng rác
-        </a>
-      </p>
-    </div>
-  );
-
-  const option_file = (file) => (
-    <div>
-      <p>
-        <a
-          onClick={async (e) => {
-            e.preventDefault(); // Ngăn hành động mặc định
-            await checkDownloadPermission(file.id); // Kiểm tra và tải file
-          }}
-        >
-          <FaCloudDownloadAlt /> Tải xuống file
-          <a href={`http://127.0.0.1:8000/${file.file_storage_path}`} hidden className="abc">
-            a
+  const content = () => {
+    if (roleFolder === 1) {
+      return (
+        <div>
+          <p className="disabled-link faded">
+            <a href="#">
+              <FaFolderPlus /> Thêm mới thư mục
+            </a>
+          </p>
+          <hr />
+          <p className="disabled-link faded">
+            <a href="#">
+              <FaFileUpload /> Tải tệp lên
+            </a>
+            <input
+              id="fileUploadInput"
+              type="file"
+              multiple
+              style={{ display: 'none' }}
+              onChange={(e) => handleFileSelect(e.target.files)}
+            />
+            {uploadProgress > 0 && (
+              <div style={{ marginTop: '10px' }}>
+                <Progress percent={uploadProgress} />
+              </div>
+            )}
+          </p>
+        </div>
+      );
+    }
+  
+    if (roleFolder === 2) {
+      return (
+        <div>
+          <p onClick={showModalCreateFolder}>
+            <a href="#">
+              <FaFolderPlus /> Thêm mới thư mục
+            </a>
+          </p>
+          <hr />
+          <p className="disabled-link faded">
+            <a href="#">
+              <FaFileUpload /> Tải tệp lên
+            </a>
+            <input
+              id="fileUploadInput"
+              type="file"
+              multiple
+              style={{ display: 'none' }}
+              onChange={(e) => handleFileSelect(e.target.files)}
+            />
+            {uploadProgress > 0 && (
+              <div style={{ marginTop: '10px' }}>
+                <Progress percent={uploadProgress} />
+              </div>
+            )}
+          </p>
+        </div>
+      );
+    }
+  
+    // Mặc định cho permission === 3
+    return (
+      <div>
+        <p onClick={showModalCreateFolder}>
+          <a href="#">
+            <FaFolderPlus /> Thêm mới thư mục
           </a>
-        </a>
-      </p>
-      <hr />
-      <p>
-        <a href="#" onClick={() => showRenameFileModal(file)}>
-          <MdDriveFileRenameOutline /> Đổi tên file
-        </a>
-      </p>
-      <p>
-        <a href="#" onClick={() => showModalShareFile(file)}>
-          <FaShareSquare /> Chia sẻ file
-        </a>
-      </p>
-      <hr />
-      <p>
-        <a href="#" onClick={() => handleDeleteFile(file)}>
-          <RiDeleteBin5Line /> Chuyển vào thùng rác
-        </a>
-      </p>
-    </div>
-  );
+        </p>
+        <hr />
+        <p onClick={() => document.getElementById('fileUploadInput').click()}>
+          <a href="#">
+            <FaFileUpload /> Tải tệp lên
+          </a>
+          <input
+            id="fileUploadInput"
+            type="file"
+            multiple
+            style={{ display: 'none' }}
+            onChange={(e) => handleFileSelect(e.target.files)}
+          />
+          {uploadProgress > 0 && (
+            <div style={{ marginTop: '10px' }}>
+              <Progress percent={uploadProgress} />
+            </div>
+          )}
+        </p>
+      </div>
+    );
+  };
+  // Nội dung Popover
+  const option_folder = (folder = { permission: 0 }) => {
+    const permission = folder.permission;
+  
+    if (permission === 1) {
+      return (
+        <div>
+          <p>
+            <a href="#" onClick={() => showRenameModal(folder)} className="disabled-link faded">
+              <MdDriveFileRenameOutline /> Đổi tên thư mục
+            </a>
+          </p>
+          <p>
+            <a href="#" onClick={() => showModalShareFolder(folder)} className="disabled-link faded">
+              <FaShareSquare /> Chia sẻ thư mục
+            </a>
+          </p>
+        </div>
+      );
+    }
+  
+    if (permission === 2) {
+      return (
+        <div>
+          <p>
+            <a href="#" onClick={() => showRenameModal(folder)}>
+              <MdDriveFileRenameOutline /> Đổi tên thư mục
+            </a>
+          </p>
+          <p>
+            <a href="#" onClick={() => showModalShareFolder(folder)} className="disabled-link faded">
+              <FaShareSquare /> Chia sẻ thư mục
+            </a>
+          </p>
+        </div>
+      );
+    }
+  
+    if (permission === 3) {
+      return (
+        <div>
+          <p>
+            <a href="#" onClick={() => showRenameModal(folder)}>
+              <MdDriveFileRenameOutline /> Đổi tên thư mục
+            </a>
+          </p>
+          <p>
+            <a href="#" onClick={() => showModalShareFolder(folder)}>
+              <FaShareSquare /> Chia sẻ thư mục
+            </a>
+          </p>
+        </div>
+      );
+    }
+  
+    // Trường hợp mặc định nếu không có quyền phù hợp
+    return <div>Không có quyền thực hiện thao tác này</div>;
+  };
+  
+
+  const option_file = (file) => {
+  
+    const handleDownloadClick = async (e) => {
+      e.preventDefault(); // Ngăn hành động mặc định
+      if (canDownload) {
+        await checkDownloadPermission(file.id); // Kiểm tra và tải file
+      }
+    };
+  
+    if (roleFolder === 1) {
+      return (
+        <div>
+          <p>
+            <a href="#" onClick={(e) => e.preventDefault()} className="disabled-link faded">
+              <MdDriveFileRenameOutline /> Đổi tên file
+            </a>
+          </p>
+          <p>
+            <a href="#" onClick={handleDownloadClick} className="disabled-link faded">
+              <FaCloudDownloadAlt /> Tải xuống file
+            </a>
+          </p>
+          <p>
+            <a href="#" onClick={(e) => e.preventDefault()} className="disabled-link faded">
+              <FaShareSquare /> Chia sẻ file
+            </a>
+          </p>
+        </div>
+      );
+    }
+  
+    if (roleFolder === 2) {
+      return (
+        <div>
+          <p>
+            <a href="#" onClick={() => showRenameFileModal(file)}>
+              <MdDriveFileRenameOutline /> Đổi tên file
+            </a>
+          </p>
+          <p>
+            <a href="#" onClick={handleDownloadClick}>
+              <FaCloudDownloadAlt /> Tải xuống file
+            </a>
+          </p>
+          <p>
+            <a href="#" onClick={(e) => e.preventDefault()} className="disabled-link faded">
+              <FaShareSquare /> Chia sẻ file
+            </a>
+          </p>
+        </div>
+      );
+    }
+  
+    if (roleFolder === 3) {
+      return (
+        <div>
+          <p>
+            <a href="#" onClick={() => showRenameFileModal(file)}>
+              <MdDriveFileRenameOutline /> Đổi tên file
+            </a>
+          </p>
+          <p>
+            <a href="#" onClick={handleDownloadClick}>
+              <FaCloudDownloadAlt /> Tải xuống file
+            </a>
+          </p>
+          <p>
+            <a href="#" onClick={() => showModalShareFile(file)}>
+              <FaShareSquare /> Chia sẻ file
+            </a>
+          </p>
+        </div>
+      );
+    }
+  
+    // Mặc định nếu không có quyền phù hợp
+    return <div>Không có quyền thực hiện thao tác này</div>;
+  };
+  
+  
 
   const getFileIcon = (fileName) => {
     const ext = fileName.split('.').pop().toLowerCase();
@@ -455,24 +590,22 @@ function folder_detail() {
     if (!file || !file.file_name || !file.file_storage_path) {
       return <p>Không thể tải nội dung tệp.</p>;
     }
-  
+
     const baseUrl = LARAVEL_SERVER; // URL của server Laravel
     const fullPath = `${baseUrl}${file.file_storage_path}`; // Đường dẫn đầy đủ tới file
-  
-    const fileExtension = file.file_name.includes('.')
-      ? file.file_name.split('.').pop().toLowerCase()
-      : '';
-  
+
+    const fileExtension = file.file_name.includes('.') ? file.file_name.split('.').pop().toLowerCase() : '';
+
     if (['png', 'jpg', 'jpeg', 'gif'].includes(fileExtension)) {
       // Hiển thị hình ảnh
       return <img src={fullPath} alt={file.file_name} style={{ width: '100%' }} />;
     }
-  
+
     if (['pdf'].includes(fileExtension)) {
       // Hiển thị PDF
       return <iframe src={fullPath} title={file.file_name} style={{ width: '100%', height: '500px' }} />;
     }
-  
+
     if (['doc', 'docx', 'xls', 'xlsx'].includes(fileExtension)) {
       // Hiển thị tệp Word/Excel qua Google Docs Viewer
       return (
@@ -483,24 +616,18 @@ function folder_detail() {
         />
       );
     }
-  
+
     if (['txt', 'csv'].includes(fileExtension)) {
       // Hiển thị tệp văn bản
-      return (
-        <iframe
-          src={fullPath}
-          title={file.file_name}
-          style={{ width: '100%', height: '500px' }}
-        />
-      );
+      return <iframe src={fullPath} title={file.file_name} style={{ width: '100%', height: '500px' }} />;
     }
-  
+
     if (['mp4', 'webm', 'ogg'].includes(fileExtension)) {
       return (
         <video controls style={{ width: '100%' }}>
           <source src={fullPath} type={`video/${fileExtension}`} />
           <track
-            src="/path/to/captions.vtt"  // Path to your captions file (WebVTT format)
+            src="/path/to/captions.vtt" // Path to your captions file (WebVTT format)
             kind="subtitles"
             srcLang="en"
             label="English"
@@ -509,13 +636,13 @@ function folder_detail() {
         </video>
       );
     }
-  
+
     if (['mp3', 'wav'].includes(fileExtension)) {
       return (
         <audio controls style={{ width: '100%' }}>
           <source src={fullPath} type={`audio/${fileExtension}`} />
           <track
-            src="/path/to/descriptions.vtt"  // Path to your description file (WebVTT format)
+            src="/path/to/descriptions.vtt" // Path to your description file (WebVTT format)
             kind="descriptions"
             srcLang="en"
             label="English"
@@ -524,13 +651,10 @@ function folder_detail() {
         </audio>
       );
     }
-  
+
     // Định dạng không được hỗ trợ
     return <p>Không thể xem trước tệp này.</p>;
   };
-  
-  
-  
 
   return (
     <div style={{ background: '#fff', borderRadius: '10px', padding: '20px' }}>
@@ -542,7 +666,7 @@ function folder_detail() {
           marginBottom: '20px',
         }}
       >
-        <h3 style={{ margin: 0 }}>Gần đây</h3>
+        <h3 style={{ margin: 0 }}>Tài liệu chia sẻ với tôi</h3>
         <Popover placement="bottomRight" content={content} trigger="click">
           <Button size="small" type="primary">
             <FeatherIcon icon="plus" size={14} />
@@ -551,9 +675,6 @@ function folder_detail() {
         </Popover>
       </div>
       <hr />
-      <div>
-        <h4>Thư mục</h4>
-      </div>
       {loading ? (
         <div className="spin">
           <Spin />
@@ -576,7 +697,7 @@ function folder_detail() {
                   }}
                 >
                   <NavLink
-                    to={`${path}/${folder.id}`}
+                    to={`/admin/luu-tru/tai-lieu-chia-se/${folder.id}`}
                     style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }} // Optional styling
                   >
                     <FaFolder style={{ marginRight: '10px' }} />
@@ -617,10 +738,11 @@ function folder_detail() {
                   position: 'relative',
                   height: '150px',
                 }}
-               
               >
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}
-                 onClick={() => handleFileClick(file)}>
+                <div
+                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}
+                  onClick={() => handleFileClick(file)}
+                >
                   {getFileIcon(file.file_name)}
                   <p
                     style={{
@@ -752,4 +874,4 @@ function folder_detail() {
   );
 }
 
-export default folder_detail;
+export default detail_document_share;

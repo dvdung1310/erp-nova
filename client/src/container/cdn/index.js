@@ -20,6 +20,7 @@ const MyDocument = lazy(() => import('./overview/myDocumentFolder'));
 const ShareMe = lazy(() => import('./overview/shareMe'));
 const DocumentDelete = lazy(() => import('./overview/documentDelete'));
 const FolderDetail = lazy(() => import('./overview/folder_detail'));
+const FolderDetailShare = lazy(() => import('./overview/detail_document_share'));
 
 const { Option } = Select;
 function Note() {
@@ -212,6 +213,7 @@ function Note() {
                   <Route exact path={`${path}/tai-lieu/:id`} component={FolderDetail} />
                   <Route path={`${path}/cua-toi`} component={MyDocument} />
                   <Route path={`${path}/duoc-chia-se`} component={ShareMe} />
+                  <Route path={`${path}/tai-lieu-chia-se/:id`} component={FolderDetailShare} />
                   <Route path={`${path}/thung-rac`} component={DocumentDelete} />
                 </Suspense>
               </Switch>
