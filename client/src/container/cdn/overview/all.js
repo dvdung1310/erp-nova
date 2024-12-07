@@ -734,9 +734,9 @@ function All() {
             rules={[{ required: true, message: 'Vui lòng chọn quyền sử dụng!' }]}
           >
             <Select placeholder="Vui lòng chọn quyền sử dụng">
-              <Select.Option value="0">Chỉ xem</Select.Option>
-              <Select.Option value="1">Chỉnh sửa</Select.Option>
-              <Select.Option value="2">Tải xuống</Select.Option>
+              <Select.Option value="1">Chỉ xem</Select.Option>
+              <Select.Option value="2">Chỉnh sửa</Select.Option>
+              <Select.Option value="3">Tải xuống</Select.Option>
             </Select>
           </Form.Item>
         </Form>

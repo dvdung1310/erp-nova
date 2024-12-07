@@ -59,13 +59,13 @@ class DocumentController extends Controller
     {
         try {
             $user_id = auth()->user()->id;
-            $document_folder = CdnFileModel::join('cdn_file_permissions', 'cdn_file.id', '=', 'cdn_file_permissions.file_id')
+            $document_folder = CdnFileModel::leftjoin('cdn_file_permissions', 'cdn_file.id', '=', 'cdn_file_permissions.file_id')
                 ->select('cdn_file.*', 'cdn_file_permissions.user_id', 'cdn_file_permissions.permission')
                 ->where('is_folder', 1)->where('is_deleted', 0)->where('parent_id', null)
                 ->where('created_by', $user_id)->orderBy('id', 'desc')
                 ->where('cdn_file_permissions.user_id', $user_id)
                 ->get();
-            $document_file = CdnFileModel::join('cdn_file_share', 'cdn_file.id', '=', 'cdn_file_share.file_id')
+            $document_file = CdnFileModel::leftjoin('cdn_file_share', 'cdn_file.id', '=', 'cdn_file_share.file_id')
                 ->select('cdn_file.*', 'cdn_file_share.user_id', 'cdn_file_share.can_edit', 'cdn_file_share.can_download')
                 ->where('is_folder', 0)->where('is_deleted', 0)
                 ->where('parent_id', null)->where('created_by', $user_id)->orderBy('id', 'desc')
@@ -108,12 +108,12 @@ class DocumentController extends Controller
     {
         try {
             $user_id = auth()->user()->id;
-            $document_folder = CdnFileModel::join('cdn_file_permissions', 'cdn_file.id', '=', 'cdn_file_permissions.file_id')
+            $document_folder = CdnFileModel::leftjoin('cdn_file_permissions', 'cdn_file.id', '=', 'cdn_file_permissions.file_id')
             ->select('cdn_file.*', 'cdn_file_permissions.permission')
             ->where('is_folder', 1)
             ->where('is_deleted', 0)
             ->where('parent_id', $id)
-            ->distinct('cdn_file_permissions.file_id') // Chỉ lấy các file_id duy nhất
+            ->distinct('cdn_file_permissions.file_id')
             ->orderBy('cdn_file.id', 'desc')
             ->get();
             $document_file = CdnFileModel::where('is_folder', 0)->where('is_deleted', 0)->where('parent_id', $id)->orderBy('id', 'desc')->get();

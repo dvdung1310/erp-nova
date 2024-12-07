@@ -331,6 +331,9 @@ function detail_document_share() {
   };
   // Nội dung Popover
   const content = () => {
+    console.log('====================================');
+    console.log('role',roleFolder);
+    console.log('====================================');
     if (roleFolder === 1) {
       return (
         <div>
@@ -520,7 +523,7 @@ function detail_document_share() {
             </a>
           </p>
           <p>
-            <a href="#" onClick={handleDownloadClick}>
+            <a href="#" onClick={handleDownloadClick} className="disabled-link faded">
               <FaCloudDownloadAlt /> Tải xuống file
             </a>
           </p>
