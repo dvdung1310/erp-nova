@@ -77,6 +77,8 @@ Route::group(['middleware' => 'api'], function () {
     Route::post('/store-result-user', [ExamController::class, 'StoreResult']);
     Route::get('/get-exam-user/{id}', [ExamController::class, 'getExamUserResult']);
     Route::get('/list-exam-user/{id}', [ExamController::class, 'getListUserExam']);
+    // users
+    Route::post('users/calculator-kpi/{user_id}', [AuthController::class, 'calculatorKpi'])->middleware(middlewareLogin::class);
 });
 
 // xác nhận công

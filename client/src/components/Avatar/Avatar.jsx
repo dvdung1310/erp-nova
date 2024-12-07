@@ -1,6 +1,11 @@
 import React from 'react'
 import {PiUserCircle} from "react-icons/pi";
 
+const bgColor = [
+    '#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6',
+    '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
+    '#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC',
+];
 const Avatar = ({name, imageUrl, width, height}) => {
 
     let avatarName = ""
@@ -15,11 +20,7 @@ const Avatar = ({name, imageUrl, width, height}) => {
         }
     }
 
-    const bgColor = [
-        '#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6',
-        '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
-        '#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC',
-    ];
+
 
     const randomNumber = () => {
         return bgColor[Math.floor(Math.random() * bgColor.length)]
