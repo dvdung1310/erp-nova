@@ -178,7 +178,10 @@ class DocumentController extends Controller
     {
         try {
             $file = CdnFileShareModel::where('file_id', $id)->get();
-            $data = User::all();
+            $data = User::join('crm_employee','users.id','=','crm_employee.account_id')
+            ->leftjoin('crm_department','crm_employee.department_id','=','crm_department.department_id')
+            ->leftjoin('crm_employee_level','crm_employee.level_id','=','crm_employee_level.level_id')
+            ->select('users.*','crm_department.department_name','crm_employee_level.level_name')->get();
             return response()->json([
                 'success' => true,
                 'message' => 'Danh sách nhân viên',
@@ -500,7 +503,10 @@ class DocumentController extends Controller
     {
         try {
             $file = CdnFilePermissionModel::where('file_id', $id)->get();
-            $data = User::all();
+            $data = User::join('crm_employee','users.id','=','crm_employee.account_id')
+            ->leftjoin('crm_department','crm_employee.department_id','=','crm_department.department_id')
+            ->leftjoin('crm_employee_level','crm_employee.level_id','=','crm_employee_level.level_id')
+            ->select('users.*','crm_department.department_name','crm_employee_level.level_name')->get();
             return response()->json([
                 'success' => true,
                 'message' => 'Danh sách nhân viên',

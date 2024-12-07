@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, NavLink, useRouteMatch,useLocation } from 'react-router-dom';
+import { Link, useNavigate, NavLink, useRouteMatch, useLocation } from 'react-router-dom';
 import { Row, Col, Popover, Button, Modal, Input, message, Progress, Spin, Form, Select, Checkbox } from 'antd'; // Import Modal và Input
 import FeatherIcon from 'feather-icons-react';
 import {
@@ -297,28 +297,25 @@ function All() {
 
   const checkDownloadPermission = async (fileId) => {
     try {
+      setLoading(true);
       const response = await checkDownloadFile(fileId); // Gọi API kiểm tra quyền tải
-  
       if (response.data.can_download) {
         message.success('Tải file thành công!');
-  
         // Tạo thẻ <a> và kích hoạt sự kiện tải về
         const a = document.createElement('a');
-        a.href = response.data.file_url;  // URL của file
-  
+        a.href = response.data.file_url; // URL của file
         // Đảm bảo tên file có trong response
         a.download = response.data.file_name || 'file_download';
-  
         // Thêm thẻ vào DOM để kích hoạt sự kiện tải về
         document.body.appendChild(a);
-  
         // Kích hoạt sự kiện click để tải file
         a.click();
-  
         // Loại bỏ thẻ <a> sau khi tải xong
         document.body.removeChild(a);
+        setLoading(false);
       } else {
         message.error(response.data.message || 'Không có quyền tải file');
+        setLoading(false);
       }
     } catch (error) {
       console.error('Error checking download permission:', error);
@@ -362,12 +359,6 @@ function All() {
   const option_folder = (folder) => (
     <div>
       <p>
-        <a href="#">
-          <FaCloudDownloadAlt /> Tải xuống thư mục
-        </a>
-      </p>
-      <hr />
-      <p>
         <a href="#" onClick={() => showRenameModal(folder)}>
           <MdDriveFileRenameOutline /> Đổi tên thư mục
         </a>
@@ -392,14 +383,11 @@ function All() {
       e.preventDefault(); // Ngăn hành động mặc định
       await checkDownloadPermission(file.id); // Kiểm tra và tải file
     };
-  
+
     return (
       <div>
         <p>
-          <a
-            href="#"
-            onClick={handleDownloadClick}
-          >
+          <a href="#" onClick={handleDownloadClick}>
             <FaCloudDownloadAlt /> Tải xuống file
           </a>
         </p>
@@ -452,24 +440,22 @@ function All() {
     if (!file || !file.file_name || !file.file_storage_path) {
       return <p>Không thể tải nội dung tệp.</p>;
     }
-  
+
     const baseUrl = LARAVEL_SERVER; // URL của server Laravel
     const fullPath = `${baseUrl}${file.file_storage_path}`; // Đường dẫn đầy đủ tới file
-  
-    const fileExtension = file.file_name.includes('.')
-      ? file.file_name.split('.').pop().toLowerCase()
-      : '';
-  
+
+    const fileExtension = file.file_name.includes('.') ? file.file_name.split('.').pop().toLowerCase() : '';
+
     if (['png', 'jpg', 'jpeg', 'gif'].includes(fileExtension)) {
       // Hiển thị hình ảnh
       return <img src={fullPath} alt={file.file_name} style={{ width: '100%' }} />;
     }
-  
+
     if (['pdf'].includes(fileExtension)) {
       // Hiển thị PDF
       return <iframe src={fullPath} title={file.file_name} style={{ width: '100%', height: '500px' }} />;
     }
-  
+
     if (['doc', 'docx', 'xls', 'xlsx'].includes(fileExtension)) {
       // Hiển thị tệp Word/Excel qua Google Docs Viewer
       return (
@@ -480,24 +466,18 @@ function All() {
         />
       );
     }
-  
+
     if (['txt', 'csv'].includes(fileExtension)) {
       // Hiển thị tệp văn bản
-      return (
-        <iframe
-          src={fullPath}
-          title={file.file_name}
-          style={{ width: '100%', height: '500px' }}
-        />
-      );
+      return <iframe src={fullPath} title={file.file_name} style={{ width: '100%', height: '500px' }} />;
     }
-  
+
     if (['mp4', 'webm', 'ogg'].includes(fileExtension)) {
       return (
         <video controls style={{ width: '100%' }}>
           <source src={fullPath} type={`video/${fileExtension}`} />
           <track
-            src="/path/to/captions.vtt"  // Path to your captions file (WebVTT format)
+            src="/path/to/captions.vtt" // Path to your captions file (WebVTT format)
             kind="subtitles"
             srcLang="en"
             label="English"
@@ -506,13 +486,13 @@ function All() {
         </video>
       );
     }
-  
+
     if (['mp3', 'wav'].includes(fileExtension)) {
       return (
         <audio controls style={{ width: '100%' }}>
           <source src={fullPath} type={`audio/${fileExtension}`} />
           <track
-            src="/path/to/descriptions.vtt"  // Path to your description file (WebVTT format)
+            src="/path/to/descriptions.vtt" // Path to your description file (WebVTT format)
             kind="descriptions"
             srcLang="en"
             label="English"
@@ -521,65 +501,123 @@ function All() {
         </audio>
       );
     }
-  
+
     // Định dạng không được hỗ trợ
     return <p>Không thể xem trước tệp này.</p>;
   };
- 
+
   return (
     <>
-   
-    <div style={{ background: '#fff', borderRadius: '10px', padding: '20px' }}>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '20px',
-        }}
-      >
-        <h3 style={{ margin: 0 }}>Gần đây</h3>
-        <Popover placement="bottomRight" content={content} trigger="click">
-          <Button size="small" type="primary">
-            <FeatherIcon icon="plus" size={14} />
-            Tùy chọn
-          </Button>
-        </Popover>
-      </div>
-      <hr />
-      <div>
-        <h4>Thư mục</h4>
-      </div>
-      {loading ? (
-        <div className="spin">
-          <Spin />
+      <div style={{ background: '#fff', borderRadius: '10px', padding: '20px' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '20px',
+          }}
+        >
+          <h3 style={{ margin: 0 }}>Gần đây</h3>
+          <Popover placement="bottomRight" content={content} trigger="click">
+            <Button size="small" type="primary">
+              <FeatherIcon icon="plus" size={14} />
+              Tùy chọn
+            </Button>
+          </Popover>
         </div>
-      ) : (
+        <hr />
+        <div>
+          <h4>Thư mục</h4>
+        </div>
+        {loading ? (
+          <div className="spin">
+            <Spin />
+          </div>
+        ) : (
+          <Row gutter={24} style={{ marginTop: '30px' }}>
+            {folders.length > 0 ? (
+              folders.map((folder, index) => (
+                <Col key={index} xxl={8} xl={12} lg={12} sm={12} xs={24}>
+                  <div
+                    style={{
+                      background: 'rgb(240,244,249)',
+                      padding: '20px',
+                      borderRadius: '10px',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: '20px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <NavLink
+                      to={`/admin/luu-tru/tai-lieu/${folder.id}`}
+                      style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }} // Optional styling
+                    >
+                      <FaFolder style={{ marginRight: '10px' }} />
+                      <p style={{ marginBottom: '0', fontWeight: '500' }}>{folder.file_name}</p>
+                    </NavLink>
+                    <div>
+                      <Popover placement="bottomRight" content={option_folder(folder)} trigger="click">
+                        <a href="#">
+                          <FaEllipsisVertical />
+                        </a>
+                      </Popover>
+                    </div>
+                  </div>
+                </Col>
+              ))
+            ) : (
+              <p>Chưa có thư mục nào</p>
+            )}
+          </Row>
+        )}
+        <div>
+          <h4>Tệp</h4>
+        </div>
         <Row gutter={24} style={{ marginTop: '30px' }}>
-          {folders.length > 0 ? (
-            folders.map((folder, index) => (
-              <Col key={index} xxl={8} xl={12} lg={12} sm={12} xs={24}>
+          {Files.length > 0 ? (
+            Files.map((file, index) => (
+              <Col key={index} xxl={8} xl={8} lg={8} sm={8} xs={12}>
                 <div
                   style={{
                     background: 'rgb(240,244,249)',
                     padding: '20px',
                     borderRadius: '10px',
                     display: 'flex',
-                    justifyContent: 'space-between',
+                    justifyContent: 'center',
                     alignItems: 'center',
                     marginBottom: '20px',
                     cursor: 'pointer',
+                    position: 'relative',
+                    height: '150px',
                   }}
                 >
-                  <NavLink
-                    to={`/admin/luu-tru/tai-lieu/${folder.id}`}
-                    style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }} // Optional styling
+                  <div
+                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}
+                    onClick={() => handleFileClick(file)}
                   >
-                    <FaFolder style={{ marginRight: '10px' }} />
-                    <p style={{ marginBottom: '0', fontWeight: '500' }}>{folder.file_name}</p>
-                  </NavLink>
-                  <div>
-                    <Popover placement="bottomRight" content={option_folder(folder)} trigger="click">
+                    {getFileIcon(file.file_name)}
+                    <p
+                      style={{
+                        marginBottom: '0',
+                        fontWeight: '500',
+                        marginTop: '10px',
+                        maxWidth: '100%',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        width: '120px',
+                      }}
+                      title={file.file_name}
+                    >
+                      {file.file_name}
+                      <br />
+                      {file.created_at}
+                    </p>
+                  </div>
+                  <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
+                    <Popover placement="bottomRight" content={option_file(file)} trigger="click">
                       <a href="#">
                         <FaEllipsisVertical />
                       </a>
@@ -589,162 +627,121 @@ function All() {
               </Col>
             ))
           ) : (
-            <p>Chưa có thư mục nào</p>
+            <p>Chưa có tệp nào</p>
           )}
         </Row>
-      )}
-      <div>
-        <h4>Tệp</h4>
-      </div>
-      <Row gutter={24} style={{ marginTop: '30px' }}>
-        {Files.length > 0 ? (
-          Files.map((file, index) => (
-            <Col key={index} xxl={8} xl={8} lg={8} sm={8} xs={12}>
-              <div
-                style={{
-                  background: 'rgb(240,244,249)',
-                  padding: '20px',
-                  borderRadius: '10px',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginBottom: '20px',
-                  cursor: 'pointer',
-                  position: 'relative',
-                  height: '150px',
-                }}
-               
+
+        <Modal
+          title={selectedFolder ? 'Cập nhật tên thư mục' : 'Tạo thư mục mới'}
+          visible={isModalVisible}
+          onCancel={handleCancel}
+          footer={[
+            <Button key="back" onClick={handleCancel}>
+              Hủy
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              loading={loading}
+              onClick={selectedFolder ? handleUpdateFolder : handleCreateFolder}
+            >
+              {selectedFolder ? 'Cập nhật' : 'Tạo'}
+            </Button>,
+          ]}
+        >
+          <Input value={folderName} onChange={(e) => setFolderName(e.target.value)} placeholder="Nhập tên thư mục" />
+        </Modal>
+        <Modal
+          title={'Cập nhật tên File'}
+          visible={isFileModalVisible}
+          onCancel={handleCancel}
+          onOk={handleUpdateFileName} // Khi nhấn "OK", gọi hàm lưu
+        >
+          <Input value={folderName} onChange={(e) => setFolderName(e.target.value)} placeholder="Nhập tên File" />
+        </Modal>
+        {/* -----------------------m---------model share file---------------------------------------- */}
+        <Modal title={'Chia sẻ File'} visible={fileModalShare} onCancel={handleCancel} onOk={handleShareFile}>
+          <Form form={form} layout="vertical">
+            <Form.Item
+              label="Thêm người chia sẻ"
+              name="user_id"
+              rules={[{ required: true, message: 'Vui lòng chọn người chia sẻ!' }]}
+            >
+              <Select
+                mode="multiple"
+                style={{ width: '100%' }}
+                placeholder="Chọn người chia sẻ"
+                showSearch
+                optionFilterProp="label" // Dùng 'label' để lọc
               >
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}
-                 onClick={() => handleFileClick(file)}>
-                  {getFileIcon(file.file_name)}
-                  <p
-                    style={{
-                      marginBottom: '0',
-                      fontWeight: '500',
-                      marginTop: '10px',
-                      maxWidth: '100%',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      width: '120px',
-                    }}
-                    title={file.file_name}
-                  >
-                    {file.file_name}
-                    <br />
-                    {file.created_at}
-                  </p>
-                </div>
-                <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
-                  <Popover placement="bottomRight" content={option_file(file)} trigger="click">
-                    <a href="#">
-                      <FaEllipsisVertical />
-                    </a>
-                  </Popover>
-                </div>
-              </div>
-            </Col>
-          ))
-        ) : (
-          <p>Chưa có tệp nào</p>
-        )}
-      </Row>
+                {allEmployee.map((employee) => (
+                  <Option key={employee.id} value={employee.id} label={employee.name}>
+                    {employee.name} - {employee.level_name}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
 
-      <Modal
-        title={selectedFolder ? 'Cập nhật tên thư mục' : 'Tạo thư mục mới'}
-        visible={isModalVisible}
-        onCancel={handleCancel}
-        footer={[
-          <Button key="back" onClick={handleCancel}>
-            Hủy
-          </Button>,
-          <Button
-            key="submit"
-            type="primary"
-            loading={loading}
-            onClick={selectedFolder ? handleUpdateFolder : handleCreateFolder}
-          >
-            {selectedFolder ? 'Cập nhật' : 'Tạo'}
-          </Button>,
-        ]}
-      >
-        <Input value={folderName} onChange={(e) => setFolderName(e.target.value)} placeholder="Nhập tên thư mục" />
-      </Modal>
-      <Modal
-        title={'Cập nhật tên File'}
-        visible={isFileModalVisible}
-        onCancel={handleCancel}
-        onOk={handleUpdateFileName} // Khi nhấn "OK", gọi hàm lưu
-      >
-        <Input value={folderName} onChange={(e) => setFolderName(e.target.value)} placeholder="Nhập tên File" />
-      </Modal>
-      {/* -----------------------m---------model share file---------------------------------------- */}
-      <Modal title={'Chia sẻ File'} visible={fileModalShare} onCancel={handleCancel} onOk={handleShareFile}>
-        <Form form={form} layout="vertical">
-          <Form.Item
-            label="Thêm người chia sẻ"
-            name="user_id"
-            rules={[{ required: true, message: 'Vui lòng chọn người chia sẻ!' }]}
-          >
-            <Select mode="multiple" style={{ width: '100%' }} placeholder="Chọn người chia sẻ">
-              {allEmployee.map((employee) => (
-                <Option key={employee.id} value={employee.id}>
-                  {employee.name} {/* Thay 'name' bằng trường hiển thị của nhân viên */}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
+            <Form.Item
+              label="Quyền sử dụng"
+              name="role"
+              rules={[{ required: true, message: 'Vui lòng chọn quyền sử dụng!' }]}
+            >
+              <Checkbox.Group style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
+                <Checkbox value="0">Chỉ xem</Checkbox>
+                <Checkbox value="1">Chỉnh sửa</Checkbox>
+                <Checkbox value="2">Tải xuống</Checkbox>
+              </Checkbox.Group>
+            </Form.Item>
+          </Form>
+        </Modal>
 
-          <Form.Item
-            label="Quyền sử dụng"
-            name="role"
-            rules={[{ required: true, message: 'Vui lòng chọn quyền sử dụng!' }]}
-          >
-            <Checkbox.Group style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
-              <Checkbox checked value="0">
-                Chỉ xem
-              </Checkbox>
-              <Checkbox value="1">Chỉnh sửa</Checkbox>
-              <Checkbox value="2">Tải xuống</Checkbox>
-            </Checkbox.Group>
-          </Form.Item>
-        </Form>
-      </Modal>
-      {/* -----------------------m---------model share folder---------------------------------------- */}
-      <Modal title={'Chia sẻ thư mục'} visible={folderModalShare} onCancel={handleCancel} onOk={handleShareFolder}>
-        <Form form={form} layout="vertical">
-          <Form.Item
-            label="Thêm người chia sẻ"
-            name="user_id"
-            rules={[{ required: true, message: 'Vui lòng chọn người chia sẻ!' }]}
-          >
-            <Select mode="multiple" style={{ width: '100%' }} placeholder="Chọn người chia sẻ">
-              {allEmployee.map((employee) => (
-                <Option key={employee.id} value={employee.id}>
-                  {employee.name} {/* Thay 'name' bằng trường hiển thị của nhân viên */}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
+        {/* -----------------------m---------model share folder---------------------------------------- */}
+        <Modal title={'Chia sẻ thư mục'} visible={folderModalShare} onCancel={handleCancel} onOk={handleShareFolder}>
+          <Form form={form} layout="vertical">
+            <Form.Item
+              label="Thêm người chia sẻ"
+              name="user_id"
+              rules={[{ required: true, message: 'Vui lòng chọn người chia sẻ!' }]}
+            >
+              <Select
+                mode="multiple"
+                style={{ width: '100%' }}
+                placeholder="Chọn người chia sẻ"
+                showSearch
+                optionFilterProp="label" // Dùng 'label' để lọc
+              >
+                {allEmployee.map((employee) => (
+                  <Option key={employee.id} value={employee.id} label={employee.name}>
+                    {employee.name} - {employee.level_name}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
 
-          <Form.Item
-            label="Quyền sử dụng"
-            name="role"
-            rules={[{ required: true, message: 'Vui lòng chọn quyền sử dụng!' }]}
-          >
-            <Select placeholder="Vui lòng chọn quyền sử dụng">
-              <Select.Option value="1">Chỉ xem</Select.Option>
-              <Select.Option value="2">Chỉnh sửa</Select.Option>
-              <Select.Option value="3">Tải xuống</Select.Option>
-            </Select>
-          </Form.Item>
-        </Form>
-      </Modal>
-      <Modal visible={detailFileModel} title={folderName?.file_name} footer={null} onCancel={handleCancel} width={1000}>
-        {renderFileContent(folderName)}
-      </Modal>
-    </div>
+            <Form.Item
+              label="Quyền sử dụng"
+              name="role"
+              rules={[{ required: true, message: 'Vui lòng chọn quyền sử dụng!' }]}
+            >
+              <Select placeholder="Vui lòng chọn quyền sử dụng">
+                <Select.Option value="1">Chỉ xem</Select.Option>
+                <Select.Option value="2">Chỉnh sửa</Select.Option>
+                <Select.Option value="3">Tải xuống</Select.Option>
+              </Select>
+            </Form.Item>
+          </Form>
+        </Modal>
+        <Modal
+          visible={detailFileModel}
+          title={folderName?.file_name}
+          footer={null}
+          onCancel={handleCancel}
+          width={1000}
+        >
+          {renderFileContent(folderName)}
+        </Modal>
+      </div>
     </>
   );
 }

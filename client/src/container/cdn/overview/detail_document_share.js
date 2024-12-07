@@ -62,7 +62,7 @@ function detail_document_share() {
       const response = await showFolder(id);
       setFolders(response.data.document_folder || []);
       setFile(response.data.document_file || []);
-      setRoleFolder(response.data.role_folder.permission || '')
+      setRoleFolder(response.data.role_folder.permission || '');
       setLoading(false);
     } catch (error) {
       console.error('Error fetching ListSource:', error);
@@ -159,7 +159,7 @@ function detail_document_share() {
       };
 
       // Send file data to the backend API
-       const response = await storeFolderFile(formData, config, id);
+      const response = await storeFolderFile(formData, config, id);
 
       if (response.data.success) {
         message.success('Tải tệp lên thành công!');
@@ -301,28 +301,25 @@ function detail_document_share() {
 
   const checkDownloadPermission = async (fileId) => {
     try {
+      setLoading(true);
       const response = await checkDownloadFile(fileId); // Gọi API kiểm tra quyền tải
-
       if (response.data.can_download) {
         message.success('Tải file thành công!');
-
         // Tạo thẻ <a> và kích hoạt sự kiện tải về
         const a = document.createElement('a');
         a.href = response.data.file_url; // URL của file
-
         // Đảm bảo tên file có trong response
         a.download = response.data.file_name || 'file_download';
-
         // Thêm thẻ vào DOM để kích hoạt sự kiện tải về
         document.body.appendChild(a);
-
         // Kích hoạt sự kiện click để tải file
         a.click();
-
         // Loại bỏ thẻ <a> sau khi tải xong
         document.body.removeChild(a);
+        setLoading(false);
       } else {
         message.error(response.data.message || 'Không có quyền tải file');
+        setLoading(false);
       }
     } catch (error) {
       console.error('Error checking download permission:', error);
@@ -332,7 +329,7 @@ function detail_document_share() {
   // Nội dung Popover
   const content = () => {
     console.log('====================================');
-    console.log('role',roleFolder);
+    console.log('role', roleFolder);
     console.log('====================================');
     if (roleFolder === 1) {
       return (
@@ -363,7 +360,7 @@ function detail_document_share() {
         </div>
       );
     }
-  
+
     if (roleFolder === 2) {
       return (
         <div>
@@ -393,7 +390,7 @@ function detail_document_share() {
         </div>
       );
     }
-  
+
     // Mặc định cho permission === 3
     return (
       <div>
@@ -424,10 +421,8 @@ function detail_document_share() {
     );
   };
   // Nội dung Popover
-  const option_folder = (folder = { permission: 0 }) => {
-    const permission = folder.permission;
-  
-    if (permission === 1) {
+  const option_folder = (folder) => {
+    if (roleFolder === 1) {
       return (
         <div>
           <p>
@@ -443,8 +438,8 @@ function detail_document_share() {
         </div>
       );
     }
-  
-    if (permission === 2) {
+
+    if (roleFolder === 2) {
       return (
         <div>
           <p>
@@ -460,8 +455,8 @@ function detail_document_share() {
         </div>
       );
     }
-  
-    if (permission === 3) {
+
+    if (roleFolder === 3) {
       return (
         <div>
           <p>
@@ -477,21 +472,19 @@ function detail_document_share() {
         </div>
       );
     }
-  
+
     // Trường hợp mặc định nếu không có quyền phù hợp
     return <div>Không có quyền thực hiện thao tác này</div>;
   };
-  
 
   const option_file = (file) => {
-  
     const handleDownloadClick = async (e) => {
       e.preventDefault(); // Ngăn hành động mặc định
       if (canDownload) {
         await checkDownloadPermission(file.id); // Kiểm tra và tải file
       }
     };
-  
+
     if (roleFolder === 1) {
       return (
         <div>
@@ -513,7 +506,7 @@ function detail_document_share() {
         </div>
       );
     }
-  
+
     if (roleFolder === 2) {
       return (
         <div>
@@ -535,7 +528,7 @@ function detail_document_share() {
         </div>
       );
     }
-  
+
     if (roleFolder === 3) {
       return (
         <div>
@@ -557,12 +550,10 @@ function detail_document_share() {
         </div>
       );
     }
-  
+
     // Mặc định nếu không có quyền phù hợp
     return <div>Không có quyền thực hiện thao tác này</div>;
   };
-  
-  
 
   const getFileIcon = (fileName) => {
     const ext = fileName.split('.').pop().toLowerCase();
@@ -816,10 +807,16 @@ function detail_document_share() {
             name="user_id"
             rules={[{ required: true, message: 'Vui lòng chọn người chia sẻ!' }]}
           >
-            <Select mode="multiple" style={{ width: '100%' }} placeholder="Chọn người chia sẻ">
+            <Select
+              mode="multiple"
+              style={{ width: '100%' }}
+              placeholder="Chọn người chia sẻ"
+              showSearch
+              optionFilterProp="label" // Dùng 'label' để lọc
+            >
               {allEmployee.map((employee) => (
-                <Option key={employee.id} value={employee.id}>
-                  {employee.name} {/* Thay 'name' bằng trường hiển thị của nhân viên */}
+                <Option key={employee.id} value={employee.id} label={employee.name}>
+                  {employee.name} - {employee.level_name}
                 </Option>
               ))}
             </Select>
@@ -831,15 +828,14 @@ function detail_document_share() {
             rules={[{ required: true, message: 'Vui lòng chọn quyền sử dụng!' }]}
           >
             <Checkbox.Group style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
-              <Checkbox checked value="0">
-                Chỉ xem
-              </Checkbox>
+              <Checkbox value="0">Chỉ xem</Checkbox>
               <Checkbox value="1">Chỉnh sửa</Checkbox>
               <Checkbox value="2">Tải xuống</Checkbox>
             </Checkbox.Group>
           </Form.Item>
         </Form>
       </Modal>
+
       {/* -----------------------m---------model share folder---------------------------------------- */}
       <Modal title={'Chia sẻ thư mục'} visible={folderModalShare} onCancel={handleCancel} onOk={handleShareFolder}>
         <Form form={form} layout="vertical">
@@ -848,10 +844,16 @@ function detail_document_share() {
             name="user_id"
             rules={[{ required: true, message: 'Vui lòng chọn người chia sẻ!' }]}
           >
-            <Select mode="multiple" style={{ width: '100%' }} placeholder="Chọn người chia sẻ">
+            <Select
+              mode="multiple"
+              style={{ width: '100%' }}
+              placeholder="Chọn người chia sẻ"
+              showSearch
+              optionFilterProp="label" // Dùng 'label' để lọc
+            >
               {allEmployee.map((employee) => (
-                <Option key={employee.id} value={employee.id}>
-                  {employee.name} {/* Thay 'name' bằng trường hiển thị của nhân viên */}
+                <Option key={employee.id} value={employee.id} label={employee.name}>
+                  {employee.name} - {employee.level_name}
                 </Option>
               ))}
             </Select>
@@ -863,9 +865,9 @@ function detail_document_share() {
             rules={[{ required: true, message: 'Vui lòng chọn quyền sử dụng!' }]}
           >
             <Select placeholder="Vui lòng chọn quyền sử dụng">
-              <Select.Option value="0">Chỉ xem</Select.Option>
-              <Select.Option value="1">Chỉnh sửa</Select.Option>
-              <Select.Option value="2">Tải xuống</Select.Option>
+              <Select.Option value="1">Chỉ xem</Select.Option>
+              <Select.Option value="2">Chỉnh sửa</Select.Option>
+              <Select.Option value="3">Tải xuống</Select.Option>
             </Select>
           </Form.Item>
         </Form>

@@ -185,6 +185,9 @@ function All() {
   const showModalShareFile = async (file) => {
     try {
       const response = await showFileShare(file.id);
+      console.log('====================================');
+      console.log(response);
+      console.log('====================================');
       setFileModalShare(true);
       setFolderName(file.id);
       setAllEmployee(response.employee);
@@ -295,28 +298,25 @@ function All() {
 
   const checkDownloadPermission = async (fileId) => {
     try {
+      setLoading(true);
       const response = await checkDownloadFile(fileId); // Gọi API kiểm tra quyền tải
-
       if (response.data.can_download) {
         message.success('Tải file thành công!');
-
         // Tạo thẻ <a> và kích hoạt sự kiện tải về
         const a = document.createElement('a');
         a.href = response.data.file_url; // URL của file
-
         // Đảm bảo tên file có trong response
         a.download = response.data.file_name || 'file_download';
-
         // Thêm thẻ vào DOM để kích hoạt sự kiện tải về
         document.body.appendChild(a);
-
         // Kích hoạt sự kiện click để tải file
         a.click();
-
         // Loại bỏ thẻ <a> sau khi tải xong
         document.body.removeChild(a);
+        setLoading(false);
       } else {
         message.error(response.data.message || 'Không có quyền tải file');
+        setLoading(false);
       }
     } catch (error) {
       console.error('Error checking download permission:', error);
@@ -359,147 +359,153 @@ function All() {
   );
   // Nội dung Popover
   const option_folder = (folder) => {
-    const isEditable = folder.permission === 2 || folder.permission === 3;
-    const isShareable = folder.permission === 3;
+    if (folder.permission === 1) {
+      return (
+        <div>
+          <p>
+            <a href="#" onClick={() => showRenameModal(folder)} className="disabled-link faded">
+              <MdDriveFileRenameOutline /> Đổi tên thư mục
+            </a>
+          </p>
+          <p>
+            <a href="#" onClick={() => showModalShareFolder(folder)} className="disabled-link faded">
+              <FaShareSquare /> Chia sẻ thư mục
+            </a>
+          </p>
+        </div>
+      );
+    }
+    if (folder.permission === 2) {
+      return (
+        <div>
+          <p>
+            <a href="#" onClick={() => showRenameModal(folder)}>
+              <MdDriveFileRenameOutline /> Đổi tên thư mục
+            </a>
+          </p>
+          <p>
+            <a href="#" onClick={() => showModalShareFolder(folder)} className="disabled-link faded">
+              <FaShareSquare /> Chia sẻ thư mục
+            </a>
+          </p>
+        </div>
+      );
+    }
 
-    return (
-      <div>
-        {/* Đổi tên thư mục */}
-        <p>
-          <a
-            href="#"
-            className={isEditable ? '' : 'disabled-link faded'} // Vô hiệu hóa nếu không có quyền
-            onClick={(e) => {
-              if (isEditable) {
-                showRenameModal(folder);
-              } else {
-                e.preventDefault(); // Ngăn hành động nếu không có quyền
-              }
-            }}
-          >
-            <MdDriveFileRenameOutline /> Đổi tên thư mục
-          </a>
-        </p>
+    if (folder.permission === 3) {
+      return (
+        <div>
+          <p>
+            <a href="#" onClick={() => showRenameModal(folder)}>
+              <MdDriveFileRenameOutline /> Đổi tên thư mục
+            </a>
+          </p>
+          <p>
+            <a href="#" onClick={() => showModalShareFolder(folder)}>
+              <FaShareSquare /> Chia sẻ thư mục
+            </a>
+          </p>
+        </div>
+      );
+    }
 
-        {/* Chia sẻ thư mục */}
-        <p>
-          <a
-            href="#"
-            className={isShareable ? '' : 'disabled-link faded'} // Vô hiệu hóa nếu không có quyền
-            onClick={(e) => {
-              if (isShareable) {
-                showModalShareFolder(folder);
-              } else {
-                e.preventDefault(); // Ngăn hành động nếu không có quyền
-              }
-            }}
-          >
-            <FaShareSquare /> Chia sẻ thư mục
-          </a>
-        </p>
-      </div>
-    );
+    // Trường hợp mặc định nếu không có quyền phù hợp
+    return <div>Không có quyền thực hiện thao tác này</div>;
   };
 
   const option_file = (file) => {
-    const canDownload = file.can_download === 1;
-    const canEdit = file.can_edit === 1;
-
     const handleDownloadClick = async (e) => {
       e.preventDefault(); // Ngăn hành động mặc định
-      if (canDownload) {
-        await checkDownloadPermission(file.id); // Kiểm tra và tải file
-      }
+      await checkDownloadPermission(file.id); // Kiểm tra và tải file
     };
-
-    return (
-      <div>
-        {canEdit && (
-          <>
-            <p>
-              <a
-                href="#"
-                onClick={() => showRenameFileModal(file)}
-              >
-                <MdDriveFileRenameOutline /> Đổi tên file
-              </a>
-            </p>
-            <p>
-              <a
-                href="#"
-                onClick={handleDownloadClick}
-                className={'disabled-link faded'} // Vô hiệu hóa nếu không có quyền
-              >
-                <FaCloudDownloadAlt /> Tải xuống file
-              </a>
-            </p>
-            <p>
-              <a href="#" className="disabled-link faded" onClick={(e) => e.preventDefault()}>
-                <FaShareSquare /> Chia sẻ file
-              </a>
-            </p>
-          </>
-        )}
-
-        {/* Chia sẻ file */}
-        {!canEdit && canDownload && (
-          <>
-           <p>
-              <a
-                href="#"
-                onClick={() => showRenameFileModal(file)}
-                className={'disabled-link faded'}
-              >
-                <MdDriveFileRenameOutline /> Đổi tên file
-              </a>
-            </p>
-            <p>
-              <a
-                href="#"
-                onClick={handleDownloadClick}
-                className={canDownload ? '' : 'disabled-link faded'} // Vô hiệu hóa nếu không có quyền
-              >
-                <FaCloudDownloadAlt /> Tải xuống file
-              </a>
-            </p>
-            <p>
-              <a href="#" onClick={(e) => e.preventDefault()}>
-                <FaShareSquare /> Chia sẻ file
-              </a>
-            </p>
-          </>
-        )}
-         {!canEdit && !canDownload && (
-         <>
-           <p>
-              <a
-                href="#"
-                onClick={() => showRenameFileModal(file)}
-                className={'disabled-link faded'}
-              >
-                <MdDriveFileRenameOutline /> Đổi tên file
-              </a>
-            </p>
-            <p>
-              <a
-                href="#"
-                onClick={handleDownloadClick}
-                className={'disabled-link faded'}
-              >
-                <FaCloudDownloadAlt /> Tải xuống file
-              </a>
-            </p>
-            <p>
-              <a href="#" onClick={(e) => e.preventDefault()}
-                className={'disabled-link faded'}>
-                <FaShareSquare /> Chia sẻ file
-              </a>
-            </p>
-          </>
-          )}
-      </div>
-
-    );
+    if (file.can_edit === 0 && file.can_download === 0) {
+      return (
+        <div>
+          <p>
+            <a href="#" onClick={handleDownloadClick} className="disabled-link faded">
+              <FaCloudDownloadAlt /> Tải xuống file
+            </a>
+          </p>
+          <hr />
+          <p>
+            <a href="#" onClick={() => showRenameFileModal(file)} className="disabled-link faded">
+              <MdDriveFileRenameOutline /> Đổi tên file
+            </a>
+          </p>
+          <p>
+            <a href="#" onClick={() => showModalShareFile(file)} className="disabled-link faded">
+              <FaShareSquare /> Chia sẻ file
+            </a>
+          </p>
+        </div>
+      );
+    }
+    if (file.can_edit === 1 && file.can_download === 0) {
+      return (
+        <div>
+          <p>
+            <a href="#" onClick={handleDownloadClick} className="disabled-link faded">
+              <FaCloudDownloadAlt /> Tải xuống file
+            </a>
+          </p>
+          <hr />
+          <p>
+            <a href="#" onClick={() => showRenameFileModal(file)}>
+              <MdDriveFileRenameOutline /> Đổi tên file
+            </a>
+          </p>
+          <p>
+            <a href="#" onClick={() => showModalShareFile(file)} className="disabled-link faded">
+              <FaShareSquare /> Chia sẻ file
+            </a>
+          </p>
+        </div>
+      );
+    }
+    if (file.can_edit === 0 && file.can_download === 1) {
+      return (
+        <div>
+          <p>
+            <a href="#" onClick={handleDownloadClick}>
+              <FaCloudDownloadAlt /> Tải xuống file
+            </a>
+          </p>
+          <hr />
+          <p>
+            <a href="#" onClick={() => showRenameFileModal(file)} className="disabled-link faded">
+              <MdDriveFileRenameOutline /> Đổi tên file
+            </a>
+          </p>
+          <p>
+            <a href="#" onClick={() => showModalShareFile(file)}>
+              <FaShareSquare /> Chia sẻ file
+            </a>
+          </p>
+        </div>
+      );
+    }
+    if (file.can_edit === 1 && file.can_download === 1) {
+      return (
+        <div>
+          <p>
+            <a href="#" onClick={handleDownloadClick}>
+              <FaCloudDownloadAlt /> Tải xuống file
+            </a>
+          </p>
+          <hr />
+          <p>
+            <a href="#" onClick={() => showRenameFileModal(file)}>
+              <MdDriveFileRenameOutline /> Đổi tên file
+            </a>
+          </p>
+          <p>
+            <a href="#" onClick={() => showModalShareFile(file)}>
+              <FaShareSquare /> Chia sẻ file
+            </a>
+          </p>
+        </div>
+      );
+    }
   };
 
   const getFileIcon = (fileName) => {
@@ -740,10 +746,16 @@ function All() {
             name="user_id"
             rules={[{ required: true, message: 'Vui lòng chọn người chia sẻ!' }]}
           >
-            <Select mode="multiple" style={{ width: '100%' }} placeholder="Chọn người chia sẻ">
+            <Select
+              mode="multiple"
+              style={{ width: '100%' }}
+              placeholder="Chọn người chia sẻ"
+              showSearch
+              optionFilterProp="label" // Dùng 'label' để lọc
+            >
               {allEmployee.map((employee) => (
-                <Option key={employee.id} value={employee.id}>
-                  {employee.name} {/* Thay 'name' bằng trường hiển thị của nhân viên */}
+                <Option key={employee.id} value={employee.id} label={employee.name}>
+                  {employee.name} - {employee.level_name}
                 </Option>
               ))}
             </Select>
@@ -755,15 +767,14 @@ function All() {
             rules={[{ required: true, message: 'Vui lòng chọn quyền sử dụng!' }]}
           >
             <Checkbox.Group style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
-              <Checkbox checked value="0">
-                Chỉ xem
-              </Checkbox>
+              <Checkbox value="0">Chỉ xem</Checkbox>
               <Checkbox value="1">Chỉnh sửa</Checkbox>
               <Checkbox value="2">Tải xuống</Checkbox>
             </Checkbox.Group>
           </Form.Item>
         </Form>
       </Modal>
+
       {/* -----------------------m---------model share folder---------------------------------------- */}
       <Modal title={'Chia sẻ thư mục'} visible={folderModalShare} onCancel={handleCancel} onOk={handleShareFolder}>
         <Form form={form} layout="vertical">
@@ -772,10 +783,16 @@ function All() {
             name="user_id"
             rules={[{ required: true, message: 'Vui lòng chọn người chia sẻ!' }]}
           >
-            <Select mode="multiple" style={{ width: '100%' }} placeholder="Chọn người chia sẻ">
+            <Select
+              mode="multiple"
+              style={{ width: '100%' }}
+              placeholder="Chọn người chia sẻ"
+              showSearch
+              optionFilterProp="label" // Dùng 'label' để lọc
+            >
               {allEmployee.map((employee) => (
-                <Option key={employee.id} value={employee.id}>
-                  {employee.name} {/* Thay 'name' bằng trường hiển thị của nhân viên */}
+                <Option key={employee.id} value={employee.id} label={employee.name}>
+                  {employee.name} - {employee.level_name}
                 </Option>
               ))}
             </Select>
@@ -787,9 +804,9 @@ function All() {
             rules={[{ required: true, message: 'Vui lòng chọn quyền sử dụng!' }]}
           >
             <Select placeholder="Vui lòng chọn quyền sử dụng">
-              <Select.Option value="0">Chỉ xem</Select.Option>
-              <Select.Option value="1">Chỉnh sửa</Select.Option>
-              <Select.Option value="2">Tải xuống</Select.Option>
+              <Select.Option value="1">Chỉ xem</Select.Option>
+              <Select.Option value="2">Chỉnh sửa</Select.Option>
+              <Select.Option value="3">Tải xuống</Select.Option>
             </Select>
           </Form.Item>
         </Form>

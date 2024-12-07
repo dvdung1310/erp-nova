@@ -300,28 +300,25 @@ function myDocumentFolder() {
 
   const checkDownloadPermission = async (fileId) => {
     try {
+      setLoading(true);
       const response = await checkDownloadFile(fileId); // Gọi API kiểm tra quyền tải
-  
       if (response.data.can_download) {
         message.success('Tải file thành công!');
-  
         // Tạo thẻ <a> và kích hoạt sự kiện tải về
         const a = document.createElement('a');
-        a.href = response.data.file_url;  // URL của file
-  
+        a.href = response.data.file_url; // URL của file
         // Đảm bảo tên file có trong response
         a.download = response.data.file_name || 'file_download';
-  
         // Thêm thẻ vào DOM để kích hoạt sự kiện tải về
         document.body.appendChild(a);
-  
         // Kích hoạt sự kiện click để tải file
         a.click();
-  
         // Loại bỏ thẻ <a> sau khi tải xong
         document.body.removeChild(a);
+        setLoading(false);
       } else {
         message.error(response.data.message || 'Không có quyền tải file');
+        setLoading(false);
       }
     } catch (error) {
       console.error('Error checking download permission:', error);
@@ -366,12 +363,6 @@ function myDocumentFolder() {
   const option_folder = (folder) => (
     <div>
       <p>
-        <a href="#">
-          <FaCloudDownloadAlt /> Tải xuống thư mục
-        </a>
-      </p>
-      <hr />
-      <p>
         <a href="#" onClick={() => showRenameModal(folder)}>
           <MdDriveFileRenameOutline /> Đổi tên thư mục
         </a>
@@ -396,14 +387,11 @@ function myDocumentFolder() {
       e.preventDefault(); // Ngăn hành động mặc định
       await checkDownloadPermission(file.id); // Kiểm tra và tải file
     };
-  
+
     return (
       <div>
         <p>
-          <a
-            href="#"
-            onClick={handleDownloadClick}
-          >
+          <a href="#" onClick={handleDownloadClick}>
             <FaCloudDownloadAlt /> Tải xuống file
           </a>
         </p>
@@ -457,24 +445,22 @@ function myDocumentFolder() {
     if (!file || !file.file_name || !file.file_storage_path) {
       return <p>Không thể tải nội dung tệp.</p>;
     }
-  
+
     const baseUrl = LARAVEL_SERVER; // URL của server Laravel
     const fullPath = `${baseUrl}${file.file_storage_path}`; // Đường dẫn đầy đủ tới file
-  
-    const fileExtension = file.file_name.includes('.')
-      ? file.file_name.split('.').pop().toLowerCase()
-      : '';
-  
+
+    const fileExtension = file.file_name.includes('.') ? file.file_name.split('.').pop().toLowerCase() : '';
+
     if (['png', 'jpg', 'jpeg', 'gif'].includes(fileExtension)) {
       // Hiển thị hình ảnh
       return <img src={fullPath} alt={file.file_name} style={{ width: '100%' }} />;
     }
-  
+
     if (['pdf'].includes(fileExtension)) {
       // Hiển thị PDF
       return <iframe src={fullPath} title={file.file_name} style={{ width: '100%', height: '500px' }} />;
     }
-  
+
     if (['doc', 'docx', 'xls', 'xlsx'].includes(fileExtension)) {
       // Hiển thị tệp Word/Excel qua Google Docs Viewer
       return (
@@ -485,24 +471,18 @@ function myDocumentFolder() {
         />
       );
     }
-  
+
     if (['txt', 'csv'].includes(fileExtension)) {
       // Hiển thị tệp văn bản
-      return (
-        <iframe
-          src={fullPath}
-          title={file.file_name}
-          style={{ width: '100%', height: '500px' }}
-        />
-      );
+      return <iframe src={fullPath} title={file.file_name} style={{ width: '100%', height: '500px' }} />;
     }
-  
+
     if (['mp4', 'webm', 'ogg'].includes(fileExtension)) {
       return (
         <video controls style={{ width: '100%' }}>
           <source src={fullPath} type={`video/${fileExtension}`} />
           <track
-            src="/path/to/captions.vtt"  // Path to your captions file (WebVTT format)
+            src="/path/to/captions.vtt" // Path to your captions file (WebVTT format)
             kind="subtitles"
             srcLang="en"
             label="English"
@@ -511,13 +491,13 @@ function myDocumentFolder() {
         </video>
       );
     }
-  
+
     if (['mp3', 'wav'].includes(fileExtension)) {
       return (
         <audio controls style={{ width: '100%' }}>
           <source src={fullPath} type={`audio/${fileExtension}`} />
           <track
-            src="/path/to/descriptions.vtt"  // Path to your description file (WebVTT format)
+            src="/path/to/descriptions.vtt" // Path to your description file (WebVTT format)
             kind="descriptions"
             srcLang="en"
             label="English"
@@ -526,13 +506,10 @@ function myDocumentFolder() {
         </audio>
       );
     }
-  
+
     // Định dạng không được hỗ trợ
     return <p>Không thể xem trước tệp này.</p>;
   };
-  
-  
-  
 
   return (
     <div style={{ background: '#fff', borderRadius: '10px', padding: '20px' }}>
@@ -578,7 +555,7 @@ function myDocumentFolder() {
                   }}
                 >
                   <NavLink
-                     to={`/admin/luu-tru/tai-lieu/${folder.id}`}
+                    to={`/admin/luu-tru/tai-lieu/${folder.id}`}
                     style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }} // Optional styling
                   >
                     <FaFolder style={{ marginRight: '10px' }} />
@@ -619,10 +596,11 @@ function myDocumentFolder() {
                   position: 'relative',
                   height: '150px',
                 }}
-               
               >
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}
-                 onClick={() => handleFileClick(file)}>
+                <div
+                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}
+                  onClick={() => handleFileClick(file)}
+                >
                   {getFileIcon(file.file_name)}
                   <p
                     style={{
@@ -693,10 +671,16 @@ function myDocumentFolder() {
             name="user_id"
             rules={[{ required: true, message: 'Vui lòng chọn người chia sẻ!' }]}
           >
-            <Select mode="multiple" style={{ width: '100%' }} placeholder="Chọn người chia sẻ">
+            <Select
+              mode="multiple"
+              style={{ width: '100%' }}
+              placeholder="Chọn người chia sẻ"
+              showSearch
+              optionFilterProp="label" // Dùng 'label' để lọc
+            >
               {allEmployee.map((employee) => (
-                <Option key={employee.id} value={employee.id}>
-                  {employee.name} {/* Thay 'name' bằng trường hiển thị của nhân viên */}
+                <Option key={employee.id} value={employee.id} label={employee.name}>
+                  {employee.name} - {employee.level_name}
                 </Option>
               ))}
             </Select>
@@ -708,15 +692,14 @@ function myDocumentFolder() {
             rules={[{ required: true, message: 'Vui lòng chọn quyền sử dụng!' }]}
           >
             <Checkbox.Group style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
-              <Checkbox checked value="0">
-                Chỉ xem
-              </Checkbox>
+              <Checkbox value="0">Chỉ xem</Checkbox>
               <Checkbox value="1">Chỉnh sửa</Checkbox>
               <Checkbox value="2">Tải xuống</Checkbox>
             </Checkbox.Group>
           </Form.Item>
         </Form>
       </Modal>
+
       {/* -----------------------m---------model share folder---------------------------------------- */}
       <Modal title={'Chia sẻ thư mục'} visible={folderModalShare} onCancel={handleCancel} onOk={handleShareFolder}>
         <Form form={form} layout="vertical">
@@ -725,10 +708,16 @@ function myDocumentFolder() {
             name="user_id"
             rules={[{ required: true, message: 'Vui lòng chọn người chia sẻ!' }]}
           >
-            <Select mode="multiple" style={{ width: '100%' }} placeholder="Chọn người chia sẻ">
+            <Select
+              mode="multiple"
+              style={{ width: '100%' }}
+              placeholder="Chọn người chia sẻ"
+              showSearch
+              optionFilterProp="label" // Dùng 'label' để lọc
+            >
               {allEmployee.map((employee) => (
-                <Option key={employee.id} value={employee.id}>
-                  {employee.name} {/* Thay 'name' bằng trường hiển thị của nhân viên */}
+                <Option key={employee.id} value={employee.id} label={employee.name}>
+                  {employee.name} - {employee.level_name}
                 </Option>
               ))}
             </Select>
@@ -740,9 +729,9 @@ function myDocumentFolder() {
             rules={[{ required: true, message: 'Vui lòng chọn quyền sử dụng!' }]}
           >
             <Select placeholder="Vui lòng chọn quyền sử dụng">
-              <Select.Option value="0">Chỉ xem</Select.Option>
-              <Select.Option value="1">Chỉnh sửa</Select.Option>
-              <Select.Option value="2">Tải xuống</Select.Option>
+              <Select.Option value="1">Chỉ xem</Select.Option>
+              <Select.Option value="2">Chỉnh sửa</Select.Option>
+              <Select.Option value="3">Tải xuống</Select.Option>
             </Select>
           </Form.Item>
         </Form>
