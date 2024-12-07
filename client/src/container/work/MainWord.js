@@ -192,12 +192,17 @@ const MainWord = () => {
                                         '')
                         }
                         buttons={role_id && (role_id === 1 || role_id === 2) && [
-                            <Button onClick={() => setShowModalProject(true)} key="1" type="primary" size="default">
+                            // <Button onClick={() => {
+                            //     history.push('/admin/lam-viec/tinh-kpi')
+                            // }} key="1" type="secondary" size="default">
+                            //     <FeatherIcon icon="percent" size={16}/> Tính KPI
+                            // </Button>,
+                            <Button onClick={() => setShowModalProject(true)} key="1" type="success" size="default">
                                 <FeatherIcon icon="plus" size={16}/> Thêm nhiệm vụ
                             </Button>,
                             <Button onClick={() => {
                                 history.push('/admin/lam-viec/bao-cao-nhom')
-                            }} key="1" type="primary" size="default">
+                            }} key="1" type="info" size="default">
                                 <FeatherIcon icon="monitor" size={16}/> Xem báo cáo
                             </Button>,
                             <Button onClick={() => setShowModal(true)} key="1" type="primary" size="default">

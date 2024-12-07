@@ -180,13 +180,15 @@ class TaskController extends Controller
             $membersToAdd = array_values(array_diff($members, $taskMembers));
             $membersToRemove = array_values(array_diff($taskMembers, $members));
             if (!empty($membersToAdd)) {
+                $startMonth = Carbon::now()->startOfMonth();
+                $endMonth = Carbon::now()->endOfMonth();
                 foreach ($membersToAdd as $user_id) {
                     // check score kpi user
                     $taskByUserInMonth = Task::whereHas('users', function ($query) use ($user_id) {
                         $query->where('users.id', $user_id);
                     })
-//                    ->where('task_start_date', '>=', $startMonth)
-//                    ->where('task_end_date', '<=', $endMonth)
+//                        ->where('task_start_date', '>=', $startMonth)
+//                        ->where('task_end_date', '<=', $endMonth)
                         ->get();
                     if ($taskByUserInMonth->isEmpty()) {
                         continue;

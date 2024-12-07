@@ -7,6 +7,7 @@ use App\Mail\ForgotPasswordMail;
 use App\Mail\InviteUserMail;
 use App\Models\CrmEmployeeModel;
 use App\Models\Devices;
+use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -341,5 +342,61 @@ class AuthController extends Controller
             ], 400);
         }
 
+    }
+
+    public function calculatorKpi(Request $request, $user_id)
+    {
+        try {
+            $user = User::find($user_id);
+            $startMonth = now()->startOfMonth();
+            $endMonth = now()->endOfMonth();
+            if (!$user) {
+                return response([
+                    'message' => 'User not found',
+                    'error' => true,
+                    'data' => null
+                ], 400);
+            }
+            $employee = CrmEmployeeModel::where('account_id', $user_id)
+                ->join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
+                ->select('crm_employee.*', 'crm_department.department_name')
+                ->first();
+            if (!$employee) {
+                return response([
+                    'message' => 'Employee not found',
+                    'error' => true,
+                    'data' => null
+                ], 400);
+            }
+            // tinh kpi
+            $taskByUserInMonth = Task::whereHas('users', function ($query) use ($user) {
+                $query->where('users.id', $user->id);
+            })
+//                ->where('task_start_date', '>=', $startMonth)
+//                ->where('task_end_date', '<=', $endMonth)
+                ->get();
+            $totalScoreKpiTaskDone = 0; // công việc đã được leader xác nhận
+            foreach ($taskByUserInMonth as $task) {
+                if ($task->task_status == 3) {
+                    $totalScoreKpiTaskDone += $task->task_score_kpi;
+                }
+            }
+            $payload = [
+                'user' => $user,
+                'employee' => $employee,
+                'totalScoreKpiTaskDone' => $totalScoreKpiTaskDone
+            ];
+            return response([
+                'message' => 'KPI calculated successfully',
+                'error' => false,
+                'data' => $payload
+            ]);
+        } catch (\Exception $e) {
+            return response([
+                'message' => 'Error: ' . $e->getMessage(),
+                'error' => true,
+                'data' => null
+            ], 400);
+        }
     }
 }
