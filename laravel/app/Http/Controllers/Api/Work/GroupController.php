@@ -135,11 +135,15 @@ class GroupController extends Controller
     public function getGroupByParentGroupId(Request $request, $parent_group_id)
     {
         try {
+            $user_id = auth()->user()->id;
             $groups = Group::where('parent_group_id', $parent_group_id)
                 ->with('leader') // Assuming there is a relationship defined in the Group.js model
                 ->select('group_id', 'group_name', 'color', 'leader_id', 'group_description')
                 ->get();
-            $project = Project::where('group_id', $parent_group_id)
+            $project = Project::whereHas('projectMembers', function ($query) use ($user_id, $parent_group_id) {
+                $query->where('user_id', $user_id)
+                    ->where('group_id', $parent_group_id);
+            })
                 ->with(['projectMembers.user', 'leader'])
                 ->withCount(['tasks as total_tasks', 'tasks as completed_tasks' => function ($query) {
                     $query->whereIn('task_status', [2, 3]);
