@@ -899,7 +899,22 @@ function ProjectLists({listProject, listUser = [], isHome}) {
                 <Cards headless>
                     <ProjectList>
                         <div className="table-responsive">
-                            <Table pagination={false} dataSource={dataSource} columns={columns}/>
+                            <Table
+                                pagination={{
+                                    current: state.current,
+                                    pageSize: state.pageSize,
+                                    total: dataSource.length,
+                                    onChange: (page, pageSize) => {
+                                        setState({
+                                            ...state,
+                                            current: page,
+                                            pageSize: pageSize,
+                                        });
+                                    }
+                                }}
+                                dataSource={dataSource}
+                                columns={columns}
+                            />
                         </div>
                     </ProjectList>
                 </Cards>

@@ -176,7 +176,7 @@ const MainWord = () => {
         }
 
     };
-
+    const buttonStyle = { width: '150px' };
     return (
         <div className='home-page' style={{
             minHeight: '100vh'
@@ -192,22 +192,31 @@ const MainWord = () => {
                                         '')
                         }
                         buttons={role_id && (role_id === 1 || role_id === 2) && [
-                            // <Button onClick={() => {
-                            //     history.push('/admin/lam-viec/tinh-kpi')
-                            // }} key="1" type="secondary" size="default">
-                            //     <FeatherIcon icon="percent" size={16}/> Tính KPI
-                            // </Button>,
-                            <Button onClick={() => setShowModalProject(true)} key="1" type="success" size="default">
-                                <FeatherIcon icon="plus" size={16}/> Thêm nhiệm vụ
-                            </Button>,
-                            <Button onClick={() => {
-                                history.push('/admin/lam-viec/bao-cao-nhom')
-                            }} key="1" type="info" size="default">
-                                <FeatherIcon icon="monitor" size={16}/> Xem báo cáo
-                            </Button>,
-                            <Button onClick={() => setShowModal(true)} key="1" type="primary" size="default">
-                                <FeatherIcon icon="plus" size={16}/> Tạo nhóm mới
-                            </Button>,
+                            <div style={{
+                                display: 'flex',
+                                flexWrap: 'wrap',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                gap: '16px'
+                            }}>
+                                <Button style={buttonStyle} onClick={() => {
+                                    history.push('/admin/lam-viec/tinh-kpi')
+                                }} key="1" type="secondary" size="default">
+                                    <FeatherIcon icon="percent" size={16}/> Tính KPI
+                                </Button>
+                                <Button style={buttonStyle} onClick={() => setShowModalProject(true)} key="1" type="success" size="default">
+                                    <FeatherIcon icon="plus" size={16}/> Thêm nhiệm vụ
+                                </Button>
+                                <Button style={buttonStyle} onClick={() => {
+                                    history.push('/admin/lam-viec/bao-cao-nhom')
+                                }} key="1" type="info" size="default">
+                                    <FeatherIcon icon="monitor" size={16}/> Xem báo cáo
+                                </Button>
+                                <Button style={buttonStyle} onClick={() => setShowModal(true)} key="1" type="primary" size="default">
+                                    <FeatherIcon icon="plus" size={16}/> Tạo nhóm mới
+                                </Button>
+                            </div>
+
                         ]}
                     />
                 </ProjectHeader>
@@ -221,8 +230,10 @@ const MainWord = () => {
                                 <>
                                     {
                                         tasks.length > 0 ?
-                                            <TaskList listUser={[]} tasks={tasks} setTasks={setTasks} isHome/>
-                                            : <div className='text-center mt-5'>Không có công việc nào cần làm</div>
+                                            <TaskList listUser={[]} tasks={tasks} setTasks={setTasks}
+                                                      isHome/>
+                                            : <div className='text-center mt-5'>Không có công việc nào cần
+                                                làm</div>
                                     }
                                 </>
                             }
@@ -234,7 +245,8 @@ const MainWord = () => {
                                             title='Nhiệm vụ được giao'
                                         />
                                     </ProjectHeader>
-                                    <ListProject listProject={listProjectMission} listUser={listUser} isHome/>
+                                    <ListProject listProject={listProjectMission} listUser={listUser}
+                                                 isHome/>
                                     <ProjectHeader>
                                         <PageHeader
                                             ghost
@@ -253,7 +265,8 @@ const MainWord = () => {
                     </>}
                 </div>
             </div>
-            <CreateGroup listDepartments={listDepartments} group_id={null} listUser={listUser} onCancel={onCancelGroup}
+            <CreateGroup listDepartments={listDepartments} group_id={null} listUser={listUser}
+                         onCancel={onCancelGroup}
                          visible={showModal} admin/>
             {/*    modal create task leader*/}
             <Modal

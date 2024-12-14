@@ -195,8 +195,9 @@ function CreateGroup({visible, onCancel, group_id, listUser = [], admin = false,
                                     >
                                         {
                                             listDepartments && listDepartments?.map((department, index) => (
-                                                <Select.Option key={index}
-                                                               value={department.department_id}>{department.department_name}</Select.Option>
+                                                <Select.Option key={index} value={department.department_id}>
+                                                    {department.department_name}
+                                                </Select.Option>
                                             ))
                                         }
                                     </Select>

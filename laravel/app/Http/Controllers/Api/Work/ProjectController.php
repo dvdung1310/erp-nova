@@ -51,6 +51,9 @@ class ProjectController extends Controller
 
             $create_by_user_id = auth()->user()->id;
             $leader_id = $request->leader_id ? $request->leader_id : $create_by_user_id;
+            if ($validatedData['group_id'] = 47) {
+                $validatedData['project_type'] = 1;
+            }
             $project = Project::create(array_merge($validatedData, ['create_by_user_id' => $create_by_user_id], ['leader_id' => $leader_id]));
             $project_id = $project->project_id;
 
