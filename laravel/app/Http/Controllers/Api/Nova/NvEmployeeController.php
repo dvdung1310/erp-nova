@@ -308,13 +308,38 @@ class NvEmployeeController extends Controller
      */
     public function destroy($nvemployee)
     {
+        return $nvemployee;
         try {
             $employee_id = $nvemployee;
             $nvemployee = CrmEmployeeModel::find($employee_id);
             $user_id = $nvemployee->account_id;
+            User::where('id',$user_id)->update(['status'=>0]);
             CrmEmployeeModel::where('employee_id',$employee_id)->delete();
-            User::where('id', $user_id)->delete();
             CrmEmployeeFileModel::where('employee_id',$user_id)->delete();
+          
+            return response()->json([
+                'error' => false, // Đã sửa thành true
+                'message' => 'Xóa nhân sự thành công!',
+                'employee_id' => $nvemployee
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'error' => true,
+                'message' => 'No customers found.' . $th,
+                'data' => []
+            ]);
+        }
+    }
+    public function delete_employee($id)
+    {
+        try {
+            $employee_id = $id;
+            $nvemployee = CrmEmployeeModel::find($employee_id);
+            $user_id = $nvemployee->account_id;
+            User::where('id',$user_id)->update(['status'=>0]);
+            CrmEmployeeModel::where('employee_id',$employee_id)->delete();
+            CrmEmployeeFileModel::where('employee_id',$user_id)->delete();
+          
             return response()->json([
                 'error' => false, // Đã sửa thành true
                 'message' => 'Xóa nhân sự thành công!',

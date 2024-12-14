@@ -193,6 +193,7 @@ function CrmEmployees() {
                 <div
                   style={{
                     display: 'flex',
+                    flexWrap: 'wrap', // Cho phép các phần tử xuống hàng khi không đủ không gian
                     justifyContent: 'space-between',
                     marginBottom: '30px',
                     alignItems: 'center',
@@ -216,9 +217,18 @@ function CrmEmployees() {
                   </Button>
                 </div>
                 <div>
-                  <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+                  <Row gutter={[16, 16]} justify="center">
                     {employeeDepartment.map((department, index) => (
-                      <Col key={index} style={{ marginBottom: '20px' }} className="gutter-row" span={6}>
+                      <Col
+                        key={index}
+                        xs={24} // Chiếm toàn bộ chiều rộng (1 cột) trên màn hình rất nhỏ
+                        sm={12} // Chiếm 2 cột trên màn hình nhỏ
+                        md={8} // Chiếm 3 cột trên màn hình trung bình
+                        lg={6} // Chiếm 4 cột trên màn hình lớn
+                        xl={6} // Giữ nguyên trên màn hình rất lớn
+                        style={{ marginBottom: '20px' }}
+                        className="gutter-row"
+                      >
                         <div
                           style={{
                             display: 'block', // Để cả box trở thành link
@@ -231,7 +241,6 @@ function CrmEmployees() {
                             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
                           }}
                         >
-                          {' '}
                           <NavLink
                             to={`/admin/nhan-su/nhan-vien-theo-phong/${department.department_id}`}
                             style={{

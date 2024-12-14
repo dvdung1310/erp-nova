@@ -28,8 +28,12 @@ export const storeEmployees = async (data) => {
     return response.data;
 };
 export const deleteEmployees = async (id) => {
-    const response = await axios.delete(`${LARAVEL_SERVER}/api/nvemployee/${id}`);
-    return response.data;
+    try {
+        const response = await axios.get(`${LARAVEL_SERVER}/api/delete_employee/${id}`);
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.message || 'Lỗi khi xóa nhân sự.');
+    }
 };
 export const updateEmployees = async (data, id) => {
     const response = await axios.put(`${LARAVEL_SERVER}/api/nvemployee/${id}`, data);

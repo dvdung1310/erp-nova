@@ -350,6 +350,35 @@ function MenuItems({darkMode, toggleCollapsed, topMenu, events}) {
                 </Menu.Item>
             </SubMenu>
             {/* end khách hàng   */}
+             {/* quản lý kho */}
+             <SubMenu key="depot" icon={!topMenu && <FeatherIcon icon="user-plus"/>} title="Kho hàng">
+                <Menu.Item key="manager-product">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/san-pham`}>
+                        Sản phẩm
+                    </NavLink>
+                </Menu.Item>
+                <Menu.Item key="manager-ncc">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/nha-cung-cap`}>
+                        Nhà cung cấp
+                    </NavLink>
+                </Menu.Item>
+                <Menu.Item key="manager-agency">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/dai-ly`}>
+                        Đại lý
+                    </NavLink>
+                </Menu.Item>
+                <Menu.Item key="manager-sales">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/ban-hang`}>
+                        Bán hàng
+                    </NavLink>
+                </Menu.Item>
+                <Menu.Item key="manager-turnover">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/doanh-thu`}>
+                        Doanh thu
+                    </NavLink>
+                </Menu.Item>
+            </SubMenu>
+            {/* end quản lý kho*/}
             {/**/}
             {/* start d-none */}
             <SubMenu style={{display: 'none'}}>
