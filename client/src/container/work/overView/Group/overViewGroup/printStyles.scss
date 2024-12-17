@@ -1,5 +1,226 @@
+.print-container {
+  padding: 30px;
+}
+
+.report-header {
+  margin-bottom: 20px;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-container {
+  display: flex;
+  justify-content: start;
+}
+
+.logo {
+  max-height: 60px;
+  margin-right: 10px;
+}
+
+.header-text {
+  text-align: center;
+  font-size: 14px;
+}
+
+.report-title {
+  text-align: center;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  font-size: 18px;
+}
+
+.report-date {
+  font-size: 14px;
+  font-weight: normal;
+}
+
+.employee-info .info-item {
+  font-size: 14px;
+  padding: 10px 0;
+}
+
+.kpi-work, .kpi-compliance {
+  margin-bottom: 20px;
+}
+
+.kpi-work {
+  font-size: 24px;
+}
+
+.kpi-title {
+  margin-bottom: 20px;
+  font-size: 18px;
+}
+
+.kpi-score {
+  font-size: 14px;
+}
+
+.kpi-detail {
+  margin-left: 20px;
+  font-size: 14px;
+}
+
+.kpi-detail-value {
+  font-size: 14px;
+}
+
+.kpi-table {
+  border-bottom: 1px solid #ccc;
+}
+
+.kpi-total {
+  margin: 20px 0;
+  text-align: right;
+  font-size: 14px;
+}
+
+.signature-section {
+  margin-bottom: 100px;
+}
+
+.signature-box {
+  text-align: center;
+}
+
+.signature-title {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.signature-note {
+  font-style: italic;
+  font-size: 14px;
+}
+
+/* Print-specific styles */
 @media print {
-  .print {
-    background: #1c3f0d;
+  .ant-card-body {
+    padding: 12px !important;
+  }
+  .ant-card-head-title {
+    padding: 12px 0 !important;
+    font-size: 18px !important;
+    font-weight: bold !important;
+  }
+  .kpi-title {
+    font-size: 16px !important;
+    font-weight: 400 !important;
+  }
+  .ant-table-tbody > tr > td, .ant-table-thead > tr > th {
+    padding: 6px 16px !important;
+  }
+  .card-info {
+    margin-bottom: -40px !important;
+  }
+  .print-container {
+    padding: 30px 30px 0 30px !important;
+    font-family: Arial, sans-serif;
+  }
+  .employee-info {
+    font-size: 14px !important;
+  }
+
+  .report-header {
+    margin-bottom: 0 !important;
+  }
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo-container {
+    display: flex;
+    justify-content: start;
+  }
+  //.brlQRE {
+  //  margin-bottom: 0 !important;
+  //}
+  .logo {
+    max-height: 40px !important;
+    margin-right: 10px;
+  }
+
+  .header-text {
+    text-align: center;
+    font-size: 14px;
+  }
+
+  .report-title {
+    text-align: center;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    font-size: 18px !important;
+  }
+
+  .report-date {
+    font-size: 12px !important;
+    font-weight: normal;
+  }
+
+  .employee-info .info-item {
+    font-size: 12px !important;
+    padding: 10px 0;
+    display: block;
+    visibility: visible;
+  }
+
+  .kpi-work, .kpi-compliance {
+    margin-bottom: 20px;
+  }
+
+  .kpi-title {
+    margin-bottom: 20px;
+    font-size: 18px;
+  }
+
+  .kpi-score {
+    font-size: 14px;
+  }
+
+  .kpi-detail {
+    margin-left: 20px;
+    font-size: 14px;
+    font-weight: 400 !important;
+  }
+
+  .kpi-detail-value {
+    font-size: 14px;
+    font-weight: 400 !important;
+  }
+
+  .kpi-table {
+    border-bottom: 1px solid #ccc;
+  }
+
+  .kpi-total {
+    margin: 20px 0;
+    text-align: right;
+    font-size: 14px;
+  }
+
+  .signature-section {
+    margin-bottom: 100px;
+  }
+
+  .signature-box {
+    text-align: center;
+  }
+
+  .signature-title {
+    font-weight: bold;
+    font-size: 18px;
+  }
+
+  .signature-note {
+    font-style: italic;
+    font-size: 14px;
   }
 }

@@ -177,13 +177,13 @@ const CalculatorKPI = () => {
                 <FeatherIcon size={16} icon="printer"/>
                 <span>In</span>
             </NavLink>
-            <NavLink to="#" onClick={downloadPDF}>
-                <FeatherIcon size={16} icon="book-open"/>
-                <span>Xuất PDF</span>
-                {
-                    loadingDownload && <Spin style={{marginLeft: '5px'}}/>
-                }
-            </NavLink>
+            {/*<NavLink to="#" onClick={downloadPDF}>*/}
+            {/*    <FeatherIcon size={16} icon="book-open"/>*/}
+            {/*    <span>Xuất PDF</span>*/}
+            {/*    {*/}
+            {/*        loadingDownload && <Spin style={{marginLeft: '5px'}}/>*/}
+            {/*    }*/}
+            {/*</NavLink>*/}
         </>
     );
     const columnsRecord = [
@@ -382,62 +382,50 @@ const CalculatorKPI = () => {
             {
                 loading ? <div className='spin'><Spin/></div> :
                     <Main style={{background: '#fff'}} className='print' ref={pdfRef}>
-                        <Row gutter={25} ref={printRef}>
+                        <Row gutter={25} ref={printRef} className='print-container'>
                             <Col md={24} sm={24} xs={0}>
-                                <Card bordered={false}>
-                                    <div style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center'
-                                    }}>
-
-                                        <div style={{display: "flex", justifyContent: 'start'}}>
-                                            <img src="/logo-aai.png" alt="Logo"
-                                                 style={{maxWidth: '60px', marginRight: '10px'}}/>
-                                            <img src="/logo_ver_new.png" alt="Logo"
-                                                 style={{maxWidth: '150px'}}/>
+                                <Card bordered={false} className="report-header">
+                                    <div className="header-content">
+                                        <div className="logo-container">
+                                            <img src="/logo-aai.png" alt="Logo" className="logo"/>
+                                            <img src="/logo_ver_new.png" alt="Logo" className="logo"/>
                                         </div>
-                                        <div className='text-center'>
-                                            <Title level={4}>Cộng hòa xã hội chủ nghĩa Việt Nam
-                                            </Title>
+                                        <div className='header-text'>
+                                            <Title level={4}>Cộng hòa xã hội chủ nghĩa Việt Nam</Title>
                                             <Text>Độc lập - Tự do - Hạnh phúc</Text>
                                         </div>
                                     </div>
-                                    <Title level={3} style={{
-                                        textAlign: 'center',
-                                        marginBottom: '5px',
-                                        textTransform: 'uppercase'
-                                    }}>Kết quả công
-                                        việc theo tháng
-                                        <div style={{fontSize: '14px', fontWeight: "normal"}}>
+                                    <Title level={3} className="report-title">
+                                        Kết quả công việc theo tháng
+                                        <div className="report-date">
                                             <span>(Từ ngày {startDate ? moment(startDate).format('DD/MM/YYYY') : 'Toàn thời gian'}</span>
                                             <span> - Đến ngày {endDate ? moment(endDate).format('DD/MM/YYYY') : 'Toàn thời gian'})</span>
                                         </div>
-
                                     </Title>
                                 </Card>
                             </Col>
-                            <Col md={24} sm={24} xs={24}>
-                                <Cards title="Thông tin nhân viên" headStyle={{fontSize: '24px', textAlign: 'left'}}>
+                            <Col md={24} sm={24} xs={24} className='card-info'>
+                                <Cards title="Thông tin nhân viên" headStyle={{fontSize: '24px', textAlign: 'left'}}
+                                       className="employee-info">
                                     <div>
                                         <Row>
                                             <Col span={12}>
-                                                <div style={{fontSize: '20px'}}>
-                                                    <div style={{padding: '10px 0'}}>
+                                                <div className="info-item">
+                                                    <div className="info-detail">
                                                         <strong>Mã nhân viên:</strong> {userKpi?.employee?.employee_id}
                                                     </div>
-                                                    <div style={{padding: '10px 0'}}>
+                                                    <div className="info-detail">
                                                         <strong>Tên nhân
                                                             viên:</strong> {userKpi?.employee?.employee_name}
                                                     </div>
                                                 </div>
                                             </Col>
-                                            <Col span={12} style={{fontSize: '20px'}}>
+                                            <Col span={12} className="info-item">
                                                 <div>
-                                                    <div style={{padding: '10px 0'}}>
+                                                    <div className="info-detail">
                                                         <strong>Email:</strong> {userKpi?.employee?.employee_email}
                                                     </div>
-                                                    <div style={{padding: '10px 0'}}>
+                                                    <div className="info-detail">
                                                         <strong>Phòng ban:</strong> {userKpi?.employee?.department_name}
                                                     </div>
                                                 </div>
@@ -446,54 +434,37 @@ const CalculatorKPI = () => {
                                     </div>
                                 </Cards>
                             </Col>
-                            <Col md={24} sm={24} xs={24}>
-                                <Cards
-                                    title="KPI công việc"
-                                    headStyle={{
-                                        fontSize: '24px',
-                                        textAlign: 'left',
-                                        backgroundColor: '#f0f2f5',
-                                        borderBottom: '1px solid #d9d9d9',
-                                    }}
-                                    bodyStyle={{padding: '20px'}}
-                                >
-                                    <Typography.Title level={4} style={{marginBottom: '20px'}}>
+                            <Col md={24} sm={24} xs={24} className='card-kpi'>
+                                <Cards title="KPI công việc" className="kpi-work"
+                                       headStyle={{fontSize: '24px', textAlign: 'left'}}>
+                                    <Typography.Title level={4} className="kpi-title">
                                         Tổng điểm KPI hoàn thành công việc:
                                         <Typography.Text
-                                            style={{fontSize: '24px'}}> {userKpi?.totalScoreKpiTaskDone} (Điểm)</Typography.Text>
+                                            className="kpi-score"> {userKpi?.totalScoreKpiTaskDone} (Điểm)</Typography.Text>
                                     </Typography.Title>
-                                    <Typography.Title level={5} style={{marginLeft: '20px'}}>
+                                    <Typography.Title level={5} className="kpi-detail">
                                         - Tổng số dự án tham gia:
                                         <Typography.Text
-                                            style={{fontSize: '20px'}}> {userKpi?.totalProject}</Typography.Text>
+                                            className="kpi-detail-value"> {userKpi?.totalProject}</Typography.Text>
                                     </Typography.Title>
-                                    <Typography.Title level={5} style={{marginLeft: '20px'}}>
+                                    <Typography.Title level={5} className="kpi-detail">
                                         - Tổng số công việc tham gia:
                                         <Typography.Text
-                                            style={{fontSize: '20px'}}> {userKpi?.totalTask}</Typography.Text>
+                                            className="kpi-detail-value"> {userKpi?.totalTask}</Typography.Text>
                                     </Typography.Title>
-                                    <Typography.Title level={5} style={{marginLeft: '20px'}}>
+                                    <Typography.Title level={5} className="kpi-detail">
                                         - Tổng số công việc (leader xác nhận hoàn thành):
                                         <Typography.Text
-                                            style={{fontSize: '20px'}}> {userKpi?.totalTaskDone}</Typography.Text>
+                                            className="kpi-detail-value"> {userKpi?.totalTaskDone}</Typography.Text>
                                     </Typography.Title>
                                 </Cards>
-                                <Cards
-                                    title="KPI tuân thủ nội quy"
-                                    headStyle={{
-                                        fontSize: '24px',
-                                        textAlign: 'left',
-                                        backgroundColor: '#f0f2f5',
-                                        borderBottom: '1px solid #d9d9d9'
-                                    }}
-                                    bodyStyle={{padding: '20px'}}
-                                >
-                                    <Typography.Title level={4} style={{margin: '20px 0'}}>
+                                <Cards title="KPI tuân thủ nội quy" className="kpi-compliance"
+                                       headStyle={{fontSize: '24px', textAlign: 'left'}}>
+                                    <Typography.Title level={4} className="kpi-title">
                                         1.Tổng điểm KPI tuân thủ nội quy:
-                                        <Typography.Text
-                                            style={{fontSize: '24px'}}> 20 (Điểm)</Typography.Text>
+                                        <Typography.Text className="kpi-score"> 20 (Điểm)</Typography.Text>
                                     </Typography.Title>
-                                    <Typography.Title level={4} style={{margin: '20px 0'}}>
+                                    <Typography.Title level={4} className="kpi-title">
                                         2.Số lượng biên bản
                                     </Typography.Title>
                                     <Table
@@ -501,57 +472,39 @@ const CalculatorKPI = () => {
                                         dataSource={dataRecord}
                                         pagination={false}
                                         bordered
-                                        style={{borderBottom: '1px solid #ccc'}}
+                                        className="kpi-table"
                                     />
                                 </Cards>
-
-                                <Typography.Title level={4} style={{margin: '20px 0', textAlign: "right"}}>
+                                <Typography.Title level={4} className="kpi-total">
                                     Tổng số điểm KPI còn lại:
                                     <Typography.Text
-                                        style={{fontSize: '24px'}}> {userKpi?.totalScoreKpiRemaining} (Điểm)</Typography.Text>
+                                        className="kpi-score"> {userKpi?.totalScoreKpiRemaining} (Điểm)</Typography.Text>
                                 </Typography.Title>
                             </Col>
                             <Col md={24} sm={24} xs={24}>
-                                <Row style={{marginBottom: '100px'}}>
+                                <Row className="signature-section">
                                     <Col span={6}>
-                                        <div style={{
-                                            textAlign: 'center',
-                                        }}>
-                                            <div
-                                                style={{fontWeight: 'bold', fontSize: '20px'}}>Kế
-                                                toán
-                                            </div>
-                                            <span style={{fontStyle: 'italic'}}>(Ký và ghi rõ họ tên)</span>
+                                        <div className="signature-box">
+                                            <div className="signature-title">Kế toán</div>
+                                            <span className="signature-note">(Ký và ghi rõ họ tên)</span>
                                         </div>
                                     </Col>
                                     <Col span={6}>
-                                        <div style={{
-                                            textAlign: 'center',
-                                        }}>
-                                            <div
-                                                style={{fontWeight: 'bold', fontSize: '20px'}}>Trưởng phòng
-                                            </div>
-                                            <span style={{fontStyle: 'italic'}}>(Ký và ghi rõ họ tên)</span>
+                                        <div className="signature-box">
+                                            <div className="signature-title">Trưởng phòng</div>
+                                            <span className="signature-note">(Ký và ghi rõ họ tên)</span>
                                         </div>
                                     </Col>
                                     <Col span={6}>
-                                        <div style={{
-                                            textAlign: 'center',
-                                        }}>
-                                            <div
-                                                style={{fontWeight: 'bold', fontSize: '20px'}}>HCNS
-                                            </div>
-                                            <span style={{fontStyle: 'italic'}}>(Ký và ghi rõ họ tên)</span>
+                                        <div className="signature-box">
+                                            <div className="signature-title">HCNS</div>
+                                            <span className="signature-note">(Ký và ghi rõ họ tên)</span>
                                         </div>
                                     </Col>
                                     <Col span={6}>
-                                        <div style={{
-                                            textAlign: 'center',
-                                        }}>
-                                            <div
-                                                style={{fontWeight: 'bold', fontSize: '20px'}}>Nhân viên
-                                            </div>
-                                            <span style={{fontStyle: 'italic'}}>(Ký và ghi rõ họ tên)</span>
+                                        <div className="signature-box">
+                                            <div className="signature-title">Nhân viên</div>
+                                            <span className="signature-note">(Ký và ghi rõ họ tên)</span>
                                         </div>
                                     </Col>
                                 </Row>

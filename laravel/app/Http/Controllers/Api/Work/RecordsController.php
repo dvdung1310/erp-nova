@@ -75,7 +75,11 @@ class RecordsController extends Controller
                 return response()->json([
                     'message' => 'No records found',
                     'error' => false,
-                    'data' => null
+                    'data' => [
+                        'records' => [],
+                        'canCreateRecord' => $canCreateRecord,
+                        'canDeleteRecord' => $canDeleteRecord
+                    ]
                 ], 200);
             }
             return response()->json([

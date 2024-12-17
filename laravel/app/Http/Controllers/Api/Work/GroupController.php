@@ -148,6 +148,7 @@ class GroupController extends Controller
                     ->withCount(['tasks as total_tasks', 'tasks as completed_tasks' => function ($query) {
                         $query->whereIn('task_status', [2, 3]);
                     }])
+                    ->orderBy('created_at', 'desc')
                     ->get();
             } else {
                 $project = Project::whereHas('projectMembers', function ($query) use ($user_id, $parent_group_id) {
@@ -158,6 +159,7 @@ class GroupController extends Controller
                     ->withCount(['tasks as total_tasks', 'tasks as completed_tasks' => function ($query) {
                         $query->whereIn('task_status', [2, 3]);
                     }])
+                    ->orderBy('created_at', 'desc')
                     ->get();
             }
 
