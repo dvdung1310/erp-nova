@@ -7,7 +7,7 @@ import { useParams, useHistory } from 'react-router-dom';
 import { listQuestionAnswer } from '../../../apis/employees/question';
 import { storeExamUser } from '../../../apis/employees/exam';
 import './AddQuestionView.css';
-
+const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
 const { Title } = Typography;
 
 const StartExam = () => {
@@ -162,29 +162,43 @@ const StartExam = () => {
                 </div>
                 <Title level={2}>Câu hỏi {currentQuestionIndex + 1}/{examData.questions.length}</Title>
                 <Title level={4}>{currentQuestion.question_name}</Title>
-
-                <div className="answer-container" style={{ margin: '20px 0' }}>
-                    <Row gutter={[16, 16]}>
-                        {currentQuestion.answers.map((answer, index) => (
-                            <Col span={12} key={answer.answer_id}>
-                                <Button
-                                    className="btn-answer"
-                                    type={answers[currentQuestionIndex] === answer.answer_id ? 'primary' : 'default'}
-                                    onClick={() => handleAnswerSelect(answer.answer_id)}
-                                    style={{ width: '100%' }}
-                                >
-                                    {`${String.fromCharCode(65 + index)}. ${answer.answer_name}`}
-                                </Button>
-                            </Col>
-                        ))}
-                    </Row>
-                </div>
+    
+                {currentQuestion.type === 2 ? (
+                    <div style={{ margin: '20px 0', textAlign: 'center' }}>
+                        {currentQuestion.file != null ? <iframe
+                            src={`${LARAVEL_SERVER}/storage/${currentQuestion.file}`}
+                            title="PDF Viewer"
+                            width="100%"
+                            height="900px"
+                            style={{ border: '1px solid #ccc' }}
+                        ></iframe> : 'File đang bị lỗi'}
+                        
+                    </div>
+                ) : (
+                    <div className="answer-container" style={{ margin: '20px 0' }}>
+                        <Row gutter={[16, 16]}>
+                            {currentQuestion.answers.map((answer, index) => (
+                                <Col span={12} key={answer.answer_id}>
+                                    <Button
+                                        className="btn-answer"
+                                        type={answers[currentQuestionIndex] === answer.answer_id ? 'primary' : 'default'}
+                                        onClick={() => handleAnswerSelect(answer.answer_id)}
+                                        style={{ width: '100%' }}
+                                    >
+                                        {`${String.fromCharCode(65 + index)}. ${answer.answer_name}`}
+                                    </Button>
+                                </Col>
+                            ))}
+                        </Row>
+                    </div>
+                )}
+    
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Button onClick={prevQuestion} disabled={currentQuestionIndex === 0}>Quay lại</Button>
                     <Button onClick={nextQuestion} disabled={currentQuestionIndex === examData.questions.length - 1}>Tiếp theo</Button>
                     <Button type="primary" danger onClick={showConfirmSubmit}>Nộp bài</Button>
                 </div>
-
+    
                 <Modal
                     title="Xác nhận nộp bài"
                     visible={isModalVisible}
@@ -195,7 +209,7 @@ const StartExam = () => {
                 >
                     <p>Bạn có chắc chắn muốn nộp bài không?</p>
                 </Modal>
-
+    
                 <ToastContainer />
             </div>
         </Cards>

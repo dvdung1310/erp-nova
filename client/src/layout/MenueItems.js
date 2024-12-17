@@ -149,26 +149,6 @@ function MenuItems({darkMode, toggleCollapsed, topMenu, events}) {
                         Đề xuất
                     </NavLink>
                 </Menu.Item>
-                   <Menu.Item style={{display: 'none'}} className='pl-custom-sidebar' key="exam-list">
-                     <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-de`}>
-                       Kho đề
-                     </NavLink>
-                   </Menu.Item>
-                   <Menu.Item style={{display: 'none'}} className='pl-custom-sidebar' key="document-list">
-                     <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-ta-lieu`}>
-                       Kho tài liệu
-                     </NavLink>
-                   </Menu.Item>
-                   <Menu.Item style={{display: 'none'}} className='pl-custom-sidebar' key="khoa-hoc-list">
-                     <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-de`}>
-                       Khóa học
-                     </NavLink>
-                   </Menu.Item>
-                   <Menu.Item style={{display: 'none'}} className='pl-custom-sidebar'   key="exam-add">
-                     <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/tao-de`}>
-                       Tạo đề
-                     </NavLink>
-                   </Menu.Item>
                 {/*<Menu.Item key="nvu-home">*/}
                 {/*  <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su`}>*/}
                 {/*    Nhân sự*/}
@@ -219,6 +199,34 @@ function MenuItems({darkMode, toggleCollapsed, topMenu, events}) {
                 {/*    </Menu.Item>*/}
                 {/*  </SubMenu>*/}
                 {/*</Menu>*/}
+            </SubMenu>
+
+            <SubMenu
+                key="daotao"
+                icon={!topMenu && <FeatherIcon icon="file-plus"/>}
+                title="Đào tạo"
+            >
+                <Menu.Item  className='pl-custom-sidebar' key="exam-list">
+                     <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-de/1`}>
+                       Kho đề
+                     </NavLink>
+                   </Menu.Item>
+                   <Menu.Item  className='pl-custom-sidebar' key="document-list">
+                     <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-tai-lieu/2`}>
+                       Kho tài liệu
+                     </NavLink>
+                   </Menu.Item>
+                   <Menu.Item  className='pl-custom-sidebar' key="khoa-hoc-list">
+                     <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-de/3`}>
+                       Khóa học
+                     </NavLink>
+                   </Menu.Item>
+
+                   <Menu.Item  className='pl-custom-sidebar' key="de-thi-list">
+                     <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-de/4`}>
+                       Đề thi
+                     </NavLink>
+                   </Menu.Item>
             </SubMenu>
             {/* Tuyển dụng   */}
             {/* Tuyển dụng */}

@@ -20,8 +20,9 @@ class ExamController extends Controller
             $request->validate([
                 'description' => 'nullable|string',
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-                'time' => 'required|integer',
+                'time' => 'nullable',
                 'status' => 'required|boolean',
+                'type' => 'nullable',
             ]);
 
             $imagePath = null;
@@ -36,13 +37,18 @@ class ExamController extends Controller
                     'exam' => null,
                 ], 400);
             }
-
+            if($request->input('time') === 'undefined'){
+                $time = null;
+            }else{
+                $time = $request->input('time');
+            }
             // Tạo đề thi mới
             $exam = Exam::create([
                 'name' => $request->input('name'),
                 'description' => $request->input('description'),
                 'image' => $imagePath,
-                'time' => $request->input('time'),
+                'time' => $time,
+                'type' => $request->input('type'),
                 'status' => $request->input('status'),
             ]);
 
@@ -61,11 +67,11 @@ class ExamController extends Controller
         }
     }
 
-    public function index()
+    public function index($type)
     {
         try {
             // Lấy tất cả exams
-            $exams = Exam::all();
+            $exams = Exam::where('type',$type)->orderBy('created_at','desc')->get();
             return response()->json([
                 'message' => 'Danh sách đề thi',
                 'exams' => $exams,
@@ -128,7 +134,6 @@ class ExamController extends Controller
             $exam = Exam::findOrFail($id);
             $rules = [
                 'description' => 'nullable|string',
-                'time' => 'integer',
                 'status' => 'boolean',
             ];
 
@@ -158,11 +163,16 @@ class ExamController extends Controller
                 }
                 $imagePath = $request->file('image')->store('exams', 'public');
             }
+            if($request->input('time') === 'undefined'){
+                $time = null;
+            }else{
+                $time = $request->input('time');
+            }
             $exam->update([
                 'name' => $request->input('name'),
                 'description' => $request->input('description'),
                 'image' => $imagePath,
-                'time' => $request->input('time'),
+                'time' => $time,
                 'status' => $request->input('status'),
             ]);
 
@@ -252,10 +262,13 @@ class ExamController extends Controller
         $questions = Question::with('answers')
             ->whereIn('id', $listQuestionIds)
             ->get();
+
         $questionData = $questions->map(function ($question) use ($selectedAnswers) {
             return [
                 'question_id' => $question->id,
                 'question_name' => $question->name,
+                'question_type' => $question->type,
+                'question_file' => $question->file,
                 'answers' => $question->answers,
             ];
         });

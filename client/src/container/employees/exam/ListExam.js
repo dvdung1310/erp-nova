@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Modal, Form, Input, Upload, Select } from 'antd';
+import { Table, Button, Modal, Form, Input, Upload, Select ,Spin} from 'antd';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Cards } from '../../../components/cards/frame/cards-frame';
 import { ListExam, destroy, update } from '../../../apis/employees/exam';
 import { UploadOutlined } from '@ant-design/icons';
-import { useHistory } from 'react-router-dom';
+import { useHistory , useParams} from 'react-router-dom';
 
 const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
 const { Option } = Select;
@@ -21,15 +21,17 @@ const ExamTable = () => {
         time: '',
         status: 1,
     });
+    const [loading, setLoading] = useState(false);
     const [form] = Form.useForm();
     const [imageFile, setImageFile] = useState(null);
     const history = useHistory();
-
-
+    const { type } = useParams(); 
+    console.log('type',type);
     useEffect(() => {
         const fetchExams = async () => {
             try {
-                const response = await ListExam();
+                setLoading(true);
+                const response = await ListExam(type);
                 const exams = response.data.exams.map((exam) => ({
                     key: exam.id,
                     id: exam.id,
@@ -40,13 +42,15 @@ const ExamTable = () => {
                     status: exam.status === 1 ? 'Hoạt động' : 'Không hoạt động',
                 }));
                 setDataSource(exams);
+                setLoading(false);
             } catch (error) {
                 console.error('Error fetching exams:', error);
+               
             }
         };
 
         fetchExams();
-    }, []);
+    }, [type]);
 
     const handleDelete = (id) => {
         Modal.confirm({
@@ -130,15 +134,11 @@ const ExamTable = () => {
             render: (image) => <img src={image} alt="Exam" width={80} />,
         },
         {
-            title: 'Thời gian',
-            dataIndex: 'time',
-            key: 'time',
-        },
-        {
             title: 'Nội dung',
             dataIndex: 'description',
             key: 'description',
         },
+        
         {
             title: 'Trạng thái',
             dataIndex: 'status',
@@ -152,23 +152,66 @@ const ExamTable = () => {
                 <>
                     <Button type="primary" style={{ marginRight: 8 }} onClick={() => handleUpdate(record)}>Sửa</Button>
                     <Button type="danger" style={{ marginRight: 8 }} onClick={() => handleDelete(record.id)}>Xóa</Button>
-                    <Button type="success-ch" style={{ marginRight: 8 , background:'#36CF32',color:'#fff' }} onClick={() => history.push(`/admin/nhan-su/de-thi/${record.id}`)}>Câu hỏi</Button>
-                    <Button type="lam-thu" onClick={() => history.push(`/admin/nhan-su/lam-bai-thi/${record.id}`)}>Làm thử</Button>
+                    {parseInt(type, 10) === 1 ? (<Button type="success-ch" style={{ marginRight: 8 , background:'#36CF32',color:'#fff' }} onClick={() => history.push(`/admin/nhan-su/de-thi/${record.id}`)}>Câu hỏi</Button>):
+                    parseInt(type, 10) === 3 || parseInt(type, 10) === 4 ? (<Button type="success-ch" style={{ marginRight: 8 , background:'#36CF32',color:'#fff' }} onClick={() => history.push(`/admin/nhan-su/them-tai-lieu-de-thi/${record.id}`)}>Câu hỏi</Button>)
+                    :(<Button type="success-ch" style={{ marginRight: 8 , background:'#36CF32',color:'#fff' }} onClick={() => history.push(`/admin/nhan-su/tai-lieu/${record.id}`)}>Tài liệu</Button>)}
+
+                    {parseInt(type, 10) === 3  || parseInt(type, 10) === 4  ? (<Button type="lam-thu" onClick={() => history.push(`/admin/nhan-su/lam-bai-thi/${record.id}`)}>Làm thử</Button>) : ''}
                 </>
             ),
         },
     ];
 
+    if (parseInt(type, 10) === 3 || parseInt(type, 10) === 4) {
+        columns.splice(columns.findIndex(col => col.key === 'status'), 0, {
+            title: 'Thời gian',
+            dataIndex: 'time',
+            key: 'time',
+        });
+    }
+
+    if (parseInt(type, 10) === 3 || parseInt(type, 10) === 4) {
+        columns.splice(columns.findIndex(col => col.key === 'TIME'), 0, {
+            title: 'Lượt làm bài',
+            dataIndex: 'time',
+            key: 'time',
+            render: (_, record) => (
+                <a
+                    href={`/admin/nhan-su/danh-sach-nguoi-thi/${record.id}`}
+                    style={{ color: '#1890ff', textDecoration: 'underline' }}
+                >
+                    Xem lượt làm bài
+                </a>
+            ),
+        })
+    }
+
+    
+
     return (
         <>
+         <Spin spinning={loading}>
             <Cards>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h3 style={{ margin: 0 }}>Danh Sách Kho Đề</h3>
-            <Button   type="tao-de"  onClick={() => history.push(`/admin/nhan-su/tao-de/1`)}> Tạo đề </Button>
+                {
+                    parseInt(type, 10) === 1 ? ( <h3 style={{ margin: 0 }}>Danh Sách Kho Đề</h3>) : 
+                    parseInt(type, 10) === 2 ? (
+                        <h3 style={{ margin: 0 }}>Danh Sách Kho Tài Liệu</h3>
+                    ):
+                    parseInt(type, 10) === 3 ? (
+                        <h3 style={{ margin: 0 }}>Danh Sách Khóa Học</h3>
+                    ):
+                    parseInt(type, 10) === 4 ? (
+                        <h3 style={{ margin: 0 }}>Danh Sách Đề thi</h3>
+                    ): null
+                }
+           
+            <Button   type="tao-de"  onClick={() => history.push(`/admin/nhan-su/tao-de/${type}`)}> Tạo đề </Button>
             </div>
             <Table  dataSource={dataSource} columns={columns} rowKey="id"/>
             <ToastContainer />
             </Cards>
+            </Spin>
             <Modal
                 title="Cập nhật đề thi"
                 visible={isModalVisible}
@@ -182,9 +225,11 @@ const ExamTable = () => {
                     <Form.Item name="description" label="Nội dung">
                         <Input.TextArea />
                     </Form.Item>
-                    <Form.Item name="time" label="Thời gian" rules={[{ required: true, message: 'Vui lòng nhập thời gian!' }]}>
-                        <Input type="text" />
-                    </Form.Item>
+                    {(parseInt(type, 10) === 3 || parseInt(type, 10) === 4) && (
+                            <Form.Item name="time" label="Thời gian (phút)" rules={[{ required: true, message: 'Vui lòng nhập thời gian!' }]}>
+                            <Input />
+                        </Form.Item>
+                            )}
                     <Form.Item name="status" label="Trạng thái" rules={[{ required: true, message: 'Vui lòng chọn trạng thái!' }]}>
                         <Select>
                             <Option value={1}>Hoạt động</Option>

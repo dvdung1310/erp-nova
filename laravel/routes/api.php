@@ -58,19 +58,28 @@ Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 
 Route::group(['middleware' => 'api'], function () {
     Route::post('/store-exams', [ExamController::class, 'store']);
-    Route::get('/exams-index', [ExamController::class, 'index']);
+    Route::get('/exams-index/{type}', [ExamController::class, 'index']);
     Route::delete('/destroy-exams/{id}', [ExamController::class, 'destroy']);
     Route::post('/update-exams/{id}', [ExamController::class, 'update']);
     Route::get('/getNameExam/{id}', [ExamController::class, 'getNameExam']);
+
+
     Route::post('/questions-store', [QuestionController::class, 'store']);
+    Route::post('/document-store', [QuestionController::class, 'storeQuestionDocument']);
+    Route::get('/get-all-question/{examId}', [QuestionController::class, 'getAllQuestion']);
+    Route::post('/store-question-exam-document', [QuestionController::class, 'storeOrUpdateQuestionExamDocument']);
     Route::post('workschedule', [WorkScheduleController::class, 'store']);
     Route::get('getWorkSchedulesByMonth/{month}', [WorkScheduleController::class, 'getWorkSchedulesByMonth']);
     Route::get('getWorkScheduleForWeekByUserId', [WorkScheduleController::class, 'getWorkScheduleForWeekByUserId']);
     Route::post('/upload-image', [ExamController::class, 'upload'])->name('upload.image');
     Route::post('/store-question', [QuestionController::class, 'store']);
     Route::get('/list-question-answer/{id}', [QuestionController::class, 'getQuestionsWithAnswers']);
+    Route::get('/question-or-document/{id}', [QuestionController::class, 'getQuestionsOrDocument']);
     Route::delete('/delete-question-answer/{id}', [QuestionController::class, 'DeleteQuestion']);
     Route::post('/update-question-answer', [QuestionController::class, 'UpdateQuestion']);
+    Route::post('/update-question-document', [QuestionController::class, 'UpdateQuestionDocument']);
+
+
 
     Route::post('/questionName', [QuestionController::class, 'questionName']);
     Route::post('/store-result-user', [ExamController::class, 'StoreResult']);

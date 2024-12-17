@@ -33,8 +33,9 @@ const CreateExam = () => {
             formData.append('name', values.name);
             formData.append('description', values.description);
             formData.append('time', values.time);
+            formData.append('type', type_exam);
             formData.append('status', examData.status);
-
+            console.log('formDataaa',formData);
             if (examData.image) {
                 formData.append('image', examData.image);
             }
@@ -55,8 +56,27 @@ const CreateExam = () => {
                 <HorizontalFormStyleWrap>
                     <Cards>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                    <h3 style={{ margin: 0 }}>Tạo kho đề</h3>
-                    <Button   type="primary"  onClick={() => history.push(`/admin/nhan-su/danh-sach-de`)}> Danh sách Kho đề</Button>
+                    <h3 style={{ margin: 0 }}>Tạo mới</h3>
+                    {
+    parseInt(type_exam, 10) === 1 ? (
+    <Button type="primary" onClick={() => history.push(`/admin/nhan-su/danh-sach-de/1`)}>
+      Danh sách Kho đề
+    </Button>
+  ) : parseInt(type_exam, 10) === 2 ? (
+    <Button type="primary" onClick={() => history.push(`/admin/nhan-su/danh-sach-ta-lieu/2`)}>
+      Danh sách Kho tài liệu
+    </Button>
+  ) : parseInt(type_exam, 10) === 3 ? (
+    <Button type="primary" onClick={() => history.push(`/admin/nhan-su/danh-sach-de/3`)}>
+      Danh sách Khóa học
+    </Button>
+  ) : parseInt(type_exam, 10) === 4 ? (
+    <Button type="primary" onClick={() => history.push(`/admin/nhan-su/danh-sach-de/4`)}>
+      Danh sách Đề thi
+    </Button>
+  ) : null
+}
+
                      </div>
                         <Form
                             form={form}
@@ -66,14 +86,14 @@ const CreateExam = () => {
                         >
                             <Row align="middle">
                                 <Col lg={8} md={9} xs={24}>
-                                    <label htmlFor="name">Tên đề thi</label>
+                                    <label htmlFor="name">Nhập tên</label>
                                 </Col>
                                 <Col lg={16} md={15} xs={24}>
                                     <Form.Item
                                         name="name"
-                                        rules={[{ required: true, message: 'Vui lòng nhập tên đề thi' }]}
+                                        rules={[{ required: true, message: 'Vui lòng nhập tên ' }]}
                                     >
-                                        <Input type="text" id="name" placeholder="Nhập tên đề thi" />
+                                        <Input type="text" id="name" placeholder="Nhập tên " />
                                     </Form.Item>
                                 </Col>
                             </Row>
@@ -91,7 +111,7 @@ const CreateExam = () => {
                                     </Form.Item>
                                 </Col>
                             </Row>
-
+                            {(parseInt(type_exam, 10) === 3 || parseInt(type_exam, 10) === 4) && (
                             <Row align="middle">
                                 <Col lg={8} md={9} xs={24}>
                                     <label htmlFor="time">Thời gian</label>
@@ -105,6 +125,7 @@ const CreateExam = () => {
                                     </Form.Item>
                                 </Col>
                             </Row>
+                            )}
 
                             <Row align="middle">
                                 <Col lg={8} md={9} xs={24}>
