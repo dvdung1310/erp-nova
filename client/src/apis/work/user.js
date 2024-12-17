@@ -112,3 +112,14 @@ export const forgotPassword = async (data) => {
     );
     return response.data;
 }
+export const getUserKpi = async (id, payload) => {
+    const token = getToken();
+    const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/users/calculator-kpi/${id}`, payload, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        }
+    );
+    return response.data;
+}

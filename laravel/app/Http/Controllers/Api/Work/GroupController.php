@@ -136,19 +136,31 @@ class GroupController extends Controller
     {
         try {
             $user_id = auth()->user()->id;
+            $role_id = auth()->user()->role_id;
             $groups = Group::where('parent_group_id', $parent_group_id)
                 ->with('leader') // Assuming there is a relationship defined in the Group.js model
                 ->select('group_id', 'group_name', 'color', 'leader_id', 'group_description')
                 ->get();
-            $project = Project::whereHas('projectMembers', function ($query) use ($user_id, $parent_group_id) {
-                $query->where('user_id', $user_id)
-                    ->where('group_id', $parent_group_id);
-            })
-                ->with(['projectMembers.user', 'leader'])
-                ->withCount(['tasks as total_tasks', 'tasks as completed_tasks' => function ($query) {
-                    $query->whereIn('task_status', [2, 3]);
-                }])
-                ->get();
+            $project = [];
+            if ((string)$role_id == '1' || (string)$role_id == '2') {
+                $project = Project::where('group_id', $parent_group_id)
+                    ->with(['tasks', 'projectMembers.user', 'leader'])
+                    ->withCount(['tasks as total_tasks', 'tasks as completed_tasks' => function ($query) {
+                        $query->whereIn('task_status', [2, 3]);
+                    }])
+                    ->get();
+            } else {
+                $project = Project::whereHas('projectMembers', function ($query) use ($user_id, $parent_group_id) {
+                    $query->where('user_id', $user_id)
+                        ->where('group_id', $parent_group_id);
+                })
+                    ->with(['projectMembers.user', 'leader'])
+                    ->withCount(['tasks as total_tasks', 'tasks as completed_tasks' => function ($query) {
+                        $query->whereIn('task_status', [2, 3]);
+                    }])
+                    ->get();
+            }
+
             $currentGroup = Group::where('group_id', $parent_group_id)->first();
             return response([
                 'data' => [
@@ -549,7 +561,6 @@ class GroupController extends Controller
     {
         try {
             $groups = Group::whereNull('parent_group_id')
-                ->where('group_id', '!=', 47)
                 ->with('leader')
                 ->get();
             $allGroupsProjectsAndTasks = [];

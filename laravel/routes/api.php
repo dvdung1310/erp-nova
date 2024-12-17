@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\Work\GroupController;
 use App\Http\Controllers\Api\Work\MessageController;
 use App\Http\Controllers\Api\Work\NotificationController;
 use App\Http\Controllers\Api\Work\ProjectController;
+use App\Http\Controllers\Api\Work\RecordsController;
 use App\Http\Controllers\Api\Work\TaskController;
 use App\Http\Controllers\AuthController;
 use App\Http\Middleware\middlewareLogin;
@@ -231,25 +232,25 @@ Route::group(['middleware' => 'api'], function () {
 });
 // tài liệu
 Route::group(['middleware' => 'api'], function () {
-    Route::get('/all-document',[DocumentController::class,'index'])->middleware(middlewareLogin::class); 
-    Route::post('/store-folder',[DocumentController::class,'store_folder'])->middleware(middlewareLogin::class); 
-    Route::post('/store-file',[DocumentController::class,'store_file'])->middleware(middlewareLogin::class); 
-    Route::post('/rename-folder/{id}',[DocumentController::class,'rename_folder'])->middleware(middlewareLogin::class); 
-    Route::get('/delete-file/{id}',[DocumentController::class,'delete_file'])->middleware(middlewareLogin::class); 
-    Route::get('/show-folder/{id}',[DocumentController::class,'show_folder'])->middleware(middlewareLogin::class); 
-    Route::post('/store-folder-child/{id}',[DocumentController::class,'store_folder_child'])->middleware(middlewareLogin::class); 
-    Route::post('/store-folder-file/{id}',[DocumentController::class,'store_folder_file'])->middleware(middlewareLogin::class);
-    Route::get('/check-download-file/{id}',[DocumentController::class,'check_download_file'])->middleware(middlewareLogin::class); 
-    Route::get('/show-file-share/{id}',[DocumentController::class,'show_file_share']); 
-    Route::get('/show-folder-share/{id}',[DocumentController::class,'show_folder_share']); 
-    Route::post('/share-file/{id}',[DocumentController::class,'share_file']); 
-    Route::post('/share-folder/{id}',[DocumentController::class,'share_folder']); 
+    Route::get('/all-document', [DocumentController::class, 'index'])->middleware(middlewareLogin::class);
+    Route::post('/store-folder', [DocumentController::class, 'store_folder'])->middleware(middlewareLogin::class);
+    Route::post('/store-file', [DocumentController::class, 'store_file'])->middleware(middlewareLogin::class);
+    Route::post('/rename-folder/{id}', [DocumentController::class, 'rename_folder'])->middleware(middlewareLogin::class);
+    Route::get('/delete-file/{id}', [DocumentController::class, 'delete_file'])->middleware(middlewareLogin::class);
+    Route::get('/show-folder/{id}', [DocumentController::class, 'show_folder'])->middleware(middlewareLogin::class);
+    Route::post('/store-folder-child/{id}', [DocumentController::class, 'store_folder_child'])->middleware(middlewareLogin::class);
+    Route::post('/store-folder-file/{id}', [DocumentController::class, 'store_folder_file'])->middleware(middlewareLogin::class);
+    Route::get('/check-download-file/{id}', [DocumentController::class, 'check_download_file'])->middleware(middlewareLogin::class);
+    Route::get('/show-file-share/{id}', [DocumentController::class, 'show_file_share']);
+    Route::get('/show-folder-share/{id}', [DocumentController::class, 'show_folder_share']);
+    Route::post('/share-file/{id}', [DocumentController::class, 'share_file']);
+    Route::post('/share-folder/{id}', [DocumentController::class, 'share_folder']);
     //Tài liệu của tôi
-    Route::get('/my-document',[DocumentController::class,'my_document'])->middleware(middlewareLogin::class); 
-    Route::get('/document-share-me',[DocumentController::class,'document_share_me'])->middleware(middlewareLogin::class); 
-    Route::get('/document-trash',[DocumentController::class,'document_trash'])->middleware(middlewareLogin::class); 
-    Route::get('/re-store/{id}',[DocumentController::class,'re_store'])->middleware(middlewareLogin::class); 
-    Route::get('/remove-file/{id}',[DocumentController::class,'remove_file'])->middleware(middlewareLogin::class); 
+    Route::get('/my-document', [DocumentController::class, 'my_document'])->middleware(middlewareLogin::class);
+    Route::get('/document-share-me', [DocumentController::class, 'document_share_me'])->middleware(middlewareLogin::class);
+    Route::get('/document-trash', [DocumentController::class, 'document_trash'])->middleware(middlewareLogin::class);
+    Route::get('/re-store/{id}', [DocumentController::class, 're_store'])->middleware(middlewareLogin::class);
+    Route::get('/remove-file/{id}', [DocumentController::class, 'remove_file'])->middleware(middlewareLogin::class);
 });
 //groups
 Route::prefix('groups')->group(function () {
@@ -316,5 +317,14 @@ Route::prefix('notifications')->group(function () {
     Route::get('get-notification-warning-by-user-id', [NotificationController::class, 'getNotificationWarningByUserId'])->middleware(middlewareLogin::class);
     Route::get('get-notification-by-user-id-paginate', [NotificationController::class, 'getNotificationByUserIdPaginate'])->middleware(middlewareLogin::class);
     Route::put('update-status/{notification_id}', [NotificationController::class, 'updateStatus'])->middleware(middlewareLogin::class);
+});
+//record
+Route::prefix('records')->group(function () {
+    Route::post('create', [RecordsController::class, 'create'])->middleware(middlewareLogin::class);
+    Route::get('get-record-by-user-id', [RecordsController::class, 'getRecordByUserId'])->middleware(middlewareLogin::class);
+    Route::delete('delete/{record_id}', [RecordsController::class, 'delete'])->middleware(middlewareLogin::class);
+    Route::get('get-record-by-id/{record_id}', [RecordsController::class, 'getRecordById'])->middleware(middlewareLogin::class);
+    Route::put('update-record-user-confirm/{record_id}', [RecordsController::class, 'updateRecordUserConfirm'])->middleware(middlewareLogin::class);
+    Route::put('update-record-sender-confirm/{record_id}', [RecordsController::class, 'updateRecordSenderConfirm'])->middleware(middlewareLogin::class);
 });
 

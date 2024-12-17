@@ -17,6 +17,19 @@ export const checkStatus = (status = 0) => {
     }]
     return arr[status];
 }
+export const checkStatusProject = (status = 0) => {
+    const arr = [{
+        status: 'Đang chờ',
+        color: '#ed6c02'
+    }, {
+        status: 'Đang làm',
+        color: '#0288d1'
+    }, {
+        status: 'Hoàn thành',
+        color: '#2e7d32'
+    }]
+    return arr[status];
+}
 export const checkPriority = (priority = 0) => {
     const arr = [{
         status: 'Thấp',

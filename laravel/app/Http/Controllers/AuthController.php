@@ -7,6 +7,8 @@ use App\Mail\ForgotPasswordMail;
 use App\Mail\InviteUserMail;
 use App\Models\CrmEmployeeModel;
 use App\Models\Devices;
+use App\Models\Project;
+use App\Models\Records;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -86,6 +88,7 @@ class AuthController extends Controller
                 ], 400);
             }
             $credentials = request(['email', 'password']);
+            $credentials['status'] = 1;
 
             if (!$token = auth()->attempt($credentials)) {
                 return response()->json([
@@ -361,6 +364,29 @@ class AuthController extends Controller
                 ->join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
                 ->select('crm_employee.*', 'crm_department.department_name')
                 ->first();
+            $record = Records::where('user_id', $user_id)
+                ->where('record_status', 1)
+                ->get();
+            $totalRecordLevelOne = 0;
+            $totalRecordLevelTwo = 0;
+            $totalRecordLevelThree = 0;
+            $totalRecordLevelFour = 0;
+            if ($record) {
+                foreach ($record as $item) {
+                    if ($item->record_level == 1) {
+                        $totalRecordLevelOne += 1;
+                    }
+                    if ($item->record_level == 2) {
+                        $totalRecordLevelTwo += 1;
+                    }
+                    if ($item->record_level == 3) {
+                        $totalRecordLevelThree += 1;
+                    }
+                    if ($item->record_level == 4) {
+                        $totalRecordLevelFour += 1;
+                    }
+                }
+            }
             if (!$employee) {
                 return response([
                     'message' => 'Employee not found',
@@ -372,19 +398,43 @@ class AuthController extends Controller
             $taskByUserInMonth = Task::whereHas('users', function ($query) use ($user) {
                 $query->where('users.id', $user->id);
             })
-//                ->where('task_start_date', '>=', $startMonth)
-//                ->where('task_end_date', '<=', $endMonth)
+                ->where('task_start_date', '>=', $startMonth)
+                ->where('task_end_date', '<=', $endMonth)
                 ->get();
+            $projectByUserInMonth = Project::whereHas('users', function ($query) use ($user) {
+                $query->where('users.id', $user->id);
+            })
+                ->where('project_start_date', '>=', $startMonth)
+                ->where('project_end_date', '<=', $endMonth)
+                ->get();
+
+            $totalProject = $projectByUserInMonth->count();
             $totalScoreKpiTaskDone = 0; // công việc đã được leader xác nhận
+            $totalTask = 0;
+            $totalTaskDone = 0;
             foreach ($taskByUserInMonth as $task) {
+                $totalTask += 1;
                 if ($task->task_status == 3) {
                     $totalScoreKpiTaskDone += $task->task_score_kpi;
+                    $totalTaskDone += 1;
                 }
             }
+            $totalScoreKpiRemaining = $totalScoreKpiTaskDone - $totalRecordLevelOne
+                - $totalRecordLevelTwo * 2 - $totalRecordLevelThree * 3 - $totalRecordLevelFour * 4 + 20;
             $payload = [
                 'user' => $user,
                 'employee' => $employee,
-                'totalScoreKpiTaskDone' => $totalScoreKpiTaskDone
+                'totalScoreKpiTaskDone' => $totalScoreKpiTaskDone,
+                'totalProject' => $totalProject,
+                'totalTask' => $totalTask,
+                'totalTaskDone' => $totalTaskDone,
+                'totalScoreKpiRemaining' => $totalScoreKpiRemaining,
+                'record' => [
+                    'totalRecordLevelOne' => $totalRecordLevelOne,
+                    'totalRecordLevelTwo' => $totalRecordLevelTwo,
+                    'totalRecordLevelThree' => $totalRecordLevelThree,
+                    'totalRecordLevelFour' => $totalRecordLevelFour
+                ]
             ];
             return response([
                 'message' => 'KPI calculated successfully',

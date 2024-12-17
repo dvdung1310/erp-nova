@@ -44,6 +44,7 @@ import {io} from "socket.io-client";
 import {useDispatch} from "react-redux";
 import {socketConnect, socketDisconnect} from '../../redux/users/actionCreator';
 import NotificationRouter from "./Notification";
+import Records from "./records";
 
 function Admin() {
     const {path} = useRouteMatch();
@@ -140,6 +141,7 @@ function Admin() {
                 <Route path={`${path}/luu-tru`} component={Cdn}/>
                 <Route path={`${path}/nhan-su`} component={Employees}/>
                 <Route path={`${path}/de-xuat`} component={Proposal}/>
+                <Route path={`${path}/bien-ban`} component={Records}/>
                 <Route path={`${path}/lam-viec`} component={Work}/>
                 <Route path={`${path}/tuyen-dung`} component={Recruit}/>
                 <Route path={`${path}/thong-bao`} component={NotificationRouter}/>

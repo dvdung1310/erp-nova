@@ -176,7 +176,7 @@ const MainWord = () => {
         }
 
     };
-    const buttonStyle = { width: '150px' };
+    const buttonStyle = {width: '150px'};
     return (
         <div className='home-page' style={{
             minHeight: '100vh'
@@ -204,7 +204,8 @@ const MainWord = () => {
                                 }} key="1" type="secondary" size="default">
                                     <FeatherIcon icon="percent" size={16}/> Tính KPI
                                 </Button>
-                                <Button style={buttonStyle} onClick={() => setShowModalProject(true)} key="1" type="success" size="default">
+                                <Button style={buttonStyle} onClick={() => setShowModalProject(true)} key="1"
+                                        type="success" size="default">
                                     <FeatherIcon icon="plus" size={16}/> Thêm nhiệm vụ
                                 </Button>
                                 <Button style={buttonStyle} onClick={() => {
@@ -212,7 +213,8 @@ const MainWord = () => {
                                 }} key="1" type="info" size="default">
                                     <FeatherIcon icon="monitor" size={16}/> Xem báo cáo
                                 </Button>
-                                <Button style={buttonStyle} onClick={() => setShowModal(true)} key="1" type="primary" size="default">
+                                <Button style={buttonStyle} onClick={() => setShowModal(true)} key="1" type="primary"
+                                        size="default">
                                     <FeatherIcon icon="plus" size={16}/> Tạo nhóm mới
                                 </Button>
                             </div>
