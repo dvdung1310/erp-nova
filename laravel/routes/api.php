@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AaiFood\DepotManagerController;
 use App\Http\Controllers\Api\Cdn\DocumentController;
 use App\Http\Controllers\Api\Nova\ExamController;
 use App\Http\Controllers\Api\Nova\NvCategoryFileController;
@@ -184,7 +185,32 @@ Route::group(['middleware' => 'api'], function () {
     Route::post('nvt_divide_data', [NvtCustomerController::class, 'nvt_divide_data']);
 
 });
-
+//Thực phẩm
+Route::group(['middleware' => 'api'], function () {
+    //nhà cung cấp
+    Route::get('all_suppliers',[DepotManagerController::class,'all_suppliers']);
+    Route::post('store_suppliers',[DepotManagerController::class,'store_suppliers']);
+    Route::post('update_suppliers/{id}',[DepotManagerController::class,'update_suppliers']);
+    //sản phẩm
+    Route::get('all_product',[DepotManagerController::class,'all_product']);
+    Route::post('store_product',[DepotManagerController::class,'store_product']);
+    Route::post('update_product/{id}',[DepotManagerController::class,'update_product']);
+    //Đại lý
+    Route::get('all_agency',[DepotManagerController::class,'all_agency']);
+    Route::post('store_agency',[DepotManagerController::class,'store_agency']);
+    Route::post('update_agency/{id}',[DepotManagerController::class,'update_agency']);
+    //hóa đơn xuất kho
+    Route::get('all_order',[DepotManagerController::class,'all_order']);
+    //Phiếu xuất kho
+    Route::get('create_bill',[DepotManagerController::class,'create_bill']);
+    Route::post('store_order_retail',[DepotManagerController::class,'store_order_retail']);
+    Route::post('store_order_agency',[DepotManagerController::class,'store_order_agency']);
+    //Phiếu chi
+    Route::get('all_payment_slip',[DepotManagerController::class,'all_payment_slip']);
+    Route::post('store_payment_slip',[DepotManagerController::class,'store_payment_slip']);
+    //Doanh thu
+    Route::get('revenue',[DepotManagerController::class,'revenue']);
+});
 // Novaup
 Route::group(['middleware' => 'api', 'prefix' => 'customer'], function () {
     Route::post('/storeCustomer', [CustomerMainController::class, 'store']);
@@ -227,7 +253,7 @@ Route::group(['middleware' => 'api'], function () {
     //danh sách nhân viên theo phòng ban
     Route::get('/employee_department', [NvEmployeeController::class, 'employee_department']);
     Route::get('/list_employee_department/{department_id}', [NvEmployeeController::class, 'list_employee_department'])->middleware(middlewareLogin::class);
-
+    Route::get('delete_employee/{id}', [NvEmployeeController::class, 'delete_employee']);
 
 });
 // tài liệu

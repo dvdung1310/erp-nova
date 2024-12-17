@@ -709,7 +709,7 @@ function All() {
                 style={{ width: '100%' }}
                 placeholder="Chọn người chia sẻ"
                 showSearch
-                optionFilterProp="label" // Dùng 'label' để lọc
+                optionFilterProp="label" 
               >
                 {allEmployee.map((employee) => (
                   <Option key={employee.id} value={employee.id} label={employee.name}>
