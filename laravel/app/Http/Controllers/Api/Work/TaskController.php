@@ -11,6 +11,7 @@ use App\Models\Notification;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskMember;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -29,7 +30,7 @@ class TaskController extends Controller
         $this->ClientUrl = env('CLIENT_URL');
     }
 
-    public function create(Request $request)
+    public function create(Request $request): JsonResponse
     {
         try {
             $validatedData = $request->validate([
@@ -93,7 +94,7 @@ class TaskController extends Controller
 
     }
 
-    public function getTaskByProjectId(Request $request, $project_id)
+    public function getTaskByProjectId(Request $request, $project_id): JsonResponse
     {
         try {
             $user_id = auth()->user()->id;
@@ -178,6 +179,36 @@ class TaskController extends Controller
             $taskMembers = TaskMember::where('task_id', $task_id)->pluck('user_id')->toArray();
             $membersToAdd = array_values(array_diff($members, $taskMembers));
             $membersToRemove = array_values(array_diff($taskMembers, $members));
+            if (!empty($membersToAdd)) {
+                $startMonth = Carbon::now()->startOfMonth();
+                $endMonth = Carbon::now()->endOfMonth();
+                foreach ($membersToAdd as $user_id) {
+                    // check score kpi user
+                    $taskByUserInMonth = Task::whereHas('users', function ($query) use ($user_id) {
+                        $query->where('users.id', $user_id);
+                    })
+//                        ->where('task_start_date', '>=', $startMonth)
+//                        ->where('task_end_date', '<=', $endMonth)
+                        ->get();
+                    if ($taskByUserInMonth->isEmpty()) {
+                        continue;
+                    }
+                    $totalScoreKpi = 0;
+                    foreach ($taskByUserInMonth as $taskItem) {
+                        $totalScoreKpi += $taskItem->task_score_kpi;
+                    }
+                    $userName = User::where('id', $user_id)->first()->name;
+
+                    if ($totalScoreKpi >= 80) {
+                        return response()->json([
+                            'error' => true,
+                            'message' => 'Điểm kpi của ' . $userName . ' trong tháng đã vượt quá 80 điểm, còn lại ' . (80 - $totalScoreKpi) . ' điểm',
+                            'data' => $totalScoreKpi
+                        ], 400);
+                    }
+                    //
+                }
+            }
             TaskMember::where('task_id', $task_id)->delete();
             $membersData = [];
             foreach ($members as $user_id) {
@@ -306,7 +337,7 @@ class TaskController extends Controller
 
     }
 
-    public function update(Request $request, $task_id)
+    public function update(Request $request, $task_id): JsonResponse
     {
         try {
             $task = Task::find($task_id);
@@ -356,7 +387,7 @@ class TaskController extends Controller
     }
 
 
-    public function delete(Request $request, $task_id)
+    public function delete(Request $request, $task_id): JsonResponse
     {
         try {
             $task = Task::find($task_id);
@@ -528,7 +559,244 @@ class TaskController extends Controller
         }
     }
 
-    public function updateDescription(Request $request, $task_id)
+    public function updateProgress(Request $request, $task_id): JsonResponse
+    {
+        try {
+            $task = Task::with('users')->find($task_id);
+            if (!$task) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Task not found',
+                    'data' => null
+                ], 404);
+            }
+            $validatedData = $request->validate([
+                'task_progress' => 'required|numeric',
+            ]);
+            $members = $task->users->pluck('id');
+            $project = Project::find($task->project_id);
+            $leader_id = $project->leader_id;
+            $members[] = $leader_id;
+            $members = array_unique($members->toArray());
+            $user_id = auth()->user()->id;
+            $role_id = auth()->user()->role_id;
+            $project = Project::find($task->project_id);
+            $group_id = $project->group_id;
+            $group = Group::find($group_id);
+            $oldProgress = $task->task_progress;
+            if ($validatedData['task_progress'] == 100) {
+                $validatedData['task_status'] = 2;
+                $validatedData['task_date_update_status_completed'] = now();
+            }
+            $task->update($validatedData);
+            // insert comment
+            $message = Message::create([
+                'text' => 'Cập nhật tiến độ công việc' . ' ' . $oldProgress . '% ' . '->' . ' ' . $task->task_progress . '%',
+                'message_type' => 3,
+                'message_by_user_id' => $user_id,
+            ]);
+            MessageTask::create([
+                'message_id' => $message->message_id,
+                'task_id' => $task->task_id,
+            ]);
+            //
+            $pathname = $request->input('pathname');
+            $createByUserName = auth()->user()->name;
+            $create_by_user_id = auth()->user()->id;
+            $notifications = [];
+            foreach ($members as $user_id) {
+                if ($user_id != $create_by_user_id) {
+                    $notifications[] = [
+                        'user_id' => $user_id,
+                        'task_id' => $task_id,
+                        'notification_status' => 0,
+                        'create_by_user_id' => $create_by_user_id,
+                        'notification_title' => ' Đã cập nhật tiến độ công việc: ' . $task->task_name . ' ' . $oldProgress . '% ' . '->' . ' ' . $task->task_progress . '%',
+                        'notification_link' => $this->ClientUrl . $pathname,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+            }
+            Notification::insert($notifications);
+
+            $devices = Devices::whereIn('user_id', $members)
+                ->where('user_id', '!=', $create_by_user_id)
+                ->get();
+            $devices = $devices->map(function ($device) {
+                return json_decode($device->endpoint, true);
+            })->filter()->values()->toArray();
+            $notification = Notification::where('task_id', $task_id)
+                ->where('create_by_user_id', $create_by_user_id)
+                ->with('createByUser')
+                ->latest()
+                ->first();
+            if (!empty($notifications)) {
+                $taskName = $task->task_name;
+                $payload = [
+                    'members' => $members,
+                    'devices' => $devices,
+                    'createByUserName' => $createByUserName,
+                    'taskName' => $taskName,
+                    'notification' => $notification,
+                    'createByUserId' => $create_by_user_id,
+                    'pathname' => $pathname,
+                ];
+                Http::post($this->nodeUrl . '/update-progress-task', $payload);
+            }
+//
+            return response()->json([
+                'error' => false,
+                'message' => 'Task updated successfully',
+                'data' => $task
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+
+    }
+
+    public function updateScoreKpi(Request $request, $task_id): JsonResponse
+    {
+        try {
+            $task = Task::with('users')->find($task_id);
+            if (!$task) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Task not found',
+                    'data' => null
+                ], 404);
+            }
+            $validatedData = $request->validate([
+                'task_score_kpi' => 'required|numeric',
+            ]);
+            $members = $task->users->pluck('id');
+            $project = Project::find($task->project_id);
+            // checl role
+            $group_id = $project->group_id;
+            $role_id = auth()->user()->role_id;
+            $group = Group::find($group_id);
+            $user_id = auth()->user()->id;
+            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2 && $group->leader_id != $user_id) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Bạn không có quyền thực hiện hành động này',
+                    'data' => $role_id
+                ], 403);
+            }
+            // check score kpi user
+            $scoreKpi = $validatedData['task_score_kpi'];
+            $listUser = $task->users;
+            $startMonth = Carbon::now()->startOfMonth();
+            $endMonth = Carbon::now()->endOfMonth();
+            foreach ($listUser as $user) {
+                $taskByUserInMonth = Task::whereHas('users', function ($query) use ($user) {
+                    $query->where('users.id', $user->id);
+                })
+//                    ->where('task_start_date', '>=', $startMonth)
+//                    ->where('task_end_date', '<=', $endMonth)
+                    ->get();
+                if ($taskByUserInMonth->isEmpty()) {
+                    continue;
+                }
+                $totalScoreKpi = 0;
+                foreach ($taskByUserInMonth as $taskItem) {
+                    $totalScoreKpi += $taskItem->task_score_kpi;
+                }
+
+                if (in_array($task_id, $taskByUserInMonth->pluck('task_id')->toArray())) {
+                    $existingScore = $task ? $task->task_score_kpi : 0;
+                    $newTotalScore = $totalScoreKpi - $existingScore + $scoreKpi;
+                    if ($newTotalScore > 80) {
+                        return response()->json([
+                            'error' => true,
+                            'message' => 'Điểm kpi của ' . $user->name . ' trong tháng đã vượt quá 80 điểm còn lại' . ' ' . (80 - $totalScoreKpi + $existingScore) . ' điểm',
+                            'data' => $newTotalScore
+                        ], 400);
+                    }
+                }
+            }
+            $leader_id = $project->leader_id;
+            $members[] = $leader_id;
+            $members = array_unique($members->toArray());
+            $oldScoreKpi = $task->task_score_kpi;
+            $task->update($validatedData);
+            // insert comment
+            $message = Message::create([
+                'text' => 'Cập nhật điểm kpi công việc ' . $oldScoreKpi . ' -> ' . $task->task_score_kpi,
+                'message_type' => 3,
+                'message_by_user_id' => $user_id,
+            ]);
+            MessageTask::create([
+                'message_id' => $message->message_id,
+                'task_id' => $task->task_id,
+            ]);
+            //
+            $pathname = $request->input('pathname');
+            $createByUserName = auth()->user()->name;
+            $create_by_user_id = auth()->user()->id;
+            $notifications = [];
+            foreach ($members as $user_id) {
+                if ($user_id != $create_by_user_id) {
+                    $notifications[] = [
+                        'user_id' => $user_id,
+                        'task_id' => $task_id,
+                        'notification_status' => 0,
+                        'create_by_user_id' => $create_by_user_id,
+                        'notification_title' => ' Đã cập nhật điểm kpi công việc: ' . $task->task_name . ' ' . $oldScoreKpi . '->' . $task->task_score_kpi,
+                        'notification_link' => $this->ClientUrl . $pathname,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+            }
+            Notification::insert($notifications);
+
+            $devices = Devices::whereIn('user_id', $members)
+                ->where('user_id', '!=', $create_by_user_id)
+                ->get();
+            $devices = $devices->map(function ($device) {
+                return json_decode($device->endpoint, true);
+            })->filter()->values()->toArray();
+            $notification = Notification::where('task_id', $task_id)
+                ->where('create_by_user_id', $create_by_user_id)
+                ->with('createByUser')
+                ->latest()
+                ->first();
+            if (!empty($notifications)) {
+                $taskName = $task->task_name;
+                $payload = [
+                    'members' => $members,
+                    'devices' => $devices,
+                    'createByUserName' => $createByUserName,
+                    'taskName' => $taskName,
+                    'notification' => $notification,
+                    'createByUserId' => $create_by_user_id,
+                    'pathname' => $pathname,
+                ];
+                Http::post($this->nodeUrl . '/update-score-kpi-task', $payload);
+            }
+//
+            return response()->json([
+                'error' => false,
+                'message' => 'Task name updated successfully',
+                'data' => $task,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+
+    }
+
+    public function updateDescription(Request $request, $task_id): JsonResponse
     {
         try {
             $task = Task::with('users')->find($task_id);
@@ -631,7 +899,7 @@ class TaskController extends Controller
 
     }
 
-    public function updateStatus(Request $request, $task_id)
+    public function updateStatus(Request $request, $task_id): JsonResponse
     {
         try {
             $task = Task::with('users')->find($task_id);
@@ -647,6 +915,7 @@ class TaskController extends Controller
             ]);
 
             if ($validatedData['task_status'] == 2 || $validatedData['task_status'] == 3) {
+                $validatedData['task_progress'] = 100;
                 $validatedData['task_date_update_status_completed'] = now();
             }
             if ($validatedData['task_status'] == 3) {
@@ -717,7 +986,7 @@ class TaskController extends Controller
                         'user_id' => $user_id,
                         'task_id' => $task_id,
                         'create_by_user_id' => $create_by_user_id,
-                        'notification_title' => ' Đã cập nhật tên công việc: ' . $task->task_name . '(' . $statusMessage . ')',
+                        'notification_title' => ' Đã cập nhật trạng thái công việc: ' . $task->task_name . '(' . $statusMessage . ')',
                         'notification_link' => $this->ClientUrl . $pathname,
                         'created_at' => now(),
                         'updated_at' => now(),
@@ -769,7 +1038,7 @@ class TaskController extends Controller
 
     }
 
-    public function updateStartDate(Request $request, $task_id)
+    public function updateStartDate(Request $request, $task_id): JsonResponse
     {
         try {
             $task = Task::with('users')->find($task_id);
@@ -872,7 +1141,7 @@ class TaskController extends Controller
 
     }
 
-    public function updateEndDate(Request $request, $task_id)
+    public function updateEndDate(Request $request, $task_id): JsonResponse
     {
         try {
             $task = Task::with('users')->find($task_id);
@@ -974,7 +1243,7 @@ class TaskController extends Controller
 
     }
 
-    public function updatePriority(Request $request, $task_id)
+    public function updatePriority(Request $request, $task_id): JsonResponse
     {
         try {
             $task = Task::with('users')->find($task_id);
@@ -1004,7 +1273,7 @@ class TaskController extends Controller
 
     }
 
-    public function getTaskUnfinishedByUserId(Request $request)
+    public function getTaskUnfinishedByUserId(Request $request): JsonResponse
     {
         try {
             $user_id = auth()->user()->id;

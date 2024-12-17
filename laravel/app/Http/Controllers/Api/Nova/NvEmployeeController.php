@@ -183,7 +183,7 @@ class NvEmployeeController extends Controller
                 $user['name'] = $employee_name;
                 $user['email'] = $employee_email;
                 $user['password'] = bcrypt(123456);
-                $user['role_id'] = $request->level_id;
+                // $user['role_id'] = $request->level_id;
                 $user->save();
                 $user_id = $user->id;
                 $employee = new CrmEmployeeModel();
@@ -306,20 +306,40 @@ class NvEmployeeController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(CrmEmployeeModel $nvemployee)
+    public function destroy($nvemployee)
+    {
+        return $nvemployee;
+        try {
+            $employee_id = $nvemployee;
+            $nvemployee = CrmEmployeeModel::find($employee_id);
+            $user_id = $nvemployee->account_id;
+            User::where('id',$user_id)->update(['status'=>0]);
+            CrmEmployeeModel::where('employee_id',$employee_id)->delete();
+            CrmEmployeeFileModel::where('employee_id',$user_id)->delete();
+          
+            return response()->json([
+                'error' => false, // Đã sửa thành true
+                'message' => 'Xóa nhân sự thành công!',
+                'employee_id' => $nvemployee
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'error' => true,
+                'message' => 'No customers found.' . $th,
+                'data' => []
+            ]);
+        }
+    }
+    public function delete_employee($id)
     {
         try {
-            $nvemployee = CrmEmployeeModel::find($nvemployee->employee_id);
+            $employee_id = $id;
+            $nvemployee = CrmEmployeeModel::find($employee_id);
             $user_id = $nvemployee->account_id;
-            if (!$nvemployee) {
-                return response()->json([
-                    'error' => true,
-                    'message' => 'No customers found.',
-                    'data' => []
-                ]);
-            }
-            $nvemployee->delete();
-            $delete_user = User::where('id', $user_id)->delete();
+            User::where('id',$user_id)->update(['status'=>0]);
+            CrmEmployeeModel::where('employee_id',$employee_id)->delete();
+            CrmEmployeeFileModel::where('employee_id',$user_id)->delete();
+          
             return response()->json([
                 'error' => false, // Đã sửa thành true
                 'message' => 'Xóa nhân sự thành công!',

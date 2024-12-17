@@ -7,8 +7,8 @@ import propTypes from 'prop-types';
 import {NavTitle} from './style';
 import versions from '../demoData/changelog.json';
 import {getGroupByUserId} from '../apis/work/group';
-import {FaPeopleArrows} from "react-icons/fa";
-import {FaUsersLine} from "react-icons/fa6";
+import {FaPeopleArrows} from 'react-icons/fa';
+import {FaUsersLine} from 'react-icons/fa6';
 
 const {SubMenu} = Menu;
 
@@ -108,7 +108,6 @@ function MenuItems({darkMode, toggleCollapsed, topMenu, events}) {
                 </Menu.Item>
             </SubMenu>
 
-
             {/*home*/}
             <Menu.Item key="home" icon={<FeatherIcon icon="home"/>}>
                 <NavLink to={`${path}`}>Trang chủ</NavLink>
@@ -144,9 +143,34 @@ function MenuItems({darkMode, toggleCollapsed, topMenu, events}) {
                     </NavLink>
                 </Menu.Item>
 
-                <Menu.Item className='pl-custom-sidebar' key="de-xuat">
+                <Menu.Item className="pl-custom-sidebar" key="de-xuat">
                     <NavLink onClick={toggleCollapsed} to={`${path}/de-xuat/danh-sach`}>
                         Đề xuất
+                    </NavLink>
+                </Menu.Item>
+                <Menu.Item className="pl-custom-sidebar" key="bien-ban">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/bien-ban/danh-sach`}>
+                        Biên bản
+                    </NavLink>
+                </Menu.Item>
+                <Menu.Item style={{display: 'none'}} className='pl-custom-sidebar' key="exam-list">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-de`}>
+                        Kho đề
+                    </NavLink>
+                </Menu.Item>
+                <Menu.Item style={{display: 'none'}} className='pl-custom-sidebar' key="document-list">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-ta-lieu`}>
+                        Kho tài liệu
+                    </NavLink>
+                </Menu.Item>
+                <Menu.Item style={{display: 'none'}} className='pl-custom-sidebar' key="khoa-hoc-list">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-de`}>
+                        Khóa học
+                    </NavLink>
+                </Menu.Item>
+                <Menu.Item style={{display: 'none'}} className='pl-custom-sidebar' key="exam-add">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/tao-de`}>
+                        Tạo đề
                     </NavLink>
                 </Menu.Item>
                 {/*<Menu.Item key="nvu-home">*/}
@@ -236,7 +260,7 @@ function MenuItems({darkMode, toggleCollapsed, topMenu, events}) {
                 icon={!topMenu && <FeatherIcon icon="home"/>}
                 title="Tuyển dụng"
             >
-                <Menu.Item className='pl-custom-sidebar' key="de-xuat">
+                <Menu.Item className="pl-custom-sidebar" key="de-xuat">
                     <NavLink onClick={toggleCollapsed} to={`${path}/tuyen-dung`}>
                         Chỉ tiêu tuyển dụng
                     </NavLink>
@@ -271,6 +295,9 @@ function MenuItems({darkMode, toggleCollapsed, topMenu, events}) {
                         </Menu.Item>
                     ))}
             </SubMenu>
+            <Menu.Item key="cdn" icon={<FeatherIcon icon="home"/>}>
+                <NavLink to={`${path}/luu-tru/all`}>Lưu trữ</NavLink>
+            </Menu.Item>
             {/* novaup */}
             <SubMenu key="novaup" icon={!topMenu && <FeatherIcon icon="map-pin"/>} title="Novaup">
                 <Menu.Item key="nvu-customer">
@@ -347,7 +374,7 @@ function MenuItems({darkMode, toggleCollapsed, topMenu, events}) {
             </SubMenu>
             {/* end novateen */}
 
-        {/* Khách hàng */}
+            {/* Khách hàng */}
             <SubMenu key="customer" icon={!topMenu && <FeatherIcon icon="user-plus"/>} title="Khách hàng">
                 <Menu.Item key="list-customer">
                     <NavLink onClick={toggleCollapsed} to={`${path}/khach-hang/danh-sach`}>
@@ -356,6 +383,35 @@ function MenuItems({darkMode, toggleCollapsed, topMenu, events}) {
                 </Menu.Item>
             </SubMenu>
             {/* end khách hàng   */}
+             {/* quản lý kho */}
+             <SubMenu key="depot" icon={!topMenu && <FeatherIcon icon="user-plus"/>} title="Kho hàng">
+                <Menu.Item key="manager-product">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/san-pham`}>
+                        Sản phẩm
+                    </NavLink>
+                </Menu.Item>
+                <Menu.Item key="manager-ncc">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/nha-cung-cap`}>
+                        Nhà cung cấp
+                    </NavLink>
+                </Menu.Item>
+                <Menu.Item key="manager-agency">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/dai-ly`}>
+                        Đại lý
+                    </NavLink>
+                </Menu.Item>
+                <Menu.Item key="manager-sales">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/ban-hang`}>
+                        Bán hàng
+                    </NavLink>
+                </Menu.Item>
+                <Menu.Item key="manager-turnover">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/doanh-thu`}>
+                        Doanh thu
+                    </NavLink>
+                </Menu.Item>
+            </SubMenu>
+            {/* end quản lý kho*/}
             {/**/}
             {/* start d-none */}
             <SubMenu style={{display: 'none'}}>

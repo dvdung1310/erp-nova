@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\AaiFood\DepotManagerController;
+use App\Http\Controllers\Api\Cdn\DocumentController;
 use App\Http\Controllers\Api\Nova\ExamController;
 use App\Http\Controllers\Api\Nova\NvCategoryFileController;
 use App\Http\Controllers\Api\Nova\NvDepartmentTeamController;
@@ -13,6 +15,7 @@ use App\Http\Controllers\Api\Work\GroupController;
 use App\Http\Controllers\Api\Work\MessageController;
 use App\Http\Controllers\Api\Work\NotificationController;
 use App\Http\Controllers\Api\Work\ProjectController;
+use App\Http\Controllers\Api\Work\RecordsController;
 use App\Http\Controllers\Api\Work\TaskController;
 use App\Http\Controllers\AuthController;
 use App\Http\Middleware\middlewareLogin;
@@ -85,6 +88,8 @@ Route::group(['middleware' => 'api'], function () {
     Route::post('/store-result-user', [ExamController::class, 'StoreResult']);
     Route::get('/get-exam-user/{id}', [ExamController::class, 'getExamUserResult']);
     Route::get('/list-exam-user/{id}', [ExamController::class, 'getListUserExam']);
+    // users
+    Route::post('users/calculator-kpi/{user_id}', [AuthController::class, 'calculatorKpi'])->middleware(middlewareLogin::class);
 });
 
 // xác nhận công
@@ -189,7 +194,32 @@ Route::group(['middleware' => 'api'], function () {
     Route::post('nvt_divide_data', [NvtCustomerController::class, 'nvt_divide_data']);
 
 });
-
+//Thực phẩm
+Route::group(['middleware' => 'api'], function () {
+    //nhà cung cấp
+    Route::get('all_suppliers',[DepotManagerController::class,'all_suppliers']);
+    Route::post('store_suppliers',[DepotManagerController::class,'store_suppliers']);
+    Route::post('update_suppliers/{id}',[DepotManagerController::class,'update_suppliers']);
+    //sản phẩm
+    Route::get('all_product',[DepotManagerController::class,'all_product']);
+    Route::post('store_product',[DepotManagerController::class,'store_product']);
+    Route::post('update_product/{id}',[DepotManagerController::class,'update_product']);
+    //Đại lý
+    Route::get('all_agency',[DepotManagerController::class,'all_agency']);
+    Route::post('store_agency',[DepotManagerController::class,'store_agency']);
+    Route::post('update_agency/{id}',[DepotManagerController::class,'update_agency']);
+    //hóa đơn xuất kho
+    Route::get('all_order',[DepotManagerController::class,'all_order']);
+    //Phiếu xuất kho
+    Route::get('create_bill',[DepotManagerController::class,'create_bill']);
+    Route::post('store_order_retail',[DepotManagerController::class,'store_order_retail']);
+    Route::post('store_order_agency',[DepotManagerController::class,'store_order_agency']);
+    //Phiếu chi
+    Route::get('all_payment_slip',[DepotManagerController::class,'all_payment_slip']);
+    Route::post('store_payment_slip',[DepotManagerController::class,'store_payment_slip']);
+    //Doanh thu
+    Route::get('revenue',[DepotManagerController::class,'revenue']);
+});
 // Novaup
 Route::group(['middleware' => 'api', 'prefix' => 'customer'], function () {
     Route::post('/storeCustomer', [CustomerMainController::class, 'store']);
@@ -232,10 +262,31 @@ Route::group(['middleware' => 'api'], function () {
     //danh sách nhân viên theo phòng ban
     Route::get('/employee_department', [NvEmployeeController::class, 'employee_department']);
     Route::get('/list_employee_department/{department_id}', [NvEmployeeController::class, 'list_employee_department'])->middleware(middlewareLogin::class);
-
+    Route::get('delete_employee/{id}', [NvEmployeeController::class, 'delete_employee']);
 
 });
-// work
+// tài liệu
+Route::group(['middleware' => 'api'], function () {
+    Route::get('/all-document', [DocumentController::class, 'index'])->middleware(middlewareLogin::class);
+    Route::post('/store-folder', [DocumentController::class, 'store_folder'])->middleware(middlewareLogin::class);
+    Route::post('/store-file', [DocumentController::class, 'store_file'])->middleware(middlewareLogin::class);
+    Route::post('/rename-folder/{id}', [DocumentController::class, 'rename_folder'])->middleware(middlewareLogin::class);
+    Route::get('/delete-file/{id}', [DocumentController::class, 'delete_file'])->middleware(middlewareLogin::class);
+    Route::get('/show-folder/{id}', [DocumentController::class, 'show_folder'])->middleware(middlewareLogin::class);
+    Route::post('/store-folder-child/{id}', [DocumentController::class, 'store_folder_child'])->middleware(middlewareLogin::class);
+    Route::post('/store-folder-file/{id}', [DocumentController::class, 'store_folder_file'])->middleware(middlewareLogin::class);
+    Route::get('/check-download-file/{id}', [DocumentController::class, 'check_download_file'])->middleware(middlewareLogin::class);
+    Route::get('/show-file-share/{id}', [DocumentController::class, 'show_file_share']);
+    Route::get('/show-folder-share/{id}', [DocumentController::class, 'show_folder_share']);
+    Route::post('/share-file/{id}', [DocumentController::class, 'share_file']);
+    Route::post('/share-folder/{id}', [DocumentController::class, 'share_folder']);
+    //Tài liệu của tôi
+    Route::get('/my-document', [DocumentController::class, 'my_document'])->middleware(middlewareLogin::class);
+    Route::get('/document-share-me', [DocumentController::class, 'document_share_me'])->middleware(middlewareLogin::class);
+    Route::get('/document-trash', [DocumentController::class, 'document_trash'])->middleware(middlewareLogin::class);
+    Route::get('/re-store/{id}', [DocumentController::class, 're_store'])->middleware(middlewareLogin::class);
+    Route::get('/remove-file/{id}', [DocumentController::class, 'remove_file'])->middleware(middlewareLogin::class);
+});
 //groups
 Route::prefix('groups')->group(function () {
     Route::get('get-all-group-parent', [GroupController::class, 'getAllGroupParent'])->middleware(middlewareLogin::class);
@@ -245,6 +296,7 @@ Route::prefix('groups')->group(function () {
     Route::put('update/{group_id}', [GroupController::class, 'update'])->middleware(middlewareLogin::class);
     Route::delete('delete/{group_id}', [GroupController::class, 'delete'])->middleware(middlewareLogin::class);
     Route::get('get-group-by-parent-group-id/{parent_group_id}', [GroupController::class, 'getGroupByParentGroupId'])->middleware(middlewareLogin::class);
+    Route::get('get-report-group-all', [GroupController::class, 'getReportGroupAll'])->middleware(MiddlewareLoginCeo::class);
     Route::post('get-reports-by-group-id/{group_id}', [GroupController::class, 'getReportsByGroupId'])->middleware(MiddlewareLoginCeo::class);
 });
 // projects
@@ -256,6 +308,7 @@ Route::prefix('projects')->group(function () {
     Route::post('member-join-project/{project_id}', [ProjectController::class, 'memberJoinProject'])->middleware(MiddlewareLoginLeader::class);
     Route::put('update-leader/{project_id}', [ProjectController::class, 'updateLeader'])->middleware(middlewareLogin::class);
     Route::put('update-name/{project_id}', [ProjectController::class, 'updateNameAndDescription'])->middleware(middlewareLogin::class);
+    Route::put('update-type/{project_id}', [ProjectController::class, 'updateProjectType'])->middleware(middlewareLogin::class);
     Route::put('update-status/{project_id}', [ProjectController::class, 'updateStatus'])->middleware(middlewareLogin::class);
     Route::put('update-members/{project_id}', [ProjectController::class, 'updateMembers'])->middleware(middlewareLogin::class);
     Route::put('update-start-date/{project_id}', [ProjectController::class, 'updateStartDate'])->middleware(middlewareLogin::class);
@@ -279,6 +332,8 @@ Route::prefix('tasks')->group(function () {
     Route::get('get-task-by-project-id/{project_id}', [TaskController::class, 'getTaskByProjectId'])->middleware(middlewareLogin::class);
     Route::put('update-description/{task_id}', [TaskController::class, 'updateDescription'])->middleware(middlewareLogin::class);
     Route::put('update-name/{task_id}', [TaskController::class, 'updateName'])->middleware(middlewareLogin::class);
+    Route::put(('update-progress/{task_id}'), [TaskController::class, 'updateProgress'])->middleware(middlewareLogin::class);
+    Route::put('update-score-kpi/{task_id}', [TaskController::class, 'updateScoreKpi'])->middleware(middlewareLogin::class);
     Route::put('update-status/{task_id}', [TaskController::class, 'updateStatus'])->middleware(middlewareLogin::class);
     Route::put('update-priority/{task_id}', [TaskController::class, 'updatePriority'])->middleware(middlewareLogin::class);
     Route::put('update-start-date/{task_id}', [TaskController::class, 'updateStartDate'])->middleware(middlewareLogin::class);
@@ -297,5 +352,14 @@ Route::prefix('notifications')->group(function () {
     Route::get('get-notification-warning-by-user-id', [NotificationController::class, 'getNotificationWarningByUserId'])->middleware(middlewareLogin::class);
     Route::get('get-notification-by-user-id-paginate', [NotificationController::class, 'getNotificationByUserIdPaginate'])->middleware(middlewareLogin::class);
     Route::put('update-status/{notification_id}', [NotificationController::class, 'updateStatus'])->middleware(middlewareLogin::class);
+});
+//record
+Route::prefix('records')->group(function () {
+    Route::post('create', [RecordsController::class, 'create'])->middleware(middlewareLogin::class);
+    Route::get('get-record-by-user-id', [RecordsController::class, 'getRecordByUserId'])->middleware(middlewareLogin::class);
+    Route::delete('delete/{record_id}', [RecordsController::class, 'delete'])->middleware(middlewareLogin::class);
+    Route::get('get-record-by-id/{record_id}', [RecordsController::class, 'getRecordById'])->middleware(middlewareLogin::class);
+    Route::put('update-record-user-confirm/{record_id}', [RecordsController::class, 'updateRecordUserConfirm'])->middleware(middlewareLogin::class);
+    Route::put('update-record-sender-confirm/{record_id}', [RecordsController::class, 'updateRecordSenderConfirm'])->middleware(middlewareLogin::class);
 });
 

@@ -24,7 +24,8 @@ const NoteCardGroup = ({data}) => {
         list_projects,
         list_waiting_tasks,
         list_tasks,
-        taskByUsers
+        list_paused_tasks,
+        total_paused_tasks
     } = data;
     const [showModalTask, setShowModalTask] = useState(false)
     const [showModalProject, setShowModalProject] = useState(false)
@@ -65,6 +66,10 @@ const NoteCardGroup = ({data}) => {
                 break;
             case 'all-tasks':
                 setTasks(list_tasks)
+                handleShowModalTask()
+                break;
+            case 'paused':
+                setTasks(list_paused_tasks)
                 handleShowModalTask()
                 break;
             default:
@@ -180,6 +185,24 @@ const NoteCardGroup = ({data}) => {
                                 </div>
                             </h4>
                             <p>{total_overdue_tasks}</p>
+                            <div className="actions">
+                            </div>
+                        </Cards>
+                    </Card>
+                </Col>
+                <Col xxl={8} xl={8} lg={8} sm={12} xs={24}>
+                    <Card className='total_paused_tasks'>
+                        <Cards headless>
+                            <h4>
+                      <span>
+                          Tổng số công việc tạm dừng
+                          <span className={`status-bullet`}/>
+                      </span>
+                                <div title='Xem chi tiết' onClick={() => handleClickViewClick('paused')}>
+                                    <MdOutlineRemoveRedEye size={20} style={{cursor: 'pointer'}}/>
+                                </div>
+                            </h4>
+                            <p>{total_paused_tasks}</p>
                             <div className="actions">
                             </div>
                         </Cards>

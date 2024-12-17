@@ -101,7 +101,9 @@ const MainNotification = ({match}) => {
                 pathname = url.pathname;
             }
             if (item.notification_status === 1) {
-                history.push(pathname);
+                history.push(pathname, {
+                    task_id: item?.task_id,
+                });
             } else {
                 setLoadingClick(true);
                 const payload = {
@@ -138,7 +140,9 @@ const MainNotification = ({match}) => {
 
                     return updatedNotifications.sort((a, b) => a.notification_status - b.notification_status);
                 });
-                history.push(pathname);
+                history.push(pathname, {
+                    task_id: item?.task_id,
+                });
                 setLoadingClick(false);
             }
         } catch (error) {

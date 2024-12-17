@@ -72,7 +72,7 @@ const Task = () => {
                 {loading ? <div className="spin">
                     <Spin/>
                 </div> : <>
-                    <TaskLisk listUser={listUser} tasks={tasks} setTasks={setTasks}/>
+                    <TaskLisk listUser={listUser} project={project} tasks={tasks}  setTasks={setTasks}/>
                 </>}
             </div>
         </div>

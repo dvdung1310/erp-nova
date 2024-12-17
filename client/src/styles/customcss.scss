@@ -2,7 +2,10 @@
   min-width: 400px;
   padding: 20px !important;
 }
-
+.ant-card-head {
+  display: block !important;
+  height: initial !important;
+}
 .ant-layout-content {
 }
 
@@ -35,6 +38,12 @@
 }
 
 @media only screen and (max-width: 450px) {
+  .ant-layout-content {
+    overflow: auto;
+  }
+  .ant-modal.modal-project {
+    width: 100% !important;
+  }
   .ant-modal-content {
     padding: 10px !important;
     min-width: 200px !important;
@@ -67,6 +76,8 @@
   }
   .message-component {
     .comment {
+      flex-direction: row !important;
+
       .comment_description {
         display: none;
       }
@@ -90,9 +101,15 @@
   .ant-col {
     width: 100%;
   }
+  .ant-popover-placement-bottomLeft .ant-popover-arrow {
+    right: 70px !important;
+    left: initial !important;
+  }
 }
 
 .modal-project {
+  //width: 50% !important;
+
   .ant-modal-content {
 
     .RichTextEditor__root___2QXK- .EditorToolbar__root___3_Aqz {

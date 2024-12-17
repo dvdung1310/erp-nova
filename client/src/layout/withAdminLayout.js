@@ -220,19 +220,6 @@ const ThemeLayout = (WrappedComponent) => {
                                                 alt="menu"/>
                                         </Button>
                                     ) : null}
-                                    <Link
-                                        className={topMenu && window.innerWidth > 991 ? 'striking-logo top-menu' : 'striking-logo'}
-                                        to="/"
-                                    >
-                                        <img
-                                            src={
-                                                !darkMode
-                                                    ? require(`../static/img/Logo_Dark.svg`).default
-                                                    : require(`../static/img/Logo_white.png`).default
-                                            }
-                                            alt=""
-                                        />
-                                    </Link>
                                 </Col>
 
                                 <Col style={{height: '100%'}} lg={!topMenu ? 14 : 15} md={8} sm={0} xs={0}>

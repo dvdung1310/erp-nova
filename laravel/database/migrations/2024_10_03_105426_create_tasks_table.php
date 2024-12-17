@@ -15,10 +15,12 @@ return new class extends Migration {
             $table->unsignedInteger('project_id'); // Ensure this matches the type in work_projects
             $table->string('task_name')->default('');
             $table->text('task_description');
+            $table->tinyInteger('task_progress')->default(0);
             $table->tinyInteger('task_priority')->default(0);
             $table->tinyInteger('task_status')->default(0);
             $table->date('task_start_date')->nullable();
             $table->date('task_end_date')->nullable();
+            $table->integer('task_score_kpi')->default(0);
             $table->foreignId('create_by_user_id')->constrained('users');
             $table->date('task_date_update_status_completed')->nullable();
             $table->index('project_id');

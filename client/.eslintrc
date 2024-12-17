@@ -50,6 +50,9 @@
     "no-unneeded-ternary": "off",
     "no-case-declarations": "off",
     "react/no-this-in-sfc": "off",
+    "no-lonely-if": "off",
+    "no-use-before-define": "off",
+    "jsx-a11y/media-has-caption": "off",
     "react/jsx-filename-extension": [
       0,
       {

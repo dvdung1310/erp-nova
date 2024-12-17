@@ -13,6 +13,7 @@ import {checkRole} from "../../../../../utility/checkValue";
 
 const dateFormat = 'MM/DD/YYYY';
 import RichTextEditor from 'react-rte';
+import {FormControl, FormControlLabel, Radio, RadioGroup} from "@mui/material";
 
 function CreateProject({visible, onCancel, group_id, listUser = []}) {
     const [listUserData, setListUser] = useState(listUser);
@@ -29,6 +30,10 @@ function CreateProject({visible, onCancel, group_id, listUser = []}) {
     });
     //
     const [editorState, setEditorState] = useState(RichTextEditor.createEmptyValue());
+    const [selectedOption, setSelectedOption] = useState('0');
+    const handleOptionChange = (event) => {
+        setSelectedOption(event.target.value);
+    };
     const handleChangeEditer = (value) => {
         setEditorState(value);
     };
@@ -101,6 +106,7 @@ function CreateProject({visible, onCancel, group_id, listUser = []}) {
                 project_description: editorState.toString('html'),
                 project_start_date: data?.project_start_date?.format('YYYY-MM-DD'),
                 project_end_date: data?.project_end_date?.format('YYYY-MM-DD'),
+                project_type: 0,
                 group_id,
                 leader_id: selectedMembers?.id,
                 pathname
@@ -120,6 +126,8 @@ function CreateProject({visible, onCancel, group_id, listUser = []}) {
             });
             form.resetFields();
             onCancel();
+            setSelectedMembers({})
+            setSelectedOption('0');
             setEditorState(RichTextEditor.createEmptyValue());
             history.push(pathname, {
                 key: 'createProject',

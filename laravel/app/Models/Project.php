@@ -16,6 +16,7 @@ class Project extends Model
         'project_name',
         'project_description',
         'group_id',
+        'project_type', // 0:chuyên môn, 1:nhiệm vụ
         'project_status', // 0: chưa bắt đầu, 1: đang thực hiện, 2: đã hoàn thành
         'project_start_date',
         'project_end_date',
