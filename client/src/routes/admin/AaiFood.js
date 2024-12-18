@@ -10,6 +10,7 @@ const CreateOrderAgency = lazy(() => import('../../container/aaifood/order/creat
 const TurnOver = lazy(() => import('../../container/aaifood/turnover'));
 const PaymentSlip = lazy(() => import('../../container/aaifood/payment_slip'));
 const createPaymentSlip = lazy(() => import('../../container/aaifood/create_payment_slip'));
+const OrderDetail = lazy(() => import('../../container/aaifood/order/order_detail'));
 
 const NovaupRoutes = memo(() => {
     const {path} = useRouteMatch();
@@ -21,6 +22,7 @@ const NovaupRoutes = memo(() => {
             <Route path={`${path}/nha-cung-cap`} component={Suppliers}/>
             <Route path={`${path}/dai-ly`} component={Agency}/>
             <Route path={`${path}/ban-hang`} component={Bill_sales}/>
+            <Route path={`${path}/chi-tiet-phieu-thu/:order_id`} component={OrderDetail}/>
             <Route path={`${path}/tao-phieu-ban-le`} component={CreateOrder}/>
             <Route path={`${path}/tao-phieu-ban-dai-ly`} component={CreateOrderAgency}/>
             <Route path={`${path}/doanh-thu`} component={TurnOver}/>

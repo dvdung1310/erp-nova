@@ -51,8 +51,10 @@ const suppliers = () => {
       product_output_price: record.product_output_price,
       product_input_quantity: record.product_input_quantity,
       suppliers_id: record.suppliers_id,
-      product_input_date: inputDate.isValid() ? inputDate : null,  // Chỉ set nếu hợp lệ
-      product_shelf_life: shelfLifeDate.isValid() ? shelfLifeDate : null // Chỉ set nếu hợp lệ
+      product_input_date: moment(record.product_input_date),
+      product_shelf_life: moment(record.product_shelf_life),
+      // product_input_date: inputDate.isValid() ? inputDate : null,  // Chỉ set nếu hợp lệ
+      // product_shelf_life: shelfLifeDate.isValid() ? shelfLifeDate : null // Chỉ set nếu hợp lệ
     });
   
     setIsAddModalVisible(true);

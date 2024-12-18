@@ -202,11 +202,15 @@ Route::group(['middleware' => 'api'], function () {
     Route::get('all_order',[DepotManagerController::class,'all_order']);
     //Phiếu xuất kho
     Route::get('create_bill',[DepotManagerController::class,'create_bill']);
+    Route::get('order_detail/{order_id}',[DepotManagerController::class,'order_detail']);
+    Route::get('delete_order/{order_id}',[DepotManagerController::class,'delete_order']);
     Route::post('store_order_retail',[DepotManagerController::class,'store_order_retail']);
     Route::post('store_order_agency',[DepotManagerController::class,'store_order_agency']);
     //Phiếu chi
     Route::get('all_payment_slip',[DepotManagerController::class,'all_payment_slip']);
     Route::post('store_payment_slip',[DepotManagerController::class,'store_payment_slip']);
+    Route::post('update_payment_slip/{cost_id}',[DepotManagerController::class,'update_payment_slip']);
+    Route::get('delete_payment_slip/{cost_id}',[DepotManagerController::class,'delete_payment_slip']);
     //Doanh thu
     Route::get('revenue',[DepotManagerController::class,'revenue']);
 });
