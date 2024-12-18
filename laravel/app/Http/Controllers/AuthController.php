@@ -362,7 +362,8 @@ class AuthController extends Controller
             }
             $employee = CrmEmployeeModel::where('account_id', $user_id)
                 ->join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
-                ->select('crm_employee.*', 'crm_department.department_name')
+                ->join('crm_employee_level', 'crm_employee.level_id', '=', 'crm_employee_level.level_id')
+                ->select('crm_employee.*', 'crm_department.department_name', 'crm_employee_level.level_name')
                 ->first();
             $record = Records::where('user_id', $user_id)
                 ->where('record_status', 1)

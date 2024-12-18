@@ -21,7 +21,6 @@ import './styles/customcss.scss'
 import 'react-toastify/dist/ReactToastify.css';
 
 const {theme} = config;
-const test = 'test';
 const ProviderConfig = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     useEffect(() => {
