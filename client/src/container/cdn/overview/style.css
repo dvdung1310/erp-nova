@@ -1,5 +1,0 @@
-.faded {
-    opacity: 0.5; /* Làm mờ liên kết */
-    pointer-events: none; /* Không cho phép click */
-    cursor: not-allowed; /* Hiển thị con trỏ bị vô hiệu hóa */
-  }
