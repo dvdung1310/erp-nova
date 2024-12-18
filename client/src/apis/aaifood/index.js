@@ -154,3 +154,39 @@ export const reportProfit = async () => {
     });
     return response.data;
 };
+export const OrderDetail = async (order_id) => {
+    const response = await axios.get(`${LARAVEL_SERVER}/api/order_detail/${order_id}`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    return response.data;
+};
+export const deleteOrder = async (order_id) => {
+    const response = await axios.get(`${LARAVEL_SERVER}/api/delete_order/${order_id}`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    return response.data;
+};
+export const deleteCost = async (cost_id) => {
+    const response = await axios.get(`${LARAVEL_SERVER}/api/delete_payment_slip/${cost_id}`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    return response.data;
+};
+export const updateCost = async (data,cost_id) => {
+    const response = await axios.post(`${LARAVEL_SERVER}/api/update_payment_slip/${cost_id}`,data, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    return response.data;
+};
