@@ -9,6 +9,7 @@ use App\Models\AaiOrderDetailModel;
 use App\Models\AaiOrderModel;
 use App\Models\AaiProductModel;
 use App\Models\AaiSuppliersModel;
+use App\Models\CrmEmployeeModel;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -560,5 +561,20 @@ class DepotManagerController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function check_role_food(){
+        $user_id = auth()->user()->id;
+        $user = CrmEmployeeModel::join('users','crm_employee.account_id','=','users.id')
+        ->select('crm_employee.department_id','users.role_id')
+        ->where('users.id',$user_id)->first();
+        // if($user->department_id == 1 || $user->department_id == 8 ||  $user->role_id == 1){
+        //     $check_role = true;
+        // }
+        return response()->json([
+            'success' => true,
+            'message' => 'Kiểm tra quyền',
+            'data'=>$user
+        ], 201);
     }
 }

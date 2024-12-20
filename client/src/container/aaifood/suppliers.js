@@ -1,8 +1,7 @@
-import React, {useEffect, useState, lazy, Suspense} from 'react';
-import {Row, Col, Table, Spin, message, Button, Modal, Form, Input, Select} from 'antd';
-import {Cards} from '../../components/cards/frame/cards-frame';
-import {allSuppliers, storeSuppliers, updateSuppliers} from '../../apis/aaifood/index';
-
+import React, { useEffect, useState, lazy, Suspense } from 'react';
+import { Row, Col, Table, Spin, message, Button, Modal, Form, Input, Select } from 'antd';
+import { Cards } from '../../components/cards/frame/cards-frame';
+import { allSuppliers, storeSuppliers, updateSuppliers } from '../../apis/aaifood/index';
 const suppliers = () => {
     const [dataSource, setDataSource] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -57,6 +56,9 @@ const suppliers = () => {
                     message.error(response.message);
                 }
             } else {
+                console.log('====================================');
+                console.log(values);
+                console.log('====================================');
                 const response = await storeSuppliers(values); // Gọi API thêm mới
                 if (response.success) {
                     message.success('Thêm nhà cung cấp thành công');
@@ -74,11 +76,11 @@ const suppliers = () => {
     };
 
     const columns = [
-        {title: 'ID', dataIndex: 'suppliers_id', key: 'suppliers_id'},
-        {title: 'Nhà cung cấp', dataIndex: 'suppliers_name', key: 'suppliers_name'},
-        {title: 'Mã số thuế', dataIndex: 'suppliers_mst', key: 'suppliers_mst'},
-        {title: 'Số điện thoại', dataIndex: 'suppliers_phone', key: 'suppliers_phone'},
-        {title: 'Địa chỉ', dataIndex: 'suppliers_address', key: 'suppliers_address'},
+        { title: 'ID', dataIndex: 'suppliers_id', key: 'suppliers_id' },
+        { title: 'Nhà cung cấp', dataIndex: 'suppliers_name', key: 'suppliers_name' },
+        { title: 'Mã số thuế', dataIndex: 'suppliers_mst', key: 'suppliers_mst' },
+        { title: 'Số điện thoại', dataIndex: 'suppliers_phone', key: 'suppliers_phone' },
+        { title: 'Địa chỉ', dataIndex: 'suppliers_address', key: 'suppliers_address' },
         {
             title: 'Hành động',
             key: 'action',
@@ -95,12 +97,12 @@ const suppliers = () => {
             <Row gutter={15}>
                 <Col xs={24}>
                     <Cards title="Quản lý nhà cung cấp">
-                        <Button type="primary" onClick={handleAddNew} style={{marginBottom: 16}}>
+                        <Button type="primary" onClick={handleAddNew} style={{ marginBottom: 16 }}>
                             Thêm nhà cung cấp
                         </Button>
                         {loading ? (
                             <div className="spin">
-                                <Spin/>
+                                <Spin />
                             </div>
                         ) : (
                             <Table
@@ -124,33 +126,33 @@ const suppliers = () => {
                     <Form.Item
                         label="Mã nhà cung cấp"
                         name="suppliers_id"
-                        rules={[{required: true, message: 'Vui lòng nhập mã nhà cung cấp!'}]}
+                        rules={[{ required: true, message: 'Vui lòng nhập mã nhà cung cấp!' }]}
                     >
-                        <Input disabled={!!editingSupplier}/>
+                        <Input disabled={!!editingSupplier} />
                     </Form.Item>
                     <Form.Item
                         label="Tên nhà cung cấp"
                         name="suppliers_name"
-                        rules={[{required: true, message: 'Vui lòng nhập tên nhà cung cấp!'}]}
+                        rules={[{ required: true, message: 'Vui lòng nhập tên nhà cung cấp!' }]}
                     >
-                        <Input/>
+                        <Input />
                     </Form.Item>
                     <Form.Item label="Mã số thuế" name="suppliers_mst">
-                        <Input/>
+                        <Input />
                     </Form.Item>
                     <Form.Item
                         label="Số điện thoại"
                         name="suppliers_phone"
-                        rules={[{required: true, message: 'Vui lòng nhập số điện thoại nhà cung cấp!'}]}
+                        rules={[{ required: true, message: 'Vui lòng nhập số điện thoại nhà cung cấp!' }]}
                     >
-                        <Input type="number"/>
+                        <Input type="number" />
                     </Form.Item>
                     <Form.Item
                         label="Địa chỉ"
                         name="suppliers_address"
-                        rules={[{required: true, message: 'Vui lòng nhập địa chỉ nhà cung cấp!'}]}
+                        rules={[{ required: true, message: 'Vui lòng nhập địa chỉ nhà cung cấp!' }]}
                     >
-                        <Input.TextArea rows={4}/>
+                        <Input.TextArea rows={4} />
                     </Form.Item>
                 </Form>
             </Modal>
