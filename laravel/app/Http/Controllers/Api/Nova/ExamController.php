@@ -37,9 +37,9 @@ class ExamController extends Controller
                     'exam' => null,
                 ], 400);
             }
-            if($request->input('time') === 'undefined'){
+            if ($request->input('time') === 'undefined') {
                 $time = null;
-            }else{
+            } else {
                 $time = $request->input('time');
             }
             // Tạo đề thi mới
@@ -60,7 +60,7 @@ class ExamController extends Controller
             ], 201); // Trả về mã 201 Created
         } catch (\Exception $e) {
             return response()->json([
-                'message' =>  $e->getMessage(),
+                'message' => $e->getMessage(),
                 'error' => true,
                 'exam' => null,
             ], 400); // Trả về mã 201 Created
@@ -71,7 +71,7 @@ class ExamController extends Controller
     {
         try {
             // Lấy tất cả exams
-            $exams = Exam::where('type',$type)->orderBy('created_at','desc')->get();
+            $exams = Exam::where('type', $type)->orderBy('created_at', 'desc')->get();
             return response()->json([
                 'message' => 'Danh sách đề thi',
                 'exams' => $exams,
@@ -163,9 +163,9 @@ class ExamController extends Controller
                 }
                 $imagePath = $request->file('image')->store('exams', 'public');
             }
-            if($request->input('time') === 'undefined'){
+            if ($request->input('time') === 'null' || $request->input('time') === 'undefined' || $request->input('time') === null) {
                 $time = null;
-            }else{
+            } else {
                 $time = $request->input('time');
             }
             $exam->update([

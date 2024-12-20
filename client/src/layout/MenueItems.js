@@ -7,7 +7,7 @@ import propTypes from 'prop-types';
 import {NavTitle} from './style';
 import versions from '../demoData/changelog.json';
 import {getGroupByUserId} from '../apis/work/group';
-import {FaPeopleArrows, FaWarehouse} from 'react-icons/fa';
+import {FaPeopleArrows, FaRegNewspaper, FaWarehouse} from 'react-icons/fa';
 import {FaHouseLaptop, FaUsersLine} from 'react-icons/fa6';
 import {GrStorage} from "react-icons/gr";
 import {BsHouseUp} from "react-icons/bs";
@@ -113,6 +113,9 @@ function MenuItems({darkMode, toggleCollapsed, topMenu, events}) {
             {/*home*/}
             <Menu.Item key="home" icon={<FeatherIcon icon="home"/>}>
                 <NavLink to={`${path}`} style={{textTransform: 'uppercase'}}>Trang chủ</NavLink>
+            </Menu.Item>
+            <Menu.Item key="news" icon={<FaRegNewspaper size={16}/>}>
+                <NavLink to={`${path}/tin-tuc/trang-chu`} style={{textTransform: 'uppercase'}}>TIN TỨC</NavLink>
             </Menu.Item>
             {/*end home*/}
             {/* Quản lý nhân sự */}

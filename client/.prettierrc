@@ -10,5 +10,5 @@
   "prettier.semi": true,
   "prettier.eslintIntegration": true,
   "jsxBracketSameLine": false,
-  "endOfLine":"auto"
+  "endOfLine": "auto"
 }

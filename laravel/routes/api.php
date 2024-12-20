@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Nova\NvEmployeeFileController;
 use App\Http\Controllers\Api\Nova\NvEmployeeDayOffController;
 use App\Http\Controllers\Api\Nova\NvRecruitCandidatesController;
 use App\Http\Controllers\Api\Nova\NvRecruitTargetController;
+use App\Http\Controllers\Api\Social\PostController;
 use App\Http\Controllers\Api\Work\DeviceController;
 use App\Http\Controllers\Api\Work\GroupController;
 use App\Http\Controllers\Api\Work\MessageController;
@@ -81,7 +82,6 @@ Route::group(['middleware' => 'api'], function () {
     Route::delete('/delete-question-answer/{id}', [QuestionController::class, 'DeleteQuestion']);
     Route::post('/update-question-answer', [QuestionController::class, 'UpdateQuestion']);
     Route::post('/update-question-document', [QuestionController::class, 'UpdateQuestionDocument']);
-
 
 
     Route::post('/questionName', [QuestionController::class, 'questionName']);
@@ -197,32 +197,32 @@ Route::group(['middleware' => 'api'], function () {
 //Thực phẩm
 Route::group(['middleware' => 'api'], function () {
     //nhà cung cấp
-    Route::get('all_suppliers',[DepotManagerController::class,'all_suppliers']);
-    Route::post('store_suppliers',[DepotManagerController::class,'store_suppliers']);
-    Route::post('update_suppliers/{id}',[DepotManagerController::class,'update_suppliers']);
+    Route::get('all_suppliers', [DepotManagerController::class, 'all_suppliers']);
+    Route::post('store_suppliers', [DepotManagerController::class, 'store_suppliers']);
+    Route::post('update_suppliers/{id}', [DepotManagerController::class, 'update_suppliers']);
     //sản phẩm
-    Route::get('all_product',[DepotManagerController::class,'all_product']);
-    Route::post('store_product',[DepotManagerController::class,'store_product']);
-    Route::post('update_product/{id}',[DepotManagerController::class,'update_product']);
+    Route::get('all_product', [DepotManagerController::class, 'all_product']);
+    Route::post('store_product', [DepotManagerController::class, 'store_product']);
+    Route::post('update_product/{id}', [DepotManagerController::class, 'update_product']);
     //Đại lý
-    Route::get('all_agency',[DepotManagerController::class,'all_agency']);
-    Route::post('store_agency',[DepotManagerController::class,'store_agency']);
-    Route::post('update_agency/{id}',[DepotManagerController::class,'update_agency']);
+    Route::get('all_agency', [DepotManagerController::class, 'all_agency']);
+    Route::post('store_agency', [DepotManagerController::class, 'store_agency']);
+    Route::post('update_agency/{id}', [DepotManagerController::class, 'update_agency']);
     //hóa đơn xuất kho
-    Route::get('all_order',[DepotManagerController::class,'all_order']);
+    Route::get('all_order', [DepotManagerController::class, 'all_order']);
     //Phiếu xuất kho
-    Route::get('create_bill',[DepotManagerController::class,'create_bill']);
-    Route::get('order_detail/{order_id}',[DepotManagerController::class,'order_detail']);
-    Route::get('delete_order/{order_id}',[DepotManagerController::class,'delete_order']);
-    Route::post('store_order_retail',[DepotManagerController::class,'store_order_retail']);
-    Route::post('store_order_agency',[DepotManagerController::class,'store_order_agency']);
+    Route::get('create_bill', [DepotManagerController::class, 'create_bill']);
+    Route::get('order_detail/{order_id}', [DepotManagerController::class, 'order_detail']);
+    Route::get('delete_order/{order_id}', [DepotManagerController::class, 'delete_order']);
+    Route::post('store_order_retail', [DepotManagerController::class, 'store_order_retail']);
+    Route::post('store_order_agency', [DepotManagerController::class, 'store_order_agency']);
     //Phiếu chi
-    Route::get('all_payment_slip',[DepotManagerController::class,'all_payment_slip']);
-    Route::post('store_payment_slip',[DepotManagerController::class,'store_payment_slip']);
-    Route::post('update_payment_slip/{cost_id}',[DepotManagerController::class,'update_payment_slip']);
-    Route::get('delete_payment_slip/{cost_id}',[DepotManagerController::class,'delete_payment_slip']);
+    Route::get('all_payment_slip', [DepotManagerController::class, 'all_payment_slip']);
+    Route::post('store_payment_slip', [DepotManagerController::class, 'store_payment_slip']);
+    Route::post('update_payment_slip/{cost_id}', [DepotManagerController::class, 'update_payment_slip']);
+    Route::get('delete_payment_slip/{cost_id}', [DepotManagerController::class, 'delete_payment_slip']);
     //Doanh thu
-    Route::get('revenue',[DepotManagerController::class,'revenue']);
+    Route::get('revenue', [DepotManagerController::class, 'revenue']);
 });
 // Novaup
 Route::group(['middleware' => 'api', 'prefix' => 'customer'], function () {
@@ -365,5 +365,13 @@ Route::prefix('records')->group(function () {
     Route::get('get-record-by-id/{record_id}', [RecordsController::class, 'getRecordById'])->middleware(middlewareLogin::class);
     Route::put('update-record-user-confirm/{record_id}', [RecordsController::class, 'updateRecordUserConfirm'])->middleware(middlewareLogin::class);
     Route::put('update-record-sender-confirm/{record_id}', [RecordsController::class, 'updateRecordSenderConfirm'])->middleware(middlewareLogin::class);
+});
+//social
+Route::prefix('socials')->group(function () {
+    //posts
+    Route::post('posts/create', [PostController::class, 'create'])->middleware(middlewareLogin::class);
+    Route::get('posts/get-by-id/{post_id}', [PostController::class, 'getById'])->middleware(middlewareLogin::class);
+    Route::get('posts/get-all', [PostController::class, 'getAll'])->middleware(middlewareLogin::class);
+
 });
 

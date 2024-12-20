@@ -1193,11 +1193,13 @@ ul {
     align-items: center;
     justify-content: center;
 }
+
 .head-example {
     cursor: pointer;
     user-select: none;
 }
-.head-example.active{
+
+.head-example.active {
     color: #4347D9;
     font-weight: 600;
     border-bottom: 1px solid;
@@ -1661,9 +1663,9 @@ html[dir='rtl'] .sDash_upload-basic .sDash_upload-browse {
     overflow-x: auto;
 }
 
-.table-responsive .ant-table-content .ant-table-cell {
-    white-space: nowrap;
-}
+/*.table-responsive .ant-table-content .ant-table-cell {*/
+/*    white-space: nowrap;*/
+/*}*/
 
 /* Rich TextEditor  */
 
