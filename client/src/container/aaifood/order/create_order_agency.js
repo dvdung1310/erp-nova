@@ -161,7 +161,7 @@ const create_order = () => {
           style={{ maxWidth: '600px', margin: '50px' }}
           onValuesChange={handleFormChange} // Lắng nghe thay đổi form
         >
-          <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+          <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }} style={{display:'flex',alignItems:'center'}}>
             <Col className="gutter-row" span={24} style={{marginBottom:'50px'}}>
               <Form.Item
                 label="Đại lý"
