@@ -735,11 +735,11 @@ const TaskList = (props) => {
                         }}
                     >
                         <TableRow>
-                            <TableCell>
+                            <TableCell style={{fontWeight: 'bold'}}>
                                 STT
                             </TableCell>
                             {/* Sortable Task Name Column */}
-                            <TableCell>
+                            <TableCell style={{fontWeight: 'bold'}}>
                                 <TableSortLabel
                                     active={orderBy === 'task_name'}
                                     direction={orderBy === 'task_name' ? order : 'asc'}
@@ -749,43 +749,43 @@ const TaskList = (props) => {
                                 </TableSortLabel>
                             </TableCell>
                             {
-                                report && <TableCell>
+                                report && <TableCell style={{fontWeight: 'bold'}}>
                                     Dự án
                                 </TableCell>
                             }
                             {/* Sortable Status Column */}
-                            <TableCell>
+                            <TableCell style={{fontWeight: 'bold'}}>
                                 Trạng thái
                             </TableCell>
-                            <TableCell>
+                            <TableCell style={{fontWeight: 'bold'}}>
                                 Thời gian
                             </TableCell>
-                            <TableCell>
+                            <TableCell style={{fontWeight: 'bold'}}>
                                 Tiến độ
                             </TableCell>
-                            <TableCell>
+                            <TableCell style={{fontWeight: 'bold'}}>
                                 Độ ưu tiên
                             </TableCell>
-                            <TableCell>
+                            <TableCell style={{fontWeight: 'bold'}}>
                                 Ngày bắt đầu
                             </TableCell>
-                            <TableCell>
+                            <TableCell style={{fontWeight: 'bold'}}>
                                 Ngày kết thúc
                             </TableCell>
-                            <TableCell>
+                            <TableCell style={{fontWeight: 'bold'}}>
                                 Ghi chú
                             </TableCell>
                             {
                                 !report &&
-                                <TableCell>
+                                <TableCell style={{fontWeight: 'bold'}}>
                                     Điểm KPI
                                 </TableCell>
                             }
 
-                            <TableCell style={{width: '200px'}}>
+                            <TableCell style={{width: '200px', fontWeight: 'bold'}}>
                                 Người thực hiện
                             </TableCell>
-                            <TableCell>
+                            <TableCell style={{fontWeight: 'bold'}}>
                                 Hành động
                             </TableCell>
                         </TableRow>
@@ -1012,7 +1012,9 @@ const TaskList = (props) => {
                                                         isHome && <div className='btn p-1' title='Xem dự án'
                                                                        style={{cursor: 'pointer'}}
                                                                        onClick={() => {
-                                                                           history.push(`/admin/lam-viec/du-an/${task?.project?.project_id ?? task?.project_id}`)
+                                                                           history.push(`/admin/lam-viec/du-an/${task?.project?.project_id ?? task?.project_id}`, {
+                                                                               task_id: task?.task_id
+                                                                           })
                                                                        }}
                                                         >
                                                             <IoEnterOutline color='gray' size={30}/>

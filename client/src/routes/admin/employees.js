@@ -8,8 +8,12 @@ const EmployeesMain = lazy(() => import('../../container/employees/CrmEmployees'
 const CreateExam = lazy(() => import('../../container/employees/exam/CreateExam'));
 const ListExam = lazy(() => import('../../container/employees/exam/ListExam'));
 const DetailExam = lazy(() => import('../../container/employees/exam/DetailExam'));
+const DetailDocument = lazy(() => import('../../container/employees/exam/DetailDocument'));
+const DetailExamDocument = lazy(() => import('../../container/employees/exam/DetailExamDocument'));
+const AddQuestionExamDocument = lazy(() => import('../../container/employees/exam/AddQuestionExamDocument'));
 const StartExam = lazy(() => import('../../container/employees/exam/StartExam'));
 const ResultExam = lazy(() => import('../../container/employees/exam/ResultExam'));
+const ListUserExam = lazy(() => import('../../container/employees/exam/ListUserExam'));
 const Department = lazy(() => import('../../container/employees/CrmDepartment'));
 const DepartmentTeam = lazy(() => import('../../container/employees/CrmDepartmentTeam'));
 const EmployeeFile = lazy(() => import('../../container/employees/CrmEmployeeFile'));
@@ -38,7 +42,8 @@ function Employees() {
             <Route path={`${path}/phong-ban`} component={Department}/>
             <Route path={`${path}/lich-lam-viec`} component={FullWorkSchedule}/>
             <Route path={`${path}/dang-ki/lich-lam-viec`} component={CreateWorksSchedule}/>
-            <Route path={`${path}/danh-sach-de`} component={ListExam}/>
+            <Route path={`${path}/danh-sach-de/:type`} component={ListExam}/>
+            <Route path={`${path}/danh-sach-tai-lieu/:type`} component={ListExam}/>
             <Route path={`${path}/ho-so/:employee_id`} component={EmployeeFile}/>
             <Route path={`${path}/nhan-vien-theo-phong/:department_id`} component={EmployeeDepartment}/>
             <Route path={`${path}/profile/:employee_id`} component={CrmEmployeeProfile}/>
@@ -46,8 +51,12 @@ function Employees() {
             <Route path={`${path}/dang-ki/lich-lam-viec`} component={CreateWorksSchedule}/>
             <Route path={`${path}/tao-de/:type`} component={CreateExam}/>
             <Route path={`${path}/de-thi/:id`} component={DetailExam} />
+            <Route path={`${path}/tai-lieu/:id`} component={DetailDocument} />
+            <Route path={`${path}/tai-lieu-de-thi/:id`} component={DetailExamDocument} />
+            <Route path={`${path}/them-tai-lieu-de-thi/:id`} component={AddQuestionExamDocument} />
             <Route path={`${path}/lam-bai-thi/:id`} component={StartExam} />
             <Route path={`${path}/ket-qua-bai-thi/:id`} component={ResultExam} />
+            <Route path={`${path}/danh-sach-nguoi-thi/:id`} component={ListUserExam} />
             <Route path={`${path}/nghi-phep`} component={CrmEmployeeDayOff} />
             <Route path={`${path}/don-nghi-phep/:id`} component={CrmEmployeeDayOffDetail} />
             <Route path={`${path}/danh-sach-don-nhan/:employeeId`} component={CrmListDayOffEmployee} />

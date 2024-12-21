@@ -17,6 +17,7 @@ use App\Models\Task;
 use App\Models\TaskMember;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
@@ -33,11 +34,11 @@ class ProjectController extends Controller
         $this->ClientUrl = env('CLIENT_URL');
     }
 
-    public function create(Request $request)
+    public function create(Request $request): JsonResponse
     {
         try {
             $validatedData = $request->validate([
-                'project_name' => 'required|max:255',
+                'project_name' => 'required',
                 'project_description' => 'nullable|string',
                 'group_id' => 'required',
                 'project_type' => 'required',
@@ -51,7 +52,8 @@ class ProjectController extends Controller
 
             $create_by_user_id = auth()->user()->id;
             $leader_id = $request->leader_id ? $request->leader_id : $create_by_user_id;
-            if ($validatedData['group_id'] = 47) {
+            $group_id = $validatedData['group_id'];
+            if ($group_id == 47) {
                 $validatedData['project_type'] = 1;
             }
             $project = Project::create(array_merge($validatedData, ['create_by_user_id' => $create_by_user_id], ['leader_id' => $leader_id]));
@@ -87,7 +89,7 @@ class ProjectController extends Controller
         }
     }
 
-    public function copyProject(Request $request)
+    public function copyProject(Request $request): JsonResponse
     {
         try {
             $validatedData = $request->validate([
@@ -236,7 +238,7 @@ class ProjectController extends Controller
 
     }
 
-    public function update(Request $request, $project_id)
+    public function update(Request $request, $project_id): JsonResponse
     {
         try {
             $project = Project::find($project_id);
@@ -327,7 +329,7 @@ class ProjectController extends Controller
         }
     }
 
-    public function updateNameAndDescription(Request $request, $project_id)
+    public function updateNameAndDescription(Request $request, $project_id): JsonResponse
     {
         try {
             $project = Project::find($project_id);
@@ -350,7 +352,7 @@ class ProjectController extends Controller
                 ], 403);
             }
             $validatedData = $request->validate([
-                'project_name' => 'required|max:255',
+                'project_name' => 'required',
                 'project_description' => 'nullable|string',
             ]);
             $project->update($validatedData);
@@ -427,7 +429,7 @@ class ProjectController extends Controller
         }
     }
 
-    public function updateProjectType(Request $request, $project_id)
+    public function updateProjectType(Request $request, $project_id): JsonResponse
     {
         try {
             $project = Project::find($project_id);
@@ -476,7 +478,7 @@ class ProjectController extends Controller
 
     }
 
-    public function updateStatus(Request $request, $project_id)
+    public function updateStatus(Request $request, $project_id): JsonResponse
     {
         try {
             $project = Project::find($project_id);
@@ -587,7 +589,7 @@ class ProjectController extends Controller
 
     }
 
-    public function updateMembers(Request $request, $project_id)
+    public function updateMembers(Request $request, $project_id): JsonResponse
     {
         try {
             $project = Project::find($project_id);
@@ -747,7 +749,7 @@ class ProjectController extends Controller
         }
     }
 
-    public function updateStartDate(Request $request, $project_id)
+    public function updateStartDate(Request $request, $project_id): JsonResponse
     {
         try {
             $project = Project::find($project_id);
@@ -847,7 +849,7 @@ class ProjectController extends Controller
     }
 
     public
-    function updateEndDate(Request $request, $project_id)
+    function updateEndDate(Request $request, $project_id): JsonResponse
     {
         try {
             $project = Project::find($project_id);
@@ -946,7 +948,7 @@ class ProjectController extends Controller
         }
     }
 
-    public function delete(Request $request, $project_id)
+    public function delete(Request $request, $project_id): JsonResponse
     {
         try {
             $project = Project::find($project_id);
@@ -1040,7 +1042,7 @@ class ProjectController extends Controller
         }
     }
 
-    public function getAllProjects()
+    public function getAllProjects(): JsonResponse
     {
         try {
             $projects = Project::all();
@@ -1059,7 +1061,7 @@ class ProjectController extends Controller
     }
 
     public
-    function getProjectsByGroupId($group_id)
+    function getProjectsByGroupId($group_id): JsonResponse
     {
         try {
             $projects = Project::where('group_id', $group_id)->get();
@@ -1078,7 +1080,7 @@ class ProjectController extends Controller
     }
 
     public
-    function getProjectByUserId()
+    function getProjectByUserId(): JsonResponse
     {
         try {
             $user_id = auth()->user()->id;
@@ -1111,7 +1113,7 @@ class ProjectController extends Controller
         }
     }
 
-    public function memberJoinProject(Request $request, $project_id)
+    public function memberJoinProject(Request $request, $project_id): JsonResponse
     {
         try {
             $project = Project::find($project_id);
@@ -1295,7 +1297,7 @@ class ProjectController extends Controller
 
     }
 
-    public function getProjectByCeo()
+    public function getProjectByCeo(): JsonResponse
     {
         try {
 
@@ -1320,7 +1322,7 @@ class ProjectController extends Controller
 
     }
 
-    public function updateNotifyBeforeEndTime($project_id)
+    public function updateNotifyBeforeEndTime($project_id): JsonResponse
     {
         try {
             $project = Project::find($project_id);

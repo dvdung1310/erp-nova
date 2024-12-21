@@ -29,6 +29,7 @@ const Calendars = lazy(() => import('../../container/Calendar'));
 const Inbox = lazy(() => import('../../container/email/Email'));
 const Chat = lazy(() => import('../../container/chat/ChatApp'));
 const Myprofile = lazy(() => import('../../container/profile/myProfile/Index'));
+const News = lazy(() => import('../../container/news/myProfile/Index'));
 const Firebase = lazy(() => import('./firebase'));
 const ToDo = lazy(() => import('../../container/toDo/ToDo'));
 const Note = lazy(() => import('../../container/note/Note'));
@@ -45,6 +46,7 @@ import {io} from "socket.io-client";
 import {useDispatch} from "react-redux";
 import {socketConnect, socketDisconnect} from '../../redux/users/actionCreator';
 import NotificationRouter from "./Notification";
+import Records from "./records";
 
 function Admin() {
     const {path} = useRouteMatch();
@@ -142,10 +144,12 @@ function Admin() {
                 <Route path={`${path}/aaifood`} component={Aaifood}/>
                 <Route path={`${path}/nhan-su`} component={Employees}/>
                 <Route path={`${path}/de-xuat`} component={Proposal}/>
+                <Route path={`${path}/bien-ban`} component={Records}/>
                 <Route path={`${path}/lam-viec`} component={Work}/>
                 <Route path={`${path}/tuyen-dung`} component={Recruit}/>
                 <Route path={`${path}/thong-bao`} component={NotificationRouter}/>
                 <Route path={`${path}/khach-hang`} component={Customer}/>
+                <Route path={`${path}/tin-tuc`} component={News}/>
             </Suspense>
         </Switch>
     );

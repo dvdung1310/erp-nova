@@ -25,7 +25,7 @@ import {ProjectPagination, ProjectListTitle, ProjectListAssignees, ProjectList} 
 import {Dropdown} from '../../../../../components/dropdown/dropdown';
 import moment from "moment";
 import Avatar from "../../../../../components/Avatar/Avatar";
-import {checkRole, checkStatus} from "../../../../../utility/checkValue";
+import {checkRole, checkStatus, checkStatusProject} from "../../../../../utility/checkValue";
 import {MdContentCopy, MdDelete, MdEdit, MdGroups, MdOutlineDateRange, MdOutlineSettings} from "react-icons/md";
 import {GrInProgress} from "react-icons/gr";
 import {Modal} from "../../../../../components/modals/antd-modals";
@@ -740,8 +740,8 @@ function ProjectLists({listProject, listUser = [], isHome}) {
                 ),
                 project_status: <Tag style={{
                     padding: "4px 8px",
-                    backgroundColor: checkStatus(project_status)?.color,
-                }}>{checkStatus(project_status)?.status}</Tag>,
+                    backgroundColor: checkStatusProject(project_status)?.color,
+                }}>{checkStatusProject(project_status)?.status}</Tag>,
                 success: (
                     <div className="project-list-progress">
                         <Progress
@@ -908,7 +908,7 @@ function ProjectLists({listProject, listUser = [], isHome}) {
                                         setState({
                                             ...state,
                                             current: page,
-                                            pageSize: pageSize,
+                                            pageSize,
                                         });
                                     }
                                 }}
@@ -1353,7 +1353,7 @@ function ProjectLists({listProject, listUser = [], isHome}) {
                 ]}
             >
                 <div>
-                    <label style={{marginBottom: '10px', display: 'block'}}>Thời gian nhắc nhở (giờ) <span
+                    <label style={{marginBottom: '10px', display: 'block'}}>Nhắc nhở trước thời gian kết thúc của công việc (giờ) <span
                         style={{color: 'red'}}>*</span></label>
                     < InputNumber style={{width: '100%'}} min={0} value={notifyBeforeEndTime}
                                   defaultValue={notifyBeforeEndTime}

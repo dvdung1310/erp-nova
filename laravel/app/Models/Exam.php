@@ -17,6 +17,7 @@ class Exam extends Model
         'image',
         'time',
         'status',
+        'type',
     ];
 
     // Mối quan hệ 1-N với bảng questions

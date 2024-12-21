@@ -6,7 +6,7 @@ import { Cards } from '../../../components/cards/frame/cards-frame';
 import { useParams } from 'react-router-dom';
 import AddQuestionView from './AddQuestionView';
 import './AddQuestionView.css'
-import { listQuestionAnswer, destroy, updateQuestion , questionName} from '../../../apis/employees/question';
+import { questionOrDocument, destroy, updateQuestion , questionName} from '../../../apis/employees/question';
 import TextEditor from "../../../components/TextEditor";
 
 const { Option } = Select;
@@ -27,7 +27,7 @@ const DetailExam = () => {
 
     const fetchQuestions = async () => {
         try {
-            const response = await listQuestionAnswer(examId);
+            const response = await questionOrDocument(examId);
             setExamName(response.data.data.exam_name);
             const question = response.data.data.questions.map((question) => ({
                 key: question.question_id,
@@ -208,13 +208,13 @@ const DetailExam = () => {
                     </Button>
                 </div>
 
-                <form method="post" onSubmit={handleSubmitEditer}>
+                {/* <form method="post" onSubmit={handleSubmitEditer}>
                     <h2>CKEditor with image</h2>
                     <TextEditor initData="Helllo" setData={setText} />
                     <button type="submit" className="btn btn-primary">
                         Submit
                     </button>
-                </form>
+                </form> */}
                 <Table
                     dataSource={questionsData}
                     columns={columns}

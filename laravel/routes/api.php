@@ -10,11 +10,13 @@ use App\Http\Controllers\Api\Nova\NvEmployeeFileController;
 use App\Http\Controllers\Api\Nova\NvEmployeeDayOffController;
 use App\Http\Controllers\Api\Nova\NvRecruitCandidatesController;
 use App\Http\Controllers\Api\Nova\NvRecruitTargetController;
+use App\Http\Controllers\Api\Social\PostController;
 use App\Http\Controllers\Api\Work\DeviceController;
 use App\Http\Controllers\Api\Work\GroupController;
 use App\Http\Controllers\Api\Work\MessageController;
 use App\Http\Controllers\Api\Work\NotificationController;
 use App\Http\Controllers\Api\Work\ProjectController;
+use App\Http\Controllers\Api\Work\RecordsController;
 use App\Http\Controllers\Api\Work\TaskController;
 use App\Http\Controllers\AuthController;
 use App\Http\Middleware\middlewareLogin;
@@ -60,19 +62,27 @@ Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 
 Route::group(['middleware' => 'api'], function () {
     Route::post('/store-exams', [ExamController::class, 'store']);
-    Route::get('/exams-index', [ExamController::class, 'index']);
+    Route::get('/exams-index/{type}', [ExamController::class, 'index']);
     Route::delete('/destroy-exams/{id}', [ExamController::class, 'destroy']);
     Route::post('/update-exams/{id}', [ExamController::class, 'update']);
     Route::get('/getNameExam/{id}', [ExamController::class, 'getNameExam']);
+
+
     Route::post('/questions-store', [QuestionController::class, 'store']);
+    Route::post('/document-store', [QuestionController::class, 'storeQuestionDocument']);
+    Route::get('/get-all-question/{examId}', [QuestionController::class, 'getAllQuestion']);
+    Route::post('/store-question-exam-document', [QuestionController::class, 'storeOrUpdateQuestionExamDocument']);
     Route::post('workschedule', [WorkScheduleController::class, 'store']);
     Route::get('getWorkSchedulesByMonth/{month}', [WorkScheduleController::class, 'getWorkSchedulesByMonth']);
     Route::get('getWorkScheduleForWeekByUserId', [WorkScheduleController::class, 'getWorkScheduleForWeekByUserId']);
     Route::post('/upload-image', [ExamController::class, 'upload'])->name('upload.image');
     Route::post('/store-question', [QuestionController::class, 'store']);
     Route::get('/list-question-answer/{id}', [QuestionController::class, 'getQuestionsWithAnswers']);
+    Route::get('/question-or-document/{id}', [QuestionController::class, 'getQuestionsOrDocument']);
     Route::delete('/delete-question-answer/{id}', [QuestionController::class, 'DeleteQuestion']);
     Route::post('/update-question-answer', [QuestionController::class, 'UpdateQuestion']);
+    Route::post('/update-question-document', [QuestionController::class, 'UpdateQuestionDocument']);
+
 
     Route::post('/questionName', [QuestionController::class, 'questionName']);
     Route::post('/store-result-user', [ExamController::class, 'StoreResult']);
@@ -187,34 +197,35 @@ Route::group(['middleware' => 'api'], function () {
 //Thực phẩm
 Route::group(['middleware' => 'api'], function () {
     //nhà cung cấp
-    Route::get('all_suppliers',[DepotManagerController::class,'all_suppliers']);
-    Route::post('store_suppliers',[DepotManagerController::class,'store_suppliers']);
-    Route::post('update_suppliers/{id}',[DepotManagerController::class,'update_suppliers']);
+    Route::get('all_suppliers', [DepotManagerController::class, 'all_suppliers']);
+    Route::post('store_suppliers', [DepotManagerController::class, 'store_suppliers']);
+    Route::post('update_suppliers/{id}', [DepotManagerController::class, 'update_suppliers']);
     //sản phẩm
-    Route::get('all_product',[DepotManagerController::class,'all_product']);
-    Route::post('store_product',[DepotManagerController::class,'store_product']);
-    Route::post('update_product/{id}',[DepotManagerController::class,'update_product']);
+    Route::get('all_product', [DepotManagerController::class, 'all_product']);
+    Route::post('store_product', [DepotManagerController::class, 'store_product']);
+    Route::post('update_product/{id}', [DepotManagerController::class, 'update_product']);
     //Đại lý
-    Route::get('all_agency',[DepotManagerController::class,'all_agency']);
-    Route::post('store_agency',[DepotManagerController::class,'store_agency']);
-    Route::post('update_agency/{id}',[DepotManagerController::class,'update_agency']);
+    Route::get('all_agency', [DepotManagerController::class, 'all_agency']);
+    Route::post('store_agency', [DepotManagerController::class, 'store_agency']);
+    Route::post('update_agency/{id}', [DepotManagerController::class, 'update_agency']);
     //hóa đơn xuất kho
-    Route::get('all_order',[DepotManagerController::class,'all_order']);
+    Route::get('all_order', [DepotManagerController::class, 'all_order']);
     //Phiếu xuất kho
-    Route::get('create_bill',[DepotManagerController::class,'create_bill']);
-    Route::get('order_detail/{order_id}',[DepotManagerController::class,'order_detail']);
-    Route::get('delete_order/{order_id}',[DepotManagerController::class,'delete_order']);
-    Route::post('store_order_retail',[DepotManagerController::class,'store_order_retail']);
-    Route::post('store_order_agency',[DepotManagerController::class,'store_order_agency']);
+    Route::get('create_bill', [DepotManagerController::class, 'create_bill']);
+    Route::get('order_detail/{order_id}', [DepotManagerController::class, 'order_detail']);
+    Route::get('delete_order/{order_id}', [DepotManagerController::class, 'delete_order']);
+    Route::post('store_order_retail', [DepotManagerController::class, 'store_order_retail']);
+    Route::post('store_order_agency', [DepotManagerController::class, 'store_order_agency']);
     //Phiếu chi
-    Route::get('all_payment_slip',[DepotManagerController::class,'all_payment_slip']);
-    Route::post('store_payment_slip',[DepotManagerController::class,'store_payment_slip']);
-    Route::post('update_payment_slip/{cost_id}',[DepotManagerController::class,'update_payment_slip']);
-    Route::get('delete_payment_slip/{cost_id}',[DepotManagerController::class,'delete_payment_slip']);
+    Route::get('all_payment_slip', [DepotManagerController::class, 'all_payment_slip']);
+    Route::post('store_payment_slip', [DepotManagerController::class, 'store_payment_slip']);
+    Route::post('update_payment_slip/{cost_id}', [DepotManagerController::class, 'update_payment_slip']);
+    Route::get('delete_payment_slip/{cost_id}', [DepotManagerController::class, 'delete_payment_slip']);
     //Doanh thu
     Route::get('revenue',[DepotManagerController::class,'revenue']);
     //Kiểm tra quyền
     Route::get('check_role_food', [DepotManagerController::class, 'check_role_food'])->middleware(middlewareLogin::class);
+
 });
 // Novaup
 Route::group(['middleware' => 'api', 'prefix' => 'customer'], function () {
@@ -263,25 +274,25 @@ Route::group(['middleware' => 'api'], function () {
 });
 // tài liệu
 Route::group(['middleware' => 'api'], function () {
-    Route::get('/all-document',[DocumentController::class,'index'])->middleware(middlewareLogin::class); 
-    Route::post('/store-folder',[DocumentController::class,'store_folder'])->middleware(middlewareLogin::class); 
-    Route::post('/store-file',[DocumentController::class,'store_file'])->middleware(middlewareLogin::class); 
-    Route::post('/rename-folder/{id}',[DocumentController::class,'rename_folder'])->middleware(middlewareLogin::class); 
-    Route::get('/delete-file/{id}',[DocumentController::class,'delete_file'])->middleware(middlewareLogin::class); 
-    Route::get('/show-folder/{id}',[DocumentController::class,'show_folder'])->middleware(middlewareLogin::class); 
-    Route::post('/store-folder-child/{id}',[DocumentController::class,'store_folder_child'])->middleware(middlewareLogin::class); 
-    Route::post('/store-folder-file/{id}',[DocumentController::class,'store_folder_file'])->middleware(middlewareLogin::class);
-    Route::get('/check-download-file/{id}',[DocumentController::class,'check_download_file'])->middleware(middlewareLogin::class); 
-    Route::get('/show-file-share/{id}',[DocumentController::class,'show_file_share']); 
-    Route::get('/show-folder-share/{id}',[DocumentController::class,'show_folder_share']); 
-    Route::post('/share-file/{id}',[DocumentController::class,'share_file']); 
-    Route::post('/share-folder/{id}',[DocumentController::class,'share_folder']); 
+    Route::get('/all-document', [DocumentController::class, 'index'])->middleware(middlewareLogin::class);
+    Route::post('/store-folder', [DocumentController::class, 'store_folder'])->middleware(middlewareLogin::class);
+    Route::post('/store-file', [DocumentController::class, 'store_file'])->middleware(middlewareLogin::class);
+    Route::post('/rename-folder/{id}', [DocumentController::class, 'rename_folder'])->middleware(middlewareLogin::class);
+    Route::get('/delete-file/{id}', [DocumentController::class, 'delete_file'])->middleware(middlewareLogin::class);
+    Route::get('/show-folder/{id}', [DocumentController::class, 'show_folder'])->middleware(middlewareLogin::class);
+    Route::post('/store-folder-child/{id}', [DocumentController::class, 'store_folder_child'])->middleware(middlewareLogin::class);
+    Route::post('/store-folder-file/{id}', [DocumentController::class, 'store_folder_file'])->middleware(middlewareLogin::class);
+    Route::get('/check-download-file/{id}', [DocumentController::class, 'check_download_file'])->middleware(middlewareLogin::class);
+    Route::get('/show-file-share/{id}', [DocumentController::class, 'show_file_share']);
+    Route::get('/show-folder-share/{id}', [DocumentController::class, 'show_folder_share']);
+    Route::post('/share-file/{id}', [DocumentController::class, 'share_file']);
+    Route::post('/share-folder/{id}', [DocumentController::class, 'share_folder']);
     //Tài liệu của tôi
-    Route::get('/my-document',[DocumentController::class,'my_document'])->middleware(middlewareLogin::class); 
-    Route::get('/document-share-me',[DocumentController::class,'document_share_me'])->middleware(middlewareLogin::class); 
-    Route::get('/document-trash',[DocumentController::class,'document_trash'])->middleware(middlewareLogin::class); 
-    Route::get('/re-store/{id}',[DocumentController::class,'re_store'])->middleware(middlewareLogin::class); 
-    Route::get('/remove-file/{id}',[DocumentController::class,'remove_file'])->middleware(middlewareLogin::class); 
+    Route::get('/my-document', [DocumentController::class, 'my_document'])->middleware(middlewareLogin::class);
+    Route::get('/document-share-me', [DocumentController::class, 'document_share_me'])->middleware(middlewareLogin::class);
+    Route::get('/document-trash', [DocumentController::class, 'document_trash'])->middleware(middlewareLogin::class);
+    Route::get('/re-store/{id}', [DocumentController::class, 're_store'])->middleware(middlewareLogin::class);
+    Route::get('/remove-file/{id}', [DocumentController::class, 'remove_file'])->middleware(middlewareLogin::class);
 });
 //groups
 Route::prefix('groups')->group(function () {
@@ -348,5 +359,22 @@ Route::prefix('notifications')->group(function () {
     Route::get('get-notification-warning-by-user-id', [NotificationController::class, 'getNotificationWarningByUserId'])->middleware(middlewareLogin::class);
     Route::get('get-notification-by-user-id-paginate', [NotificationController::class, 'getNotificationByUserIdPaginate'])->middleware(middlewareLogin::class);
     Route::put('update-status/{notification_id}', [NotificationController::class, 'updateStatus'])->middleware(middlewareLogin::class);
+});
+//record
+Route::prefix('records')->group(function () {
+    Route::post('create', [RecordsController::class, 'create'])->middleware(middlewareLogin::class);
+    Route::get('get-record-by-user-id', [RecordsController::class, 'getRecordByUserId'])->middleware(middlewareLogin::class);
+    Route::delete('delete/{record_id}', [RecordsController::class, 'delete'])->middleware(middlewareLogin::class);
+    Route::get('get-record-by-id/{record_id}', [RecordsController::class, 'getRecordById'])->middleware(middlewareLogin::class);
+    Route::put('update-record-user-confirm/{record_id}', [RecordsController::class, 'updateRecordUserConfirm'])->middleware(middlewareLogin::class);
+    Route::put('update-record-sender-confirm/{record_id}', [RecordsController::class, 'updateRecordSenderConfirm'])->middleware(middlewareLogin::class);
+});
+//social
+Route::prefix('socials')->group(function () {
+    //posts
+    Route::post('posts/create', [PostController::class, 'create'])->middleware(middlewareLogin::class);
+    Route::get('posts/get-by-id/{post_id}', [PostController::class, 'getById'])->middleware(middlewareLogin::class);
+    Route::get('posts/get-all', [PostController::class, 'getAll'])->middleware(middlewareLogin::class);
+
 });
 

@@ -18,8 +18,8 @@ export const storeExam = async (formData) => {
     }
 };
 
-export const ListExam = async () => {
-    const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/exams-index`, {
+export const ListExam = async (type) => {
+    const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/exams-index/${type}`, {
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
@@ -72,6 +72,36 @@ export const storeExamUser = async (formData) => {
 
 export const getExamUser = async (id) => {
     const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/get-exam-user/${id}`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    return response;
+};
+
+export const ListUserExams = async (id) => {
+    const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/list-exam-user/${id}`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    return response.data;
+};
+
+export const updateExamScore = async (id) => {
+    const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/list-exam-user/${id}`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    return response;
+};
+
+export const deleteExamRecord = async (id) => {
+    const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/list-exam-user/${id}`, {
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`

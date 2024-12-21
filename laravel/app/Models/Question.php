@@ -11,6 +11,8 @@ class Question extends Model
     protected $table = 'employee_questions';
     protected $fillable = [
         'name',
+        'file',
+        'type',
         'status',
         'exam_id',
     ];
