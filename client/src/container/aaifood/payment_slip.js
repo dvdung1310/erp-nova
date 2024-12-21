@@ -55,7 +55,7 @@ const Turnover = () => {
         cost_name: record.cost_name,
         cost_total: record.cost_total,
         cost_description: record.cost_description,
-        cost_date: moment(record.cost_date),
+        cost_date: moment(record.cost_date).startOf('day'),
       });
     } else {
       form.resetFields(); // Reset form nếu thêm mới

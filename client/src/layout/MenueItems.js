@@ -114,9 +114,9 @@ function MenuItems({darkMode, toggleCollapsed, topMenu, events}) {
             <Menu.Item key="home" icon={<FeatherIcon icon="home"/>}>
                 <NavLink to={`${path}`} style={{textTransform: 'uppercase'}}>Trang chủ</NavLink>
             </Menu.Item>
-            <Menu.Item key="news" icon={<FaRegNewspaper size={16}/>}>
+            {/* <Menu.Item key="news" icon={<FaRegNewspaper size={16}/>}>
                 <NavLink to={`${path}/tin-tuc/trang-chu`} style={{textTransform: 'uppercase'}}>TIN TỨC</NavLink>
-            </Menu.Item>
+            </Menu.Item> */}
             {/*end home*/}
             {/* Quản lý nhân sự */}
             <SubMenu key="employees" icon={!topMenu && <FeatherIcon icon="users"/>}
