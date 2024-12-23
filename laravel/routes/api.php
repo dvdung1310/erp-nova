@@ -226,8 +226,6 @@ Route::group(['middleware' => 'api'], function () {
     //Kiểm tra quyền
     Route::get('check_role_food', [DepotManagerController::class, 'check_role_food'])->middleware(middlewareLogin::class);
     Route::get('revenue', [DepotManagerController::class, 'revenue']);
-    //Kiểm tra quyền
-    Route::get('check_role_food', [DepotManagerController::class, 'check_role_food'])->middleware(middlewareLogin::class);
 
 });
 // Novaup

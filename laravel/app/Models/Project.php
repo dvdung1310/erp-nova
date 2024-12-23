@@ -23,6 +23,7 @@ class Project extends Model
         'create_by_user_id',
         'notify_before_end_time',
         'leader_id',
+        'project_monitor',
     ];
 
     public function projectMembers()

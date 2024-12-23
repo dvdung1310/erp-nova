@@ -7,6 +7,7 @@ import {getAllGroupParent, getGroupByParentId} from "../../../../../apis/work/gr
 import {IoMdArrowRoundBack} from "react-icons/io";
 import {copyProject} from "../../../../../apis/work/project";
 import {useHistory, useParams} from "react-router-dom";
+import moment from "moment/moment";
 
 const CopyProject = ({project, visible, onCancel}) => {
     const params = useParams();
@@ -105,7 +106,7 @@ const CopyProject = ({project, visible, onCancel}) => {
                 project_name: taskName,
                 group_id: workGroup?.group_id,
                 memberSetting,
-                start_date: startDate,
+                start_date: moment(startDate).format("YYYY-MM-DD HH:mm:ss"),
             }
             const res = await copyProject(payload);
             console.log(res)
@@ -114,7 +115,7 @@ const CopyProject = ({project, visible, onCancel}) => {
                 return
             }
             toast.success("Sao chép dự án thành công");
-            if(workGroup?.group_id.toString() === id.toString()) {
+            if (workGroup?.group_id.toString() === id.toString()) {
                 console.log('reload')
                 window.location.reload();
             }

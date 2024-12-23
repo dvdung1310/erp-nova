@@ -68,7 +68,8 @@ function Project({listProject, listUser, group_id, listGroup, currentGroup}) {
                             </div>
                         </Col>
                     </Row>
-                    <CreateGroup group_id={group_id} listUser={listUser} onCancel={onCancelGroup} visible={visible_group}/>
+                    <CreateGroup group_id={group_id} listUser={listUser} onCancel={onCancelGroup}
+                                 visible={visible_group}/>
                 </Main>
             </>
 
@@ -90,7 +91,7 @@ function Project({listProject, listUser, group_id, listGroup, currentGroup}) {
                     <Row gutter={25}>
                         <Col xs={24}>
                             <div>
-                                <List listProject={listProject} listUser={listUser}/>
+                                <List group_id={group_id} listProject={listProject} listUser={listUser}/>
                             </div>
                         </Col>
                     </Row>
