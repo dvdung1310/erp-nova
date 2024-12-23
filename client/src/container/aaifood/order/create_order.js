@@ -170,7 +170,6 @@ const create_order = () => {
               <Form.Item
                 label="Số điện thoại"
                 name="customer_phone"
-                rules={[{ required: true, message: 'Vui lòng nhập số điện thoại!' }]}
               >
                 <Input />
               </Form.Item>
@@ -179,7 +178,6 @@ const create_order = () => {
               <Form.Item
                 label="Địa chỉ"
                 name="customer_address"
-                rules={[{ required: true, message: 'Vui lòng nhập địa chỉ!' }]}
               >
                 <Input />
               </Form.Item>

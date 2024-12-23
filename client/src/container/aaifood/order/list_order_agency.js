@@ -134,7 +134,10 @@ const list_order_agency = () => {
       title: 'Thành tiền',
       dataIndex: 'order_total',
       key: 'order_total',
-      render: (text) => `${text.toLocaleString()}`,
+      render: (text) => {
+        // Kiểm tra và định dạng số với dấu phân cách hàng nghìn là dấu phẩy và phần thập phân có dấu chấm
+        return text ? parseFloat(text).toLocaleString('en-US', { style: 'decimal', minimumFractionDigits: 3, maximumFractionDigits: 3 }) : '';
+      },
     },
     {
       title: 'Ngày thanh toán',
@@ -202,7 +205,10 @@ const list_order_agency = () => {
       title: 'Thành tiền',
       dataIndex: 'order_total',
       key: 'order_total',
-      render: (text) => `${text.toLocaleString()}`,
+      render: (text) => {
+        // Kiểm tra và định dạng số với dấu phân cách hàng nghìn là dấu phẩy và phần thập phân có dấu chấm
+        return text ? parseFloat(text).toLocaleString('en-US', { style: 'decimal', minimumFractionDigits: 3, maximumFractionDigits: 3 }) : '';
+      },
     },
     {
       title: 'Ngày thanh toán',
