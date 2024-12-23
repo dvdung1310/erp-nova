@@ -2,7 +2,7 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 import React, {useState} from 'react';
 import FeatherIcon from 'feather-icons-react';
-import {Input, Modal, Upload} from 'antd';
+import {Badge, Card, Input, List, Modal, Upload} from 'antd';
 import {useSelector, useDispatch} from 'react-redux';
 import {BackShadow, CreatePost} from './style';
 import {Cards} from '../../../../../components/cards/frame/cards-frame';
@@ -13,6 +13,9 @@ const dateFormat = 'MM/DD/YYYY';
 import RichTextEditor from 'react-rte';
 import {toast} from "react-toastify";
 import {createPost} from "../../../../../apis/socials/posts";
+import Avatar from "../../../../../components/Avatar/Avatar";
+import {checkRole} from "../../../../../utility/checkValue";
+import {getAllUsers} from "../../../../../apis/work/user";
 
 const typeFake = [
     {
@@ -34,14 +37,15 @@ const typeFake = [
 
 function Post() {
     const dispatch = useDispatch();
-
+    const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
     const [drawer, setDrawer] = useState(false);
-    const [showModalCategory, setShowModalCategory] = useState(false);
+    const [modalTag, setModalTag] = useState(false);
     const [editorState, setEditorState] = useState(RichTextEditor.createEmptyValue());
     const [postTitle, setPostTitle] = useState('');
     const [typeSelected, setTypeSelected] = useState(null);
     const [fileList, setFileList] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [loadingGetUser, setLoadingGetUser] = useState(false);
     const handleChangeEditer = (value) => {
         setEditorState(value);
     };
@@ -91,7 +95,37 @@ function Post() {
     const onTextChange = (e) => {
         setPostTitle(e.target.value);
     };
+    //
+    const [selectedMembers, setSelectedMembers] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [listUserData, setListUser] = useState([]);
 
+    const filteredMembers = listUserData?.filter(
+        (member) =>
+            member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            member.email.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
+    const handleSearchChange = (e) => setSearchTerm(e.target.value);
+
+    const handleSelectMember = (member) => {
+        if (!selectedMembers.some((selected) => selected.email === member.email)) {
+            setSelectedMembers([...selectedMembers, member]);
+        }
+    };
+
+    const handleRemoveMember = (email) => {
+        // Remove the member by email
+        setSelectedMembers(selectedMembers.filter((member) => member.email !== email));
+    };
+    const handleGetUsers = async () => {
+        try {
+            setModalTag(true);
+            const response = await getAllUsers();
+            setListUser(response.data);
+        } catch (error) {
+            console.log(error);
+        }
+    }
     return (
         <>
             <CreatePost>
@@ -115,95 +149,165 @@ function Post() {
                         <Cards title="">
                             <div className="postBody">
                                 <div>
-                                    <Input value={postTitle} placeholder="Tiêu đề bài viết" onChange={onTextChange}/>
-                                </div>
-                                <div>
                                     <RichTextEditor
                                         style={{minHeight: '100px'}}
                                         className='custom-rich-text-editor'
                                         placeholder="Nội dung bài viết ..."
-                                        name={'project_description'}
                                         value={editorState}
                                         onChange={handleChangeEditer}/>
                                 </div>
-                                <div>
-                                    <Button className="btn-more" type='light' onClick={() => setShowModalCategory(true)}
-                                            icon={<FeatherIcon icon="plus"/>}>
-                                        Chọn thể loại
-                                    </Button>
-                                    <div>
-                                        {typeSelected && (
+                            </div>
+                            <div>
+                                {
+                                    selectedMembers.length > 0 && (
+                                        <>
                                             <span style={{
-                                                padding: '5px 10px',
-                                                borderRadius: '5px',
-                                                backgroundColor: '#f0f0f0',
-                                                margin: '5px 0',
-                                                display: 'inline-block',
-                                                fontSize: '14px',
+                                                fontSize: '16px',
                                                 fontWeight: '500',
-                                                color: '#333',
-                                                marginTop: '10px'
+                                                lineHeight: '22px',
+                                                padding: '10px 0'
+                                            }}>Cùng với:</span>
+                                            <div style={{
+                                                display: 'flex',
+                                                flexWrap: 'wrap',
+                                                gap: '20px',
+                                                padding: '8px',
+                                                border: '1px solid #e8e8e8',
+                                                borderRadius: '4px',
+                                                backgroundColor: '#f9f9f9',
                                             }}>
-                                                {typeSelected.name}
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
+                                                {selectedMembers.map((member) => (
+                                                    <Badge key={member.email}
+                                                           onClick={() => handleRemoveMember(member.email)}>
+                                                        <span style={{
+                                                            cursor: 'pointer',
+                                                            padding: '4px 8px',
+                                                            borderRadius: '4px',
+                                                            backgroundColor: '#f0f0f0',
+                                                            color: '#000',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                        }}>
+                                                          {member.name}
+                                                            <FeatherIcon icon="x" size={16} color="red"
+                                                                         style={{marginLeft: '8px'}}/>
+                                                        </span>
+                                                    </Badge>
+                                                ))}
+                                            </div>
+                                        </>
+                                    )
+                                }
                             </div>
                             <div className="postFooter">
-                                <div className="postFooter_left">
-                                    <Upload
-                                        name="image"
-                                        listType="picture"
-                                        fileList={fileList}
-                                        beforeUpload={() => false}
-                                        onChange={handleUploadChange}>
-                                        <Button shape="circle" type="light">
-                                            <img src={require('../../../../../static/img/icon/image.png')} alt=""/>
-                                            Photo/Video
-                                        </Button>
-                                    </Upload>
-                                </div>
-                                <div className="postFooter_right">
-                                    {drawer && (
-                                        <Button className="btn-post" loading={loading} onClick={onCreate}
-                                                type="primary">
-                                            Đăng bài
-                                        </Button>
-                                    )}
+                                <Upload
+                                    name="image"
+                                    listType="picture"
+                                    fileList={fileList}
+                                    beforeUpload={() => false}
+                                    onChange={handleUploadChange}
+                                    accept="image/*,video/*">
+                                    <Button shape="circle" type="light" title='Ảnh/video'>
+                                        <img src={require('../../../../../static/img/icon/image.png')} alt=""/>
+                                    </Button>
+                                </Upload>
+                                <div className='postFooter_right'>
+                                    <Button shape="circle" onClick={handleGetUsers} type="light"
+                                            title='Gắn thẻ người khác'>
+                                        <FeatherIcon icon="tag"/>
+                                    </Button>
+                                    {/*<Button shape="circle" type="light" title='hashtag' style={{marginLeft: '8px'}}>*/}
+                                    {/*    <FeatherIcon icon="hash"/>*/}
+                                    {/*</Button>*/}
                                 </div>
                             </div>
+
                         </Cards>
                     </CreatePost>
+                    <div className="" style={{marginTop: '10px', display: 'flex', justifyContent: 'end'}}>
+                        {drawer && (
+                            <Button className="btn-post" loading={loading} style={{width: '50%'}} onClick={onCreate}
+                                    type="primary">
+                                Đăng bài
+                            </Button>
+                        )}
+                    </div>
                 </Modal>
             </CreatePost>
+            {/*    modal tag*/}
             <Modal
-                title="Chọn thể loại"
-                visible={showModalCategory}
+                title="Gắn thẻ người khác"
+                visible={modalTag}
                 centered
-                onCancel={() => setShowModalCategory(false)}
-                footer={null}
-                bodyStyle={{display: 'flex', justifyContent: 'space-around', padding: '20px 0'}}
-                style={{borderRadius: '8px', padding: '20px'}}
-                titleStyle={{textAlign: 'center', fontSize: '18px', fontWeight: 'bold'}}
+                onOk={() => setModalTag(false)}
+                onCancel={() => setModalTag(false)}
             >
-                {
-                    typeFake.map((type) => {
-                        return (
-                            <Button key={type.id} onClick={() => {
-                                setTypeSelected(type);
-                                setShowModalCategory(false);
-                            }} type="default" style={{
-                                borderRadius: '4px',
-                                padding: '10px 20px',
-                                fontSize: '14px',
-                                fontWeight: '500',
-                                backgroundColor: '#f0f0f0',
-                                border: '1px solid #d9d9d9'
-                            }}>{type.name}</Button>
-                        )
-                    })
-                }
+                <>
+                    <div style={{marginBottom: '16px'}}>
+                        {selectedMembers.length > 0 && (
+                            <>
+                                <div style={{
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                    gap: '20px',
+                                    padding: '8px',
+                                    border: '1px solid #e8e8e8',
+                                    borderRadius: '4px',
+                                    backgroundColor: '#f9f9f9',
+                                }}>
+                                    {selectedMembers.map((member) => (
+                                        <Badge key={member.email}
+                                               onClick={() => handleRemoveMember(member.email)}>
+                        <span style={{
+                            cursor: 'pointer',
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            backgroundColor: '#f0f0f0',
+                            color: '#000',
+                            display: 'flex',
+                            alignItems: 'center',
+                        }}>
+                          {member.name}
+                            <FeatherIcon icon="x" size={16} color="red" style={{marginLeft: '8px'}}/>
+                        </span>
+                                        </Badge>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+                    </div>
+                    <Input
+                        type="text"
+                        placeholder="Tìm kiếm ..."
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                        style={{marginBottom: '16px'}}
+                    />
+                    <List
+                        itemLayout="horizontal"
+                        loading={loadingGetUser}
+                        style={{height: '300px', overflowY: 'auto'}}
+                        dataSource={filteredMembers}
+                        renderItem={(member) => (
+                            <List.Item onClick={() => handleSelectMember(member)}
+                                       style={{cursor: 'pointer'}}>
+                                <List.Item.Meta
+                                    avatar={<Avatar width={40} height={40} name={member?.name}
+                                                    imageUrl={member?.avatar ? `${LARAVEL_SERVER}${member?.avatar}` : ''}/>}
+                                    title={member.name}
+                                    description={
+                                        <>
+                                            <small className="text-muted">{member?.email}</small>
+                                            <br/>
+                                            <strong
+                                                className="text-muted">{checkRole(member?.role_id)}</strong>
+                                        </>
+                                    }
+                                />
+                            </List.Item>
+                        )}
+                    />
+                </>
             </Modal>
         </>
 

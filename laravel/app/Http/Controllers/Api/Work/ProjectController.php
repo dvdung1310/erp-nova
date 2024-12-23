@@ -45,6 +45,7 @@ class ProjectController extends Controller
                 'pathname' => 'nullable|string',
                 'project_start_date' => 'required',
                 'project_end_date' => 'required',
+                'project_members' => 'nullable|array',
             ]);
             //
             $group = Group::where('group_id', $request->group_id)->first();
@@ -55,17 +56,16 @@ class ProjectController extends Controller
             $group_id = $validatedData['group_id'];
             if ($group_id == 47) {
                 $validatedData['project_type'] = 1;
+                $validatedData['project_monitor'] = json_encode($request->project_members);
             }
             $project = Project::create(array_merge($validatedData, ['create_by_user_id' => $create_by_user_id], ['leader_id' => $leader_id]));
             $project_id = $project->project_id;
-
             $membersData[] = [
                 'project_id' => $project_id,
                 'user_id' => $leader_id,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
-
             ProjectMember::insert($membersData);
             $projectResponse = Project::with(['projectMembers.user', 'leader'])
                 ->withCount([
@@ -96,7 +96,7 @@ class ProjectController extends Controller
                 'project_id' => 'required',
                 'project_name' => 'required',
                 'group_id' => 'required',
-                'start_date' => 'required',
+                'start_date' => 'required|date_format:Y-m-d H:i:s',
                 'memberSetting' => 'required',
             ]);
 
@@ -159,6 +159,7 @@ class ProjectController extends Controller
                 ->orderBy('task_start_date')
                 ->get();
             $projectStartDate = Carbon::parse($request->start_date);
+
             $originalProjectStartDate = Carbon::parse($originalProject->project_start_date);
 
 // Find the smallest task_start_date
@@ -173,13 +174,14 @@ class ProjectController extends Controller
                 $taskEndDate = Carbon::parse($task->task_end_date);
 
                 // Calculate the difference between task_end_date and task_start_date
-                $taskDuration = abs($taskEndDate->diffInDays($taskStartDate));
+                $taskDuration = abs($taskStartDate->diffInDays($taskEndDate));
+
 
                 // Update task dates based on the difference
-                $newTaskStartDate = $projectStartDate->copy()->addDays($taskStartDate->diffInDays($minTaskStartDate));
+                $newTaskStartDate = $projectStartDate->copy()->addDays(abs($taskStartDate->diffInDays($minTaskStartDate)));
                 $newTaskEndDate = $newTaskStartDate->copy()->addDays($taskDuration);
 
-                // Set the date part only, keeping the time unchanged
+//                // Set the date part only, keeping the time unchanged
                 $newTaskStartDate->setDate($newTaskStartDate->year, $newTaskStartDate->month, $newTaskStartDate->day);
                 $newTaskEndDate->setDate($newTaskEndDate->year, $newTaskEndDate->month, $newTaskEndDate->day);
 
@@ -188,6 +190,9 @@ class ProjectController extends Controller
                     'task_name' => $task->task_name,
                     'task_description' => $task->task_description,
                     'task_status' => $task->task_status,
+                    'task_priority' => $task->task_priority,
+                    'task_score_kpi' => $task->task_score_kpi,
+                    'task_progress' => $task->task_progress,
                     'task_start_date' => $newTaskStartDate,
                     'task_end_date' => $newTaskEndDate,
                     'create_by_user_id' => $task->create_by_user_id,
@@ -1092,7 +1097,11 @@ class ProjectController extends Controller
                     $query->whereIn('task_status', [2, 3]);
                 }])
                 ->orWhere('leader_id', $user_id) // Filter projects by leader_id
-                ->orderBy('created_at')
+                ->orWhere('create_by_user_id', $user_id) // Filter projects by create_by_user_id
+                ->orWhere(function ($query) use ($user_id) {
+                    $query->whereRaw('JSON_CONTAINS(project_monitor, ?)', [json_encode($user_id)]);
+                })
+                ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(function ($project) {
                     $project->user = $project->projectMembers->first()->user; // Add user information to the project

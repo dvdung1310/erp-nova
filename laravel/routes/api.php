@@ -222,9 +222,10 @@ Route::group(['middleware' => 'api'], function () {
     Route::post('update_payment_slip/{cost_id}', [DepotManagerController::class, 'update_payment_slip']);
     Route::get('delete_payment_slip/{cost_id}', [DepotManagerController::class, 'delete_payment_slip']);
     //Doanh thu
-    Route::get('revenue',[DepotManagerController::class,'revenue']);
+    Route::get('revenue', [DepotManagerController::class, 'revenue']);
     //Kiểm tra quyền
     Route::get('check_role_food', [DepotManagerController::class, 'check_role_food'])->middleware(middlewareLogin::class);
+    Route::get('revenue', [DepotManagerController::class, 'revenue']);
 
 });
 // Novaup
