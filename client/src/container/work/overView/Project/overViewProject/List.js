@@ -1353,8 +1353,9 @@ function ProjectLists({listProject, listUser = [], isHome}) {
                 ]}
             >
                 <div>
-                    <label style={{marginBottom: '10px', display: 'block'}}>Nhắc nhở trước thời gian kết thúc của công việc (giờ) <span
-                        style={{color: 'red'}}>*</span></label>
+                    <label style={{marginBottom: '10px', display: 'block'}}>Nhắc nhở trước thời gian kết thúc của công
+                        việc (giờ) <span
+                            style={{color: 'red'}}>*</span></label>
                     < InputNumber style={{width: '100%'}} min={0} value={notifyBeforeEndTime}
                                   defaultValue={notifyBeforeEndTime}
                                   onChange={(value) => setNotifyBeforeEndTime(value)}/>

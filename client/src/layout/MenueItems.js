@@ -11,10 +11,12 @@ import {FaPeopleArrows, FaRegNewspaper, FaWarehouse} from 'react-icons/fa';
 import {FaHouseLaptop, FaUsersLine} from 'react-icons/fa6';
 import {GrStorage} from "react-icons/gr";
 import {BsHouseUp} from "react-icons/bs";
+import {checkRoleUser} from "../apis/aaifood";
 
 const {SubMenu} = Menu;
 
 function MenuItems({darkMode, toggleCollapsed, topMenu, events}) {
+    const [roleUser, setRoleUser] = useState(null);
     const {path} = useRouteMatch();
     const pathName = window.location.pathname;
     const pathArray = pathName.split(path);
@@ -42,7 +44,8 @@ function MenuItems({darkMode, toggleCollapsed, topMenu, events}) {
     // lấy dữ liệu group
     const fetchGroup = async () => {
         try {
-            const response = await getGroupByUserId();
+            const [response, checkRole] = await Promise.all([getGroupByUserId(), checkRoleUser()]);
+            setRoleUser(checkRole.data.data);
             setListGroup(response?.data);
         } catch (error) {
             console.log('error', error);
@@ -391,34 +394,36 @@ function MenuItems({darkMode, toggleCollapsed, topMenu, events}) {
             </SubMenu>
             {/* end khách hàng   */}
             {/* quản lý kho */}
-            <SubMenu key="depot" icon={!topMenu && <FaWarehouse size={16}/>}
-                     title="KHO HÀNG">
-                <Menu.Item key="manager-product">
-                    <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/san-pham`}>
-                        Sản phẩm
-                    </NavLink>
-                </Menu.Item>
-                <Menu.Item key="manager-ncc">
-                    <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/nha-cung-cap`}>
-                        Nhà cung cấp
-                    </NavLink>
-                </Menu.Item>
-                <Menu.Item key="manager-agency">
-                    <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/dai-ly`}>
-                        Đại lý
-                    </NavLink>
-                </Menu.Item>
-                <Menu.Item key="manager-sales">
-                    <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/ban-hang`}>
-                        Bán hàng
-                    </NavLink>
-                </Menu.Item>
-                <Menu.Item key="manager-turnover">
-                    <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/doanh-thu`}>
-                        Doanh thu
-                    </NavLink>
-                </Menu.Item>
-            </SubMenu>
+            {roleUser && // Kiểm tra roleUser tồn tại trước khi kiểm tra các thuộc tính
+                (roleUser.department_id === 1 || roleUser.department_id === 8 || roleUser.role_id === 1) && (
+                    <SubMenu key="depot" icon={!topMenu && <FaWarehouse size={16}/>} title="KHO HÀNG">
+                        <Menu.Item key="manager-product">
+                            <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/san-pham`}>
+                                Sản phẩm
+                            </NavLink>
+                        </Menu.Item>
+                        <Menu.Item key="manager-ncc">
+                            <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/nha-cung-cap`}>
+                                Nhà cung cấp
+                            </NavLink>
+                        </Menu.Item>
+                        <Menu.Item key="manager-agency">
+                            <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/dai-ly`}>
+                                Đại lý
+                            </NavLink>
+                        </Menu.Item>
+                        <Menu.Item key="manager-sales">
+                            <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/ban-hang`}>
+                                Bán hàng
+                            </NavLink>
+                        </Menu.Item>
+                        <Menu.Item key="manager-turnover">
+                            <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/doanh-thu`}>
+                                Doanh thu
+                            </NavLink>
+                        </Menu.Item>
+                    </SubMenu>
+                )}
             {/* end quản lý kho*/}
             <Menu.Item key="cdn" icon={<GrStorage size={16}/>}>
                 <NavLink to={`${path}/luu-tru/all`} style={{textTransform: 'uppercase'}}>Lưu trữ</NavLink>

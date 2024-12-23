@@ -12,6 +12,9 @@ const CreatePost = Styled.div`
             min-height: 100px;
             font-style: normal;
             font-family: 'Poppins', sans-serif;
+            max-height: 200px;
+            overflow: auto;
+            
         }
          .custom-rich-text-editor {
             margin-top: 20px;
@@ -37,11 +40,11 @@ const CreatePost = Styled.div`
             }
         }
         .postFooter{
-            align-items: center;
-            justify-content: space-between;
+            display: flex;
             margin-top: 10px;
             border-top: 1px solid #F1F2F6;
             padding-top: 15px;
+            position: relative;
             .ant-upload{
                 margin-${({theme}) => (!theme.rtl ? 'right' : 'left')}: 8px;
                 .ant-btn{
@@ -54,10 +57,10 @@ const CreatePost = Styled.div`
                 }
             }
             .postFooter_right{
+                position: absolute;
+                left: 50px;
                 display: flex;
                 align-items: center;
-                justify-content: flex-end;
-                margin-top: 10px;
             }
             .btn-more{
                 padding: 0 16px;

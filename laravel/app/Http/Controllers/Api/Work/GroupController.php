@@ -154,7 +154,7 @@ class GroupController extends Controller
                 $project = Project::whereHas('projectMembers', function ($query) use ($user_id, $parent_group_id) {
                     $query->where('user_id', $user_id)
                         ->where('group_id', $parent_group_id);
-                })->orWhere('leader_id', $user_id)
+                })
                     ->with(['projectMembers.user', 'leader'])
                     ->withCount(['tasks as total_tasks', 'tasks as completed_tasks' => function ($query) {
                         $query->whereIn('task_status', [2, 3]);
