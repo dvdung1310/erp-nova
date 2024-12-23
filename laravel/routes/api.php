@@ -225,6 +225,10 @@ Route::group(['middleware' => 'api'], function () {
     Route::get('revenue', [DepotManagerController::class, 'revenue']);
     //Kiểm tra quyền
     Route::get('check_role_food', [DepotManagerController::class, 'check_role_food'])->middleware(middlewareLogin::class);
+    Route::get('revenue', [DepotManagerController::class, 'revenue']);
+    //Kiểm tra quyền
+    Route::get('check_role_food', [DepotManagerController::class, 'check_role_food'])->middleware(middlewareLogin::class);
+
 });
 // Novaup
 Route::group(['middleware' => 'api', 'prefix' => 'customer'], function () {

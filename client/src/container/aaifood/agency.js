@@ -155,12 +155,12 @@ const suppliers = () => {
             <Input.TextArea rows={4} />
           </Form.Item>
           <Form.Item
-            label="Nhà cung cấp"
+            label="Cấp đại lý"
             name="agency_level"
-            rules={[{ required: true, message: 'Vui lòng chọn nhà cung cấp!' }]}
+            rules={[{ required: true, message: 'Vui lòng chọn cấp đại lý!' }]}
           >
             <Select
-              placeholder="Chọn nhà cung cấp"
+              placeholder="Chọn cấp đại lý"
               allowClear // Cho phép xóa lựa chọn
               showSearch // Hiển thị khung tìm kiếm
             >
