@@ -106,11 +106,21 @@ class DepotManagerController extends Controller
             $data = new AaiProductModel();
             $data->product_id  = $request->product_id;
             $data->product_name = $request->product_name;
-            $data->product_input_price = $request->product_input_price;
-            $data->product_output_price = $request->product_output_price;
+            $data->product_unit = $request->product_unit;
+            $product_input_price = $request->product_input_price;
+            $product_output_price = $request->product_output_price;
+
+            // Loại bỏ dấu phẩy và đảm bảo giá trị là số thực
+            $product_input_price = str_replace(',', '', $product_input_price);
+            $product_output_price = str_replace(',', '', $product_output_price);
+
+            // Chuyển đổi thành số thực và đảm bảo có 3 chữ số sau dấu thập phân
+            $data->product_input_price = number_format((float)$product_input_price, 3, '.', '');
+            $data->product_output_price = number_format((float)$product_output_price, 3, '.', '');
             $data->product_input_quantity = $request->product_input_quantity;
             $data->product_quantity_remaining = $request->product_input_quantity;
             $data->suppliers_id = $request->suppliers_id;
+            $data->product_date_manufacture = $request->product_date_manufacture;
             $data->product_shelf_life = $request->product_shelf_life;
             $data->product_input_date = $request->product_input_date;
             $data->save();
@@ -133,8 +143,16 @@ class DepotManagerController extends Controller
             $data = AaiProductModel::findorFail($id);
             $data->product_id  = $request->product_id;
             $data->product_name = $request->product_name;
-            $data->product_input_price = $request->product_input_price;
-            $data->product_output_price = $request->product_output_price;
+            $product_input_price = $request->product_input_price;
+            $product_output_price = $request->product_output_price;
+
+            // Loại bỏ dấu phẩy và đảm bảo giá trị là số thực
+            $product_input_price = str_replace(',', '', $product_input_price);
+            $product_output_price = str_replace(',', '', $product_output_price);
+
+            // Chuyển đổi thành số thực và đảm bảo có 3 chữ số sau dấu thập phân
+            $data->product_input_price = number_format((float)$product_input_price, 3, '.', '');
+            $data->product_output_price = number_format((float)$product_output_price, 3, '.', '');
             $data->product_input_quantity = $request->product_input_quantity;
             $data->product_quantity_remaining = $request->product_input_quantity;
             $data->suppliers_id = $request->suppliers_id;
@@ -403,7 +421,8 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
-    public function update_payment_slip(Request $request,$cost_id){
+    public function update_payment_slip(Request $request, $cost_id)
+    {
         try {
             $data = AaiCostModel::findorFail($cost_id);
             $data['cost_name'] = $request->cost_name;
@@ -437,7 +456,7 @@ class DepotManagerController extends Controller
             // $totalOrder = AaiOrderModel::sum('order_total');
 
             // $profit = $totalOrder - $capital_price;
-             // ---------lợi nhuận ngày---------------
+            // ---------lợi nhuận ngày---------------
             $profit_today = AaiOrderDetailModel::join('aai_product', 'aai_order_detail.product_id', '=', 'aai_product.product_id')
                 ->join('aai_order', 'aai_order_detail.order_id', '=', 'aai_order.order_id')
                 ->whereDate('aai_order.order_date', '=', $today) // Lọc theo ngày thanh toán (order_date)
@@ -463,7 +482,7 @@ class DepotManagerController extends Controller
                 ->whereBetween('cost_date', [$startOfWeek, $endOfWeek])
                 ->sum('cost_total');
             $profit_this_week -=  $total_cost_week;
-             // ---------lợi nhuận tháng----------------
+            // ---------lợi nhuận tháng----------------
             $profit_this_month = AaiOrderDetailModel::join('aai_product', 'aai_order_detail.product_id', '=', 'aai_product.product_id')
                 ->join('aai_order', 'aai_order_detail.order_id', '=', 'aai_order.order_id')
                 ->whereBetween('aai_order.order_date', [$startOfMonth, $endOfMonth]) // Lọc theo ngày trong tháng này
@@ -471,19 +490,19 @@ class DepotManagerController extends Controller
                 (SELECT SUM(order_total) FROM aai_order WHERE order_date BETWEEN ? AND ?) - SUM(aai_order_detail.product_quantity * aai_product.product_input_price) AS profit
             ', [$startOfMonth, $endOfMonth])
                 ->value('profit');
-                $total_cost_month = DB::table('aai_cost')
+            $total_cost_month = DB::table('aai_cost')
                 ->whereBetween('cost_date', [$startOfMonth, $endOfMonth])
                 ->sum('cost_total');
-                $profit_this_month -= $total_cost_month;
+            $profit_this_month -= $total_cost_month;
             // ---------lợi nhuận tổng----------------
             $profit_all = AaiOrderDetailModel::join('aai_product', 'aai_order_detail.product_id', '=', 'aai_product.product_id')
                 ->selectRaw('
         (SELECT SUM(order_total) FROM aai_order) - SUM(aai_order_detail.product_quantity * aai_product.product_input_price) AS profit')
                 ->value('profit');
-                $total_cost_all = DB::table('aai_cost')
+            $total_cost_all = DB::table('aai_cost')
                 ->sum('cost_total');
-                $profit_all -= $total_cost_all;
-                 // ---------lợi nhuận tổng----------------
+            $profit_all -= $total_cost_all;
+            // ---------lợi nhuận tổng----------------
             return response()->json([
                 'success' => true,
                 'message' => 'Nhập kho sản phẩm thành công',
@@ -501,23 +520,24 @@ class DepotManagerController extends Controller
         }
     }
 
-    public function order_detail($order_id){
-       try {
-        $order = AaiOrderDetailModel::join('aai_product','aai_order_detail.product_id','=','aai_product.product_id')
-        ->select('aai_order_detail.*','aai_product.product_name','aai_product.product_output_price','aai_product.product_shelf_life')
-        ->where('aai_order_detail.order_id',$order_id)->get();
-        return response()->json([
-            'success' => true,
-            'message' => 'Danh sách sản phẩm',
-            'data' => $order
-        ], 201);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Lấy danh sách sản phẩm thất bại'.$e->getMessage(),
-            'error' => $e->getMessage(),
-        ], 500);
-    }
+    public function order_detail($order_id)
+    {
+        try {
+            $order = AaiOrderDetailModel::join('aai_product', 'aai_order_detail.product_id', '=', 'aai_product.product_id')
+                ->select('aai_order_detail.*', 'aai_product.product_name', 'aai_product.product_output_price', 'aai_product.product_shelf_life')
+                ->where('aai_order_detail.order_id', $order_id)->get();
+            return response()->json([
+                'success' => true,
+                'message' => 'Danh sách sản phẩm',
+                'data' => $order
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lấy danh sách sản phẩm thất bại' . $e->getMessage(),
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
     public function delete_order($order_id)
     {
@@ -542,14 +562,15 @@ class DepotManagerController extends Controller
                 return response()->json(['success' => true, 'message' => 'Đã xóa đơn hàng và cập nhật kho thành công.']);
             }
         }
-    
+
         // Trả về kết quả thất bại
         return response()->json(['success' => false, 'message' => 'Xóa đơn hàng thất bại.']);
     }
 
-    public function delete_payment_slip($cost_id){
+    public function delete_payment_slip($cost_id)
+    {
         try {
-            AaiCostModel::where('cost_id',$cost_id)->delete();
+            AaiCostModel::where('cost_id', $cost_id)->delete();
             return response()->json([
                 'success' => true,
                 'message' => 'Xóa phiếu chi thành công',
@@ -557,24 +578,25 @@ class DepotManagerController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Xóa phiếu chi thất bại'.$e->getMessage(),
+                'message' => 'Xóa phiếu chi thất bại' . $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 500);
         }
     }
 
-    public function check_role_food(){
+    public function check_role_food()
+    {
         $user_id = auth()->user()->id;
-        $user = CrmEmployeeModel::join('users','crm_employee.account_id','=','users.id')
-        ->select('crm_employee.department_id','users.role_id')
-        ->where('users.id',$user_id)->first();
+        $user = CrmEmployeeModel::join('users', 'crm_employee.account_id', '=', 'users.id')
+            ->select('crm_employee.department_id', 'users.role_id')
+            ->where('users.id', $user_id)->first();
         // if($user->department_id == 1 || $user->department_id == 8 ||  $user->role_id == 1){
         //     $check_role = true;
         // }
         return response()->json([
             'success' => true,
             'message' => 'Kiểm tra quyền',
-            'data'=>$user
+            'data' => $user
         ], 201);
     }
 }

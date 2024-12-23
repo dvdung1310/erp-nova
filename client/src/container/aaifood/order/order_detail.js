@@ -30,10 +30,15 @@ const order_detail = () => {
     const columns = [
         { title: 'Sản phẩm', dataIndex: 'product_name', key: 'product_name' },
         { title: 'Số lượng', dataIndex: 'product_quantity', key: 'product_quantity' },
-        { title: 'Giá bán', 
-            dataIndex: 'product_output_price', 
-            key: 'product_output_price',
-            render: (text) => `${text.toLocaleString()}`, },
+        {
+          title: 'Giá bán',
+          dataIndex: 'product_output_price',
+          key: 'product_output_price',
+          render: (text) => {
+            // Kiểm tra và định dạng số với dấu phân cách hàng nghìn là dấu phẩy và phần thập phân có dấu chấm
+            return text ? parseFloat(text).toLocaleString('en-US', { style: 'decimal', minimumFractionDigits: 3, maximumFractionDigits: 3 }) : '';
+          },
+        },
         { title: 'Hạn sử dụng', dataIndex: 'product_shelf_life', key: 'product_shelf_life' },
       ];
   return (
