@@ -139,4 +139,22 @@ class DocumentInstructionalController extends Controller
             ], 500);
         }
     }
+    public function update_instructional_document_name(Request $request,$id){
+        try {
+            $folder = DocumentModel::findOrFail($id);
+            $folder->doc_title = $request->doc_title;
+            $folder->save();
+            return response()->json([
+                'success' => true,
+                'message' => 'Cập nhật Folder thành công!',
+                'files' => $folder,
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cập nhật Folder thất bại!',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

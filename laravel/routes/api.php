@@ -303,6 +303,7 @@ Route::group(['middleware' => 'api'], function () {
      Route::get('/detail_instructional_document/{id}', [DocumentInstructionalController::class, 'detail_instructional_document']);
      Route::get('/delete_instructional_document/{id}', [DocumentInstructionalController::class, 'delete_instructional_document']);
      Route::post('/update_instructional_document/{id}', [DocumentInstructionalController::class, 'update_instructional_document']);
+     Route::post('/update_instructional_document_name/{id}', [DocumentInstructionalController::class, 'update_instructional_document_name']);
 });
 //groups
 Route::prefix('groups')->group(function () {

@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Button, Spin, Row, Col, Popover, Modal, message } from 'antd';
-import { FaFileAlt, FaShareSquare } from 'react-icons/fa';
-import { InstructionalDocument, deleteInstructionalDocument } from '../../apis/document/index';
+import { Button, Spin, Row, Col, Popover, Modal, message, Input } from 'antd';
+import { FaFileAlt, FaShareSquare, FaRegEdit } from 'react-icons/fa';
+import { InstructionalDocument, deleteInstructionalDocument, renameFile } from '../../apis/document/index';
 import { FaEllipsisVertical } from 'react-icons/fa6';
 import { RiFolderUploadFill, RiDeleteBin5Line } from 'react-icons/ri';
 import { MdDriveFileRenameOutline } from 'react-icons/md';
 const index = () => {
   const [dataSource, setDataSource] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isFileModalName, setIsFileModalName] = useState(false);
+  const [fileName, setFileName] = useState('');
+  const [selectedFiles, setSelectedFiles] = useState([]);
   const fetchDocument = async () => {
     try {
       setLoading(true);
@@ -28,19 +31,55 @@ const index = () => {
   useEffect(() => {
     fetchDocument();
   }, []);
+
+  const showRenameFileModal = (document) => {
+    setSelectedFiles(document);
+    setFileName(document.doc_title);
+    setIsFileModalName(true);
+  };
+  const handleCancel = () => {
+    setIsFileModalName(false);
+    setSelectedFiles(''); // Reset tên folder
+  };
+  const handleUpdateFileName = async () => {
+    try {
+      // Đảm bảo chỉ đổi tên file mà không làm mất phần đuôi
+      const doc_title = fileName;
+
+      // Gọi API để đổi tên file
+      const response = await renameFile(doc_title, selectedFiles.id);
+      setLoading(true);
+      if (response.success) {
+        message.success('Cập nhật tên thư mục thành công!');
+        setIsFileModalName(false);
+        setFileName('');
+        fetchDocument(); // Tải lại danh sách tài liệu
+      } else {
+        message.error('Cập nhật tên thư mục thất bại!');
+      }
+    } catch (error) {
+      message.error('Cập nhật tên thư mục thất bại!');
+    }
+    // Đóng modal sau khi lưu
+  };
   const option_file = (document) => {
     console.log('Document:', document); // Kiểm tra giá trị của document
     return (
-      <div>
+      <div style={{ width: '200px' }}>
         <p style={{ marginBottom: '0' }}>
-          <a href="#" onClick={() => handleDelete(document)}>
-            <RiDeleteBin5Line /> Chuyển vào thùng rác
+          <a href="#" onClick={() => showRenameFileModal(document)}>
+            <MdDriveFileRenameOutline /> Đổi tên file
           </a>
         </p>
-        <hr/>
+        <hr />
+        <p style={{ marginBottom: '10px' }}>
+          <a href="#" onClick={() => handleDelete(document)}>
+            <RiDeleteBin5Line /> Xóa file
+          </a>
+        </p>
         <p style={{ marginBottom: '0' }}>
-          <NavLink  to={`/admin/tai-lieu/sua-tai-lieu/${document.id}`}>
-            <MdDriveFileRenameOutline /> Đổi tên thư mục
+          <NavLink to={`/admin/tai-lieu/sua-tai-lieu/${document.id}`}>
+            <FaRegEdit /> Sửa file
           </NavLink>
         </p>
       </div>
@@ -127,7 +166,19 @@ const index = () => {
           </Row>
         )}
       </div>
-      
+      <Modal
+        title={'Cập nhật tên File'}
+        visible={isFileModalName}
+        onCancel={handleCancel}
+        onOk={handleUpdateFileName} // Khi nhấn "OK", gọi hàm lưu
+      >
+        <Input
+          value={fileName}
+          name="doc_title"
+          onChange={(e) => setFileName(e.target.value)}
+          placeholder="Nhập tên File"
+        />
+      </Modal>
     </div>
   );
 };
