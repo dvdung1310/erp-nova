@@ -431,6 +431,9 @@ function MenuItems({darkMode, toggleCollapsed, topMenu, events}) {
             <Menu.Item key="cdn" icon={<GrStorage size={16}/>}>
                 <NavLink to={`${path}/luu-tru/all`} style={{textTransform: 'uppercase'}}>Lưu trữ</NavLink>
             </Menu.Item>
+            <Menu.Item key="news" icon={<FaRegNewspaper size={16}/>}>
+                <NavLink to={`${path}/tai-lieu`} style={{textTransform: 'uppercase'}}>Tài liệu</NavLink>
+            </Menu.Item>
             {/**/}
             {/* start d-none */}
             <SubMenu style={{display: 'none'}}>

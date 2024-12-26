@@ -404,7 +404,9 @@ class DepotManagerController extends Controller
         try {
             $data = new AaiCostModel();
             $data->cost_name  = $request->cost_name;
-            $data->cost_total = $request->cost_total;
+            $price = str_replace(',', '',  $request->cost_total);
+            // Chuyển đổi thành số thực và đảm bảo có 3 chữ số sau dấu thập phân
+            $data->cost_total = number_format((float)$price, 3, '.', '');
             $data->cost_date = Carbon::parse($request->cost_date)->format('Y-m-d');
             $data->cost_description = $request->cost_description;
             $data->save();
@@ -426,7 +428,8 @@ class DepotManagerController extends Controller
         try {
             $data = AaiCostModel::findorFail($cost_id);
             $data['cost_name'] = $request->cost_name;
-            $data['cost_total'] = $request->cost_total;
+            $price = str_replace(',', '',  $request->cost_total);
+            $data['cost_total'] = number_format((float)$price, 3, '.', '');
             $data['cost_date'] =  Carbon::parse($request->cost_date)->format('Y-m-d');
             $data['cost_description'] = $request->cost_description;
             $data->save();
