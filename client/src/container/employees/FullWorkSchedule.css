@@ -1,0 +1,70 @@
+.border {
+  border: 1px solid #000;
+}
+
+.name-class {
+  width: 230px;
+}
+
+.date-class {
+  width: 12%;
+}
+
+.chieu {
+  background: #00FF00;
+}
+
+.toi {
+  background: #FF0000;
+}
+
+.table-header {
+  position: fixed;
+  top: 0;
+}
+
+.week-tr {
+  background-color: #FFFF00;
+}
+
+.sticky {
+  position: fixed;
+  top: 64px;
+  background: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+.footer-schedule{
+  position: fixed;
+  bottom: 0px;
+  background: #fff;
+}
+.footer-schedule button{
+  background-color: #fff;
+  color: #426CD1;
+  margin-right: 10px;
+  border: 1px solid #000;
+  cursor: pointer;
+}
+
+.admin-footer{
+  display: none;
+}
+
+.footer-schedule .active{
+  background-color: #426CD1;
+  color: #fff;
+  border: 1px solid #426CD1;
+}
+
+.table-row-hover:hover {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
+}
+
+.table-row-hover:hover .border {
+  border: 1px solid #fff;
+}
+
+.table-row-hover {
+  transition: all 0.2s ease;
+}

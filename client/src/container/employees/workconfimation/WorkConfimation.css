@@ -1,0 +1,29 @@
+.ant-card-head-title{
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.ant-modal{
+    width: 40% !important;
+}
+
+.ant-tag-red{
+    background-color: red !important;
+    color: #fff !important;
+}
+
+.ant-tag-green{
+    background-color: #5F63F2 !important;
+    color: #fff !important;
+}
+
+.table-xacnhancong .ant-card-body{
+    padding: 0 !important;
+}
+
+.list-work-confirmation{
+    padding: 30px 20px;
+}
+
+
+
