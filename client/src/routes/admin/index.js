@@ -14,6 +14,7 @@ import Novaup from "./Novaup";
 import Novateen from "./novateen";
 import Cdn from "./Cdn";
 import Aaifood from "./AaiFood";
+import Docuement from "./document";
 import Customer from "./customer";
 import Employees from "./employees";
 import Proposal from "./proposal";
@@ -142,6 +143,7 @@ function Admin() {
                 <Route path={`${path}/novateen`} component={Novateen}/>
                 <Route path={`${path}/luu-tru`} component={Cdn}/>
                 <Route path={`${path}/aaifood`} component={Aaifood}/>
+                <Route path={`${path}/tai-lieu`} component={Docuement}/>
                 <Route path={`${path}/nhan-su`} component={Employees}/>
                 <Route path={`${path}/de-xuat`} component={Proposal}/>
                 <Route path={`${path}/bien-ban`} component={Records}/>

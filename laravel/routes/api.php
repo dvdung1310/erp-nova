@@ -39,6 +39,7 @@ use App\Http\Controllers\Api\Nvu\SourceController;
 use App\Http\Controllers\Api\Nvu\RoomController;
 use App\Http\Controllers\Api\Nvu\CustomerController;
 use App\Http\Controllers\Api\Customer\CustomerController as CustomerMainController;
+use App\Http\Controllers\Api\Doc\DocumentInstructionalController;
 use App\Http\Controllers\Api\Nvu\BookingController;
 use App\Http\Controllers\Api\Nvu\PaymentController;
 
@@ -294,6 +295,14 @@ Route::group(['middleware' => 'api'], function () {
     Route::get('/document-trash', [DocumentController::class, 'document_trash'])->middleware(middlewareLogin::class);
     Route::get('/re-store/{id}', [DocumentController::class, 're_store'])->middleware(middlewareLogin::class);
     Route::get('/remove-file/{id}', [DocumentController::class, 'remove_file'])->middleware(middlewareLogin::class);
+});
+//Tài liệu hướng dẫn
+Route::group(['middleware' => 'api'], function () {
+     Route::get('/instructional_document', [DocumentInstructionalController::class, 'instructional_document'])->middleware(middlewareLogin::class);
+     Route::post('/save_instructional_document', [DocumentInstructionalController::class, 'save_instructional_document']);
+     Route::get('/detail_instructional_document/{id}', [DocumentInstructionalController::class, 'detail_instructional_document']);
+     Route::get('/delete_instructional_document/{id}', [DocumentInstructionalController::class, 'delete_instructional_document']);
+     Route::post('/update_instructional_document/{id}', [DocumentInstructionalController::class, 'update_instructional_document']);
 });
 //groups
 Route::prefix('groups')->group(function () {

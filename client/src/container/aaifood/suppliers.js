@@ -143,14 +143,14 @@ const suppliers = () => {
           <Form.Item
             label="Số điện thoại"
             name="suppliers_phone"
-            rules={[{ required: true, message: 'Vui lòng nhập số điện thoại nhà cung cấp!' }]}
+
           >
             <Input type="number" />
           </Form.Item>
           <Form.Item
             label="Địa chỉ"
             name="suppliers_address"
-            rules={[{ required: true, message: 'Vui lòng nhập địa chỉ nhà cung cấp!' }]}
+  
           >
             <Input.TextArea rows={4} />
           </Form.Item>
