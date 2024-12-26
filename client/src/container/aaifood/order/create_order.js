@@ -111,7 +111,9 @@ const create_order = () => {
       setLoading(true);
       // Gửi dữ liệu tới API
       const response = await storeOrderRetail(payload);
-
+      if (response.success) {
+        window.open(response.data, '_blank');
+      }
       // Xử lý khi API trả về thành công
       console.log('API Response:', response.data);
       if (response.success) {
