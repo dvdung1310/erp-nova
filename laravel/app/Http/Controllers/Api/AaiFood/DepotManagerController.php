@@ -14,6 +14,8 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use PayOS\PayOS;
+use Illuminate\Support\Facades\Auth;
 
 class DepotManagerController extends Controller
 {
@@ -308,6 +310,8 @@ class DepotManagerController extends Controller
             $order->customer_address = $request->customer_address;
             $order->order_total = $order_total;
             $order->order_date = $request->order_date;
+            $order->payos_status =  0;
+            $order->sale_id =  Auth::id();
             $order->save();
             $order_id = $order->order_id;
 
@@ -327,6 +331,29 @@ class DepotManagerController extends Controller
                     throw new \Exception("Không đủ số lượng sản phẩm hoặc sản phẩm không tồn tại trong kho.");
                 }
             }
+
+            $YOUR_DOMAIN = $request->getSchemeAndHttpHost();
+            $data = [
+                "orderCode" => $order_id,
+                "amount" => 2000,
+                "description" => "Thanh toán đơn hàng #{$order->order_id}",
+                "returnUrl" => $YOUR_DOMAIN . "/success",
+                "cancelUrl" => $YOUR_DOMAIN . "/cancel"
+            ];
+            error_log($data['orderCode']);
+            $payOS = new PayOS('4fe8a597-f02c-48fc-83a1-b7535e147f5b', '1ff91cae-41d9-4190-bb38-031c92f64200', '65a39357af95ed8ac934dc1cd55a519663226a84ccaa53d2d62ad98f6609d966');
+            try {
+                $response = $payOS->createPaymentLink($data);
+                return response()->json([
+                    'data' => $response['checkoutUrl'],
+                    'success' => true,
+                    'message' => 'Tạo phiếu bán hàng thành công',
+                ], 201);
+            } catch (\Throwable $th) {
+                return $this->handleException($th);
+            }
+
+
             return response()->json([
                 'success' => true,
                 'message' => 'Tạo phiếu bán hàng thành công',
