@@ -2,10 +2,12 @@
   min-width: 400px;
   padding: 20px !important;
 }
+
 .ant-card-head {
   display: block !important;
   height: initial !important;
 }
+
 .ant-layout-content {
 }
 
@@ -119,6 +121,8 @@
     .RichTextEditor__editor___1QqIU .public-DraftEditor-content {
       border: 1px solid #E3E6EF;
       min-height: 100px;
+      font-style: normal;
+      font-family: 'Poppins', sans-serif;
     }
 
     .custom-rich-text-editor .RichTextEditor__toolbar {
@@ -141,6 +145,8 @@
     .RichTextEditor__editor___1QqIU .public-DraftEditor-content {
       border: 1px solid #E3E6EF;
       min-height: 100px;
+      font-style: normal;
+      font-family: 'Poppins', sans-serif;
     }
 
     .custom-rich-text-editor .RichTextEditor__toolbar {
@@ -184,6 +190,17 @@
 
     &::-webkit-scrollbar-thumb:hover {
       background: #555; /* Color of the scrollbar thumb on hover */
+    }
+  }
+}
+
+.modal-post {
+  width: 60% !important;
+
+  .ant-modal-body {
+    .ant-card-head {
+      height: 0 !important;
+      display: none !important;
     }
   }
 }

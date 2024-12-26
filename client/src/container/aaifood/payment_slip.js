@@ -1,19 +1,20 @@
-import React, { useEffect, useState, lazy, Suspense } from 'react';
-import { NavLink } from 'react-router-dom';
-import { Tabs, Table, Spin, Button } from 'antd';
-import { allPaymentSlip } from '../../apis/aaifood/index';
+import React, { useEffect, useState } from 'react';
+import { Table, Spin, Button, Popconfirm, message, Modal, Form, Input, InputNumber, DatePicker } from 'antd';
+import { allPaymentSlip, deleteCost, storePaymentSlip, updateCost } from '../../apis/aaifood/index';
 import moment from 'moment';
-const turnover = () => {
+
+const Turnover = () => {
   const [dataSource, setDataSource] = useState([]);
   const [totalPaymentSlip, setTotalPaymentSlip] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [form] = Form.useForm();
+  const [editingRecord, setEditingRecord] = useState(null); // Dữ liệu đang chỉnh sửa
+
   const fetchDocument = async () => {
     try {
       setLoading(true);
       const response = await allPaymentSlip();
-      console.log('====================================');
-      console.log(response);
-      console.log('====================================');
       setDataSource(response.data);
       setTotalPaymentSlip(response.total_payment_slip);
       setLoading(false);
@@ -26,19 +27,81 @@ const turnover = () => {
   useEffect(() => {
     fetchDocument();
   }, []);
-  const handleDelete = (record) => {
-    console.log('Xóa bản ghi:', record);
-    // Thêm logic xóa ở đây, ví dụ: gọi API hoặc cập nhật danh sách
+
+  const handleDelete = async (record) => {
+    try {
+      setLoading(true);
+      const response = await deleteCost(record.cost_id);
+      if (response.success) {
+        message.success('Xóa phiếu chi thành công');
+        fetchDocument();
+      } else {
+        message.error('Xóa phiếu chi thất bại');
+      }
+    } catch (error) {
+      message.error('Xóa phiếu chi thất bại');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  // Hiển thị modal để thêm mới hoặc chỉnh sửa
+  const showModal = (record = null) => {
+    setEditingRecord(record);
+    if (record) {
+      // Nếu sửa, đổ dữ liệu vào form
+      form.setFieldsValue({
+        cost_id: record.cost_id,
+        cost_name: record.cost_name,
+        cost_total: record.cost_total,
+        cost_description: record.cost_description,
+        cost_date: moment(record.cost_date).startOf('day'),
+      });
+    } else {
+      form.resetFields(); // Reset form nếu thêm mới
+    }
+    setIsModalVisible(true);
+  };
+
+  const handleOk = async () => {
+    try {
+      const values = await form.validateFields(); // Validate form fields
+      console.log('Submitted Data:', values);
+
+      if (editingRecord) {
+        const response = await updateCost(values, values.cost_id);
+        message.success('Cập nhật thành công');
+        if (response.success) {
+          fetchDocument();
+          message.success('Thêm mới thành công');
+          setIsModalVisible(false); // Close the modal
+        }
+      } else {
+        const response = await storePaymentSlip(values);
+        if (response.success) {
+          fetchDocument();
+          message.success('Thêm mới thành công');
+          setIsModalVisible(false); // Close the modal
+        }
+      }
+    } catch (error) {
+      message.error('Vui lòng điền đầy đủ thông tin!');
+    }
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+    setEditingRecord(null);
+  };
+
   const columns = [
     {
       title: 'STT',
       key: 'index',
-      render: (_, __, index) => index + 1, // Tính số thứ tự dựa trên index
+      render: (_, __, index) => index + 1,
     },
     { title: 'Tên chi phí', dataIndex: 'cost_name', key: 'cost_name' },
     { title: 'Số tiền', dataIndex: 'cost_total', key: 'cost_total', render: (text) => `${text.toLocaleString()}` },
-
     { title: 'Ghi chú', dataIndex: 'cost_description', key: 'cost_description' },
     { title: 'Ngày thanh toán', dataIndex: 'cost_date', key: 'cost_date' },
     {
@@ -52,12 +115,19 @@ const turnover = () => {
       key: 'action',
       render: (_, record) => (
         <>
-          <Button type="primary" style={{ marginRight: 8 }}>
+          <Button type="primary" style={{ marginRight: 8 }} onClick={() => showModal(record)}>
             Sửa
           </Button>
-          <Button type="danger" onClick={() => handleDelete(record)}>
-            Xóa
-          </Button>
+          <Popconfirm
+            title="Bạn có chắc chắn muốn xóa bản ghi này?"
+            onConfirm={() => handleDelete(record)}
+            okText="Xóa"
+            cancelText="Hủy"
+          >
+            <Button type="primary" danger>
+              Xóa
+            </Button>
+          </Popconfirm>
         </>
       ),
     },
@@ -65,20 +135,12 @@ const turnover = () => {
 
   return (
     <div style={{ padding: '20px', background: '#fff' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignContent: 'center', marginBottom: '30px' }}>
-        <h3 style={{marginBottom:'0'}}>Danh sách phiếu chi</h3>
-        <h3 style={{marginBottom:'0'}}>Tổng chi: {totalPaymentSlip?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</h3>
-        <div style={{ display: 'flex', alignContent: 'center' }}>
-          <NavLink
-            to={`/admin/aaifood/tao-phieu-chi`}
-            style={{
-              color: 'inherit',
-              textDecoration: 'none',
-            }}
-          >
-            <Button type="primary">Tạo phiếu chi</Button>
-          </NavLink>
-        </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '30px' }}>
+        <h3>Danh sách phiếu chi</h3>
+        <h3>Tổng chi: {totalPaymentSlip?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</h3>
+        <Button type="primary" onClick={() => showModal()}>
+          Tạo phiếu chi
+        </Button>
       </div>
       <hr />
       {loading ? (
@@ -94,8 +156,48 @@ const turnover = () => {
           rowKey="suppliers_id"
         />
       )}
+
+      {/* Modal */}
+      <Modal
+        title={editingRecord ? 'Chỉnh sửa phiếu chi' : 'Tạo phiếu chi'}
+        visible={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        okText="Lưu"
+        cancelText="Hủy"
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item
+            name="cost_id"
+            initialValue={editingRecord?.cost_id} // Set the initial value if you're editing an existing record
+            style={{ display: 'none' }} // Hide the input field
+          >
+            <Input type="hidden" />
+          </Form.Item>
+          <Form.Item
+            name="cost_name"
+            label="Tên chi phí"
+            rules={[{ required: true, message: 'Vui lòng nhập tên chi phí' }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item name="cost_total" label="Số tiền" rules={[{ required: true, message: 'Vui lòng nhập số tiền' }]}>
+            <InputNumber style={{ width: '100%' }} />
+          </Form.Item>
+          <Form.Item name="cost_description" label="Ghi chú">
+            <Input.TextArea rows={3} />
+          </Form.Item>
+          <Form.Item
+            name="cost_date"
+            label="Ngày thanh toán"
+            rules={[{ required: true, message: 'Vui lòng chọn ngày thanh toán' }]}
+          >
+            <DatePicker style={{ width: '100%', height: '45px' }} />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };
 
-export default turnover;
+export default Turnover;

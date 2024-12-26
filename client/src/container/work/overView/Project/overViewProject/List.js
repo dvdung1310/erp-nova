@@ -25,7 +25,7 @@ import {ProjectPagination, ProjectListTitle, ProjectListAssignees, ProjectList} 
 import {Dropdown} from '../../../../../components/dropdown/dropdown';
 import moment from "moment";
 import Avatar from "../../../../../components/Avatar/Avatar";
-import {checkRole, checkStatus, checkStatusProject} from "../../../../../utility/checkValue";
+import {checkRole, checkStatus, checkStatusProject, checkStatusProjectByTask} from "../../../../../utility/checkValue";
 import {MdContentCopy, MdDelete, MdEdit, MdGroups, MdOutlineDateRange, MdOutlineSettings} from "react-icons/md";
 import {GrInProgress} from "react-icons/gr";
 import {Modal} from "../../../../../components/modals/antd-modals";
@@ -45,13 +45,14 @@ import {FiType} from "react-icons/fi";
 const dateFormat = 'MM/DD/YYYY';
 
 // eslint-disable-next-line react/prop-types
-function ProjectLists({listProject, listUser = [], isHome}) {
+function ProjectLists({group_id, listProject, listUser = [], isHome}) {
     const [listUserData, setListUser] = useState(listUser);
     const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
     const [form] = Form.useForm();
     const history = useHistory();
     const location = useLocation();
     const {pathname} = location;
+    console.log(group_id)
     const [state, setState] = useState({
         projects: listProject,
         current: 0,
@@ -652,6 +653,7 @@ function ProjectLists({listProject, listUser = [], isHome}) {
                 project_status,
                 group_id,
                 project_members,
+                project_monitor_users,
                 leader,
                 success,
                 project_start_date,
@@ -722,6 +724,51 @@ function ProjectLists({listProject, listUser = [], isHome}) {
                         </ul>
                     </ProjectListAssignees>
                 ),
+                monitor: (
+                    group_id && (
+                        <ProjectListAssignees>
+                            <ul>
+                                {
+                                    project_monitor_users?.slice(0, 5)?.map((member, index) => {
+                                        return (
+                                            <div className='d-flex align-items-center'
+                                                 style={{
+                                                     marginLeft: '-10px',
+                                                     cursor: 'default'
+                                                 }}
+                                                 key={index}
+                                                 title={member?.name}
+                                            >
+                                                <li key={index}>
+                                                    <Avatar width={30} height={30}
+                                                            name={member?.name}
+                                                            imageUrl={member?.avatar ? `${LARAVEL_SERVER}${member?.avatar}` : ""}
+                                                    />
+                                                </li>
+                                            </div>
+                                        );
+                                    })
+                                }
+                                {
+                                    project_monitor_users?.length > 5 && (
+                                        <div className='d-flex align-items-center'
+                                             style={{
+                                                 marginLeft: '-10px',
+                                                 cursor: 'default'
+                                             }}
+                                             title={`+${project_members.length - 5} more`}
+                                        >
+                                            <li>
+                                                <Avatar width={30} height={30}
+                                                        name={`+ ${project_members.length - 5}`}
+                                                />
+                                            </li>
+                                        </div>
+                                    )
+                                }
+                            </ul>
+                        </ProjectListAssignees>)
+                ),
                 leader: (
                     <div className='d-flex align-items-center'
                          style={{
@@ -740,8 +787,8 @@ function ProjectLists({listProject, listUser = [], isHome}) {
                 ),
                 project_status: <Tag style={{
                     padding: "4px 8px",
-                    backgroundColor: checkStatusProject(project_status)?.color,
-                }}>{checkStatusProject(project_status)?.status}</Tag>,
+                    backgroundColor: checkStatusProjectByTask(completed_tasks, total_tasks)?.color,
+                }}>{checkStatusProjectByTask(completed_tasks, total_tasks)?.status}</Tag>,
                 success: (
                     <div className="project-list-progress">
                         <Progress
@@ -867,14 +914,23 @@ function ProjectLists({listProject, listUser = [], isHome}) {
             key: 'project_end_date',
         },
         {
-            title: 'Thành viên',
-            dataIndex: 'project_members',
-            key: 'project_members',
-        },
-        {
             title: 'Người phụ trách',
             dataIndex: 'leader',
             key: 'leader',
+        },
+        ...(group_id?.toString() === '47'
+            ? [
+                {
+                    title: 'Người giám sát',
+                    dataIndex: 'monitor',
+                    key: 'monitor',
+                },
+            ]
+            : []),
+        {
+            title: 'Thành viên',
+            dataIndex: 'project_members',
+            key: 'project_members',
         },
         {
             title: 'Trạng thái',
@@ -886,7 +942,6 @@ function ProjectLists({listProject, listUser = [], isHome}) {
             dataIndex: 'success',
             key: 'success',
         },
-
         {
             title: '',
             dataIndex: 'action',
@@ -1353,8 +1408,9 @@ function ProjectLists({listProject, listUser = [], isHome}) {
                 ]}
             >
                 <div>
-                    <label style={{marginBottom: '10px', display: 'block'}}>Nhắc nhở trước thời gian kết thúc của công việc (giờ) <span
-                        style={{color: 'red'}}>*</span></label>
+                    <label style={{marginBottom: '10px', display: 'block'}}>Nhắc nhở trước thời gian kết thúc của công
+                        việc (giờ) <span
+                            style={{color: 'red'}}>*</span></label>
                     < InputNumber style={{width: '100%'}} min={0} value={notifyBeforeEndTime}
                                   defaultValue={notifyBeforeEndTime}
                                   onChange={(value) => setNotifyBeforeEndTime(value)}/>

@@ -29,6 +29,7 @@ const Calendars = lazy(() => import('../../container/Calendar'));
 const Inbox = lazy(() => import('../../container/email/Email'));
 const Chat = lazy(() => import('../../container/chat/ChatApp'));
 const Myprofile = lazy(() => import('../../container/profile/myProfile/Index'));
+const News = lazy(() => import('../../container/news/myProfile/Index'));
 const Firebase = lazy(() => import('./firebase'));
 const ToDo = lazy(() => import('../../container/toDo/ToDo'));
 const Note = lazy(() => import('../../container/note/Note'));
@@ -148,6 +149,7 @@ function Admin() {
                 <Route path={`${path}/tuyen-dung`} component={Recruit}/>
                 <Route path={`${path}/thong-bao`} component={NotificationRouter}/>
                 <Route path={`${path}/khach-hang`} component={Customer}/>
+                <Route path={`${path}/tin-tuc`} component={News}/>
             </Suspense>
         </Switch>
     );

@@ -409,24 +409,35 @@ const CalculatorKPI = () => {
                                        className="employee-info">
                                     <div>
                                         <Row>
-                                            <Col span={12}>
+                                            <Col span={8}>
                                                 <div className="info-item">
-                                                    <div className="info-detail">
-                                                        <strong>Mã nhân viên:</strong> {userKpi?.employee?.employee_id}
-                                                    </div>
                                                     <div className="info-detail">
                                                         <strong>Tên nhân
                                                             viên:</strong> {userKpi?.employee?.employee_name}
                                                     </div>
+                                                    <div className="info-detail">
+                                                        <strong>Mã nhân viên:</strong> {userKpi?.employee?.employee_id}
+                                                    </div>
                                                 </div>
                                             </Col>
-                                            <Col span={12} className="info-item">
+                                            <Col span={8} className="info-item">
                                                 <div>
+                                                    <div className="info-detail">
+                                                        <strong>Phòng ban:</strong> {userKpi?.employee?.department_name}
+                                                    </div>
+                                                    <div className="info-detail">
+                                                        <strong>Chức vụ:</strong> {userKpi?.employee?.level_name}
+                                                    </div>
+                                                </div>
+                                            </Col>
+                                            <Col span={8}>
+                                                <div className="info-item">
                                                     <div className="info-detail">
                                                         <strong>Email:</strong> {userKpi?.employee?.employee_email}
                                                     </div>
                                                     <div className="info-detail">
-                                                        <strong>Phòng ban:</strong> {userKpi?.employee?.department_name}
+                                                        <strong>Số điện
+                                                            thoại:</strong> {userKpi?.employee?.employee_phone}
                                                     </div>
                                                 </div>
                                             </Col>

@@ -187,13 +187,13 @@ const DetailWorkConfimation = () => {
             render: (_, record, index) => (
                 <Input.TextArea
                     style={{
-                     maxHeight: '120px',
-                     overflowY: 'auto',
-                     whiteSpace: 'normal',
-                    wordWrap: 'break-word',
+                        maxHeight: '120px',
+                        overflowY: 'auto',
+                        whiteSpace: 'normal',
+                        wordWrap: 'break-word',
                     }}
-    value={record.work_content}
-    onChange={(e) => handleInputChange(index, 'work_content', e.target.value)}
+                    value={record.work_content}
+                    onChange={(e) => handleInputChange(index, 'work_content', e.target.value)}
                 />
             )
         },
@@ -203,33 +203,33 @@ const DetailWorkConfimation = () => {
             width: 300,
             render: (_, record, index) => (
                 <Input.TextArea
-                style={{
-                    maxHeight: '120px',
-                    overflowY: 'auto',
-                    whiteSpace: 'normal',
-                   wordWrap: 'break-word',
-                   }}
+                    style={{
+                        maxHeight: '120px',
+                        overflowY: 'auto',
+                        whiteSpace: 'normal',
+                        wordWrap: 'break-word',
+                    }}
                     value={record.reason}
                     onChange={(e) => handleInputChange(index, 'reason', e.target.value)}
-                    autoSize={{ minRows: 1, maxRows: 4 }}
+                    autoSize={{minRows: 1, maxRows: 4}}
                 />
             )
         },
 
         {
-            title : 'Ảnh',
-            dataIndex:'image',
-            with:80,
+            title: 'Ảnh',
+            dataIndex: 'image',
+            with: 80,
             render: (text, record) => (
                 <a
-                  onClick={() => {
-                    setSelectedImage(`${LARAVEL_SERVER}/storage/${record.image}`);
-                    setIsImageModalVisible(true);
-                  }}
+                    onClick={() => {
+                        setSelectedImage(`${LARAVEL_SERVER}/storage/${record.image}`);
+                        setIsImageModalVisible(true);
+                    }}
                 >
-                  Xem ảnh
+                    Xem ảnh
                 </a>
-              ),
+            ),
         },
 
         {
@@ -239,14 +239,14 @@ const DetailWorkConfimation = () => {
             render: (_, record, index) => {
                 if (record.status_detail === 1) {
                     return <Tag color="green">Đã duyệt</Tag>;
-                } 
+                }
                 if (record.status_detail === 0) {
                     return <Tag color="red">Không duyệt</Tag>;
-                } 
+                }
 
                 if (record.status_detail === null) {
                     return <Tag color="gray">Đang chờ</Tag>;
-                } 
+                }
             }
         },
 
@@ -286,7 +286,8 @@ const DetailWorkConfimation = () => {
                             </div>
                         </div>
                         <Title level={3} style={{textAlign: 'center', marginBottom: '5px'}}>Giấy xác nhận công</Title>
-                        <Text strong style={{fontSize: '18px'}}>Kính gửi:</Text> <Text style={{fontSize: '18px', marginLeft: '15px'}}>Phòng Hành Chính Nhân Sự</Text>
+                        <Text strong style={{fontSize: '18px'}}>Kính gửi:</Text> <Text
+                        style={{fontSize: '18px', marginLeft: '15px'}}>Phòng Hành Chính Nhân Sự</Text>
                         <div style={{marginTop: '0px'}}>
                             <Row gutter={16}>
                                 <Col span={16}>
@@ -338,11 +339,11 @@ const DetailWorkConfimation = () => {
                         />
 
 
-{data.status_detail !== 0 && data.status_detail !== 1 && (
-    <div style={{marginTop: '10px', textAlign: 'center'}}>
-        <Button type="primary" onClick={opentModelDayOff}>Gửi xác nhận</Button>
-    </div>
-)}
+                        {data.status_detail !== 0 && data.status_detail !== 1 && (
+                            <div style={{marginTop: '10px', textAlign: 'center'}}>
+                                <Button type="primary" onClick={opentModelDayOff}>Gửi xác nhận</Button>
+                            </div>
+                        )}
 
                         {/* Modal to manage selected members */}
                         <Modal
@@ -436,8 +437,9 @@ const DetailWorkConfimation = () => {
                                 </div>
                             </Form>
                         </Modal>
-                        <Modal title="Xem ảnh"  visible={isImageModalVisible} footer={null}  onCancel={() => setIsImageModalVisible(false)} >
-                        <img src={selectedImage}  alt="Preview" style={{ width: '100%' }}  />
+                        <Modal title="Xem ảnh" visible={isImageModalVisible} footer={null}
+                               onCancel={() => setIsImageModalVisible(false)}>
+                            <img src={selectedImage} alt="Preview" style={{width: '100%'}}/>
                         </Modal>
                     </Card>
                 )}

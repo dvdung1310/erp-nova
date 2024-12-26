@@ -30,6 +30,24 @@ export const checkStatusProject = (status = 0) => {
     }]
     return arr[status];
 }
+export const checkStatusProjectByTask = (completed_tasks, total_task) => {
+    if (completed_tasks === 0) {
+        return {
+            status: 'Đang chờ',
+            color: '#ed6c02'
+        }
+    } else if (completed_tasks === total_task) {
+        return {
+            status: 'Hoàn thành',
+            color: '#2e7d32'
+        }
+    } else {
+        return {
+            status: 'Đang làm',
+            color: '#0288d1'
+        }
+    }
+}
 export const checkPriority = (priority = 0) => {
     const arr = [{
         status: 'Thấp',

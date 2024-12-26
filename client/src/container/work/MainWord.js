@@ -3,7 +3,7 @@ import {getTaskUnfinishedByUserId} from "../../apis/work/task";
 import {getAllUsers} from "../../apis/work/user";
 import {createProject, getProjectByUserId} from "../../apis/work/project";
 import {getGroupByCeo} from "../../apis/work/group";
-import {Col, DatePicker, Form, Input, Row, Spin, List} from "antd";
+import {Col, DatePicker, Form, Input, Row, Spin, List, Select, Badge} from "antd";
 import ListProject from "./overView/Project/overViewProject/List";
 import TaskList from "./overView/Task/overViewTask/TaskList";
 import ListGroupComponent from "./overView/Group/overViewGroup/GroupList";
@@ -26,6 +26,7 @@ const dateFormat = 'MM/DD/YYYY';
 import RichTextEditor from 'react-rte';
 import moment from "moment";
 import Header from "../../components/header/header";
+import {checkRole} from "../../utility/checkValue";
 
 const MainWord = () => {
     const role_id = useSelector(state => state?.userRole?.role_id)
@@ -63,7 +64,7 @@ const MainWord = () => {
                 const [res, users, departments] = await Promise.all([getGroupByCeo(), getAllUsers(), getDepartment()]);
                 setListGroup(res.data)
                 setListUser(users.data)
-                setListUserLeader(users.data.filter(user => user.role_id < 5))
+                setListUserLeader(users.data)
                 setListDepartments(departments.data)
             }
 
@@ -99,20 +100,26 @@ const MainWord = () => {
         setEditorState(value);
     };
     ///
-    const [selectedMembers, setSelectedMembers] = useState({});
+    const [selectedMembers, setSelectedMembers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const handleSearchChange = (e) => setSearchTerm(e.target.value);
 
-    const filteredMembers = listUserLeader && listUserLeader.filter(
-        (member) =>
-            member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            member.email.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
     const handleSelectMember = (member) => {
         // Add the member if it's not already selected
-        setSelectedMembers(member);
+        if (!selectedMembers.some((selected) => selected.email === member.email)) {
+            setSelectedMembers([...selectedMembers, member]);
+        }
     };
+
+    const handleRemoveMember = (email) => {
+        // Remove the member by email
+        setSelectedMembers(selectedMembers.filter((member) => member.email !== email));
+    };
+    const filteredMembers = listUserLeader?.filter(
+        (member) =>
+            member?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            member?.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 ///
     const handleOk = async () => {
         try {
@@ -134,6 +141,7 @@ const MainWord = () => {
                 setIsLoading(false);
                 return;
             }
+            const members = selectedMembers.map((member) => member.id);
             const payload = {
                 project_name: data?.project_name,
                 project_description: editorState.toString('html'),
@@ -141,9 +149,11 @@ const MainWord = () => {
                 project_end_date: moment().format('YYYY-MM-DD'),
                 group_id: 47,
                 project_type: 1,
-                leader_id: selectedMembers?.id,
+                leader_id: data?.leader_id,
+                project_members: members,
                 pathname
             }
+
             const res = await createProject(payload);
             if (res.error) {
                 toast.error('Tạo nhiệm vụ thất bại', {
@@ -159,7 +169,7 @@ const MainWord = () => {
             });
             form.resetFields();
             onCancelProject();
-            setSelectedMembers({});
+            setSelectedMembers([]);
             setEditorState(RichTextEditor.createEmptyValue());
             history.push(pathname, {
                 key: 'createProject',
@@ -312,45 +322,98 @@ const MainWord = () => {
                                         onChange={handleChangeEditer}/>
                                 </div>
                             </Form.Item>
-                            <Form.Item style={{marginTop: '10px'}} name="leader" label="Chọn người phụ trách"
+                            <Form.Item name="leader_id" label="Chọn người phụ trách"
+                                       rules={[{required: true, message: 'Vui lòng chọn người giám sát!'}]}
                             >
-                                <Input
-                                    type="text"
-                                    placeholder="Tìm kiếm thành viên"
-                                    value={searchTerm}
-                                    onChange={handleSearchChange}
-                                    style={{marginBottom: '16px'}}
-                                />
-                                <List
-                                    itemLayout="horizontal"
-                                    style={{height: '200px', overflowY: 'auto'}}
-                                    dataSource={filteredMembers}
-                                    renderItem={(member) => (
-                                        <List.Item onClick={() => handleSelectMember(member)}
-                                                   style={{cursor: 'pointer'}}>
-                                            <List.Item style={{
-                                                borderBottom: 'none',
-                                                padding: '4px 8px',
-                                            }}>
-                                                <input type="radio" value={member?.id}
-                                                       checked={member?.id === selectedMembers?.id}/>
+                                <Select
+                                    placeholder="Chọn Người phụ trách"
+                                    optionFilterProp="children"
+                                >
+                                    {
+                                        listUserLeader && listUserLeader.map((member, index) => (
+                                            <Select.Option key={index} value={member.id}>
+                                                {member.name} - {member.level_name}
+                                            </Select.Option>
+                                        ))
+                                    }
+                                </Select>
+                            </Form.Item>
+                            <Form.Item style={{marginTop: '10px'}} name="leader" label="Chọn người giám sát"
+                            >
+                                <>
+                                    <div style={{marginBottom: '16px'}}>
+                                        {selectedMembers.length > 0 && (
+                                            <>
+                                                <h6 style={{
+                                                    marginBottom: '8px',
+                                                    fontWeight: 'bold',
+                                                    fontSize: '1.1rem'
+                                                }}>Thành viên
+                                                    đã chọn:</h6>
+                                                <div style={{
+                                                    display: 'flex',
+                                                    flexWrap: 'wrap',
+                                                    gap: '20px',
+                                                    padding: '8px',
+                                                    border: '1px solid #e8e8e8',
+                                                    borderRadius: '4px',
+                                                    backgroundColor: '#f9f9f9'
+                                                }}>
+                                                    {selectedMembers.map((member) => (
+                                                        <Badge
+                                                            key={member.email}
+                                                            onClick={() => handleRemoveMember(member.email)}
+                                                        >
+                                                <span style={{
+                                                    cursor: 'pointer',
+                                                    padding: '4px 8px',
+                                                    borderRadius: '4px',
+                                                    backgroundColor: '#f0f0f0',
+                                                    color: '#000',
+                                                    display: 'flex',
+                                                    alignItems: 'center'
+                                                }}>
+                                                    {member.name}
+                                                    <FeatherIcon icon="x" size={16} color='red'
+                                                                 style={{marginLeft: '8px'}}/>
+                                                </span>
+                                                        </Badge>
+                                                    ))}
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                    <Input
+                                        type="text"
+                                        placeholder="Tìm kiếm thành viên"
+                                        value={searchTerm}
+                                        onChange={handleSearchChange}
+                                        style={{marginBottom: '16px'}}
+                                    />
+                                    <List
+                                        itemLayout="horizontal"
+                                        style={{height: '300px', overflowY: 'auto'}}
+                                        dataSource={filteredMembers}
+                                        renderItem={(member) => (
+                                            <List.Item onClick={() => handleSelectMember(member)}
+                                                       style={{cursor: 'pointer'}}>
+                                                <List.Item.Meta
+                                                    avatar={<Avatar width={40} height={40} name={member?.name}
+                                                                    imageUrl={member?.avatar ? `${LARAVEL_SERVER}${member?.avatar}` : ''}/>}
+                                                    title={member.name}
+                                                    description={
+                                                        <>
+                                                            <small className="text-muted">{member.email} </small>
+                                                            <br/>
+                                                            <strong
+                                                                className="text-muted">{member?.department_name} - {member?.level_name}</strong>
+                                                        </>
+                                                    }
+                                                />
                                             </List.Item>
-                                            <List.Item.Meta
-                                                avatar={<Avatar width={40} height={40} name={member?.name}
-                                                                imageUrl={member?.avatar ? `${LARAVEL_SERVER}${member?.avatar}` : ''}/>}
-                                                title={member.name}
-                                                description={
-                                                    <>
-                                                        <small className="text-muted">{member.email} </small>
-                                                        <br/>
-                                                        <strong
-                                                            className="text-muted">{member?.department_name} - {member?.level_name}</strong>
-                                                    </>
-                                                }
-                                            />
-                                        </List.Item>
-                                    )}
-                                />
+                                        )}
+                                    />
+                                </>
                             </Form.Item>
                         </Form>
                     </BasicFormWrapper>

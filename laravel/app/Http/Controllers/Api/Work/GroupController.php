@@ -150,17 +150,41 @@ class GroupController extends Controller
                     }])
                     ->orderBy('created_at', 'desc')
                     ->get();
+                foreach ($project as &$proj) {
+                    $projectMonitor = json_decode($proj['project_monitor'], true) ?? [];
+                    $proj['project_monitor_users'] = User::whereIn('id', $projectMonitor)->get();
+                }
             } else {
-                $project = Project::whereHas('projectMembers', function ($query) use ($user_id, $parent_group_id) {
-                    $query->where('user_id', $user_id)
-                        ->where('group_id', $parent_group_id);
-                })
-                    ->with(['projectMembers.user', 'leader'])
+                $projectWork = Project::where('group_id', $parent_group_id)
+                    ->with(['tasks', 'projectMembers.user', 'leader'])
                     ->withCount(['tasks as total_tasks', 'tasks as completed_tasks' => function ($query) {
                         $query->whereIn('task_status', [2, 3]);
                     }])
                     ->orderBy('created_at', 'desc')
                     ->get();
+
+                $project = $projectWork->filter(function ($project) use ($parent_group_id, $user_id) {
+                    $projectMonitor = json_decode($project->project_monitor, true) ?? [];
+                    return $project->projectMembers->contains('user_id', $user_id)
+                        || $project->leader_id == $user_id
+                        || $project->create_by_user_id == $user_id
+                        || in_array($user_id, $projectMonitor);
+                })->values()->toArray();
+
+                foreach ($project as &$proj) {
+                    $projectMonitor = json_decode($proj['project_monitor'], true) ?? [];
+                    $proj['project_monitor_users'] = User::whereIn('id', $projectMonitor)->get();
+                }
+//                $project = Project::whereHas('projectMembers', function ($query) use ($user_id, $parent_group_id) {
+//                    $query->where('user_id', $user_id)
+//                        ->where('group_id', $parent_group_id);
+//                })
+//                    ->with(['projectMembers.user', 'leader'])
+//                    ->withCount(['tasks as total_tasks', 'tasks as completed_tasks' => function ($query) {
+//                        $query->whereIn('task_status', [2, 3]);
+//                    }])
+//                    ->orderBy('created_at', 'desc')
+//                    ->get();
             }
 
             $currentGroup = Group::where('group_id', $parent_group_id)->first();

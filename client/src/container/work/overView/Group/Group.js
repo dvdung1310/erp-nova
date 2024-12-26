@@ -45,7 +45,7 @@ const Group = () => {
         if (state?.key === "createProject") {
             setListGroup(prevListGroup => ({
                 ...prevListGroup,
-                projects: [...(prevListGroup?.projects || []), state?.data]
+                projects: [state?.data, ...(prevListGroup?.projects || [])]
             }));
         }
         if (state?.key === "updateProject") {
@@ -69,7 +69,7 @@ const Group = () => {
             console.log(state?.data)
             setListGroup(prevListGroup => ({
                 ...prevListGroup,
-                groups: [...(prevListGroup?.groups || []), state?.data]
+                groups: [state?.data, ...(prevListGroup?.groups || [])]
             }));
         }
         if (state?.key === "updateGroup") {
@@ -99,7 +99,8 @@ const Group = () => {
                         <Spin/>
                     </div> :
                     <div>
-                        <Project currentGroup={currentGroup} listGroup={listGroup?.groups} group_id={id} listProject={listGroup?.projects}
+                        <Project currentGroup={currentGroup} listGroup={listGroup?.groups} group_id={id}
+                                 listProject={listGroup?.projects}
                                  listUser={listUser}/>
                     </div>
             }

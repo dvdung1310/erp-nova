@@ -17,6 +17,7 @@ use App\Models\Task;
 use App\Models\TaskMember;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
@@ -33,17 +34,18 @@ class ProjectController extends Controller
         $this->ClientUrl = env('CLIENT_URL');
     }
 
-    public function create(Request $request)
+    public function create(Request $request): JsonResponse
     {
         try {
             $validatedData = $request->validate([
-                'project_name' => 'required|max:255',
+                'project_name' => 'required',
                 'project_description' => 'nullable|string',
                 'group_id' => 'required',
                 'project_type' => 'required',
                 'pathname' => 'nullable|string',
                 'project_start_date' => 'required',
                 'project_end_date' => 'required',
+                'project_members' => 'nullable|array',
             ]);
             //
             $group = Group::where('group_id', $request->group_id)->first();
@@ -54,17 +56,16 @@ class ProjectController extends Controller
             $group_id = $validatedData['group_id'];
             if ($group_id == 47) {
                 $validatedData['project_type'] = 1;
+                $validatedData['project_monitor'] = json_encode($request->project_members);
             }
             $project = Project::create(array_merge($validatedData, ['create_by_user_id' => $create_by_user_id], ['leader_id' => $leader_id]));
             $project_id = $project->project_id;
-
             $membersData[] = [
                 'project_id' => $project_id,
                 'user_id' => $leader_id,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
-
             ProjectMember::insert($membersData);
             $projectResponse = Project::with(['projectMembers.user', 'leader'])
                 ->withCount([
@@ -88,14 +89,14 @@ class ProjectController extends Controller
         }
     }
 
-    public function copyProject(Request $request)
+    public function copyProject(Request $request): JsonResponse
     {
         try {
             $validatedData = $request->validate([
                 'project_id' => 'required',
                 'project_name' => 'required',
                 'group_id' => 'required',
-                'start_date' => 'required',
+                'start_date' => 'required|date_format:Y-m-d H:i:s',
                 'memberSetting' => 'required',
             ]);
 
@@ -158,6 +159,7 @@ class ProjectController extends Controller
                 ->orderBy('task_start_date')
                 ->get();
             $projectStartDate = Carbon::parse($request->start_date);
+
             $originalProjectStartDate = Carbon::parse($originalProject->project_start_date);
 
 // Find the smallest task_start_date
@@ -172,13 +174,14 @@ class ProjectController extends Controller
                 $taskEndDate = Carbon::parse($task->task_end_date);
 
                 // Calculate the difference between task_end_date and task_start_date
-                $taskDuration = abs($taskEndDate->diffInDays($taskStartDate));
+                $taskDuration = abs($taskStartDate->diffInDays($taskEndDate));
+
 
                 // Update task dates based on the difference
-                $newTaskStartDate = $projectStartDate->copy()->addDays($taskStartDate->diffInDays($minTaskStartDate));
+                $newTaskStartDate = $projectStartDate->copy()->addDays(abs($taskStartDate->diffInDays($minTaskStartDate)));
                 $newTaskEndDate = $newTaskStartDate->copy()->addDays($taskDuration);
 
-                // Set the date part only, keeping the time unchanged
+//                // Set the date part only, keeping the time unchanged
                 $newTaskStartDate->setDate($newTaskStartDate->year, $newTaskStartDate->month, $newTaskStartDate->day);
                 $newTaskEndDate->setDate($newTaskEndDate->year, $newTaskEndDate->month, $newTaskEndDate->day);
 
@@ -187,6 +190,9 @@ class ProjectController extends Controller
                     'task_name' => $task->task_name,
                     'task_description' => $task->task_description,
                     'task_status' => $task->task_status,
+                    'task_priority' => $task->task_priority,
+                    'task_score_kpi' => $task->task_score_kpi,
+                    'task_progress' => $task->task_progress,
                     'task_start_date' => $newTaskStartDate,
                     'task_end_date' => $newTaskEndDate,
                     'create_by_user_id' => $task->create_by_user_id,
@@ -237,7 +243,7 @@ class ProjectController extends Controller
 
     }
 
-    public function update(Request $request, $project_id)
+    public function update(Request $request, $project_id): JsonResponse
     {
         try {
             $project = Project::find($project_id);
@@ -328,7 +334,7 @@ class ProjectController extends Controller
         }
     }
 
-    public function updateNameAndDescription(Request $request, $project_id)
+    public function updateNameAndDescription(Request $request, $project_id): JsonResponse
     {
         try {
             $project = Project::find($project_id);
@@ -351,7 +357,7 @@ class ProjectController extends Controller
                 ], 403);
             }
             $validatedData = $request->validate([
-                'project_name' => 'required|max:255',
+                'project_name' => 'required',
                 'project_description' => 'nullable|string',
             ]);
             $project->update($validatedData);
@@ -428,7 +434,7 @@ class ProjectController extends Controller
         }
     }
 
-    public function updateProjectType(Request $request, $project_id)
+    public function updateProjectType(Request $request, $project_id): JsonResponse
     {
         try {
             $project = Project::find($project_id);
@@ -477,7 +483,7 @@ class ProjectController extends Controller
 
     }
 
-    public function updateStatus(Request $request, $project_id)
+    public function updateStatus(Request $request, $project_id): JsonResponse
     {
         try {
             $project = Project::find($project_id);
@@ -588,7 +594,7 @@ class ProjectController extends Controller
 
     }
 
-    public function updateMembers(Request $request, $project_id)
+    public function updateMembers(Request $request, $project_id): JsonResponse
     {
         try {
             $project = Project::find($project_id);
@@ -748,7 +754,7 @@ class ProjectController extends Controller
         }
     }
 
-    public function updateStartDate(Request $request, $project_id)
+    public function updateStartDate(Request $request, $project_id): JsonResponse
     {
         try {
             $project = Project::find($project_id);
@@ -848,7 +854,7 @@ class ProjectController extends Controller
     }
 
     public
-    function updateEndDate(Request $request, $project_id)
+    function updateEndDate(Request $request, $project_id): JsonResponse
     {
         try {
             $project = Project::find($project_id);
@@ -947,7 +953,7 @@ class ProjectController extends Controller
         }
     }
 
-    public function delete(Request $request, $project_id)
+    public function delete(Request $request, $project_id): JsonResponse
     {
         try {
             $project = Project::find($project_id);
@@ -1041,7 +1047,7 @@ class ProjectController extends Controller
         }
     }
 
-    public function getAllProjects()
+    public function getAllProjects(): JsonResponse
     {
         try {
             $projects = Project::all();
@@ -1060,7 +1066,7 @@ class ProjectController extends Controller
     }
 
     public
-    function getProjectsByGroupId($group_id)
+    function getProjectsByGroupId($group_id): JsonResponse
     {
         try {
             $projects = Project::where('group_id', $group_id)->get();
@@ -1079,7 +1085,7 @@ class ProjectController extends Controller
     }
 
     public
-    function getProjectByUserId()
+    function getProjectByUserId(): JsonResponse
     {
         try {
             $user_id = auth()->user()->id;
@@ -1091,7 +1097,11 @@ class ProjectController extends Controller
                     $query->whereIn('task_status', [2, 3]);
                 }])
                 ->orWhere('leader_id', $user_id) // Filter projects by leader_id
-                ->orderBy('created_at')
+                ->orWhere('create_by_user_id', $user_id) // Filter projects by create_by_user_id
+                ->orWhere(function ($query) use ($user_id) {
+                    $query->whereRaw('JSON_CONTAINS(project_monitor, ?)', [json_encode($user_id)]);
+                })
+                ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(function ($project) {
                     $project->user = $project->projectMembers->first()->user; // Add user information to the project
@@ -1112,7 +1122,7 @@ class ProjectController extends Controller
         }
     }
 
-    public function memberJoinProject(Request $request, $project_id)
+    public function memberJoinProject(Request $request, $project_id): JsonResponse
     {
         try {
             $project = Project::find($project_id);
@@ -1296,7 +1306,7 @@ class ProjectController extends Controller
 
     }
 
-    public function getProjectByCeo()
+    public function getProjectByCeo(): JsonResponse
     {
         try {
 
@@ -1321,7 +1331,7 @@ class ProjectController extends Controller
 
     }
 
-    public function updateNotifyBeforeEndTime($project_id)
+    public function updateNotifyBeforeEndTime($project_id): JsonResponse
     {
         try {
             $project = Project::find($project_id);
