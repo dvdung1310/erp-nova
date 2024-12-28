@@ -1,7 +1,7 @@
 import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { NavLink, useRouteMatch } from 'react-router-dom';
 import { Tabs, Table, Spin, Button, Popconfirm, message, Drawer, Form, DatePicker } from 'antd';
-import { allOrder, deleteOrder } from '../../../apis/aaifood/index';
+import { allOrder, deleteOrder,confirmPayment,confirmPaymentChange ,checkRoleUser} from '../../../apis/aaifood/index';
 import moment from 'moment';
 const list_order_agency = () => {
   const { path } = useRouteMatch();
@@ -12,24 +12,37 @@ const list_order_agency = () => {
   const [loading, setLoading] = useState(true);
   const [openSideBarRetail, setOpenSideBarRetail] = useState(false);
   const [openSideBarAgency, setOpenSideBarAgency] = useState(false);
+  const [roleUser, setRoleUser] = useState(null);
   const fetchDocument = async () => {
     try {
       setLoading(true);
       const response = await allOrder();
       console.log('====================================');
-      console.log(path);
+      console.log(response);
       console.log('====================================');
-      setOrderRetail(response.order_retail);
-      setOrderAgency(response.order_agency);
+      setOrderRetail(response.data.order_retail);
+      setOrderAgency(response.data.order_agency);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching ListSource:', error);
       setLoading(false);
     }
   };
-
+  const fetchRole = async () => {
+    try {
+      setLoading(true);
+      const response = await checkRoleUser();
+      
+      setRoleUser(response.data.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching ListSource:', error);
+      setLoading(false);
+    }
+  };
   useEffect(() => {
     fetchDocument();
+    fetchRole();
   }, []);
 
   const handleDelete = async (record) => {
@@ -71,7 +84,7 @@ const list_order_agency = () => {
     }
     if (filtered.length === 0) {
       message.warning('Không tìm thấy kết quả');
-  }
+    }
 
     setFilteredData(filtered);
     setOpenSideBarRetail(false);
@@ -82,32 +95,62 @@ const list_order_agency = () => {
 
     // Lọc dữ liệu theo khoảng thời gian
     if (startDate && endDate) {
-        filtered = orderAgency.filter((order) =>
-            moment(order.order_date, 'YYYY-MM-DD').isBetween(
-                moment(startDate).startOf('day'),
-                moment(endDate).endOf('day'),
-                'day',
-                '[]'
-            )
-        );
+      filtered = orderAgency.filter((order) =>
+        moment(order.order_date, 'YYYY-MM-DD').isBetween(
+          moment(startDate).startOf('day'),
+          moment(endDate).endOf('day'),
+          'day',
+          '[]',
+        ),
+      );
     } else if (startDate) {
-        filtered = orderAgency.filter((order) =>
-            moment(order.order_date, 'YYYY-MM-DD').isSame(moment(startDate).startOf('day'), 'day')
-        );
+      filtered = orderAgency.filter((order) =>
+        moment(order.order_date, 'YYYY-MM-DD').isSame(moment(startDate).startOf('day'), 'day'),
+      );
     }
 
     // Hiển thị thông báo nếu không có kết quả
     if (filtered.length === 0) {
-        message.warning('Không tìm thấy kết quả');
+      message.warning('Không tìm thấy kết quả');
     }
 
     // Cập nhật state với dữ liệu đã lọc
     setFilteredDataAgency(filtered);
     setOpenSideBarAgency(false);
-};
+  };
+  const handleConfirmPayment =async(record) => {
+    try {
+      setLoading(true);
+      const response = await confirmPayment(record.order_id);
+      if (response.success) {
+        message.success('Cập nhật trạng thái thành công');
+        setLoading(false);
+        fetchDocument();
+      } else {
+        message.error('Cập nhật trạng thái thất bại');
+      }
+    } catch (error) {
+      message.error('Cập nhật trạng thái thất bại');
+      setLoading(false);
+    }
+  };
+  const handleConfirmChage =async(record) => {
+    try {
+      setLoading(true);
+      const response = await confirmPaymentChange(record.order_id);
+      if (response.success) {
+        message.success('Cập nhật trạng thái thành công');
+        setLoading(false);
+        fetchDocument();
+      } else {
+        message.error('Cập nhật trạng thái thất bại');
+      }
+    } catch (error) {
+      message.error('Cập nhật trạng thái thất bại');
+      setLoading(false);
+    }
+  };
 
-  
-  
 
   const columns_orderRetail = [
     {
@@ -136,7 +179,13 @@ const list_order_agency = () => {
       key: 'order_total',
       render: (text) => {
         // Kiểm tra và định dạng số với dấu phân cách hàng nghìn là dấu phẩy và phần thập phân có dấu chấm
-        return text ? parseFloat(text).toLocaleString('en-US', { style: 'decimal', minimumFractionDigits: 3, maximumFractionDigits: 3 }) : '';
+        return text
+          ? parseFloat(text).toLocaleString('en-US', {
+              style: 'decimal',
+              minimumFractionDigits: 3,
+              maximumFractionDigits: 3,
+            })
+          : '';
       },
     },
     {
@@ -151,6 +200,11 @@ const list_order_agency = () => {
       render: (text) => moment(text).format('YYYY-MM-DD'),
     },
     {
+      title: 'Người lập',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
       title: 'Chi tiết',
       key: 'details',
       render: (text, record) => (
@@ -161,19 +215,82 @@ const list_order_agency = () => {
       ),
     },
     {
-      title: 'Hành động',
+      title: 'Trạng thái',
       key: 'action',
-      render: (_, record) => (
-        <Popconfirm
-          title="Bạn có chắc chắn muốn xóa bản ghi này?"
-          onConfirm={() => handleDelete(record)}
-          okText="Xóa"
-          cancelText="Hủy"
-        >
-          <Button type="danger">Xóa</Button>
-        </Popconfirm>
-      ),
-    },
+      render: (_, record) => {
+        // Kiểm tra quyền của người dùng
+        const canEdit = roleUser && (roleUser.department_id === 1 || roleUser.department_id === 8 || roleUser.role_id === 1);
+    
+        // Hiển thị các trạng thái
+        if (record.payos_status === 1) {
+          return (
+            <Popconfirm
+              title="Bạn có chắc chắn muốn thay đổi trạng thái?"
+              onConfirm={() => handleConfirmPayment(record)}  // Gọi hàm xử lý thay đổi trạng thái
+              okText="Đồng ý"
+              cancelText="Hủy"
+              disabled={!canEdit} 
+            >
+              <Button
+                style={{ background: '#22AAEF', color: '#FFF' }}
+                
+              >
+                Đã thanh toán
+              </Button>
+            </Popconfirm>
+          );
+        } else if (record.payos_status === 2) {
+          return (
+            <Popconfirm
+              title="Bạn có chắc chắn muốn xác nhận?"
+              onConfirm={() => handleConfirmChage(record)}  // Gọi hàm xử lý thay đổi trạng thái
+              okText="Đồng ý"
+              cancelText="Hủy"
+              disabled={!canEdit} 
+            >
+              <Button
+                style={{ background: 'green', color: '#FFF' }}
+                 // Disable nút nếu không có quyền
+              >
+                Đã xác nhận
+              </Button>
+            </Popconfirm>
+          );
+        } else if (record.payos_status === 0) {
+          return (
+            <Popconfirm
+              title="Bạn có chắc chắn muốn thay đổi trạng thái?"
+              onConfirm={() => handleConfirmChage(record)}  // Gọi hàm xử lý thay đổi trạng thái
+              okText="Đồng ý"
+              cancelText="Hủy"
+            >
+              <Button
+                type="danger"
+               
+              >
+                Chưa thanh toán
+              </Button>
+            </Popconfirm>
+          );
+        }
+        return null;
+      },
+    }
+
+    // {
+    //   title: 'Hành động',
+    //   key: 'action',
+    //   render: (_, record) => (
+    //     <Popconfirm
+    //       title="Bạn có chắc chắn muốn xóa bản ghi này?"
+    //       onConfirm={() => handleDelete(record)}
+    //       okText="Xóa"
+    //       cancelText="Hủy"
+    //     >
+    //       <Button type="danger">Xóa</Button>
+    //     </Popconfirm>
+    //   ),
+    // },
   ];
   const columns_orderAgency = [
     {
@@ -207,7 +324,13 @@ const list_order_agency = () => {
       key: 'order_total',
       render: (text) => {
         // Kiểm tra và định dạng số với dấu phân cách hàng nghìn là dấu phẩy và phần thập phân có dấu chấm
-        return text ? parseFloat(text).toLocaleString('en-US', { style: 'decimal', minimumFractionDigits: 3, maximumFractionDigits: 3 }) : '';
+        return text
+          ? parseFloat(text).toLocaleString('en-US', {
+              style: 'decimal',
+              minimumFractionDigits: 3,
+              maximumFractionDigits: 3,
+            })
+          : '';
       },
     },
     {
@@ -222,6 +345,11 @@ const list_order_agency = () => {
       render: (text) => moment(text).format('YYYY-MM-DD'), // Định dạng ngày/tháng/năm
     },
     {
+      title: 'Người lập',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
       title: 'Chi tiết',
       key: 'details',
       render: (text, record) => (
@@ -230,6 +358,68 @@ const list_order_agency = () => {
         </NavLink>
       ),
     },
+    {
+      title: 'Trạng thái',
+      key: 'action',
+      render: (_, record) => {
+        // Kiểm tra quyền của người dùng
+        const canEdit = roleUser && (roleUser.department_id === 1 || roleUser.department_id === 8 || roleUser.role_id === 1);
+    
+        // Hiển thị các trạng thái
+        if (record.payos_status === 1) {
+          return (
+            <Popconfirm
+              title="Bạn có chắc chắn muốn thay đổi trạng thái?"
+              onConfirm={() => handleConfirmPayment(record)}  // Gọi hàm xử lý thay đổi trạng thái
+              okText="Đồng ý"
+              cancelText="Hủy"
+              disabled={!canEdit} 
+            >
+              <Button
+                style={{ background: '#22AAEF', color: '#FFF' }}
+                
+              >
+                Đã thanh toán
+              </Button>
+            </Popconfirm>
+          );
+        } else if (record.payos_status === 2) {
+          return (
+            <Popconfirm
+              title="Bạn có chắc chắn muốn xác nhận?"
+              onConfirm={() => handleConfirmChage(record)}  // Gọi hàm xử lý thay đổi trạng thái
+              okText="Đồng ý"
+              cancelText="Hủy"
+              disabled={!canEdit} 
+            >
+              <Button
+                style={{ background: 'green', color: '#FFF' }}
+                 // Disable nút nếu không có quyền
+              >
+                Đã xác nhận
+              </Button>
+            </Popconfirm>
+          );
+        } else if (record.payos_status === 0) {
+          return (
+            <Popconfirm
+              title="Bạn có chắc chắn muốn thay đổi trạng thái?"
+              onConfirm={() => handleConfirmChage(record)}  // Gọi hàm xử lý thay đổi trạng thái
+              okText="Đồng ý"
+              cancelText="Hủy"
+            >
+              <Button
+                type="danger"
+               
+              >
+                Chưa thanh toán
+              </Button>
+            </Popconfirm>
+          );
+        }
+        return null;
+      },
+    }
   ];
 
   return (
@@ -256,6 +446,15 @@ const list_order_agency = () => {
           >
             <Button type="primary">Tạo phiếu bán đại lý</Button>
           </NavLink>
+          {/* <NavLink
+            to={`/admin/aaifood/ket-qua-thanh-toan`}
+            style={{
+              color: 'inherit',
+              textDecoration: 'none',
+            }}
+          >
+            <Button type="primary">Kết quả thanh toán</Button>
+          </NavLink> */}
         </div>
       </div>
       {loading ? (
@@ -336,12 +535,12 @@ const list_order_agency = () => {
                         name="startDate"
                         rules={[{ required: true, message: 'Vui lòng chọn ngày bắt đầu!' }]}
                       >
-                        <DatePicker style={{ width: '100%', height: '45px', padding:'10px'}} />
+                        <DatePicker style={{ width: '100%', height: '45px', padding: '10px' }} />
                       </Form.Item>
 
                       {/* Ngày kết thúc */}
                       <Form.Item label="Ngày kết thúc" name="endDate">
-                        <DatePicker style={{ width: '100%', height: '45px' , padding:'10px'}} />
+                        <DatePicker style={{ width: '100%', height: '45px', padding: '10px' }} />
                       </Form.Item>
 
                       {/* Nút lọc và Reset */}

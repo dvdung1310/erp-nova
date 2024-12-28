@@ -1,0 +1,76 @@
+.box_bill_payment{
+    border: 1px solid #342f2f;
+    border-radius: 10px;
+    padding: 20px;
+}
+.box_bill_payment table tr{
+    border-bottom: 1px solid #4d4a4a;
+    padding: 200px 0;
+}
+
+.box_bill_payment table tr td:first-child{
+    padding-right: 30px;
+}
+.box_bill_payment table tr:last-child{
+    border: none;
+}
+.box_bill_payment h3{
+    font-size: 23px;
+    margin-bottom: 20px;
+    color: #6c2c91;
+}
+.box_info_customer{
+    padding-right: 20px;
+}
+.box_info_customer h1{
+    font-size: 23px;
+    margin-bottom: 20px;
+    color: #6c2c91;
+}
+.box_info_customer ul li{
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+.box_bill_payment {
+    background-color: #f9f9f9; /* Màu nền nhẹ */
+    border: 1px solid #ddd; /* Viền bảng */
+    border-radius: 8px; /* Bo góc */
+    padding: 16px; /* Khoảng cách bên trong */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng */
+    width: 100%; /* Full chiều rộng */
+  }
+  
+  .bill-table {
+    width: 100%; /* Full chiều rộng */
+    border-collapse: collapse; /* Gộp viền bảng */
+    margin-top: 16px; /* Khoảng cách trên */
+  }
+  
+  .bill-table th,
+  .bill-table td {
+    padding: 12px; /* Khoảng cách bên trong ô */
+    border-bottom: 1px solid #ddd; /* Viền dưới */
+  }
+  
+  .bill-table th {
+    background-color: #f0f0f0; /* Nền tiêu đề */
+    font-weight: bold; /* Chữ đậm */
+    text-transform: uppercase; /* Chữ hoa */
+  }
+  
+  .bill-table tr:last-child td {
+    border-bottom: none; /* Bỏ viền dưới hàng cuối */
+  }
+  
+  .bill-table tr:hover {
+    background-color: #f7f7f7; /* Nền khi hover */
+  }
+  
+  .bill-table td {
+    vertical-align: middle; /* Canh giữa nội dung */
+  }
+  
+  .bill-table td b {
+    font-weight: 600; /* Chữ đậm hơn */
+  }

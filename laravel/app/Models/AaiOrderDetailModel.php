@@ -9,6 +9,6 @@ class AaiOrderDetailModel extends Model
     protected $table='aai_order_detail';
     protected $primaryKey = 'detail_id';
     protected $fillable=[
-        'order_id','product_id','product_quantity'
+        'order_id','product_id','product_quantity','product_price_input','product_price_output'
     ];
 }

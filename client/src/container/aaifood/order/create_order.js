@@ -42,12 +42,24 @@ const create_order = () => {
     setProductFields([...productFields, { key: Date.now() }]);
   };
 
-  const handleProductChange = (value, fieldKey) => {
+  const handleProductChange = (value, fieldKey, previousValue) => {
     setSelectedProducts((prev) => {
-      const updated = { ...prev, [fieldKey]: value };
+      const updated = { ...prev };
 
-      // Trả về danh sách các giá trị có trong selectedProducts
-      return Object.values(updated).filter(Boolean);
+      // Xóa sản phẩm cũ khỏi danh sách nếu có
+      if (previousValue) {
+        const index = Object.values(updated).indexOf(previousValue);
+        if (index !== -1) {
+          delete updated[fieldKey];
+        }
+      }
+
+      // Thêm sản phẩm mới vào danh sách
+      if (value) {
+        updated[fieldKey] = value;
+      }
+
+      return Object.values(updated).filter(Boolean); // Trả về danh sách các giá trị đã chọn
     });
   };
 
@@ -57,13 +69,22 @@ const create_order = () => {
       const updatedFields = prevFields.filter((field) => field.key !== key);
 
       // Lấy lại `product_id` của sản phẩm đã xóa
-      const productIdToRemove = formAgency.getFieldValue(`product_id_${key}`);
+      const productIdToRemove = formRetail.getFieldValue(`product_id_${key}`);
 
       // Thêm sản phẩm đã xóa vào danh sách sản phẩm có thể chọn lại
       setSelectedProducts((prevSelected) => [
         ...prevSelected.filter((productId) => productId !== productIdToRemove), // Loại bỏ sản phẩm đã xóa
         productIdToRemove, // Thêm sản phẩm đã xóa vào danh sách để có thể chọn lại
       ]);
+
+      // Xóa giá trị của sản phẩm bị xóa khỏi form
+      formRetail.setFieldsValue({
+        [`product_id_${key}`]: undefined,
+        [`quantity_${key}`]: undefined,
+      });
+
+      // Tính toán lại tổng tiền
+      setTimeout(() => calculateTotal(), 0);
 
       return updatedFields;
     });
@@ -97,23 +118,36 @@ const create_order = () => {
 
   const handleSubmitOrderRetail = async (values) => {
     try {
-      // Tùy chỉnh dữ liệu trước khi gửi
+      // Chuẩn bị dữ liệu sản phẩm với giá
+      const products = productFields.map((field) => {
+        const productId = values[`product_id_${field.key}`];
+        const quantity = values[`quantity_${field.key}`];
+        const product = allProduct.find((p) => p.product_id === productId); // Tìm sản phẩm theo ID
+
+        return {
+          product_id: productId,
+          quantity,
+          product_price_input: product ? product.product_input_price : 0, 
+          product_price_output: product ? product.product_output_price : 0, 
+        };
+      });
+
+      // Tạo payload gửi tới API
       const payload = {
         ...values,
-        order_date: values.order_date?.format('YYYY-MM-DD'), // Định dạng lại ngày nếu cần
-        products: productFields.map((field) => ({
-          product_id: values[`product_id_${field.key}`],
-          quantity: values[`quantity_${field.key}`],
-        })),
+        order_date: values.order_date?.format('YYYY-MM-DD'), // Định dạng lại ngày
+        products, // Danh sách sản phẩm với giá
       };
 
       console.log('Payload:', payload); // Kiểm tra dữ liệu trước khi gửi
       setLoading(true);
+
       // Gửi dữ liệu tới API
       const response = await storeOrderRetail(payload);
       if (response.success) {
         window.open(response.data, '_blank');
       }
+
       // Xử lý khi API trả về thành công
       console.log('API Response:', response.data);
       if (response.success) {
@@ -134,7 +168,7 @@ const create_order = () => {
 
   return (
     <div style={{ padding: '20px', background: '#fff' }}>
-      <div style={{display:'flex',justifyContent:'space-between', alignItems:'center'}}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h3>Phiếu bán lẻ</h3>
         <div>
           <NavLink
@@ -146,7 +180,6 @@ const create_order = () => {
           >
             <Button type="primary">Tạo phiếu bán hàng đại lý</Button>
           </NavLink>
-
         </div>
       </div>
       <hr />
@@ -158,7 +191,7 @@ const create_order = () => {
           style={{ maxWidth: '600px', margin: '30px auto' }}
           onValuesChange={handleFormChange} // Lắng nghe thay đổi form
         >
-          <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }} style={{display:'flex',alignItems:'center'}}>
+          <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }} style={{ display: 'flex', alignItems: 'center' }}>
             <Col className="gutter-row" span={24}>
               <Form.Item
                 label="Tên khách hàng"
@@ -169,18 +202,12 @@ const create_order = () => {
               </Form.Item>
             </Col>
             <Col className="gutter-row" span={24}>
-              <Form.Item
-                label="Số điện thoại"
-                name="customer_phone"
-              >
+              <Form.Item label="Số điện thoại" name="customer_phone">
                 <Input />
               </Form.Item>
             </Col>
             <Col className="gutter-row" span={24}>
-              <Form.Item
-                label="Địa chỉ"
-                name="customer_address"
-              >
+              <Form.Item label="Địa chỉ" name="customer_address">
                 <Input />
               </Form.Item>
             </Col>

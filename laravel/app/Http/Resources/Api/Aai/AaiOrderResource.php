@@ -27,6 +27,7 @@ class AaiOrderResource extends JsonResource
             'agency_address' => $this->agency_address,
             'agency_level' => $this->agency_level,
             'agency_discount' => $this->agency_discount,
+            'order_confirm_status' => $this->order_confirm_status,
             'created_at' => $this->created_at, 
             'updated_at' => $this->updated_at, 
         ];
