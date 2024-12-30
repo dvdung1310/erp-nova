@@ -60,7 +60,7 @@ class CustomerController extends Controller
                         'file_infor' => $customer->file_infor,
                         'content' => $customer->customer_comment,
                         'status_name' => $customer->status ? $customer->status->name : 'Không xác định',
-                        'source_name' => $customer->dataSource ? $customer->dataSource->name . ' - ' .  $customer->dataSource->source : 'Không xác định',
+                        'source_name' => $customer->dataSource ? $customer->dataSource->name . ' - ' . $customer->dataSource->source : 'Không xác định',
                         'status_id' => $customer->status->id ?? null,
                         'source_id' => $customer->dataSource->id ?? null,
                         'sales_names' => $salesNames,
@@ -96,7 +96,6 @@ class CustomerController extends Controller
     }
 
 
-
     public function store(Request $request)
     {
         $validatedData = $request->validate([
@@ -116,13 +115,13 @@ class CustomerController extends Controller
             $date = null;
         }
 
-        if (empty($validatedData['email'])  || $validatedData['email'] == 'null') {
+        if (empty($validatedData['email']) || $validatedData['email'] == 'null') {
             $email = null;
         } else {
             $email = $validatedData['email'];
         }
 
-        if (empty($validatedData['content'])  || $validatedData['content'] == 'null') {
+        if (empty($validatedData['content']) || $validatedData['content'] == 'null') {
             $content = null;
         } else {
             $content = $validatedData['content'];
@@ -140,7 +139,7 @@ class CustomerController extends Controller
                 'date' => $date,
                 'email' => $email,
                 'file_infor' => json_encode($filePaths),
-                'customer_comment' =>  $content,
+                'customer_comment' => $content,
                 'status_id' => $validatedData['status_id'],
                 'source_id' => $validatedData['source_id'],
             ]);
@@ -186,13 +185,13 @@ class CustomerController extends Controller
                 $date = null;
             }
 
-            if (empty($validatedData['email'])  || $validatedData['email'] == 'null') {
+            if (empty($validatedData['email']) || $validatedData['email'] == 'null') {
                 $email = null;
             } else {
                 $email = $validatedData['email'];
             }
 
-            if (empty($validatedData['content'])  || $validatedData['content'] == 'null') {
+            if (empty($validatedData['content']) || $validatedData['content'] == 'null') {
                 $content = null;
             } else {
                 $content = $validatedData['content'];
@@ -218,7 +217,7 @@ class CustomerController extends Controller
                 'phone' => $validatedData['phone'] ?? $customer->phone,
                 'date' => $date,
                 'email' => $email,
-                'customer_comment' =>$content,
+                'customer_comment' => $content,
                 'file_infor' => !empty($filePaths) ? json_encode($filePaths) : $customer->file_infor,
                 'status_id' => $validatedData['status_id'] ?? $customer->status_id,
                 'source_id' => $validatedData['source_id'] ?? $customer->source_id,

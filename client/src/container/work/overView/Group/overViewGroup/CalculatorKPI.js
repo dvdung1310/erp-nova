@@ -166,7 +166,7 @@ const CalculatorKPI = () => {
         await Promise.all(promises);
     };
     const handlePrint = useReactToPrint({
-        contentRef: printRef,
+        content: () => printRef.current,
         documentTitle: `KPI_${userKpi?.employee?.employee_name}_${moment().format('DD-MM-YYYY')}`,
     });
 

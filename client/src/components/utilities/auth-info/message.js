@@ -269,6 +269,7 @@ function MessageBox() {
                     offset={[-8, -5]} className="custom-badge">
                     <div className="head-example" style={{marginBottom: '-6px'}}>
                         <motion.div
+                            title='Thông báo quá hạn công việc'
                             variants={notificationIconVariants}
                             initial="initial"
                             animate={newNotification ? "animate" : "initial"} // Apply animation

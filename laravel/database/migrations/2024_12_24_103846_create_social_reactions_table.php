@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('social_categories', function (Blueprint $table) {
-            $table->id('category_id');
-            $table->string('category_name');
-            $table->string('category_description');
-            $table->softDeletes();
+        Schema::create('social_reactions', function (Blueprint $table) {
+            $table->id();
             $table->timestamps();
         });
     }
@@ -25,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('social_categories');
+        Schema::dropIfExists('social_reactions');
     }
 };

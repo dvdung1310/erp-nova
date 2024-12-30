@@ -150,6 +150,25 @@ class NotificationController extends Controller
         }
     }
 
+    public function getNotificationAaiFoodByUserId()
+    {
+        try {
+            $user_id = auth()->user()->id;
+            $notifications = Notification::where('user_id', $user_id)
+                ->where('notification_type', '=', 3)
+                ->orderBy('notification_status', 'asc')
+                ->orderBy('created_at', 'desc')
+                ->get();
+            return response()->json([
+                'error' => false,
+                'message' => 'get Notification Aai Food By User Id successfully',
+                'data' => $notifications
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()]);
+        }
+    }
+
     public function getNotificationById($notification_id)
     {
         try {

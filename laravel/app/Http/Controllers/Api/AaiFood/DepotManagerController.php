@@ -10,15 +10,28 @@ use App\Models\AaiOrderModel;
 use App\Models\AaiProductModel;
 use App\Models\AaiSuppliersModel;
 use App\Models\CrmEmployeeModel;
+use App\Models\Devices;
+use App\Models\Notification;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
 use PayOS\PayOS;
 use Illuminate\Support\Facades\Auth;
 
 class DepotManagerController extends Controller
 {
+    protected mixed $nodeUrl;
+    protected mixed $ClientUrl;
+
+    public function __construct()
+    {
+        $this->nodeUrl = env('NODE_URL');
+        $this->ClientUrl = env('CLIENT_URL');
+    }
+
     public function all_suppliers()
     {
         try {
@@ -36,6 +49,7 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function store_suppliers(Request $request)
     {
         try {
@@ -59,6 +73,7 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function update_suppliers(Request $request, $id)
     {
         try {
@@ -102,11 +117,12 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function store_product(Request $request)
     {
         try {
             $data = new AaiProductModel();
-            $data->product_id  = $request->product_id;
+            $data->product_id = $request->product_id;
             $data->product_name = $request->product_name;
             $data->product_unit = $request->product_unit;
             $product_input_price = $request->product_input_price;
@@ -139,11 +155,12 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function update_product(Request $request, $id)
     {
         try {
             $data = AaiProductModel::findorFail($id);
-            $data->product_id  = $request->product_id;
+            $data->product_id = $request->product_id;
             $data->product_name = $request->product_name;
             $product_input_price = $request->product_input_price;
             $product_output_price = $request->product_output_price;
@@ -173,6 +190,7 @@ class DepotManagerController extends Controller
             ], 422);
         }
     }
+
     public function all_agency()
     {
         try {
@@ -194,6 +212,7 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function store_agency(Request $request)
     {
         try {
@@ -233,6 +252,7 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function update_agency(Request $request, $id)
     {
         try {
@@ -259,6 +279,7 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function all_order()
     {
         try {
@@ -301,6 +322,7 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function create_bill()
     {
         try {
@@ -320,27 +342,28 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function store_order_retail(Request $request)
     {
         try {
             // return $request->all();
             $order_total_bill = $request->order_total;
-            $order_total = (int) filter_var($order_total_bill, FILTER_SANITIZE_NUMBER_INT);
+            $order_total = (int)filter_var($order_total_bill, FILTER_SANITIZE_NUMBER_INT);
             $order = new AaiOrderModel();
             $order->customer_name = $request->customer_name;
             $order->customer_phone = $request->customer_phone;
             $order->customer_address = $request->customer_address;
             $order->order_total = $order_total;
             $order->order_date = $request->order_date;
-            $order->payos_status =  0;
-            $order->sale_id =  Auth::id();
+            $order->payos_status = 0;
+            $order->sale_id = Auth::id();
             $order->save();
             $order_id = $order->order_id;
 
             $products = $request->products;
             foreach ($products as $product) {
                 $order_detail = new AaiOrderDetailModel();
-                $order_detail->order_id =  $order_id;
+                $order_detail->order_id = $order_id;
                 $order_detail->product_id = $product['product_id']; // Dùng cú pháp mảng
                 $order_detail->product_quantity = $product['quantity'];
                 $order_detail->product_price_input = number_format($product['product_price_input'], 3, '.', '');
@@ -367,22 +390,14 @@ class DepotManagerController extends Controller
             ];
             error_log($data['orderCode']);
             $payOS = new PayOS('4fe8a597-f02c-48fc-83a1-b7535e147f5b', '1ff91cae-41d9-4190-bb38-031c92f64200', '65a39357af95ed8ac934dc1cd55a519663226a84ccaa53d2d62ad98f6609d966');
-            try {
-                $response = $payOS->createPaymentLink($data);
-                return response()->json([
-                    'data' => $response['checkoutUrl'],
-                    'success' => true,
-                    'message' => 'Tạo phiếu bán hàng thành công',
-                ], 201);
-            } catch (\Throwable $th) {
-                return $this->handleException($th);
-            }
 
-
+            $response = $payOS->createPaymentLink($data);
             return response()->json([
+                'data' => $response['checkoutUrl'],
                 'success' => true,
                 'message' => 'Tạo phiếu bán hàng thành công',
             ], 201);
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -391,23 +406,24 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function store_order_agency(Request $request)
     {
         try {
             $order_total_bill = $request->order_total;
-            $order_total = (int) filter_var($order_total_bill, FILTER_SANITIZE_NUMBER_INT);
+            $order_total = (int)filter_var($order_total_bill, FILTER_SANITIZE_NUMBER_INT);
             $order = new AaiOrderModel();
             $order->customer_id = $request->agency_id;
             $order->order_total = $order_total;
             $order->order_date = $request->order_date;
-            $order->sale_id =  Auth::id();
+            $order->sale_id = Auth::id();
             $order->save();
             $order_id = $order->order_id;
 
             $products = $request->products;
             foreach ($products as $product) {
                 $order_detail = new AaiOrderDetailModel();
-                $order_detail->order_id =  $order_id;
+                $order_detail->order_id = $order_id;
                 $order_detail->product_id = $product['product_id']; // Dùng cú pháp mảng
                 $order_detail->product_quantity = $product['quantity'];
                 $order_detail->product_price_input = number_format($product['product_price_input'], 3, '.', '');
@@ -454,12 +470,13 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function store_payment_slip(Request $request)
     {
         try {
             $data = new AaiCostModel();
-            $data->cost_name  = $request->cost_name;
-            $price = str_replace(',', '',  $request->cost_total);
+            $data->cost_name = $request->cost_name;
+            $price = str_replace(',', '', $request->cost_total);
             // Chuyển đổi thành số thực và đảm bảo có 3 chữ số sau dấu thập phân
             $data->cost_total = number_format((float)$price, 3, '.', '');
             $data->cost_date = Carbon::parse($request->cost_date)->format('Y-m-d');
@@ -478,14 +495,15 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function update_payment_slip(Request $request, $cost_id)
     {
         try {
             $data = AaiCostModel::findorFail($cost_id);
             $data['cost_name'] = $request->cost_name;
-            $price = str_replace(',', '',  $request->cost_total);
+            $price = str_replace(',', '', $request->cost_total);
             $data['cost_total'] = number_format((float)$price, 3, '.', '');
-            $data['cost_date'] =  Carbon::parse($request->cost_date)->format('Y-m-d');
+            $data['cost_date'] = Carbon::parse($request->cost_date)->format('Y-m-d');
             $data['cost_description'] = $request->cost_description;
             $data->save();
             return response()->json([
@@ -500,6 +518,7 @@ class DepotManagerController extends Controller
             ], 422);
         }
     }
+
     public function report_revenue()
     {
         try {
@@ -652,6 +671,7 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function delete_order($order_id)
     {
         // Lấy thông tin chi tiết đơn hàng trước khi xóa
@@ -734,12 +754,57 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function confirm_payment($order_id)
     {
         try {
             $data = AaiOrderModel::findorFail($order_id);
             $data['payos_status'] = 2;
             $data->save();
+            //
+            $pathname = '/admin/aaifood/chi-tiet-phieu-thu/' . $order_id;
+            $createByUserName = auth()->user()->name;
+            $create_by_user_id = auth()->user()->id;
+            $notifications = [];
+            $members = User::where('id', 48)->pluck('id')->toArray();
+            $notification_title = 'AAIFOOD đã có đơn hàng mới được kế toán xác nhận cần được giao';
+            foreach ($members as $user_id) {
+                if ($user_id != $create_by_user_id) {
+                    $notifications[] = [
+                        'user_id' => $user_id,
+                        'create_by_user_id' => $create_by_user_id,
+                        'notification_type' => 3,
+                        'notification_title' => $notification_title,
+                        'notification_link' => $this->ClientUrl . $pathname,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+            }
+            Notification::insert($notifications);
+
+            $devices = Devices::whereIn('user_id', $members)
+                ->where('user_id', '!=', $create_by_user_id)
+                ->get();
+            $devices = $devices->map(function ($device) {
+                return json_decode($device->endpoint, true);
+            })->filter()->values()->toArray();
+            $notification = Notification::where('notification_title', $notification_title)
+                ->first();
+            if (!empty($notifications)) {
+                $payload = [
+                    'members' => $members,
+                    'devices' => $devices,
+                    'createByUserName' => $createByUserName,
+                    'content' => $notification_title,
+                    'notification' => $notification,
+                    'createByUserId' => $create_by_user_id,
+                    'pathname' => $pathname,
+                ];
+                Http::post($this->nodeUrl . '/aaifood-new-order-confirm', $payload);
+            }
+
+            //
             return response()->json([
                 'success' => true,
                 'message' => 'Cập nhật trạng thái thành công',
@@ -752,6 +817,7 @@ class DepotManagerController extends Controller
             ], 422);
         }
     }
+
     public function confirm_payment_change($order_id)
     {
         try {
@@ -770,6 +836,7 @@ class DepotManagerController extends Controller
             ], 422);
         }
     }
+
     public function filter_revenue_food(Request $request)
     {
         try {
@@ -842,8 +909,8 @@ class DepotManagerController extends Controller
                 }
             }
             // Lấy dữ liệu
-            $all_order_retail =  $query_retail->get();
-            $all_order_agency =  $query_agency->get();
+            $all_order_retail = $query_retail->get();
+            $all_order_agency = $query_agency->get();
             // Tính tổng tiền từ các đơn hàng bán lẻ và đại lý
             $total_retail = $all_order_retail->sum('order_total');
             $total_agency = $all_order_agency->sum('order_total');

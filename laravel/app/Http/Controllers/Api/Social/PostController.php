@@ -3,9 +3,14 @@
 namespace App\Http\Controllers\Api\Social;
 
 use App\Http\Controllers\Controller;
+use App\Models\SocialComment;
 use App\Models\SocialGalleries;
-use App\Models\SocialPosts;
-use App\Models\SocialPostsCategories;
+use App\Models\SocialHashtag;
+use App\Models\SocialPost;
+use App\Models\SocialPostHashtag;
+use App\Models\SocialReaction;
+use App\Models\SocialUserTag;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -20,108 +25,235 @@ class PostController extends Controller
         $this->ClientUrl = env('CLIENT_URL');
     }
 
-    public function create(Request $request): JsonResponse
+    public function create(Request $request)
     {
         try {
-            $validator = $request->validate([
-                'post_title' => 'required|string',
+            // Xác thực dữ liệu
+            $request->validate([
                 'post_content' => 'required|string',
-                'post_category' => 'required|string',
+                'files' => 'nullable|array',
+                'list_user_tag' => 'nullable|array',
+                'hash_tags' => 'nullable|array',
             ]);
+
             $file_names = [];
-
-            // Kiểm tra xem có tệp tin được gửi lên không
             if ($request->hasFile('files')) {
-                $files = $request->file('files');
-
-                // Duyệt qua từng file
-                foreach ($files as $file) {
-                    // Lưu file vào thư mục 'social' trong storage/public
+                foreach ($request->file('files') as $file) {
                     $imagePath = $file->store('social', 'public');
                     $file_names[] = $imagePath;
                 }
             }
-            $user_id = auth()->user()->id;
-            $post = SocialPosts::create([
-                'user_id' => $user_id,
-                'post_title' => $validator['post_title'],
-                'post_content' => $validator['post_content'],
+
+            $user = auth()->user();
+            $post_content = $request->post_content;
+            $newPost = SocialPost::create([
+                'create_by_user_id' => $user->id,
+                'post_content' => $post_content,
             ]);
-            $post_id = $post->post_id;
-            $socialGallery = new SocialGalleries();
-            foreach ($file_names as $file_name) {
-                $socialGallery->create([
+
+            $post_id = $newPost->post_id;
+
+            // Lưu gallery
+            if (!empty($file_names)) {
+                $galleryData = array_map(fn($file_name) => [
                     'post_id' => $post_id,
-                    'media_url' => $file_name
+                    'media_url' => $file_name,
+                ], $file_names);
+                SocialGalleries::insert($galleryData);
+            }
+
+            // Lưu tag người dùng
+            $list_user_tag = $request->input('list_user_tag', []);
+            if (is_array($list_user_tag) && count($list_user_tag) > 0) {
+                SocialUserTag::create([
+                    'post_id' => $post_id,
+                    'list_user_id' => json_encode($list_user_tag),
                 ]);
             }
-            $postCategory = new SocialPostsCategories();
-            $postCategory->create([
-                'post_id' => $post_id,
-                'category_id' => $validator['post_category']
-            ]);
-            return response()->json([
-                'error' => false,
-                'message' => 'Post created successfully',
-                'data' => $post
-            ], 200);
 
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => true,
-                'message' => $e->getMessage(),
-                'data' => null
-            ], 500);
-        }
-    }
-
-    public function getById($posts_id): JsonResponse
-    {
-        try {
-            $post = SocialPosts::with(['user', 'comments', 'galleries', 'categories.category', 'reactions'])
-                ->where('post_id', $posts_id)
-                ->first();
-            if (!$post) {
-                return response()->json([
-                    'error' => true,
-                    'message' => 'Post not found',
-                    'data' => null
-                ], 404);
+            // Lưu hashtags
+            $hash_tags = $request->input('hash_tags', []);
+            if (is_array($hash_tags) && count($hash_tags) > 0) {
+                $hashtagIds = [];
+                foreach ($hash_tags as $hash_tag) {
+                    $hashtag = SocialHashtag::firstOrCreate(['hashtag_name' => $hash_tag]);
+                    $hashtagIds[] = [
+                        'post_id' => $post_id,
+                        'hashtag_id' => $hashtag->hashtag_id,
+                    ];
+                }
+                SocialPostHashtag::insert($hashtagIds);
             }
+
             return response()->json([
+                'message' => 'Create post successfully',
+                'data' => [
+                    'post_id' => $post_id,
+                    'create_by_user' => $user,
+                    'post_content' => $post_content,
+                    'galleries' => array_map(fn($file_name) => ['media_url' => $file_name], $file_names),
+                    'list_user_tag' => User::whereIn('id', $list_user_tag)->get(),
+                    'hashtags' => SocialHashtag::whereIn('hashtag_name', $hash_tags)->get(),
+                ],
                 'error' => false,
-                'message' => 'Post found',
-                'data' => $post
-            ], 200);
+            ], 201);
         } catch (\Exception $e) {
             return response()->json([
-                'error' => true,
                 'message' => $e->getMessage(),
-                'data' => null
+                'data' => null,
+                'error' => true,
             ], 500);
         }
     }
 
-    public function getAll()
+
+    public function getAllPosts()
     {
         try {
-            $posts = SocialPosts::with(['comments', 'galleries', 'categories.category', 'reactions', 'user'])
+            $posts = SocialPost::with(['createByUser', 'galleries', 'userTag', 'hashTag', 'reactions'])
                 ->orderBy('created_at', 'desc')
                 ->get();
+            $posts->map(function ($post) {
+                $decoded_user_ids = $post->userTag->pluck('list_user_id')
+                    ->flatMap(fn($user_ids) => json_decode($user_ids, true))
+                    ->toArray();
+
+                $list_user = User::whereIn('id', $decoded_user_ids)
+                    ->select(['name', 'email', 'avatar', 'phone'])
+                    ->get();
+                $post->list_user_tag = $list_user;
+
+                $hashtag_ids = $post->hashTag->pluck('hashtag_id')->toArray();
+                $hashtags = SocialHashtag::whereIn('hashtag_id', $hashtag_ids)->get();
+                $post->hashtags = $hashtags;
+
+                $comments = SocialComment::where('post_id', $post->post_id)
+                    ->with(['createByUser', 'galleries'])
+                    ->orderBy('created_at', 'desc')
+                    ->get()
+                    ->toArray();
+                $nestedComments = $this->buildNestedComments($comments);
+                $post->comments = $nestedComments;
+
+            });
+
             return response()->json([
-                'error' => false,
-                'message' => 'Posts found',
-                'data' => $posts
+                'message' => 'Get all posts successfully',
+                'data' => $posts,
+                'error' => false
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
-                'error' => true,
                 'message' => $e->getMessage(),
-                'data' => null
+                'data' => null,
+                'error' => true
             ], 500);
         }
+    }
 
+    function buildNestedComments($comments, $parentId = null): array
+    {
+        $nestedComments = [];
+        foreach ($comments as $comment) {
+            if ($comment['comment_parent_id'] == $parentId) {
+                $children = $this->buildNestedComments($comments, $comment['comment_id']);
+                if ($children) {
+                    $comment['children'] = $children;
+                }
+                $nestedComments[] = $comment;
+            }
+        }
+        return $nestedComments;
+    }
+
+    public function getPostsById($post_id)
+    {
+        try {
+            $post = SocialPost::with([
+                'createByUser',
+                'galleries',
+                'userTag',
+                'hashTag',
+                'reactions',
+            ])->find($post_id);
+
+            if (!$post) {
+                return response()->json([
+                    'message' => 'Post not found',
+                    'data' => null,
+                    'error' => true
+                ], 404);
+            }
+            $comments = SocialComment::where('post_id', $post_id)
+                ->with(['createByUser', 'galleries'])
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->toArray();
+            $nestedComments = $this->buildNestedComments($comments);
+            $post->comments = $nestedComments;
+            $decoded_user_ids = $post->userTag->pluck('list_user_id')
+                ->flatMap(fn($user_ids) => json_decode($user_ids, true))
+                ->toArray();
+
+            $list_user = User::whereIn('id', $decoded_user_ids)
+                ->select(['name', 'email', 'avatar', 'phone'])
+                ->get();
+            $post->list_user_tag = $list_user;
+
+            $hashtag_ids = $post->hashTag->pluck('hashtag_id')->toArray();
+            $hashtags = SocialHashtag::whereIn('hashtag_id', $hashtag_ids)->get();
+            $post->hashtags = $hashtags;
+
+            return response()->json([
+                'message' => 'Get post successfully',
+                'data' => $post,
+                'error' => false
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'data' => null,
+                'error' => true
+            ], 500);
+        }
+    }
+
+    // reaction
+    public function createOrUpdateReaction(Request $request)
+    {
+        try {
+            // Xác thực dữ liệu
+            $request->validate([
+                'post_id' => 'required|integer',
+                'reaction_type' => 'required|in:like,love,haha,wow,sad,angry',
+            ]);
+            $user_id = auth()->user()->id;
+            $reaction_type = $request->reaction_type;
+            $post_id = $request->post_id;
+            $reaction = SocialReaction::where('post_id', $post_id)->where('user_id', $user_id)->first();
+            if ($reaction) {
+                $reaction->update([
+                    'reaction_type' => $reaction_type,
+                ]);
+            } else {
+                SocialReaction::create([
+                    'user_id' => $user_id,
+                    'post_id' => $post_id,
+                    'reaction_type' => $reaction_type,
+                ]);
+            }
+            return response()->json([
+                'data' => $reaction,
+                'status' => 200,
+                'message' => 'Success',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'data' => null,
+                'status' => 500,
+                'message' => $e->getMessage(),
+            ]);
+        }
     }
 
 }

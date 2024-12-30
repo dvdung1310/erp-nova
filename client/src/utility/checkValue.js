@@ -65,3 +65,43 @@ export const checkRole = (value) => {
     const arr = ['admin', 'Tổng giám đốc', 'Giám đốc', 'Trưởng phòng', 'Nhân viên'];
     return arr[value - 1];
 }
+export const checkReaction = (value) => {
+    console.log(value)
+    switch (value) {
+        case 'like':
+            return {
+                icon: 'FaThumbsUp',
+                color: '#1E90FF'
+            }
+        case 'love':
+            return {
+                icon: 'FaHeart',
+                color: '#FF4500'
+            }
+        case 'haha':
+            return {
+                icon: 'FaLaugh',
+                color: '#FFD700'
+            }
+        case 'wow':
+            return {
+                icon: 'FaSurprise',
+                color: '#FF6347'
+            }
+        case 'sad':
+            return {
+                icon: 'FaSadTear',
+                color: '#4682B4'
+            }
+        case 'angry':
+            return {
+                icon: 'FaAngry',
+                color: '#DC143C'
+            }
+        default:
+            return {
+                icon: 'thumbs-up',
+                color: '#1E90FF'
+            }
+    }
+}

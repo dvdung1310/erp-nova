@@ -164,18 +164,18 @@ const list_order_agency = () => {
     },
     {
       title: 'Khách hàng',
-      dataIndex: 'customer_name',
-      key: 'customer_name',
+      dataIndex: 'agency_name',
+      key: 'agency_name',
     },
     {
       title: 'SĐT',
-      dataIndex: 'customer_phone',
-      key: 'customer_phone',
+      dataIndex: 'agency_phone',
+      key: 'agency_phone',
     },
     {
       title: 'Địa chỉ',
-      dataIndex: 'customer_address',
-      key: 'customer_address',
+      dataIndex: 'agency_address',
+      key: 'agency_address',
     },
     {
       title: 'Thành tiền',

@@ -20,7 +20,8 @@ import {BasicFormWrapper} from "../../../container/styled";
 import {toast} from "react-toastify";
 import {getProfile} from "../../../apis/work/user";
 import {checkRole} from "../../../utility/checkValue";
-import {setRoleId} from "../../../redux/users/actionCreator";
+import {setRoleId, setUserLogin} from "../../../redux/users/actionCreator";
+import AaiFoodNotification from "./aaifoodNotification";
 
 function AuthInfo() {
     const dispatch = useDispatch();
@@ -29,10 +30,12 @@ function AuthInfo() {
     const [loading, setLoading] = useState(false);
     const [profile, setProfile] = useState({})
     const socketConnection = useSelector(state => state?.userSocket?.socketConnection);
+    const user_id = useSelector(state => state?.userLogin?.id)
     const fetchProfile = async () => {
         try {
             const res = await getProfile();
             dispatch(setRoleId(res?.data?.role_id))
+            dispatch(setUserLogin(res?.data))
             setProfile(res?.data)
         } catch (error) {
             removeItem('accessToken');
@@ -168,6 +171,9 @@ function AuthInfo() {
 
     return (
         <InfoWraper>
+            {
+                (user_id && user_id === 48) && <AaiFoodNotification/>
+            }
             <Message/>
             <Notification/>
             {/*<Settings/>*/}

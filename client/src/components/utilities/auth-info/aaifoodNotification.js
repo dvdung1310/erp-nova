@@ -1,34 +1,36 @@
 import React, {useEffect, useState} from 'react';
 import {Badge, Spin} from 'antd';
-import {motion} from 'framer-motion';
 import FeatherIcon from 'feather-icons-react';
-import {Link, useHistory, useLocation, useRouteMatch} from 'react-router-dom';
-import {useSelector} from 'react-redux';
+import {Link, useHistory} from 'react-router-dom';
+import PropTypes from 'prop-types';
 import {Scrollbars} from 'react-custom-scrollbars';
+import {useSelector} from 'react-redux';
+import {AtbdTopDropdwon} from './auth-info-style';
 import {Popover} from '../../popup/popup';
 import Heading from '../../heading/heading';
-import {getNotifications, updateStatusNotification} from "../../../apis/work/user";
-import moment from "moment";
-import 'moment/locale/vi';
+import {PiSealWarning, PiWarningCircleBold} from "react-icons/pi";
+import {
+    getNotificationAaiFood,
+    getNotifications,
+    getNotificationWarning,
+    updateStatusNotification
+} from "../../../apis/work/user";
 import {toast} from "react-toastify";
-import PropTypes from "prop-types";
-import {AtbdTopDropdwon} from "./auth-info-style";
-import {getItem} from "../../../utility/localStorageControl";
+import moment from "moment/moment";
+import {motion} from "framer-motion";
+import {TbNotification} from "react-icons/tb";
 
 moment.locale('vi');
 
-function NotificationBox() {
-    const location = useLocation();
+function AaiFoodNotification() {
     const [activeTab, setActiveTab] = useState('recent');
     const [notification, setNotification] = useState([]);
     const [notificationUnread, setNotificationUnread] = useState([]);
     const [notificationRender, setNotificationRender] = useState([]);
     const history = useHistory();
-    const [isPopoverVisible, setIsPopoverVisible] = useState(false);
     const [newNotification, setNewNotification] = useState(false);
     const [loadingClick, setLoadingClick] = useState(false);
     const socketConnection = useSelector(state => state?.userSocket?.socketConnection);
-    const user_id = getItem('user_id');
     const {rtl} = useSelector(state => {
         return {
             rtl: state.ChangeLayoutMode.rtlData,
@@ -45,7 +47,7 @@ function NotificationBox() {
     const getNotify = async () => {
         try {
             setLoadingClick(true);
-            const response = await getNotifications();
+            const response = await getNotificationAaiFood();
             setNotification(response?.data);
             setNotificationRender(response?.data);
             setNotificationUnread(response?.data?.filter(item => item?.notification_status === 0));
@@ -64,20 +66,19 @@ function NotificationBox() {
     useEffect(() => {
         if (socketConnection) {
             const receiveNotification = async (data) => {
-                console.log(data, 'data');
-                setNotification(prevNotifications => [data, ...prevNotifications]);
-                setNotificationRender(prevNotifications => [data, ...prevNotifications]);
-                setNotificationUnread(prevUnreadNotifications => [data, ...prevUnreadNotifications]);
+                // setNotification(prevNotifications => [data, ...prevNotifications]);
+                // setNotificationRender(prevNotifications => [data, ...prevNotifications]);
+                // setNotificationUnread(prevUnreadNotifications => [data, ...prevUnreadNotifications]);
+                getNotify();
                 setNewNotification(true);
                 setTimeout(() => {
                     setNewNotification(false);
                 }, 3000)// Trigger animation
             };
-            socketConnection.on('notification', receiveNotification);
-
+            socketConnection.on('notification-aaifood', receiveNotification);
             // Clean up the event listener on component unmount or when socketConnection changes
             return () => {
-                socketConnection.off('notification');
+                socketConnection.off('notification-aaifood');
             };
         }
     }, [socketConnection]);
@@ -91,25 +92,9 @@ function NotificationBox() {
                 url = new URL(`${item?.notification_link}/${item?.notification_id}`);
                 pathname = url.pathname;
             }
-            const oldPath = location.pathname;
 
             if (item.notification_status === 1) {
-                if (oldPath !== pathname) {
-                    history.push(pathname, {
-                        task_id: item.task_id
-                    });
-                    return;
-                }
-                if (socketConnection) {
-                    if (item.task_id) {
-                        const payload = {
-                            user_id,
-                            task_id: item.task_id
-                        }
-                        socketConnection.emit('view-notification', payload);
-                    }
-                }
-                setIsPopoverVisible(false);
+                history.push(pathname);
                 setActiveTab('recent');
             } else {
                 setLoadingClick(true);
@@ -149,25 +134,8 @@ function NotificationBox() {
                 });
 
                 setActiveTab('recent');
-                if (oldPath !== pathname) {
-                    history.push(pathname, {
-                        task_id: item.task_id
-                    });
-                    setLoadingClick(false);
-                    setIsPopoverVisible(false);
-                    return;
-                }
-                if (socketConnection) {
-                    if (item.task_id) {
-                        const payload = {
-                            user_id,
-                            task_id: item.task_id
-                        }
-                        socketConnection.emit('view-notification', payload);
-                    }
-                }
+                history.push(pathname);
                 setLoadingClick(false);
-                setIsPopoverVisible(false);
             }
         } catch (error) {
             setLoadingClick(false);
@@ -272,7 +240,7 @@ function NotificationBox() {
                                         <div className="notification-content d-flex">
                                             <div className="notification-text">
                                                 <Heading as="h5">
-                                                    {`${notification?.create_by_user?.name ?? notification?.createByUserName} ${notification?.notification_title}`}
+                                                    {notification?.notification_title}
                                                 </Heading>
                                                 <p> {moment(notification?.created_at).fromNow()} &nbsp;
                                                     {moment(notification?.created_at).format('HH:mm DD/MM/YYYY')}</p>
@@ -300,21 +268,20 @@ function NotificationBox() {
     );
 
     return (
-        <div className="notification">
-            <Popover placement="bottomLeft" content={content} action="click" visible={!isPopoverVisible}
-                     onVisibleChange={setIsPopoverVisible}>
+        <div className="message">
+            <Popover placement="bottomLeft" content={content} action="click">
                 <Badge
                     count={notificationUnread?.length > 9 ? '9+' : notificationUnread?.length}
                     offset={[-8, -5]} className="custom-badge">
                     <div className="head-example" style={{marginBottom: '-6px'}}>
                         <motion.div
-                            title='Thông báo'
+                            title={"Thông báo aaifood"}
                             variants={notificationIconVariants}
                             initial="initial"
                             animate={newNotification ? "animate" : "initial"} // Apply animation
                             onAnimationComplete={() => setNewNotification(false)} // Reset animation state
                         >
-                            <FeatherIcon icon="bell" size={24}/>
+                            <TbNotification size={24}/>
                         </motion.div>
 
                     </div>
@@ -324,4 +291,8 @@ function NotificationBox() {
     );
 }
 
-export default NotificationBox;
+AaiFoodNotification.propTypes = {
+    rtl: PropTypes.bool,
+};
+
+export default AaiFoodNotification;
