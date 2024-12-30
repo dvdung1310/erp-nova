@@ -76,7 +76,7 @@ const PaymentResult = () => {
                   </tr>
                   <tr>
                     <td style={{ textAlign: 'left' }}>
-                      <b>Tổng</b>
+                      <b>Tổng tiền</b>
                     </td>
                     <td style={{ textAlign: 'right', color: '#ff8800' }}>
                       <b> {parseFloat(customer.order_total).toLocaleString()} VND</b>

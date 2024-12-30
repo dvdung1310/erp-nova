@@ -24,7 +24,7 @@ const NovaupRoutes = memo(() => {
             <Route path={`${path}/nha-cung-cap`} component={Suppliers}/>
             <Route path={`${path}/dai-ly`} component={Agency}/>
             <Route path={`${path}/ban-hang`} component={Bill_sales}/>
-            <Route path={`${path}/chi-tiet-phieu-thu/:order_id`} component={OrderDetail}/>
+            <Route path={`${path}/chi-tiet-phieu-thu/:orderCode`} component={OrderDetail}/>
             <Route path={`${path}/tao-phieu-ban-le`} component={CreateOrder}/>
             <Route path={`${path}/tao-phieu-ban-dai-ly`} component={CreateOrderAgency}/>
             <Route path={`${path}/doanh-thu`} component={Revenue}/>

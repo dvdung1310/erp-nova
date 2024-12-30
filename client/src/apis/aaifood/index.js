@@ -255,13 +255,32 @@ export const confirmPaymentChange = async (order_id) => {
   });
   return response.data;
 };
+// export const filterRevenueFood = async (data) => {
+//   const response = await axios.get(`${LARAVEL_SERVER}/api/filter_revenue_food`, {
+//     params: data, // Dữ liệu được gửi qua query string
+//     headers: {
+//       'Content-Type': 'application/json',
+//       Authorization: `Bearer ${token}`,
+//     },
+//   });
+//   return response.data;
+// };
 export const filterRevenueFood = async (data) => {
-  const response = await axios.get(`${LARAVEL_SERVER}/api/filter_revenue_food`, {
-    params: data, // Dữ liệu được gửi qua query string
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  return response.data;
+    try {
+        const token = getToken();
+        const response = await instanceAxios.get(
+            `${LARAVEL_SERVER}/api/filter_revenue_food`,
+            {
+              params: data,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
+        return response;
+    } catch (error) {
+        console.error('Error :', error.response ? error.response.data : error.message);
+        throw error;
+    }
 };
