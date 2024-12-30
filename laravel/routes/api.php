@@ -228,6 +228,9 @@ Route::group(['middleware' => 'api'], function () {
     //Doanh thu
     Route::get('report_revenue', [DepotManagerController::class, 'report_revenue']);
     Route::get('filter_revenue_food', [DepotManagerController::class, 'filter_revenue_food'])->middleware(middlewareLogin::class);
+    //Lợi nhuận
+    Route::get('report_profit', [DepotManagerController::class, 'report_profit']);
+    Route::get('filter_profit_food', [DepotManagerController::class, 'filter_profit_food'])->middleware(middlewareLogin::class);
     //Kiểm tra quyền
     Route::get('check_role_food', [DepotManagerController::class, 'check_role_food'])->middleware(middlewareLogin::class);
     Route::get('revenue', [DepotManagerController::class, 'revenue']);

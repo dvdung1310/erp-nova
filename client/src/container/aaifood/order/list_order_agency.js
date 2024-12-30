@@ -215,7 +215,7 @@ const list_order_agency = () => {
       ),
     },
     {
-      title: 'Trạng thái',
+      title: 'Trạng thái thanh toán',
       key: 'action',
       render: (_, record) => {
         // Kiểm tra quyền của người dùng
@@ -359,7 +359,7 @@ const list_order_agency = () => {
       ),
     },
     {
-      title: 'Trạng thái',
+      title: 'Trạng thái thanh toán',
       key: 'action',
       render: (_, record) => {
         // Kiểm tra quyền của người dùng

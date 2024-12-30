@@ -284,3 +284,31 @@ export const filterRevenueFood = async (data) => {
         throw error;
     }
 };
+export const filterProfitFood = async (data) => {
+  try {
+      const token = getToken();
+      const response = await instanceAxios.get(
+          `${LARAVEL_SERVER}/api/filter_profit_food`,
+          {
+            params: data,
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+              }
+          }
+      );
+      return response;
+  } catch (error) {
+      console.error('Error :', error.response ? error.response.data : error.message);
+      throw error;
+  }
+};
+export const reportProfit = async () => {
+  const response = await axios.get(`${LARAVEL_SERVER}/api/report_profit`, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
