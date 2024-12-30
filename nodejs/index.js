@@ -65,6 +65,19 @@ const sendNotificationWarning = (user_id, notification) => {
         io.to(clients[user_id]).emit('notification-warning', notification);
     }
 }
+const sendNotificationAaiFood = (createByUserName, notification, members, createByUserId,) => {
+    const newNotification = {
+        ...notification,
+        createByUserName
+    }
+    return members
+        .filter(userId => userId !== createByUserId)
+        .forEach(userId => {
+            if (clients[userId]) {
+                io.to(clients[userId]).emit('notification-aaifood', newNotification);
+            }
+        });
+}
 
 //group
 app.post('/change-group', (req, res) => {
@@ -126,6 +139,7 @@ app.post('/update-name-project', (req, res) => {
         res.status(500).json({message: "Lỗi khi gửi thông báo"});
     }
 });
+
 app.post('/update-status-project', (req, res) => {
     try {
         const {
@@ -995,6 +1009,36 @@ app.post('/create-notification-all', (req, res) => {
         console.log(error);
     }
 })
+//aaifood
+app.post('/aaifood-new-order-confirm', (req, res) => {
+    try {
+        const {devices, createByUserName, notification, createByUserId, pathname, members, content} = req.body;
+        const payload = JSON.stringify({
+            title: 'THông báo mới',
+            body: content,
+            data: {url: `${CLIENT_URL}${pathname}`}
+        });
+
+        // Gửi thông báo đến các client
+        sendNotificationAaiFood(createByUserName, notification, members, createByUserId);
+
+        // Gửi thông báo đến các thiết bị
+        const promises = devices.map(subscription =>
+            webpush.sendNotification(subscription, payload).catch(error => {
+                console.error('Lỗi khi gửi thông báo:', error);
+                throw new Error("Lỗi khi gửi thông báo");
+            })
+        );
+
+        Promise.all(promises)
+            .then(() => res.status(200).json({message: "Update project success"}))
+            .catch(error => res.status(500).json({message: error.message}));
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({message: "Lỗi khi gửi thông báo"});
+    }
+});
+
 // define route
 app.get('/', (req, res) => {
     res.send(`

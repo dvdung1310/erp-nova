@@ -1292,6 +1292,7 @@ class TaskController extends Controller
                 ])
                 ->where('task_status', '!=', 3)
                 ->orderBy('project_id')
+                ->orderBy('task_id', 'desc')
                 ->get();
             return response()->json([
                 'error' => false,

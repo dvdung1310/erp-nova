@@ -3,7 +3,7 @@
 import React, {useState} from 'react';
 import FeatherIcon from 'feather-icons-react';
 import {FaThumbsUp, FaHeart, FaLaugh, FaSurprise, FaSadTear, FaAngry, FaThumbsDown} from 'react-icons/fa';
-
+import ExampleComment from './ExampleComment';
 import {Link} from 'react-router-dom';
 import Masonry from 'react-masonry-css';
 import {Input, Upload, message, Comment, Avatar, Modal, Tooltip, Popover} from 'antd';
@@ -27,94 +27,94 @@ import {checkReaction} from "../../../../../utility/checkValue";
 
 moment.locale('vi');
 
-function ExampleComment({children, replay}) {
-    const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
-    return (
-        <Comment
-            actions={[
-                <span className="com-like" key="comment-like">
-                    Like{' '}
-                </span>,
-                <span className="com-reply" key="comment-reply">
-                    Trả lời{' '}
-                </span>,
-                <span className="com-time" key="comment-time">
-                    {moment(replay.time).fromNow()}{' '}
-                </span>,
-                replay?.children && (
-                    <>
-                        <span className="com-reply" key="comment-view-replies">
-                            <Link to="#">Xem trả lời</Link>
-                        </span>
-                    </>
-
-                )
-            ]}
-            author={<span>{replay.name}</span>}
-            avatar={<Avatar src={LARAVEL_SERVER + replay.createByUser?.avatar}
-                            icon={<FeatherIcon icon={'user'} size={20}/>}
-                            alt={replay?.createByUser?.name}/>}
-            content={
-                <div>
-                    <p>{replay.text}</p>
-                    {replay.image && <>
-                        <SRLWrapper>
-                            <Masonry
-                                breakpointCols={replay.image.length <= 2 ? replay.image.length : 2}
-                                className="my-masonry-grid"
-                                columnClassName="my-masonry-grid_column"
-                            >
-                                {replay.image.map((src, key) => {
-                                    return (
-                                        key <= 1 && (
-                                            <a key={key + 1}
-                                               href={LARAVEL_SERVER + '/storage/' + src?.media_url}
-                                               data-attribute="SRL">
-                                                <img
-                                                    key={key + 1}
-                                                    style={{width: '100%'}}
-                                                    src={LARAVEL_SERVER + '/storage/' + src?.media_url}
-                                                    alt=""
-                                                />
-                                            </a>
-                                        )
-                                    );
-                                })}
-                            </Masonry>
-                            {replay?.image?.length > 2 && (
-                                <Masonry
-                                    breakpointCols={replay?.image?.length <= 2 ? replay?.image?.length : 3}
-                                    className="my-masonry-grid"
-                                    columnClassName="my-masonry-grid_column"
-                                >
-                                    {replay.image.map((src, key) => {
-                                        return (
-                                            key > 1 && (
-                                                <a key={key + 1}
-                                                   href={src?.media_url}
-                                                   data-attribute="SRL">
-                                                    <img
-                                                        key={key + 1}
-                                                        style={{width: '100%'}}
-                                                        src={src?.media_url}
-                                                        alt=""
-                                                    />
-                                                </a>
-                                            )
-                                        );
-                                    })}
-                                </Masonry>
-                            )}
-                        </SRLWrapper>
-                    </>}
-
-                </div>
-            }
-        >
-            {children}
-        </Comment>
-    );
-}
+// function ExampleComment({children, replay}) {
+//     const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
+//     return (
+//         <Comment
+//             actions={[
+//                 <span className="com-like" key="comment-like">
+//                     Like{' '}
+//                 </span>,
+//                 <span className="com-reply" key="comment-reply">
+//                     Trả lời{' '}
+//                 </span>,
+//                 <span className="com-time" key="comment-time">
+//                     {moment(replay.time).fromNow()}{' '}
+//                 </span>,
+//                 replay?.children && (
+//                     <>
+//                         <span className="com-reply" key="comment-view-replies">
+//                             <Link to="#">Xem trả lời</Link>
+//                         </span>
+//                     </>
+//
+//                 )
+//             ]}
+//             author={<span>{replay.name}</span>}
+//             avatar={<Avatar src={LARAVEL_SERVER + replay.createByUser?.avatar}
+//                             icon={<FeatherIcon icon={'user'} size={20}/>}
+//                             alt={replay?.createByUser?.name}/>}
+//             content={
+//                 <div>
+//                     <p>{replay.text}</p>
+//                     {replay.image && <>
+//                         <SRLWrapper>
+//                             <Masonry
+//                                 breakpointCols={replay.image.length <= 2 ? replay.image.length : 2}
+//                                 className="my-masonry-grid"
+//                                 columnClassName="my-masonry-grid_column"
+//                             >
+//                                 {replay.image.map((src, key) => {
+//                                     return (
+//                                         key <= 1 && (
+//                                             <a key={key + 1}
+//                                                href={LARAVEL_SERVER + '/storage/' + src?.media_url}
+//                                                data-attribute="SRL">
+//                                                 <img
+//                                                     key={key + 1}
+//                                                     style={{width: '100%'}}
+//                                                     src={LARAVEL_SERVER + '/storage/' + src?.media_url}
+//                                                     alt=""
+//                                                 />
+//                                             </a>
+//                                         )
+//                                     );
+//                                 })}
+//                             </Masonry>
+//                             {replay?.image?.length > 2 && (
+//                                 <Masonry
+//                                     breakpointCols={replay?.image?.length <= 2 ? replay?.image?.length : 3}
+//                                     className="my-masonry-grid"
+//                                     columnClassName="my-masonry-grid_column"
+//                                 >
+//                                     {replay.image.map((src, key) => {
+//                                         return (
+//                                             key > 1 && (
+//                                                 <a key={key + 1}
+//                                                    href={src?.media_url}
+//                                                    data-attribute="SRL">
+//                                                     <img
+//                                                         key={key + 1}
+//                                                         style={{width: '100%'}}
+//                                                         src={src?.media_url}
+//                                                         alt=""
+//                                                     />
+//                                                 </a>
+//                                             )
+//                                         );
+//                                     })}
+//                                 </Masonry>
+//                             )}
+//                         </SRLWrapper>
+//                     </>}
+//
+//                 </div>
+//             }
+//         >
+//             {children}
+//         </Comment>
+//     );
+// }
 
 ExampleComment.propTypes = {
     children: PropTypes.node,
@@ -570,22 +570,19 @@ function Posts({
                             <div style={{marginTop: '-40px', padding: '0 20px'}}>
 
                                 {commentRender?.length > 0
-                                    ? commentRender.map((item, key) => {
-                                        return (
-                                            (
-                                                <ExampleComment
-                                                    replay={{
-                                                        time: item.created_at,
-                                                        name: item.create_by_user.name,
-                                                        text: item.comment_content,
-                                                        image: item.galleries,
-                                                        createByUser: item.create_by_user,
-                                                        children: item.children
-                                                    }}
-                                                />
-                                            )
-                                        );
-                                    })
+                                    ? commentRender.map((item, key) => (
+                                        <ExampleComment
+                                            key={key}
+                                            replay={{
+                                                time: item.created_at,
+                                                name: item.create_by_user.name,
+                                                text: item.comment_content,
+                                                image: item.galleries,
+                                                createByUser: item.create_by_user,
+                                                children: item.children,
+                                            }}
+                                        />
+                                    ))
                                     : null}
 
                             </div>
@@ -671,7 +668,8 @@ function Posts({
 
 Posts.propTypes = {
     like: PropTypes.number,
-    comment: PropTypes.array,
+    comment:
+    PropTypes.array,
 };
 
 export default Posts;

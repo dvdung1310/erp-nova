@@ -10,15 +10,28 @@ use App\Models\AaiOrderModel;
 use App\Models\AaiProductModel;
 use App\Models\AaiSuppliersModel;
 use App\Models\CrmEmployeeModel;
+use App\Models\Devices;
+use App\Models\Notification;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
 use PayOS\PayOS;
 use Illuminate\Support\Facades\Auth;
 
 class DepotManagerController extends Controller
 {
+    protected mixed $nodeUrl;
+    protected mixed $ClientUrl;
+
+    public function __construct()
+    {
+        $this->nodeUrl = env('NODE_URL');
+        $this->ClientUrl = env('CLIENT_URL');
+    }
+
     public function all_suppliers()
     {
         try {
@@ -377,22 +390,14 @@ class DepotManagerController extends Controller
             ];
             error_log($data['orderCode']);
             $payOS = new PayOS('4fe8a597-f02c-48fc-83a1-b7535e147f5b', '1ff91cae-41d9-4190-bb38-031c92f64200', '65a39357af95ed8ac934dc1cd55a519663226a84ccaa53d2d62ad98f6609d966');
-            try {
-                $response = $payOS->createPaymentLink($data);
-                return response()->json([
-                    'data' => $response['checkoutUrl'],
-                    'success' => true,
-                    'message' => 'Tạo phiếu bán hàng thành công',
-                ], 201);
-            } catch (\Throwable $th) {
-                return $this->handleException($th);
-            }
 
-
+            $response = $payOS->createPaymentLink($data);
             return response()->json([
+                'data' => $response['checkoutUrl'],
                 'success' => true,
                 'message' => 'Tạo phiếu bán hàng thành công',
             ], 201);
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -756,6 +761,50 @@ class DepotManagerController extends Controller
             $data = AaiOrderModel::findorFail($order_id);
             $data['payos_status'] = 2;
             $data->save();
+            //
+            $pathname = '/admin/aaifood/chi-tiet-phieu-thu/' . $order_id;
+            $createByUserName = auth()->user()->name;
+            $create_by_user_id = auth()->user()->id;
+            $notifications = [];
+            $members = User::where('id', 48)->pluck('id')->toArray();
+            $notification_title = 'AAIFOOD đã có đơn hàng mới được kế toán xác nhận cần được giao';
+            foreach ($members as $user_id) {
+                if ($user_id != $create_by_user_id) {
+                    $notifications[] = [
+                        'user_id' => $user_id,
+                        'create_by_user_id' => $create_by_user_id,
+                        'notification_type' => 3,
+                        'notification_title' => $notification_title,
+                        'notification_link' => $this->ClientUrl . $pathname,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+            }
+            Notification::insert($notifications);
+
+            $devices = Devices::whereIn('user_id', $members)
+                ->where('user_id', '!=', $create_by_user_id)
+                ->get();
+            $devices = $devices->map(function ($device) {
+                return json_decode($device->endpoint, true);
+            })->filter()->values()->toArray();
+            $notification = Notification::where('notification_title', $notification_title)
+                ->first();
+            if (!empty($notifications)) {
+                $payload = [
+                    'members' => $members,
+                    'devices' => $devices,
+                    'createByUserName' => $createByUserName,
+                    'content' => $notification_title,
+                    'notification' => $notification,
+                    'createByUserId' => $create_by_user_id,
+                    'pathname' => $pathname,
+                ];
+                Http::post($this->nodeUrl . '/aaifood-new-order-confirm', $payload);
+            }
+
+            //
             return response()->json([
                 'success' => true,
                 'message' => 'Cập nhật trạng thái thành công',

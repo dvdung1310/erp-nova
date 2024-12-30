@@ -225,7 +225,7 @@ Route::group(['middleware' => 'api'], function () {
     Route::get('delete_payment_slip/{cost_id}', [DepotManagerController::class, 'delete_payment_slip']);
     Route::get('confirm_payment/{order_id}', [DepotManagerController::class, 'confirm_payment']);//trạng thái 1->2
     Route::get('confirm_payment_change/{order_id}', [DepotManagerController::class, 'confirm_payment_change']);//Trạng thái 2->1 || 0->1
-    
+
     //Doanh thu
     Route::get('report_revenue', [DepotManagerController::class, 'report_revenue']);
     Route::get('filter_revenue_food', [DepotManagerController::class, 'filter_revenue_food'])->middleware(middlewareLogin::class);
@@ -304,12 +304,12 @@ Route::group(['middleware' => 'api'], function () {
 });
 //Tài liệu hướng dẫn
 Route::group(['middleware' => 'api'], function () {
-     Route::get('/instructional_document', [DocumentInstructionalController::class, 'instructional_document'])->middleware(middlewareLogin::class);
-     Route::post('/save_instructional_document', [DocumentInstructionalController::class, 'save_instructional_document']);
-     Route::get('/detail_instructional_document/{id}', [DocumentInstructionalController::class, 'detail_instructional_document']);
-     Route::get('/delete_instructional_document/{id}', [DocumentInstructionalController::class, 'delete_instructional_document']);
-     Route::post('/update_instructional_document/{id}', [DocumentInstructionalController::class, 'update_instructional_document']);
-     Route::post('/update_instructional_document_name/{id}', [DocumentInstructionalController::class, 'update_instructional_document_name']);
+    Route::get('/instructional_document', [DocumentInstructionalController::class, 'instructional_document'])->middleware(middlewareLogin::class);
+    Route::post('/save_instructional_document', [DocumentInstructionalController::class, 'save_instructional_document']);
+    Route::get('/detail_instructional_document/{id}', [DocumentInstructionalController::class, 'detail_instructional_document']);
+    Route::get('/delete_instructional_document/{id}', [DocumentInstructionalController::class, 'delete_instructional_document']);
+    Route::post('/update_instructional_document/{id}', [DocumentInstructionalController::class, 'update_instructional_document']);
+    Route::post('/update_instructional_document_name/{id}', [DocumentInstructionalController::class, 'update_instructional_document_name']);
 });
 //groups
 Route::prefix('groups')->group(function () {
@@ -374,6 +374,7 @@ Route::prefix('notifications')->group(function () {
     Route::get('get-notification-by-id/{notification_id}', [NotificationController::class, 'getNotificationById'])->middleware(middlewareLogin::class);
     Route::get('get-notification-by-user-id', [NotificationController::class, 'getNotificationByUserId'])->middleware(middlewareLogin::class);
     Route::get('get-notification-warning-by-user-id', [NotificationController::class, 'getNotificationWarningByUserId'])->middleware(middlewareLogin::class);
+    Route::get('get-notification-aaifood-by-user-id', [NotificationController::class, 'getNotificationAaiFoodByUserId'])->middleware(middlewareLogin::class);
     Route::get('get-notification-by-user-id-paginate', [NotificationController::class, 'getNotificationByUserIdPaginate'])->middleware(middlewareLogin::class);
     Route::put('update-status/{notification_id}', [NotificationController::class, 'updateStatus'])->middleware(middlewareLogin::class);
 });
