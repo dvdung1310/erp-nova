@@ -32,8 +32,8 @@ const order_detail = () => {
         { title: 'Số lượng', dataIndex: 'product_quantity', key: 'product_quantity' },
         {
           title: 'Giá bán',
-          dataIndex: 'product_output_price',
-          key: 'product_output_price',
+          dataIndex: 'product_price_output',
+          key: 'product_price_output',
           render: (text) => {
             // Kiểm tra và định dạng số với dấu phân cách hàng nghìn là dấu phẩy và phần thập phân có dấu chấm
             return text ? parseFloat(text).toLocaleString('en-US', { style: 'decimal', minimumFractionDigits: 3, maximumFractionDigits: 3 }) : '';

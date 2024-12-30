@@ -57,13 +57,22 @@ const create_order = () => {
       const updatedFields = prevFields.filter((field) => field.key !== key);
 
       // Lấy lại `product_id` của sản phẩm đã xóa
-      const productIdToRemove = formAgency.getFieldValue(`product_id_${key}`);
+      const productIdToRemove = formRetail.getFieldValue(`product_id_${key}`);
 
       // Thêm sản phẩm đã xóa vào danh sách sản phẩm có thể chọn lại
       setSelectedProducts((prevSelected) => [
         ...prevSelected.filter((productId) => productId !== productIdToRemove), // Loại bỏ sản phẩm đã xóa
         productIdToRemove, // Thêm sản phẩm đã xóa vào danh sách để có thể chọn lại
       ]);
+
+      // Xóa giá trị của sản phẩm bị xóa khỏi form
+      formRetail.setFieldsValue({
+        [`product_id_${key}`]: undefined,
+        [`quantity_${key}`]: undefined,
+      });
+
+      // Tính toán lại tổng tiền
+      setTimeout(() => calculateTotal(), 0);
 
       return updatedFields;
     });
@@ -73,27 +82,37 @@ const create_order = () => {
     const values = formRetail.getFieldsValue();
     let total = 0;
     let total_bill = 0;
-
+  
     productFields.forEach((field) => {
       const productId = values[`product_id_${field.key}`];
       const quantity = values[`quantity_${field.key}`];
       const product = allProduct.find((p) => p.product_id === productId);
-
+  
       if (product && quantity) {
         total_bill += product.product_output_price * quantity;
       }
     });
+  
     const agencyId = values.agency_id;
     const agency = allAgency.find((p) => p.agency_id === agencyId);
-    total = total_bill * (1 - agency.agency_discount / 100);
+  
+    if (agency) {
+      total = total_bill * (1 - agency.agency_discount / 100);
+      formRetail.setFieldsValue({
+        agency_discount: agency.agency_discount, // Lấy discount của đại lý
+      });
+    } else {
+      total = total_bill; // Nếu chưa chọn đại lý, tổng tiền không áp dụng chiết khấu
+      formRetail.setFieldsValue({
+        agency_discount: 0, // Set agency_discount bằng 0 nếu chưa chọn đại lý
+      });
+    }
+  
     // Format tổng tiền
     const formattedTotal = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total);
-
+  
     // Cập nhật giá trị vào form
     formRetail.setFieldsValue({ order_total: formattedTotal });
-    formRetail.setFieldsValue({
-      agency_discount: `${agency.agency_discount}%` // Thêm ký hiệu % vào giá trị
-  });
   };
 
   // Khi giá trị trong form thay đổi, tính toán lại tổng
@@ -104,13 +123,24 @@ const create_order = () => {
   const handleSubmitOrderRetail = async (values) => {
     try {
       // Tùy chỉnh dữ liệu trước khi gửi
+      const products = productFields.map((field) => {
+        const productId = values[`product_id_${field.key}`];
+        const quantity = values[`quantity_${field.key}`];
+        const product = allProduct.find((p) => p.product_id === productId); // Tìm sản phẩm theo ID
+
+        return {
+          product_id: productId,
+          quantity,
+          product_price_input: product ? product.product_input_price : 0, 
+          product_price_output: product ? product.product_output_price : 0, 
+        };
+      });
+
+      // Tạo payload gửi tới API
       const payload = {
         ...values,
-        order_date: values.order_date?.format('YYYY-MM-DD'), // Định dạng lại ngày nếu cần
-        products: productFields.map((field) => ({
-          product_id: values[`product_id_${field.key}`],
-          quantity: values[`quantity_${field.key}`],
-        })),
+        order_date: values.order_date?.format('YYYY-MM-DD'), // Định dạng lại ngày
+        products, // Danh sách sản phẩm với giá
       };
 
       console.log('Payload:', payload); // Kiểm tra dữ liệu trước khi gửi
@@ -137,6 +167,7 @@ const create_order = () => {
   };
 
   return (
+    
     <div style={{ padding: '20px', background: '#fff' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h3>Phiếu bán hàng đại lý</h3>

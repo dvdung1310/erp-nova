@@ -257,7 +257,6 @@ const suppliers = () => {
               <Form.Item
                 label="Giá bán"
                 name="product_output_price"
-                rules={[{ required: true, message: 'Vui lòng nhập giá bán!' }]}
               >
                 <NumericFormat
                   customInput={Input}
@@ -286,7 +285,6 @@ const suppliers = () => {
               <Form.Item
                 label="Nhà cung cấp"
                 name="suppliers_id"
-                rules={[{ required: true, message: 'Vui lòng chọn nhà cung cấp!' }]}
               >
                 <Select
                   placeholder="Chọn nhà cung cấp"
@@ -309,7 +307,6 @@ const suppliers = () => {
               <Form.Item
                 label="Ngày sản xuất"
                 name="product_date_manufacture"
-                rules={[{ required: true, message: 'Vui lòng chọn ngày sản xuất!' }]}
               >
                 <DatePicker
                   format="DD/MM/YYYY"
@@ -323,7 +320,6 @@ const suppliers = () => {
               <Form.Item
                 label="Hạn sử dụng sản phẩm"
                 name="product_shelf_life"
-                rules={[{ required: true, message: 'Vui lòng chọn hạn sử dụng!' }]}
               >
                 <DatePicker
                   format="DD/MM/YYYY"
@@ -337,7 +333,7 @@ const suppliers = () => {
               <Form.Item
                 label="Ngày nhập kho"
                 name="product_input_date"
-                rules={[{ required: true, message: 'Vui lòng chọn ngày nhập kho!' }]}
+ 
               >
                 <DatePicker
                   format="DD/MM/YYYY"

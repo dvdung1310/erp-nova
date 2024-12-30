@@ -40,6 +40,7 @@ use App\Http\Controllers\Api\Nvu\SourceController;
 use App\Http\Controllers\Api\Nvu\RoomController;
 use App\Http\Controllers\Api\Nvu\CustomerController;
 use App\Http\Controllers\Api\Customer\CustomerController as CustomerMainController;
+use App\Http\Controllers\Api\Doc\DocumentInstructionalController;
 use App\Http\Controllers\Api\Nvu\BookingController;
 use App\Http\Controllers\Api\Nvu\PaymentController;
 
@@ -210,7 +211,7 @@ Route::group(['middleware' => 'api'], function () {
     Route::post('store_agency', [DepotManagerController::class, 'store_agency']);
     Route::post('update_agency/{id}', [DepotManagerController::class, 'update_agency']);
     //hóa đơn xuất kho
-    Route::get('all_order', [DepotManagerController::class, 'all_order']);
+    Route::get('all_order', [DepotManagerController::class, 'all_order'])->middleware(middlewareLogin::class);
     //Phiếu xuất kho
     Route::get('create_bill', [DepotManagerController::class, 'create_bill']);
     Route::get('order_detail/{order_id}', [DepotManagerController::class, 'order_detail']);
@@ -222,12 +223,17 @@ Route::group(['middleware' => 'api'], function () {
     Route::post('store_payment_slip', [DepotManagerController::class, 'store_payment_slip']);
     Route::post('update_payment_slip/{cost_id}', [DepotManagerController::class, 'update_payment_slip']);
     Route::get('delete_payment_slip/{cost_id}', [DepotManagerController::class, 'delete_payment_slip']);
+    Route::get('confirm_payment/{order_id}', [DepotManagerController::class, 'confirm_payment']);//trạng thái 1->2
+    Route::get('confirm_payment_change/{order_id}', [DepotManagerController::class, 'confirm_payment_change']);//Trạng thái 2->1 || 0->1
+    
     //Doanh thu
-    Route::get('revenue', [DepotManagerController::class, 'revenue']);
+    Route::get('report_revenue', [DepotManagerController::class, 'report_revenue']);
+    Route::get('filter_revenue_food', [DepotManagerController::class, 'filter_revenue_food']);
     //Kiểm tra quyền
     Route::get('check_role_food', [DepotManagerController::class, 'check_role_food'])->middleware(middlewareLogin::class);
     Route::get('revenue', [DepotManagerController::class, 'revenue']);
-
+    //Thanh toán
+    Route::get('result_payment_success/{orderCode}', [DepotManagerController::class, 'result_payment_success']);
 });
 // Novaup
 Route::group(['middleware' => 'api', 'prefix' => 'customer'], function () {
@@ -295,6 +301,15 @@ Route::group(['middleware' => 'api'], function () {
     Route::get('/document-trash', [DocumentController::class, 'document_trash'])->middleware(middlewareLogin::class);
     Route::get('/re-store/{id}', [DocumentController::class, 're_store'])->middleware(middlewareLogin::class);
     Route::get('/remove-file/{id}', [DocumentController::class, 'remove_file'])->middleware(middlewareLogin::class);
+});
+//Tài liệu hướng dẫn
+Route::group(['middleware' => 'api'], function () {
+     Route::get('/instructional_document', [DocumentInstructionalController::class, 'instructional_document'])->middleware(middlewareLogin::class);
+     Route::post('/save_instructional_document', [DocumentInstructionalController::class, 'save_instructional_document']);
+     Route::get('/detail_instructional_document/{id}', [DocumentInstructionalController::class, 'detail_instructional_document']);
+     Route::get('/delete_instructional_document/{id}', [DocumentInstructionalController::class, 'delete_instructional_document']);
+     Route::post('/update_instructional_document/{id}', [DocumentInstructionalController::class, 'update_instructional_document']);
+     Route::post('/update_instructional_document_name/{id}', [DocumentInstructionalController::class, 'update_instructional_document_name']);
 });
 //groups
 Route::prefix('groups')->group(function () {

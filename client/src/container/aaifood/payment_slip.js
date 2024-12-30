@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Table, Spin, Button, Popconfirm, message, Modal, Form, Input, InputNumber, DatePicker } from 'antd';
 import { allPaymentSlip, deleteCost, storePaymentSlip, updateCost } from '../../apis/aaifood/index';
 import moment from 'moment';
-
+import { NumericFormat } from 'react-number-format';
 const Turnover = () => {
   const [dataSource, setDataSource] = useState([]);
   const [totalPaymentSlip, setTotalPaymentSlip] = useState(null);
@@ -101,7 +101,12 @@ const Turnover = () => {
       render: (_, __, index) => index + 1,
     },
     { title: 'Tên chi phí', dataIndex: 'cost_name', key: 'cost_name' },
-    { title: 'Số tiền', dataIndex: 'cost_total', key: 'cost_total', render: (text) => `${text.toLocaleString()}` },
+    { title: 'Số tiền', dataIndex: 'cost_total', key: 'cost_total', 
+      render: (text) => {
+        // Kiểm tra và định dạng số với dấu phân cách hàng nghìn là dấu phẩy và phần thập phân có dấu chấm
+        return text ? parseFloat(text).toLocaleString('en-US', { style: 'decimal', minimumFractionDigits: 3, maximumFractionDigits: 3 }) : '';
+      },
+    },
     { title: 'Ghi chú', dataIndex: 'cost_description', key: 'cost_description' },
     { title: 'Ngày thanh toán', dataIndex: 'cost_date', key: 'cost_date' },
     {
@@ -181,8 +186,19 @@ const Turnover = () => {
           >
             <Input />
           </Form.Item>
-          <Form.Item name="cost_total" label="Số tiền" rules={[{ required: true, message: 'Vui lòng nhập số tiền' }]}>
-            <InputNumber style={{ width: '100%' }} />
+          <Form.Item label="Chi phí" name="cost_total" rules={[{ required: true, message: 'Vui lòng nhập chi phí!' }]}>
+            <NumericFormat
+              customInput={Input}
+              thousandSeparator={true} // Thêm dấu phân cách hàng nghìn
+              decimalSeparator="." // Dấu phân cách phần thập phân
+              decimalScale={3} // Giới hạn số chữ số thập phân (ví dụ: 3 chữ số thập phân)
+              fixedDecimalScale={true} // Cố định số chữ số thập phân
+              allowNegative={false} // Không cho phép số âm
+              placeholder="Nhập giá nhập kho"
+              // onValueChange={(values) => {
+              //   form.setFieldsValue({ product_input_price: values.value });
+              // }}
+            />
           </Form.Item>
           <Form.Item name="cost_description" label="Ghi chú">
             <Input.TextArea rows={3} />

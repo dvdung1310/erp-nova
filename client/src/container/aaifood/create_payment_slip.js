@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Tabs, Form, Input, InputNumber, Button, Row, Col, message, Select, DatePicker, Spin } from 'antd';
 import { createOrder, storePaymentSlip } from '../../apis/aaifood/index';
+import { NumericFormat } from 'react-number-format';
 const { Option } = Select;
 
 const create_payment_slip = () => {
@@ -41,12 +42,12 @@ const create_payment_slip = () => {
           style={{
             color: 'inherit',
             textDecoration: 'none',
-            marginRight: '10px'
+            marginRight: '10px',
           }}
         >
           <Button type="primary">&larr; Quay lại</Button>
         </NavLink>
-        <h3 style={{marginBottom:'0'}}>Phiếu chi</h3>
+        <h3 style={{ marginBottom: '0' }}>Phiếu chi</h3>
       </div>
       <hr />
       <div>
@@ -66,7 +67,7 @@ const create_payment_slip = () => {
                 <Input />
               </Form.Item>
             </Col>
-            <Col className="gutter-row" span={24}>
+            {/* <Col className="gutter-row" span={24}>
               <Form.Item
                 label="Chi phí"
                 name="cost_total"
@@ -74,13 +75,29 @@ const create_payment_slip = () => {
               >
                 <Input type="number" />
               </Form.Item>
-            </Col>
-            <Col className="gutter-row" span={24}>
+            </Col> */}
+            <Col className="gutter-row" span={12}>
               <Form.Item
-                label="Ghi chú"
-                name="cost_description"
+                label="Chi phí"
+                name="cost_total"
                 rules={[{ required: true, message: 'Vui lòng nhập chi phí!' }]}
               >
+                <NumericFormat
+                  customInput={Input}
+                  thousandSeparator={true} // Thêm dấu phân cách hàng nghìn
+                  decimalSeparator="." // Dấu phân cách phần thập phân
+                  decimalScale={3} // Giới hạn số chữ số thập phân (ví dụ: 3 chữ số thập phân)
+                  fixedDecimalScale={true} // Cố định số chữ số thập phân
+                  allowNegative={false} // Không cho phép số âm
+                  placeholder="Nhập giá nhập kho"
+                  // onValueChange={(values) => {
+                  //   form.setFieldsValue({ product_input_price: values.value });
+                  // }}
+                />
+              </Form.Item>
+            </Col>
+            <Col className="gutter-row" span={24}>
+              <Form.Item label="Ghi chú" name="cost_description">
                 <Input.TextArea rows={4} />
               </Form.Item>
             </Col>
