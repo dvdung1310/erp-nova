@@ -36,6 +36,7 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function store_suppliers(Request $request)
     {
         try {
@@ -59,6 +60,7 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function update_suppliers(Request $request, $id)
     {
         try {
@@ -102,11 +104,12 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function store_product(Request $request)
     {
         try {
             $data = new AaiProductModel();
-            $data->product_id  = $request->product_id;
+            $data->product_id = $request->product_id;
             $data->product_name = $request->product_name;
             $data->product_unit = $request->product_unit;
             $product_input_price = $request->product_input_price;
@@ -139,11 +142,12 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function update_product(Request $request, $id)
     {
         try {
             $data = AaiProductModel::findorFail($id);
-            $data->product_id  = $request->product_id;
+            $data->product_id = $request->product_id;
             $data->product_name = $request->product_name;
             $product_input_price = $request->product_input_price;
             $product_output_price = $request->product_output_price;
@@ -173,6 +177,7 @@ class DepotManagerController extends Controller
             ], 422);
         }
     }
+
     public function all_agency()
     {
         try {
@@ -194,6 +199,7 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function store_agency(Request $request)
     {
         try {
@@ -233,6 +239,7 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function update_agency(Request $request, $id)
     {
         try {
@@ -259,6 +266,7 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function all_order()
     {
         try {
@@ -301,6 +309,7 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function create_bill()
     {
         try {
@@ -320,27 +329,28 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function store_order_retail(Request $request)
     {
         try {
             // return $request->all();
             $order_total_bill = $request->order_total;
-            $order_total = (int) filter_var($order_total_bill, FILTER_SANITIZE_NUMBER_INT);
+            $order_total = (int)filter_var($order_total_bill, FILTER_SANITIZE_NUMBER_INT);
             $order = new AaiOrderModel();
             $order->customer_name = $request->customer_name;
             $order->customer_phone = $request->customer_phone;
             $order->customer_address = $request->customer_address;
             $order->order_total = $order_total;
             $order->order_date = $request->order_date;
-            $order->payos_status =  0;
-            $order->sale_id =  Auth::id();
+            $order->payos_status = 0;
+            $order->sale_id = Auth::id();
             $order->save();
             $order_id = $order->order_id;
 
             $products = $request->products;
             foreach ($products as $product) {
                 $order_detail = new AaiOrderDetailModel();
-                $order_detail->order_id =  $order_id;
+                $order_detail->order_id = $order_id;
                 $order_detail->product_id = $product['product_id']; // Dùng cú pháp mảng
                 $order_detail->product_quantity = $product['quantity'];
                 $order_detail->product_price_input = number_format($product['product_price_input'], 3, '.', '');
@@ -391,23 +401,24 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function store_order_agency(Request $request)
     {
         try {
             $order_total_bill = $request->order_total;
-            $order_total = (int) filter_var($order_total_bill, FILTER_SANITIZE_NUMBER_INT);
+            $order_total = (int)filter_var($order_total_bill, FILTER_SANITIZE_NUMBER_INT);
             $order = new AaiOrderModel();
             $order->customer_id = $request->agency_id;
             $order->order_total = $order_total;
             $order->order_date = $request->order_date;
-            $order->sale_id =  Auth::id();
+            $order->sale_id = Auth::id();
             $order->save();
             $order_id = $order->order_id;
 
             $products = $request->products;
             foreach ($products as $product) {
                 $order_detail = new AaiOrderDetailModel();
-                $order_detail->order_id =  $order_id;
+                $order_detail->order_id = $order_id;
                 $order_detail->product_id = $product['product_id']; // Dùng cú pháp mảng
                 $order_detail->product_quantity = $product['quantity'];
                 $order_detail->product_price_input = number_format($product['product_price_input'], 3, '.', '');
@@ -454,12 +465,13 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function store_payment_slip(Request $request)
     {
         try {
             $data = new AaiCostModel();
-            $data->cost_name  = $request->cost_name;
-            $price = str_replace(',', '',  $request->cost_total);
+            $data->cost_name = $request->cost_name;
+            $price = str_replace(',', '', $request->cost_total);
             // Chuyển đổi thành số thực và đảm bảo có 3 chữ số sau dấu thập phân
             $data->cost_total = number_format((float)$price, 3, '.', '');
             $data->cost_date = Carbon::parse($request->cost_date)->format('Y-m-d');
@@ -478,14 +490,15 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function update_payment_slip(Request $request, $cost_id)
     {
         try {
             $data = AaiCostModel::findorFail($cost_id);
             $data['cost_name'] = $request->cost_name;
-            $price = str_replace(',', '',  $request->cost_total);
+            $price = str_replace(',', '', $request->cost_total);
             $data['cost_total'] = number_format((float)$price, 3, '.', '');
-            $data['cost_date'] =  Carbon::parse($request->cost_date)->format('Y-m-d');
+            $data['cost_date'] = Carbon::parse($request->cost_date)->format('Y-m-d');
             $data['cost_description'] = $request->cost_description;
             $data->save();
             return response()->json([
@@ -500,6 +513,7 @@ class DepotManagerController extends Controller
             ], 422);
         }
     }
+
     public function report_revenue()
     {
         try {
@@ -511,8 +525,8 @@ class DepotManagerController extends Controller
 
             // Lợi nhuận ngày hôm nay
             $revenue_today = AaiOrderModel::where('payos_status', 2) // Lọc theo trạng thái thanh toán
-                ->whereDate('order_date', '=', $today) // Lọc theo ngày hôm nay
-                ->sum('order_total');
+            ->whereDate('order_date', '=', $today) // Lọc theo ngày hôm nay
+            ->sum('order_total');
 
             $revenue_week = AaiOrderModel::where('payos_status', 2)
                 ->whereBetween('order_date', [$start_of_week, $end_of_week])
@@ -641,6 +655,7 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function delete_order($order_id)
     {
         // Lấy thông tin chi tiết đơn hàng trước khi xóa
@@ -723,6 +738,7 @@ class DepotManagerController extends Controller
             ], 500);
         }
     }
+
     public function confirm_payment($order_id)
     {
         try {
@@ -741,6 +757,7 @@ class DepotManagerController extends Controller
             ], 422);
         }
     }
+
     public function confirm_payment_change($order_id)
     {
         try {
@@ -759,6 +776,7 @@ class DepotManagerController extends Controller
             ], 422);
         }
     }
+
     public function filter_revenue_food(Request $request)
     {
         try {
@@ -810,9 +828,9 @@ class DepotManagerController extends Controller
             }
 
             // Lấy dữ liệu
-            $all_order_retail =  $query_retail->get();
-            $all_order_agency =  $query_agency->get();
-            $all_payment_slip =  $query_payment_slip->get();
+            $all_order_retail = $query_retail->get();
+            $all_order_agency = $query_agency->get();
+            $all_payment_slip = $query_payment_slip->get();
 
             // Tính tổng tiền từ các đơn hàng bán lẻ và đại lý
             $total_retail = $all_order_retail->sum('order_total'); // Tổng tiền từ đơn hàng bán lẻ
