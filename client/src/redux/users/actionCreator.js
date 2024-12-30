@@ -1,6 +1,6 @@
 import actions from './actions';
 
-const {socketConnectSuccess, roleId} = actions;
+const {socketConnectSuccess, roleId, login} = actions;
 
 const socketConnect = (data) => {
     return async (dispatch) => {
@@ -20,6 +20,15 @@ const setRoleId = (data) => {
         }
     };
 }
+const setUserLogin = (data) => {
+    return async (dispatch) => {
+        try {
+            dispatch(login(data));
+        } catch (err) {
+            console.log(err);
+        }
+    };
+}
 const socketDisconnect = () => {
     return async (dispatch) => {
         try {
@@ -30,4 +39,4 @@ const socketDisconnect = () => {
     };
 };
 
-export {socketConnect, socketDisconnect, setRoleId};
+export {socketConnect, socketDisconnect, setRoleId, setUserLogin};

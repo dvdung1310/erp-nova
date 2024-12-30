@@ -3,6 +3,7 @@ import Styled from 'styled-components';
 const CreatePost = Styled.div`
     position: relative;
     z-index: 21;
+    
     .ant-card-body{
         padding: 0 !important;
         .RichTextEditor__root___2QXK- .EditorToolbar__root___3_Aqz {
@@ -105,7 +106,7 @@ const AllPosts = Styled.div`
                 margin-bottom: 10px;
                 border-radius: 8px;
             }
-        }
+    }
         .post-text{
             border-bottom: 1px solid #F1F2F6;
             padding: 0 25px 20px 25px;
@@ -117,11 +118,38 @@ const AllPosts = Styled.div`
                     margin-bottom: 0;
                 }
             }
+            .user-tag {
+                color: #1877f2;
+                text-decoration: none;
+                font-weight: bold;
+                margin-right: 5px;
+            }
+            
+            .user-tag:hover {
+                text-decoration: underline;
+            }
         } 
         .post-actions{
             padding: 0 25px 20px 25px;
             margin-bottom: 20px;
             border-bottom: 1px solid #F1F2F6;
+            .popover-content {
+              display: flex;
+              flex-direction: column;
+              gap: 10px;
+            }
+            
+            .reaction {
+              display: flex;
+              align-items: center;
+              gap: 5px;
+              font-size: 16px;
+              cursor: pointer;
+            }
+            
+            .reaction:hover {
+              color: #007bff;
+            }
             span{
                 display: inline-flex;
                 align-items: center;
@@ -138,6 +166,33 @@ const AllPosts = Styled.div`
                     margin-${({theme}) => (!theme.rtl ? 'right' : 'left')}: 6px;
                 }
             }
+        }
+            .image-container {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin: 5px;
+        }
+        
+        .image-preview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display:flex;
+            object-position: center;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            padding: 4px;
+            background-color: #fafafa;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .icon-overlay {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            cursor: pointer;
         }
         .commentArea{
             display: flex;

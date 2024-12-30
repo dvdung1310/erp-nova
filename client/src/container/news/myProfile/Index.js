@@ -10,6 +10,7 @@ import {Button} from '../../../components/buttons/buttons';
 import {ShareButtonPageHeader} from '../../../components/buttons/share-button/share-button';
 import {ExportButtonPageHeader} from '../../../components/buttons/export-button/export-button';
 import {CalendarButtonPageHeader} from '../../../components/buttons/calendar-button/calendar-button';
+import {useSelector} from "react-redux";
 
 const UserCards = lazy(() => import('../../pages/overview/UserCard'));
 const CoverSection = lazy(() => import('../overview/CoverSection'));
@@ -19,6 +20,8 @@ const Timeline = lazy(() => import('./overview/Timeline'));
 const Activity = lazy(() => import('./overview/Activity'));
 
 function News() {
+    const userLogin = useSelector(state => state?.userLogin);
+    const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
     const {path} = useRouteMatch();
     return (
         <>
@@ -39,9 +42,9 @@ function News() {
                         >
                             <UserCards
                                 user={{
-                                    name: 'Khuất Tiến Đạt',
+                                    name: userLogin?.name,
                                     designation: 'UI/UX Designer',
-                                    img: 'static/img/users/1.png'
+                                    img: LARAVEL_SERVER + userLogin?.avatar,
                                 }}
                             />
                         </Suspense>

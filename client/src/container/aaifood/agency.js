@@ -127,7 +127,7 @@ const suppliers = () => {
       >
         <Form form={form} layout="vertical">
           <Form.Item
-            label="Mã đại lý"
+            label="Mã đại lý (Lưu ý: Mã nhập vào phải viết liền, không dấu)"
             name="agency_id"
             rules={[{ required: true, message: 'Vui lòng nhập mã đại lý!' }]}
           >

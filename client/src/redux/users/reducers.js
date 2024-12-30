@@ -8,7 +8,13 @@ const initialStateSocket = {
 const initialStateRole = {
     role_id: null,
 }
-const initialStateLogin = {}
+const initialStateLogin = {
+    id: '',
+    name: '',
+    email: '',
+    phone: '',
+    avatar: ''
+}
 const userReducer = (state = initialState) => {
     return state;
 };
@@ -47,16 +53,20 @@ const userReducerRole = (state = initialStateRole, action) => {
             return state;
     }
 };
-const userLogin = (state = initialState, action) => {
+const userLogin = (state = initialStateLogin, action) => {
     const {type, data} = action;
     switch (type) {
         case actions.LOGIN:
             return {
                 ...state,
-                data,
+                id: data.id,
+                name: data.name,
+                email: data.email,
+                phone: data.phone,
+                avatar: data.avatar
             };
         default:
             return state;
     }
 }
-export {userReducer, userGroupReducer, userReducerSocket, userReducerRole};
+export {userReducer, userGroupReducer, userReducerSocket, userReducerRole, userLogin};

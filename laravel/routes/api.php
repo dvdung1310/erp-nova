@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Nova\NvEmployeeFileController;
 use App\Http\Controllers\Api\Nova\NvEmployeeDayOffController;
 use App\Http\Controllers\Api\Nova\NvRecruitCandidatesController;
 use App\Http\Controllers\Api\Nova\NvRecruitTargetController;
+use App\Http\Controllers\Api\Social\CommentController;
 use App\Http\Controllers\Api\Social\PostController;
 use App\Http\Controllers\Api\Work\DeviceController;
 use App\Http\Controllers\Api\Work\GroupController;
@@ -374,8 +375,10 @@ Route::prefix('records')->group(function () {
 Route::prefix('socials')->group(function () {
     //posts
     Route::post('posts/create', [PostController::class, 'create'])->middleware(middlewareLogin::class);
-    Route::get('posts/get-by-id/{post_id}', [PostController::class, 'getById'])->middleware(middlewareLogin::class);
-    Route::get('posts/get-all', [PostController::class, 'getAll'])->middleware(middlewareLogin::class);
-
+    Route::post('posts/reactions/create', [PostController::class, 'createOrUpdateReaction'])->middleware(middlewareLogin::class);
+    Route::get('posts/get-all', [PostController::class, 'getAllPosts'])->middleware(middlewareLogin::class);
+    Route::get('posts/get-by-id/{post_id}', [PostController::class, 'getPostsById'])->middleware(middlewareLogin::class);
+    // comments
+    Route::post('comments/create', [CommentController::class, 'create'])->middleware(middlewareLogin::class);
 });
 

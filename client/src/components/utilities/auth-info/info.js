@@ -20,7 +20,7 @@ import {BasicFormWrapper} from "../../../container/styled";
 import {toast} from "react-toastify";
 import {getProfile} from "../../../apis/work/user";
 import {checkRole} from "../../../utility/checkValue";
-import {setRoleId} from "../../../redux/users/actionCreator";
+import {setRoleId, setUserLogin} from "../../../redux/users/actionCreator";
 
 function AuthInfo() {
     const dispatch = useDispatch();
@@ -33,6 +33,7 @@ function AuthInfo() {
         try {
             const res = await getProfile();
             dispatch(setRoleId(res?.data?.role_id))
+            dispatch(setUserLogin(res?.data))
             setProfile(res?.data)
         } catch (error) {
             removeItem('accessToken');

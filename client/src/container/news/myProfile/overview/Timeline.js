@@ -9,12 +9,8 @@ const CreatePost = lazy(() => import('./timeline/CreatePost'));
 const AllPosts = lazy(() => import('./timeline/Posts'));
 
 function Timeline() {
-    const {posts} = useSelector((state) => {
-        return {
-            posts: state.Profile.posts,
-        };
-    });
-    const [listPosts, setListPosts] = useState(posts);
+    const userLogin = useSelector(state => state?.userLogin)
+    const [listPosts, setListPosts] = useState([]);
     const fetchPosts = async () => {
         try {
             const response = await getAllPosts();
@@ -26,15 +22,14 @@ function Timeline() {
     useEffect(() => {
         fetchPosts()
     }, [])
-    console.log(posts)
     return (
         <Row gutter={25}>
             <Col md={16}>
                 <div style={{
-                    height: '1000px',
-                    overflow: 'auto',
-                    msOverflowStyle: 'none',  // Hide scrollbar in IE and Edge
-                    scrollbarWidth: 'none'  // Hide scrollbar in Firefox
+                    // height: '1000px',
+                    // overflow: 'auto',
+                    // msOverflowStyle: 'none',  // Hide scrollbar in IE and Edge
+                    // scrollbarWidth: 'none'  // Hide scrollbar in Firefox
                 }}>
                     <style>
                         {`
@@ -50,7 +45,7 @@ function Timeline() {
                             </Cards>
                         }
                     >
-                        <CreatePost/>
+                        <CreatePost listPosts={listPosts} setListPosts={setListPosts}/>
                     </Suspense>
 
                     {
@@ -65,7 +60,7 @@ function Timeline() {
                                             </Cards>
                                         }
                                     >
-                                        <AllPosts {...post} />
+                                        <AllPosts {...post} userLogin={userLogin}/>
                                     </Suspense>
                                 );
                             })}

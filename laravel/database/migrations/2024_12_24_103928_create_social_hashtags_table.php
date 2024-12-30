@@ -4,17 +4,15 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('social_posts', function (Blueprint $table) {
-            $table->id('post_id');
-            $table->foreignId('user_id')->constrained('users');
-            $table->string('post_content');
-            $table->string('post_title');
+        Schema::create('social_hashtags', function (Blueprint $table) {
+            $table->id();
             $table->timestamps();
         });
     }
@@ -24,6 +22,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('socialPosts');
+        Schema::dropIfExists('social_hashtags');
     }
 };
