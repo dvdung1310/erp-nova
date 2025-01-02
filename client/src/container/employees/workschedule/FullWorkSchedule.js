@@ -12,9 +12,7 @@ const FullWorkSchedule = () => {
     const [weeks, setWeeks] = useState([]);
     const [loading, setLoading] = useState(false);
     const history = useHistory();
-    const currentDate = new Date(new Date().setDate(new Date().getDate() + 7))
-  .toISOString()
-  .split("T")[0];
+    const currentDate = new Date().toISOString().split("T")[0];
     const currentWeekRef = useRef(null);
     const toRomanNumeral = (num) => {
         const romanNumerals = [
