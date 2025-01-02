@@ -13,6 +13,7 @@ const FullWorkSchedule = () => {
     const [loading, setLoading] = useState(false);
     const history = useHistory();
     const currentDate = new Date().toISOString().split("T")[0];
+    const currentDayIndex = (getDay(new Date(currentDate)) + 6) % 7;
     const currentWeekRef = useRef(null);
     const toRomanNumeral = (num) => {
         const romanNumerals = [
@@ -114,7 +115,7 @@ const FullWorkSchedule = () => {
                                 <th rowSpan={2} className="px-4 border text-center">STT</th>
                                 <th rowSpan={2} className="px-4 border name-class">Họ Và Tên</th>
                                 {["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "CN"].map((day, idx) => (
-                                    <th key={idx} colSpan={3} className="px-4 border text-center date-class">{day}</th>
+                                    <th key={idx} colSpan={3} className={`px-4 border text-center date-class ${currentDayIndex === idx ? "bg-blue font-bold" : ""}`}>{day}</th>
                                 ))}
                                 <th rowSpan={2} className="px-4 border text-center">Tổng</th>
                             </tr>
