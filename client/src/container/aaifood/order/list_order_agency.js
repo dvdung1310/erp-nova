@@ -1,7 +1,14 @@
 import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { NavLink, useRouteMatch } from 'react-router-dom';
 import { Tabs, Table, Spin, Button, Popconfirm, message, Drawer, Form, DatePicker } from 'antd';
-import { allOrder, deleteOrder,confirmPayment,confirmPaymentChange ,checkRoleUser} from '../../../apis/aaifood/index';
+import {
+  allOrder,
+  deleteOrder,
+  confirmPayment,
+  confirmPaymentChange,
+  checkRoleUser,
+  orderDeliveryStatus
+} from '../../../apis/aaifood/index';
 import moment from 'moment';
 const list_order_agency = () => {
   const { path } = useRouteMatch();
@@ -32,7 +39,7 @@ const list_order_agency = () => {
     try {
       setLoading(true);
       const response = await checkRoleUser();
-      
+
       setRoleUser(response.data.data);
       setLoading(false);
     } catch (error) {
@@ -118,10 +125,13 @@ const list_order_agency = () => {
     setFilteredDataAgency(filtered);
     setOpenSideBarAgency(false);
   };
-  const handleConfirmPayment =async(record) => {
+  const handleConfirmPayment = async (record) => {
     try {
       setLoading(true);
       const response = await confirmPayment(record.order_id);
+      console.log('====================================');
+      console.log(response);
+      console.log('====================================');
       if (response.success) {
         message.success('Cập nhật trạng thái thành công');
         setLoading(false);
@@ -134,7 +144,7 @@ const list_order_agency = () => {
       setLoading(false);
     }
   };
-  const handleConfirmChage =async(record) => {
+  const handleConfirmChage = async (record) => {
     try {
       setLoading(true);
       const response = await confirmPaymentChange(record.order_id);
@@ -150,8 +160,30 @@ const list_order_agency = () => {
       setLoading(false);
     }
   };
-
-
+  const handleShippingStatusChange = async (record, newStatus) => {
+    try {
+      if (newStatus === null) {
+        message.info('Đơn hàng đã ở trạng thái cuối cùng.');
+        return;
+      }
+  
+      // Gửi yêu cầu cập nhật trạng thái vận chuyển
+      const response = await orderDeliveryStatus(record.order_id, newStatus);  // Truyền đúng tham số
+  
+      if (response.success) {  // Kiểm tra kết quả trả về
+        message.success('Cập nhật trạng thái vận chuyển thành công!');
+        // Cập nhật lại dữ liệu bảng nếu cần thiết
+        fetchDocument();
+      } else {
+        message.error('Cập nhật trạng thái vận chuyển thất bại!');
+      }
+    } catch (error) {
+      console.error(error);
+      message.error('Có lỗi xảy ra khi cập nhật trạng thái vận chuyển!');
+    }
+  };
+  const canEdit =
+  roleUser && (roleUser.department_id === 1 || roleUser.department_id === 8 || roleUser.role_id === 1);
   const columns_orderRetail = [
     {
       title: 'ID',
@@ -219,22 +251,19 @@ const list_order_agency = () => {
       key: 'action',
       render: (_, record) => {
         // Kiểm tra quyền của người dùng
-        const canEdit = roleUser && (roleUser.department_id === 1 || roleUser.department_id === 8 || roleUser.role_id === 1);
-    
+       
+
         // Hiển thị các trạng thái
         if (record.payos_status === 1) {
           return (
             <Popconfirm
               title="Bạn có chắc chắn muốn thay đổi trạng thái?"
-              onConfirm={() => handleConfirmPayment(record)}  // Gọi hàm xử lý thay đổi trạng thái
+              onConfirm={() => handleConfirmPayment(record)} // Gọi hàm xử lý thay đổi trạng thái
               okText="Đồng ý"
               cancelText="Hủy"
-              disabled={!canEdit} 
+              disabled={!canEdit}
             >
-              <Button
-                style={{ background: '#22AAEF', color: '#FFF' }}
-                
-              >
+              <Button disabled={!canEdit} style={{ background: '#22AAEF', color: '#FFF' }}>
                 Đã thanh toán
               </Button>
             </Popconfirm>
@@ -243,14 +272,15 @@ const list_order_agency = () => {
           return (
             <Popconfirm
               title="Bạn có chắc chắn muốn xác nhận?"
-              onConfirm={() => handleConfirmChage(record)}  // Gọi hàm xử lý thay đổi trạng thái
+              onConfirm={() => handleConfirmChage(record)} // Gọi hàm xử lý thay đổi trạng thái
               okText="Đồng ý"
               cancelText="Hủy"
-              disabled={!canEdit} 
+              disabled={!canEdit}
             >
               <Button
+                disabled={!canEdit}
                 style={{ background: 'green', color: '#FFF' }}
-                 // Disable nút nếu không có quyền
+                // Disable nút nếu không có quyền
               >
                 Đã xác nhận
               </Button>
@@ -260,14 +290,12 @@ const list_order_agency = () => {
           return (
             <Popconfirm
               title="Bạn có chắc chắn muốn thay đổi trạng thái?"
-              onConfirm={() => handleConfirmChage(record)}  // Gọi hàm xử lý thay đổi trạng thái
+              onConfirm={() => handleConfirmPayment(record)} // Gọi hàm xử lý thay đổi trạng thái
               okText="Đồng ý"
               cancelText="Hủy"
+              disabled={!canEdit}
             >
-              <Button
-                type="danger"
-               
-              >
+              <Button type="danger" disabled={!canEdit}>
                 Chưa thanh toán
               </Button>
             </Popconfirm>
@@ -275,7 +303,39 @@ const list_order_agency = () => {
         }
         return null;
       },
-    }
+     
+    },
+    {
+      title: 'Trạng thái vận chuyển',
+      key: 'shipping_status',
+      render: (_, record) => {
+        const getButton = (status, label, color, nextStatus) => (
+          <Popconfirm
+            title={`Bạn có chắc chắn muốn chuyển sang trạng thái "${label}"?`}
+            onConfirm={() => handleShippingStatusChange(record, nextStatus)}
+            okText="Đồng ý"
+            cancelText="Hủy"
+            disabled={!canEdit}
+          >
+            <Button style={{ background: color, color: '#FFF' }} disabled={!canEdit}>
+              {label}
+            </Button>
+          </Popconfirm>
+        );
+  
+        // Xử lý trạng thái hiện tại và nút tiếp theo
+        switch (record.delivery_status) {
+          case 0: // Xuất hàng
+            return getButton(0, 'Xuất hàng', '#FF9900', 1); // Chuyển sang Giao ĐVVC
+          case 1: // Giao ĐVVC
+            return getButton(1, 'Giao ĐVVC', '#22AAEF', 2); // Chuyển sang Giao hàng thành công
+          case 2: // Giao hàng thành công
+            return getButton(2, 'Giao thành công', 'green', null); // Không có trạng thái tiếp theo
+          default:
+            return <span>Không xác định</span>;
+        }
+      },
+    },
 
     // {
     //   title: 'Hành động',
@@ -363,21 +423,22 @@ const list_order_agency = () => {
       key: 'action',
       render: (_, record) => {
         // Kiểm tra quyền của người dùng
-        const canEdit = roleUser && (roleUser.department_id === 1 || roleUser.department_id === 8 || roleUser.role_id === 1);
-    
+        const canEdit =
+          roleUser && (roleUser.department_id === 1 || roleUser.department_id === 8 || roleUser.role_id === 1);
+
         // Hiển thị các trạng thái
         if (record.payos_status === 1) {
           return (
             <Popconfirm
               title="Bạn có chắc chắn muốn thay đổi trạng thái?"
-              onConfirm={() => handleConfirmPayment(record)}  // Gọi hàm xử lý thay đổi trạng thái
+              onConfirm={() => handleConfirmPayment(record)} // Gọi hàm xử lý thay đổi trạng thái
               okText="Đồng ý"
               cancelText="Hủy"
-              disabled={!canEdit} 
+              disabled={!canEdit} // Không cho phép mở Popconfirm nếu không có quyền
             >
               <Button
                 style={{ background: '#22AAEF', color: '#FFF' }}
-                
+                disabled={!canEdit} // Không cho phép click nút nếu không có quyền
               >
                 Đã thanh toán
               </Button>
@@ -387,14 +448,14 @@ const list_order_agency = () => {
           return (
             <Popconfirm
               title="Bạn có chắc chắn muốn xác nhận?"
-              onConfirm={() => handleConfirmChage(record)}  // Gọi hàm xử lý thay đổi trạng thái
+              onConfirm={() => handleConfirmChage(record)} // Gọi hàm xử lý thay đổi trạng thái
               okText="Đồng ý"
               cancelText="Hủy"
-              disabled={!canEdit} 
+              disabled={!canEdit} // Không cho phép mở Popconfirm nếu không có quyền
             >
               <Button
                 style={{ background: 'green', color: '#FFF' }}
-                 // Disable nút nếu không có quyền
+                disabled={!canEdit} // Không cho phép click nút nếu không có quyền
               >
                 Đã xác nhận
               </Button>
@@ -404,13 +465,14 @@ const list_order_agency = () => {
           return (
             <Popconfirm
               title="Bạn có chắc chắn muốn thay đổi trạng thái?"
-              onConfirm={() => handleConfirmChage(record)}  // Gọi hàm xử lý thay đổi trạng thái
+              onConfirm={() => handleConfirmPayment(record)} // Gọi hàm xử lý thay đổi trạng thái
               okText="Đồng ý"
               cancelText="Hủy"
+              disabled={!canEdit} // Không cho phép mở Popconfirm nếu không có quyền
             >
               <Button
-                type="danger"
-               
+                danger
+                disabled={!canEdit} // Không cho phép click nút nếu không có quyền
               >
                 Chưa thanh toán
               </Button>
@@ -419,7 +481,7 @@ const list_order_agency = () => {
         }
         return null;
       },
-    }
+    },
   ];
 
   return (

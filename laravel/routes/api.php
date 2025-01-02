@@ -237,6 +237,8 @@ Route::group(['middleware' => 'api'], function () {
     Route::get('revenue', [DepotManagerController::class, 'revenue']);
     //Thanh toán
     Route::get('result_payment_success/{orderCode}', [DepotManagerController::class, 'result_payment_success']);
+    //Trạng thái vận chuyển
+    Route::post('order_delivery_status', [DepotManagerController::class, 'order_delivery_status']);
 });
 // Novaup
 Route::group(['middleware' => 'api', 'prefix' => 'customer'], function () {

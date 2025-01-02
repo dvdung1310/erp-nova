@@ -312,3 +312,21 @@ export const reportProfit = async () => {
   });
   return response.data;
 };
+export const orderDeliveryStatus = async (order_id, newStatus) => {
+  try {
+    // Gửi yêu cầu POST với order_id và trạng thái mới
+    const response = await axios.post(`${LARAVEL_SERVER}/api/order_delivery_status`, {
+      order_id: order_id,
+      shipping_status: newStatus,  // Gửi trạng thái mới
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,  // Đảm bảo token hợp lệ
+      },
+    });
+    return response.data;  // Trả về dữ liệu từ API
+  } catch (error) {
+    console.error(error);
+    throw error;  // Ném lỗi nếu có
+  }
+};

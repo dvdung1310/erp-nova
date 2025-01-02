@@ -20,6 +20,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use PayOS\PayOS;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class DepotManagerController extends Controller
 {
@@ -349,12 +350,17 @@ class DepotManagerController extends Controller
             // return $request->all();
             $order_total_bill = $request->order_total;
             $order_total = (int)filter_var($order_total_bill, FILTER_SANITIZE_NUMBER_INT);
+            $order_id = Str::uuid()->toString();
+            do {
+                $order_id = random_int(1, 999999999); // Tạo số ngẫu nhiên trong phạm vi int(11)
+            } while (AaiOrderModel::where('order_id', $order_id)->exists());
             $order = new AaiOrderModel();
+            $order->order_id = $order_id;
             $order->customer_name = $request->customer_name;
             $order->customer_phone = $request->customer_phone;
             $order->customer_address = $request->customer_address;
             $order->order_total = $order_total;
-            $order->order_date = $request->order_date;
+            $order->order_date = today();
             $order->payos_status = 0;
             $order->sale_id = Auth::id();
             $order->save();
@@ -397,11 +403,11 @@ class DepotManagerController extends Controller
                 'success' => true,
                 'message' => 'Tạo phiếu bán hàng thành công',
             ], 201);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Tạo phiếu bán hàng thất bại',
+                $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 500);
         }
@@ -522,30 +528,57 @@ class DepotManagerController extends Controller
     public function report_revenue()
     {
         try {
-            // Lấy ngày hôm nay và các mốc thời gian cần thiết
-            $today = Carbon::now('Asia/Ho_Chi_Minh')->toDateString(); // Lấy ngày hôm nay theo múi giờ Việt Nam
-            $start_of_week = Carbon::now('Asia/Ho_Chi_Minh')->startOfWeek()->toDateString(); // Đầu tuần theo múi giờ Việt Nam
-            $end_of_week = Carbon::now('Asia/Ho_Chi_Minh')->endOfWeek()->toDateString(); // Cuối tuần theo múi giờ Việt Nam
-            $startOfMonth = Carbon::now('Asia/Ho_Chi_Minh')->startOfMonth()->toDateString(); // Đầu tháng theo múi giờ Việt Nam
-            $endOfMonth = Carbon::now('Asia/Ho_Chi_Minh')->endOfMonth()->toDateString(); // Cuối tháng theo múi giờ Việt Nam
-            // Lợi nhuận ngày hôm nay
-            $revenue_today = AaiOrderModel::where('payos_status', 2)
-                ->whereDate('order_date', '=', $today) // So sánh chỉ ngày
-                ->sum('order_total');
 
-            // Lợi nhuận trong tuần
-            $revenue_week = AaiOrderModel::where('payos_status', 2)
-                ->whereBetween('order_date', [$start_of_week, $end_of_week]) // So sánh ngày trong tuần
-                ->sum('order_total');
+            $today = Carbon::now('Asia/Ho_Chi_Minh')->toDateString();
+            $start_of_week = Carbon::now('Asia/Ho_Chi_Minh')->startOfWeek()->toDateString();
+            $end_of_week = Carbon::now('Asia/Ho_Chi_Minh')->endOfWeek()->toDateString();
+            $startOfMonth = Carbon::now('Asia/Ho_Chi_Minh')->startOfMonth()->toDateString();
+            $endOfMonth = Carbon::now('Asia/Ho_Chi_Minh')->endOfMonth()->toDateString();
 
-            // Lợi nhuận trong tháng
-            $revenue_month = AaiOrderModel::where('payos_status', 2)
-                ->whereBetween('order_date', [$startOfMonth, $endOfMonth]) // So sánh ngày trong tháng
-                ->sum('order_total');
+            $user_id =  Auth::id();
+            $user = CrmEmployeeModel::join('users', 'crm_employee.account_id', '=', 'users.id')
+                ->select('crm_employee.department_id', 'users.role_id')
+                ->where('users.id', $user_id)->first();
+            if ($user->department_id === 1 || $user->department_id === 8 || $user->role_id === 1) {
+                // Lợi nhuận ngày hôm nay
+                $revenue_today = AaiOrderModel::where('payos_status', 2)
+                    ->whereDate('order_date', '=', $today) // So sánh chỉ ngày
+                    ->sum('order_total');
+                // Lợi nhuận trong tuần
+                $revenue_week = AaiOrderModel::where('payos_status', 2)
+                    ->whereBetween('order_date', [$start_of_week, $end_of_week]) // So sánh ngày trong tuần
+                    ->sum('order_total');
 
-            // Lợi nhuận toàn thời gian
-            $revenue_all_time = AaiOrderModel::where('payos_status', 2)
-                ->sum('order_total');
+                // Lợi nhuận trong tháng
+                $revenue_month = AaiOrderModel::where('payos_status', 2)
+                    ->whereBetween('order_date', [$startOfMonth, $endOfMonth]) // So sánh ngày trong tháng
+                    ->sum('order_total');
+
+                // Lợi nhuận toàn thời gian
+                $revenue_all_time = AaiOrderModel::where('payos_status', 2)
+                    ->sum('order_total');
+            } else {
+                $revenue_today = AaiOrderModel::where('payos_status', 2)
+                    ->where('sale_id', $user_id)
+                    ->whereDate('order_date', '=', $today) // So sánh chỉ ngày
+                    ->sum('order_total');
+                // Lợi nhuận trong tuần
+                $revenue_week = AaiOrderModel::where('payos_status', 2)
+                    ->where('sale_id', $user_id)
+                    ->whereBetween('order_date', [$start_of_week, $end_of_week]) // So sánh ngày trong tuần
+                    ->sum('order_total');
+
+                // Lợi nhuận trong tháng
+                $revenue_month = AaiOrderModel::where('payos_status', 2)
+                    ->where('sale_id', $user_id)
+                    ->whereBetween('order_date', [$startOfMonth, $endOfMonth]) // So sánh ngày trong tháng
+                    ->sum('order_total');
+
+                // Lợi nhuận toàn thời gian
+                $revenue_all_time = AaiOrderModel::where('payos_status', 2)
+                    ->where('sale_id', $user_id)
+                    ->sum('order_total');
+            }
 
             // Lấy danh sách các nhân viên bán hàng
             $list_sales = AaiOrderModel::join('users', 'aai_order.sale_id', '=', 'users.id')
@@ -812,8 +845,9 @@ class DepotManagerController extends Controller
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
+
                 'success' => false,
-                'message' => 'Cập nhật trạng thái thất bại',
+                'message' => $e->getMessage(),
             ], 422);
         }
     }
@@ -840,44 +874,140 @@ class DepotManagerController extends Controller
     public function filter_revenue_food(Request $request)
     {
         try {
+            $start_date = $request->startDate;
+            $end_date = $request->endDate;
+            $sale_id = $request->sale_id;
 
             $user_id = auth()->user()->id;
             $user = CrmEmployeeModel::join('users', 'crm_employee.account_id', '=', 'users.id')
                 ->select('crm_employee.department_id', 'users.role_id')
                 ->where('users.id', $user_id)->first();
-            // Truy vấn đơn hàng bán lẻ
-            $start_date = $request->startDate;
-            $end_date = $request->endDate;
-            $sale_id = $request->sale_id;
-            $query_retail = AaiOrderModel::leftjoin('users', 'aai_order.sale_id', '=', 'users.id')
-                ->select('aai_order.*', 'users.name')
-                ->where('aai_order.payos_status', 2)
-                ->where('customer_id', null)
-                ->orderBy('order_date', 'desc');
+            if ($user->department_id === 1 || $user->department_id === 8 || $user->role_id === 1) {
+                // Truy vấn đơn hàng bán lẻ
+                $query_retail = AaiOrderModel::leftjoin('users', 'aai_order.sale_id', '=', 'users.id')
+                    ->select('aai_order.*', 'users.name')
+                    ->where('aai_order.payos_status', 2)
+                    ->where('customer_id', null)
+                    ->orderBy('order_date', 'desc');
 
-            // Truy vấn đơn hàng đại lý
-            $query_agency = AaiOrderModel::leftjoin('users', 'aai_order.sale_id', '=', 'users.id')
-                ->join('aai_agency', 'aai_order.customer_id', '=', 'aai_agency.agency_id')
-                ->select('aai_order.*', 'users.name', 'aai_agency.agency_name', 'aai_agency.agency_phone', 'aai_agency.agency_address', 'aai_agency.agency_level')
-                ->where('aai_order.payos_status', 2)
-                ->whereNotNull('customer_id')
-                ->orderBy('order_date', 'desc');
-            // Lọc theo ngày bắt đầu và kết thúc
-            if ($start_date && $end_date) {
-                $query_retail->whereBetween(DB::raw('DATE(aai_order.order_date)'), [$start_date, $end_date]);
-                $query_agency->whereBetween(DB::raw('DATE(aai_order.order_date)'), [$start_date, $end_date]);
-                if ($sale_id && $sale_id != '0') {
-                    $query_retail->where(function ($query_retail) use ($sale_id) {
-                        $query_retail->where('aai_order.sale_id', $sale_id);
-                    });
-                    $query_agency->where(function ($query_agency) use ($sale_id) {
-                        $query_agency->where('aai_order.sale_id', $sale_id);
-                    });
+                // Truy vấn đơn hàng đại lý
+                $query_agency = AaiOrderModel::leftjoin('users', 'aai_order.sale_id', '=', 'users.id')
+                    ->join('aai_agency', 'aai_order.customer_id', '=', 'aai_agency.agency_id')
+                    ->select('aai_order.*', 'users.name', 'aai_agency.agency_name', 'aai_agency.agency_phone', 'aai_agency.agency_address', 'aai_agency.agency_level')
+                    ->where('aai_order.payos_status', 2)
+                    ->whereNotNull('customer_id')
+                    ->orderBy('order_date', 'desc');
+
+
+                // Lọc theo ngày bắt đầu và kết thúc
+                if ($start_date && $end_date) {
+                    $query_retail->whereBetween(DB::raw('DATE(aai_order.order_date)'), [$start_date, $end_date]);
+                    $query_agency->whereBetween(DB::raw('DATE(aai_order.order_date)'), [$start_date, $end_date]);
+                    if ($sale_id && $sale_id != '0') {
+                        $query_retail->where(function ($query_retail) use ($sale_id) {
+                            $query_retail->where('aai_order.sale_id', $sale_id);
+                        });
+                        $query_agency->where(function ($query_agency) use ($sale_id) {
+                            $query_agency->where('aai_order.sale_id', $sale_id);
+                        });
+                    }
+                } else {
+                    if ($start_date) {
+                        $query_retail->whereDate('aai_order.order_date', $start_date);
+                        $query_agency->whereDate('aai_order.order_date', $start_date);
+                        if ($sale_id && $sale_id != '0') {
+                            $query_retail->where(function ($query_retail) use ($sale_id) {
+                                $query_retail->where('aai_order.sale_id', $sale_id);
+                            });
+                            $query_agency->where(function ($query_agency) use ($sale_id) {
+                                $query_agency->where('aai_order.sale_id', $sale_id);
+                            });
+                        }
+                    }
+                    if ($end_date) {
+                        $query_retail->whereDate('aai_order.order_date', $end_date);
+                        $query_agency->whereDate('aai_order.order_date', $end_date);
+                        if ($sale_id && $sale_id != '0') {
+                            $query_retail->where(function ($query_retail) use ($sale_id) {
+                                $query_retail->where('aai_order.sale_id', $sale_id);
+                            });
+                            $query_agency->where(function ($query_agency) use ($sale_id) {
+                                $query_agency->where('aai_order.sale_id', $sale_id);
+                            });
+                        }
+                    }
+                    if ($sale_id && $sale_id != '0') {
+                        $query_retail->where(function ($query_retail) use ($sale_id) {
+                            $query_retail->where('aai_order.sale_id', $sale_id);
+                        });
+                        $query_agency->where(function ($query_agency) use ($sale_id) {
+                            $query_agency->where('aai_order.sale_id', $sale_id);
+                        });
+                    }
                 }
+                // Lấy dữ liệu
+                $all_order_retail = $query_retail->get();
+                $all_order_agency = $query_agency->get();
+                // Tính tổng tiền từ các đơn hàng bán lẻ và đại lý
+                $total_retail = $all_order_retail->sum('order_total');
+                $total_agency = $all_order_agency->sum('order_total');
+                // Trả về kết quả
+                $total_revenue = $total_retail + $total_agency;
             } else {
-                if ($start_date) {
-                    $query_retail->whereDate('aai_order.order_date', $start_date);
-                    $query_agency->whereDate('aai_order.order_date', $start_date);
+                $query_retail = AaiOrderModel::leftjoin('users', 'aai_order.sale_id', '=', 'users.id')
+                    ->select('aai_order.*', 'users.name')
+                    ->where('aai_order.payos_status', 2)
+                    ->where('customer_id', null)
+                    ->where('aai_order.sale_id', $user_id)
+                    ->orderBy('order_date', 'desc');
+
+                // Truy vấn đơn hàng đại lý
+                $query_agency = AaiOrderModel::leftjoin('users', 'aai_order.sale_id', '=', 'users.id')
+                    ->join('aai_agency', 'aai_order.customer_id', '=', 'aai_agency.agency_id')
+                    ->select('aai_order.*', 'users.name', 'aai_agency.agency_name', 'aai_agency.agency_phone', 'aai_agency.agency_address', 'aai_agency.agency_level')
+                    ->where('aai_order.payos_status', 2)
+                    ->where('aai_order.sale_id', $user_id)
+                    ->whereNotNull('customer_id')
+                    ->orderBy('order_date', 'desc');
+
+
+                // Lọc theo ngày bắt đầu và kết thúc
+                if ($start_date && $end_date) {
+                    $query_retail->whereBetween(DB::raw('DATE(aai_order.order_date)'), [$start_date, $end_date]);
+                    $query_agency->whereBetween(DB::raw('DATE(aai_order.order_date)'), [$start_date, $end_date]);
+                    if ($sale_id && $sale_id != '0') {
+                        $query_retail->where(function ($query_retail) use ($sale_id) {
+                            $query_retail->where('aai_order.sale_id', $sale_id);
+                        });
+                        $query_agency->where(function ($query_agency) use ($sale_id) {
+                            $query_agency->where('aai_order.sale_id', $sale_id);
+                        });
+                    }
+                } else {
+                    if ($start_date) {
+                        $query_retail->whereDate('aai_order.order_date', $start_date);
+                        $query_agency->whereDate('aai_order.order_date', $start_date);
+                        if ($sale_id && $sale_id != '0') {
+                            $query_retail->where(function ($query_retail) use ($sale_id) {
+                                $query_retail->where('aai_order.sale_id', $sale_id);
+                            });
+                            $query_agency->where(function ($query_agency) use ($sale_id) {
+                                $query_agency->where('aai_order.sale_id', $sale_id);
+                            });
+                        }
+                    }
+                    if ($end_date) {
+                        $query_retail->whereDate('aai_order.order_date', $end_date);
+                        $query_agency->whereDate('aai_order.order_date', $end_date);
+                        if ($sale_id && $sale_id != '0') {
+                            $query_retail->where(function ($query_retail) use ($sale_id) {
+                                $query_retail->where('aai_order.sale_id', $sale_id);
+                            });
+                            $query_agency->where(function ($query_agency) use ($sale_id) {
+                                $query_agency->where('aai_order.sale_id', $sale_id);
+                            });
+                        }
+                    }
                     if ($sale_id && $sale_id != '0') {
                         $query_retail->where(function ($query_retail) use ($sale_id) {
                             $query_retail->where('aai_order.sale_id', $sale_id);
@@ -887,35 +1017,15 @@ class DepotManagerController extends Controller
                         });
                     }
                 }
-                if ($end_date) {
-                    $query_retail->whereDate('aai_order.order_date', $end_date);
-                    $query_agency->whereDate('aai_order.order_date', $end_date);
-                    if ($sale_id && $sale_id != '0') {
-                        $query_retail->where(function ($query_retail) use ($sale_id) {
-                            $query_retail->where('aai_order.sale_id', $sale_id);
-                        });
-                        $query_agency->where(function ($query_agency) use ($sale_id) {
-                            $query_agency->where('aai_order.sale_id', $sale_id);
-                        });
-                    }
-                }
-                if ($sale_id && $sale_id != '0') {
-                    $query_retail->where(function ($query_retail) use ($sale_id) {
-                        $query_retail->where('aai_order.sale_id', $sale_id);
-                    });
-                    $query_agency->where(function ($query_agency) use ($sale_id) {
-                        $query_agency->where('aai_order.sale_id', $sale_id);
-                    });
-                }
+                // Lấy dữ liệu
+                $all_order_retail = $query_retail->get();
+                $all_order_agency = $query_agency->get();
+                // Tính tổng tiền từ các đơn hàng bán lẻ và đại lý
+                $total_retail = $all_order_retail->sum('order_total');
+                $total_agency = $all_order_agency->sum('order_total');
+                // Trả về kết quả
+                $total_revenue = $total_retail + $total_agency;
             }
-            // Lấy dữ liệu
-            $all_order_retail = $query_retail->get();
-            $all_order_agency = $query_agency->get();
-            // Tính tổng tiền từ các đơn hàng bán lẻ và đại lý
-            $total_retail = $all_order_retail->sum('order_total');
-            $total_agency = $all_order_agency->sum('order_total');
-            // Trả về kết quả
-            $total_revenue = $total_retail + $total_agency;
             return response()->json([
                 'success' => true,
                 'message' => 'Kết quả lọc',
@@ -1097,6 +1207,22 @@ class DepotManagerController extends Controller
                 'success' => false,
                 'message' => 'Lọc thất bại',
             ], 422);
+        }
+    }
+    public function order_delivery_status(Request $request)
+    {
+        try {
+            $order = AaiOrderModel::find($request->order_id);
+            if (!$order) {
+                return response()->json(['success' => false, 'message' => 'Không tìm thấy đơn hàng!'], 404);
+            }
+
+            $order->delivery_status = $request->shipping_status;
+            $order->save();
+
+            return response()->json(['success' => true, 'message' => 'Cập nhật trạng thái vận chuyển thành công!']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Có lỗi xảy ra khi cập nhật trạng thái!', 'error' => $e->getMessage()], 500);
         }
     }
 }

@@ -22,6 +22,9 @@ const list_order_agency = () => {
     try {
       setLoading(true);
       const response = await reportRevenue();
+      console.log('====================================');
+      console.log(response);
+      console.log('====================================');
       setProfitToday(response.revenue_today);
       setRevenueWeek(response.revenue_week);
       setRevenueMonth(response.revenue_month);
@@ -297,7 +300,7 @@ const list_order_agency = () => {
                 >
                   <h5 style={{ fontSize: '1.5rem', color: '#333', marginBottom: '10px' }}>Hôm nay</h5>
                   <h4 style={{ fontSize: '2rem', color: '#4CAF50', fontWeight: 'bold' }}>
-                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(revenueWeek)}
+                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format( revenueToday)}
                   </h4>
                 </div>
               </Col>
@@ -314,7 +317,7 @@ const list_order_agency = () => {
                 >
                   <h5 style={{ fontSize: '1.5rem', color: '#333', marginBottom: '10px' }}>Tuần này</h5>
                   <h4 style={{ fontSize: '2rem', color: '#4CAF50', fontWeight: 'bold' }}>
-                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(revenueToday)}
+                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(revenueWeek)}
                   </h4>
                 </div>
               </Col>
@@ -358,7 +361,7 @@ const list_order_agency = () => {
           {orderRetail.length > 0 || orderAgency.length > 0 ? (
             <div style={{ marginTop: '30px' }}>
               <h2 style={{ color: '#6c2c91' }}>
-                Tổng lợi nhuận:{' '}
+                Tổng doanh thu:{' '}
                 {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalRevenue)}
               </h2>
               <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
