@@ -78,3 +78,20 @@ export const SaveInstructionalDocument = async (data) => {
       throw error;
     }
   };
+  export const renameFile = async (data, id) => {
+    try {
+      const response = await axios.post(`${LARAVEL_SERVER}/api/update_instructional_document_name/${id}`, 
+        { doc_title: data }, // Đảm bảo gửi đúng tên trường doc_title
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,  // Nếu bạn cần token
+          }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error Customer:', error.response ? error.response.data : error.message);
+      throw error;
+    }
+  };

@@ -26,7 +26,8 @@ class SuccessController extends Controller
 
             $order->payos_status = 1; // Đã thanh toán thành công
             $order->save();
-            return redirect()->away('http://localhost:3000/admin/aaifood/tao-phieu-ban-le');
+            return redirect()->away("https://erp.novaedu.vn/admin/aaifood/ket-qua-thanh-toan/$orderCode");
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -36,6 +37,7 @@ class SuccessController extends Controller
         }
     }
     public function cancelPayment(Request $request) {
-        return redirect()->away('http://localhost:3000/admin/aaifood/tao-phieu-ban-le');
+        return redirect()->away('https://erp.novaedu.vn/admin/aaifood/tao-phieu-ban-le');
     }
+    
 }

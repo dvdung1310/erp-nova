@@ -23,3 +23,13 @@ export const getAllPosts = async () => {
     })
     return response.data;
 }
+export const createOrUpdateReaction = async (data) => {
+    const token = getToken();
+    const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/socials/posts/reactions/create`, data, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    return response.data;
+}

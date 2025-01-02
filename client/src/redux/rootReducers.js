@@ -7,7 +7,7 @@ import {readNotificationReducer} from './notification/reducers';
 import authReducer from './authentication/reducers';
 import ChangeLayoutMode from './themeLayout/reducers';
 import {teamReducer} from './team/reducers';
-import {userReducer, userGroupReducer, userReducerSocket, userReducerRole} from './users/reducers';
+import {userReducer, userGroupReducer, userReducerSocket, userReducerRole, userLogin} from './users/reducers';
 import {sellersReducer} from './sellers/reducers';
 import {headerSearchReducer} from './headerSearch/reducers';
 import orderReducer from './orders/reducers';
@@ -43,6 +43,7 @@ const rootReducers = combineReducers({
     userGroup: userGroupReducer,
     userSocket: userReducerSocket,
     userRole: userReducerRole,
+    userLogin: userLogin,
     team: teamReducer,
     auth: authReducer,
     gallery: galleryReducer,

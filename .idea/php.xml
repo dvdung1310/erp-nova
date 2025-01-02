@@ -129,6 +129,9 @@
       <path value="$PROJECT_DIR$/laravel/vendor/sebastian/diff" />
       <path value="$PROJECT_DIR$/laravel/vendor/sebastian/global-state" />
       <path value="$PROJECT_DIR$/laravel/vendor/sebastian/exporter" />
+      <path value="$PROJECT_DIR$/laravel/vendor/maatwebsite/excel" />
+      <path value="$PROJECT_DIR$/laravel/vendor/payos/payos" />
+      <path value="$PROJECT_DIR$/laravel/vendor/phpoffice/phpexcel" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.2" />

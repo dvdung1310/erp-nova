@@ -2,7 +2,7 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 import React, {useState} from 'react';
 import FeatherIcon from 'feather-icons-react';
-import {Badge, Card, Input, List, Modal, Upload} from 'antd';
+import {Badge, Card, Input, List, Modal, Upload, Avatar} from 'antd';
 import {useSelector, useDispatch} from 'react-redux';
 import {BackShadow, CreatePost} from './style';
 import {Cards} from '../../../../../components/cards/frame/cards-frame';
@@ -13,7 +13,6 @@ const dateFormat = 'MM/DD/YYYY';
 import RichTextEditor from 'react-rte';
 import {toast} from "react-toastify";
 import {createPost} from "../../../../../apis/socials/posts";
-import Avatar from "../../../../../components/Avatar/Avatar";
 import {checkRole} from "../../../../../utility/checkValue";
 import {getAllUsers} from "../../../../../apis/work/user";
 
@@ -35,17 +34,20 @@ const typeFake = [
     }
 ]
 
-function Post() {
-    const dispatch = useDispatch();
+function Post({listPosts, setListPosts}) {
+    const userLogin = useSelector(state => state?.userLogin)
     const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
     const [drawer, setDrawer] = useState(false);
     const [modalTag, setModalTag] = useState(false);
+    const [modalHashtag, setModalHashtag] = useState(false);
     const [editorState, setEditorState] = useState(RichTextEditor.createEmptyValue());
     const [postTitle, setPostTitle] = useState('');
     const [typeSelected, setTypeSelected] = useState(null);
     const [fileList, setFileList] = useState([]);
     const [loading, setLoading] = useState(false);
     const [loadingGetUser, setLoadingGetUser] = useState(false);
+    const [hashtag, setHashtag] = useState([]);
+    const [hashtagValue, setHashtagValue] = useState('');
     const handleChangeEditer = (value) => {
         setEditorState(value);
     };
@@ -53,48 +55,52 @@ function Post() {
         try {
             setLoading(true);
             const form = new FormData();
-            if (!postTitle) {
-                toast.error('Vui lòng nhập tiêu đề bài viết');
-                setLoading(false);
-                return;
-            }
-            if (!editorState.toString('html')) {
+            if (!editorState.toString('html') || editorState.toString('html') === '<p><br></p>') {
                 toast.error('Vui lòng nhập nội dung bài viết');
                 setLoading(false);
                 return;
             }
-            if (!typeSelected) {
-                toast.error('Vui lòng chọn thể loại bài viết');
-                setLoading(false);
-                return;
-            }
-            form.append('post_title', postTitle);
             form.append('post_content', editorState.toString('html'));
-            form.append('post_category', typeSelected.id);
+
+            if (selectedMembers.length > 0) {
+                const memberIds = selectedMembers.map((member) => member.id);
+                memberIds.forEach(item => {
+                    form.append('list_user_tag[]', item); // Thêm từng tag vào FormData
+                })
+            }
+
+            if (hashtag.length > 0) {
+                hashtag.forEach(item => {
+                    form.append('hash_tags[]', item); // Thêm từng hashtag vào FormData
+                });
+            }
             fileList.forEach(file => {
                 form.append('files[]', file.originFileObj);
             });
             const res = await createPost(form);
-            console.log(res)
             toast.success('Đăng bài thành công');
             setDrawer(false);
             setPostTitle('');
             setEditorState(RichTextEditor.createEmptyValue());
-            setTypeSelected(null);
+            setSelectedMembers([]);
+            setHashtag([]);
+            setHashtagValue('');
             setFileList([]);
+            setSearchTerm('');
+            setListPosts([res.data, ...listPosts]);
             setLoading(false);
         } catch (error) {
             setLoading(false);
-            toast.error('Đã có lỗi xảy ra')
-            console.log(error)
+            toast.error('Đã có lỗi xảy ra', {
+                autoClose: 1000
+            });
+            console.log(error);
         }
     };
     const handleUploadChange = ({fileList}) => {
         setFileList(fileList);
     };
-    const onTextChange = (e) => {
-        setPostTitle(e.target.value);
-    };
+
     //
     const [selectedMembers, setSelectedMembers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -119,11 +125,21 @@ function Post() {
     };
     const handleGetUsers = async () => {
         try {
+            setLoadingGetUser(true);
             setModalTag(true);
             const response = await getAllUsers();
             setListUser(response.data);
+            setLoadingGetUser(false);
         } catch (error) {
+            setLoadingGetUser(false);
             console.log(error);
+        }
+    }
+    const handleHashtag = () => {
+        setModalHashtag(false);
+        if (hashtagValue) {
+            const hashtagArr = (hashtagValue.match(/#[^\s#]+/g) || []).map(item => item.substring(1));
+            setHashtag(hashtagArr);
         }
     }
     return (
@@ -131,9 +147,9 @@ function Post() {
             <CreatePost>
                 <Cards title="Tạo bài viết trên bảng tin nội bộ">
                     <div onClick={() => setDrawer(true)} className="postBody">
-                        <img className="post-author" src={require('../../../../../static/img/chat-author/t4.jpg')}
-                             alt=""/>
-                        <Input.TextArea placeholder="Bạn đang nghĩ gì ..."/>
+                        <Avatar size={46} alt={userLogin?.name} className='post-author' icon={<FeatherIcon icon={'user'} size={22}/>}
+                                src={LARAVEL_SERVER + userLogin?.avatar}/>
+                        <Input.TextArea value='' placeholder="Bạn đang nghĩ gì ..."/>
                     </div>
                 </Cards>
                 <Modal
@@ -165,7 +181,8 @@ function Post() {
                                                 fontSize: '16px',
                                                 fontWeight: '500',
                                                 lineHeight: '22px',
-                                                padding: '10px 0'
+                                                padding: '10px 0',
+                                                display: 'block'
                                             }}>Cùng với:</span>
                                             <div style={{
                                                 display: 'flex',
@@ -199,6 +216,50 @@ function Post() {
                                     )
                                 }
                             </div>
+                            <div>
+                                {
+                                    hashtag.length > 0 && (
+                                        <>
+                                            <span style={{
+                                                fontSize: '16px',
+                                                fontWeight: '500',
+                                                lineHeight: '22px',
+                                                padding: '10px 0',
+                                                display: 'block'
+                                            }}>Hashtag:</span>
+                                            <div style={{
+                                                display: 'flex',
+                                                flexWrap: 'wrap',
+                                                gap: '20px',
+                                                padding: '8px',
+                                                border: '1px solid #e8e8e8',
+                                                borderRadius: '4px',
+                                                backgroundColor: '#f9f9f9',
+                                            }}>
+                                                {hashtag.map((item) => (
+                                                    <Badge key={item}
+                                                           onClick={() => setHashtag(hashtag.filter(tag => tag !== item))}
+                                                    >
+                                                        <span style={{
+                                                            cursor: 'pointer',
+                                                            padding: '4px 8px',
+                                                            borderRadius: '4px',
+                                                            backgroundColor: '#f0f0f0',
+                                                            color: '#000',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                        }}>
+                                                          {item}
+                                                            <FeatherIcon icon="x" size={16} color="red"
+                                                                         style={{marginLeft: '8px'}}/>
+                                                        </span>
+                                                    </Badge>
+                                                ))}
+                                            </div>
+                                        </>
+                                    )
+                                }
+                            </div>
                             <div className="postFooter">
                                 <Upload
                                     name="image"
@@ -206,7 +267,9 @@ function Post() {
                                     fileList={fileList}
                                     beforeUpload={() => false}
                                     onChange={handleUploadChange}
-                                    accept="image/*,video/*">
+                                    accept="image/*,video/*"
+                                    multiple
+                                >
                                     <Button shape="circle" type="light" title='Ảnh/video'>
                                         <img src={require('../../../../../static/img/icon/image.png')} alt=""/>
                                     </Button>
@@ -216,9 +279,10 @@ function Post() {
                                             title='Gắn thẻ người khác'>
                                         <FeatherIcon icon="tag"/>
                                     </Button>
-                                    {/*<Button shape="circle" type="light" title='hashtag' style={{marginLeft: '8px'}}>*/}
-                                    {/*    <FeatherIcon icon="hash"/>*/}
-                                    {/*</Button>*/}
+                                    <Button shape="circle" type="light" onClick={() => setModalHashtag(true)}
+                                            title='hashtag' style={{marginLeft: '8px'}}>
+                                        <FeatherIcon icon="hash"/>
+                                    </Button>
                                 </div>
                             </div>
 
@@ -226,7 +290,8 @@ function Post() {
                     </CreatePost>
                     <div className="" style={{marginTop: '10px', display: 'flex', justifyContent: 'end'}}>
                         {drawer && (
-                            <Button className="btn-post" loading={loading} style={{width: '50%'}} onClick={onCreate}
+                            <Button className="btn-post" loading={loading} style={{minWidth: '150px'}}
+                                    onClick={onCreate}
                                     type="primary">
                                 Đăng bài
                             </Button>
@@ -308,6 +373,15 @@ function Post() {
                         )}
                     />
                 </>
+            </Modal>
+            <Modal
+                title="Thêm hashtag"
+                visible={modalHashtag}
+                centered
+                onOk={handleHashtag}
+                onCancel={() => setModalHashtag(false)}
+            >
+                <Input value={hashtagValue} onChange={(e) => setHashtagValue(e.target.value)}/>
             </Modal>
         </>
 

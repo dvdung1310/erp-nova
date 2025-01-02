@@ -301,12 +301,14 @@ function NotificationBox() {
 
     return (
         <div className="notification">
-            <Popover placement="bottomLeft" content={content} action="click"  visible={!isPopoverVisible} onVisibleChange={setIsPopoverVisible}>
+            <Popover placement="bottomLeft" content={content} action="click" visible={!isPopoverVisible}
+                     onVisibleChange={setIsPopoverVisible}>
                 <Badge
                     count={notificationUnread?.length > 9 ? '9+' : notificationUnread?.length}
                     offset={[-8, -5]} className="custom-badge">
                     <div className="head-example" style={{marginBottom: '-6px'}}>
                         <motion.div
+                            title='Thông báo'
                             variants={notificationIconVariants}
                             initial="initial"
                             animate={newNotification ? "animate" : "initial"} // Apply animation

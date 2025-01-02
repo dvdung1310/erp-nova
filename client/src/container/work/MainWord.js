@@ -3,7 +3,7 @@ import {getTaskUnfinishedByUserId} from "../../apis/work/task";
 import {getAllUsers} from "../../apis/work/user";
 import {createProject, getProjectByUserId} from "../../apis/work/project";
 import {getGroupByCeo} from "../../apis/work/group";
-import {Col, DatePicker, Form, Input, Row, Spin, List, Select, Badge} from "antd";
+import {Form, Input, Row, Spin, List, Select, Badge, Pagination} from "antd";
 import ListProject from "./overView/Project/overViewProject/List";
 import TaskList from "./overView/Task/overViewTask/TaskList";
 import ListGroupComponent from "./overView/Group/overViewGroup/GroupList";
@@ -16,17 +16,14 @@ import {useHistory, useLocation} from "react-router-dom";
 import {toast} from "react-toastify";
 import {useSelector} from "react-redux";
 import {getDepartment} from "../../apis/employees/employee";
-import CreateProject from "./overView/Project/overViewProject/CreateProject";
 import {Modal} from "../../components/modals/antd-modals";
 import {BasicFormWrapper} from "../styled";
-import {FormControl, FormControlLabel, Radio, RadioGroup} from "@mui/material";
 import Avatar from "../../components/Avatar/Avatar";
 
 const dateFormat = 'MM/DD/YYYY';
 import RichTextEditor from 'react-rte';
 import moment from "moment";
-import Header from "../../components/header/header";
-import {checkRole} from "../../utility/checkValue";
+
 
 const MainWord = () => {
     const role_id = useSelector(state => state?.userRole?.role_id)
@@ -37,11 +34,14 @@ const MainWord = () => {
     const [listUser, setListUser] = useState([])
     const [listUserLeader, setListUserLeader] = useState([])
     const [listGroup, setListGroup] = useState([])
-    const [tasks, setTasks] = useState([])
     const [listDepartments, setListDepartments] = useState([])
     const [showModal, setShowModal] = useState(false)
     const [showModalProject, setShowModalProject] = useState(false)
     const history = useHistory()
+    const [allTasks, setAllTasks] = useState([]);
+    const [tasks, setTasks] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
     const onCancelGroup = () => {
         setShowModal(false)
     }
@@ -54,7 +54,8 @@ const MainWord = () => {
             setLoading(true)
             if (role_id === 5) {
                 const res = await getTaskUnfinishedByUserId()
-                setTasks(res.data?.tasks)
+                setAllTasks(res.data?.tasks);
+                setTasks(res.data?.tasks.slice(0, pageSize));
             } else if (role_id === 3 || role_id === 4) {
                 const [res, users] = await Promise.all([getProjectByUserId(), getAllUsers()]);
                 setListProject(res.data?.filter(project => project.project_type === 0))
@@ -120,6 +121,13 @@ const MainWord = () => {
             member?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             member?.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
+    const handlePageChange = (page, size) => {
+        setCurrentPage(page);
+        setPageSize(size);
+        const startIndex = (page - 1) * size;
+        const endIndex = startIndex + size;
+        setTasks(allTasks.slice(startIndex, endIndex));
+    };
 ///
     const handleOk = async () => {
         try {
@@ -242,8 +250,21 @@ const MainWord = () => {
                                 <>
                                     {
                                         tasks.length > 0 ?
-                                            <TaskList listUser={[]} tasks={tasks} setTasks={setTasks}
-                                                      isHome/>
+                                            <>
+                                                <div style={{marginBottom: '20px'}}>
+                                                    <TaskList listUser={[]} tasks={tasks} setTasks={setTasks} isHome/>
+                                                </div>
+                                                <Pagination
+                                                    className="pagination"
+                                                    current={currentPage}
+                                                    total={allTasks.length}
+                                                    pageSize={pageSize}
+                                                    onChange={handlePageChange}
+                                                    showSizeChanger
+                                                    onShowSizeChange={handlePageChange}
+                                                />
+                                            </>
+
                                             : <div className='text-center mt-5'>Không có công việc nào cần
                                                 làm</div>
                                     }

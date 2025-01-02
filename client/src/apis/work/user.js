@@ -48,6 +48,17 @@ export const getNotificationWarning = async () => {
     );
     return response.data;
 }
+export const getNotificationAaiFood = async () => {
+    const token = getToken();
+    const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/notifications/get-notification-aaifood-by-user-id`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        }
+    );
+    return response.data;
+}
 export const getNotificationPagination = async (url) => {
     const token = getToken();
     const response = await instanceAxios.get(url, {
