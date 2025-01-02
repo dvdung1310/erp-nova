@@ -62,7 +62,6 @@ class WorkScheduleController extends Controller
                 })
                 ->get()
                 ->groupBy('user_id');
-                return  $schedules;
         } else {
             $schedules = WorkSchedule::with('user')
                 ->whereBetween('date', [$startOfMonth, $endOfMonth])
