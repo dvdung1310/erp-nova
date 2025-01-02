@@ -68,3 +68,8 @@
 .table-row-hover {
   transition: all 0.2s ease;
 }
+
+.bg-blue{
+  background-color: #426CD1;
+  color: #fff;
+}

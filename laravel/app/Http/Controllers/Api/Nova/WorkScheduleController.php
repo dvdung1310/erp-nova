@@ -39,23 +39,30 @@ class WorkScheduleController extends Controller
     public function getWorkSchedulesByMonth($month)
     {
         $year = date('Y');
-        $startOfMonth = Carbon::createFromDate($year, $month, 1)->startOfDay();
-        $endOfMonth = Carbon::createFromDate($year, $month, 1)->endOfMonth()->endOfDay();
-        if ($month == 10) {
-            $startOfExtraDay = Carbon::create(2024, 9, 30)->startOfDay();
-            $startOfExtraDay1 = Carbon::create(2024, 11, 1)->startOfDay();
-            $startOfExtraDay2 = Carbon::create(2024, 11, 2)->startOfDay();
-            $startOfExtraDay3 = Carbon::create(2024, 11, 3)->startOfDay();
+        $startOfMonth = Carbon::createFromDate(2024, $month, 1)->startOfDay();
+        $endOfMonth = Carbon::createFromDate(2025, $month, 1)->endOfMonth()->endOfDay();
+        if ($month == 1) {
+            $startOfExtraDay00 = Carbon::create(2024, 12, 30)->startOfDay();
+            $startOfExtraDay0 = Carbon::create(2024, 12, 31)->startOfDay();
+            $startOfExtraDay = Carbon::create(2025, 1, 1)->startOfDay();
+            $startOfExtraDay1 = Carbon::create(2025, 1, 2)->startOfDay();
+            $startOfExtraDay2 = Carbon::create(2025, 1, 3)->startOfDay();
+            $startOfExtraDay3 = Carbon::create(2025, 1, 4)->startOfDay();
+            $startOfExtraDay4 = Carbon::create(2025, 1, 5)->startOfDay();
             $schedules = WorkSchedule::with('user')
-                ->where(function ($query) use ($startOfMonth, $endOfMonth, $startOfExtraDay, $startOfExtraDay1, $startOfExtraDay2, $startOfExtraDay3) {
+                ->where(function ($query) use ($startOfMonth, $endOfMonth, $startOfExtraDay, $startOfExtraDay1, $startOfExtraDay2, $startOfExtraDay3 , $startOfExtraDay4,$startOfExtraDay0 , $startOfExtraDay00) {
                     $query->whereBetween('date', [$startOfMonth, $endOfMonth])
                         ->orWhere('date', $startOfExtraDay)
                         ->orWhere('date', $startOfExtraDay1)
                         ->orWhere('date', $startOfExtraDay2)
-                        ->orWhere('date', $startOfExtraDay3);
+                        ->orWhere('date', $startOfExtraDay3)
+                        ->orWhere('date', $startOfExtraDay4)
+                        ->orWhere('date', $startOfExtraDay0)
+                        ->orWhere('date', $startOfExtraDay00);
                 })
                 ->get()
                 ->groupBy('user_id');
+                return  $schedules;
         } else {
             $schedules = WorkSchedule::with('user')
                 ->whereBetween('date', [$startOfMonth, $endOfMonth])
