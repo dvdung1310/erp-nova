@@ -350,12 +350,7 @@ class DepotManagerController extends Controller
             // return $request->all();
             $order_total_bill = $request->order_total;
             $order_total = (int)filter_var($order_total_bill, FILTER_SANITIZE_NUMBER_INT);
-            $order_id = Str::uuid()->toString();
-            do {
-                $order_id = random_int(1, 999999999); // Tạo số ngẫu nhiên trong phạm vi int(11)
-            } while (AaiOrderModel::where('order_id', $order_id)->exists());
             $order = new AaiOrderModel();
-            $order->order_id = $order_id;
             $order->customer_name = $request->customer_name;
             $order->customer_phone = $request->customer_phone;
             $order->customer_address = $request->customer_address;
@@ -408,6 +403,66 @@ class DepotManagerController extends Controller
                 'success' => false,
                 'message' => 'Tạo phiếu bán hàng thất bại',
                 $e->getMessage(),
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function store_order_handmade(Request $request)
+    {
+        try {
+            $order_total_bill = $request->order_total;
+            $order_total = (int)filter_var($order_total_bill, FILTER_SANITIZE_NUMBER_INT);
+    
+            // Tạo đơn hàng
+            $order = new AaiOrderModel();
+            $order->customer_name = $request->customer_name;
+            $order->customer_phone = $request->customer_phone;
+            $order->customer_address = $request->customer_address;
+            $order->order_total = $order_total;
+            $order->order_date = today();
+            $order->payos_status = 1;
+            $order->sale_id = Auth::id();
+            if ($request->hasFile('payment_img')) {
+                $image = $request->file('payment_img');
+                $imageName = time() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('uploads/orders'), $imageName); // Di chuyển ảnh vào thư mục uploads
+                $order->payment_img = 'uploads/orders/' . $imageName; // Lưu đường dẫn ảnh vào DB
+            }
+            $order->save();
+            $order_id = $order->order_id;
+    
+            // Xử lý sản phẩm
+            $products = json_decode($request->products, true); // Decode danh sách sản phẩm từ JSON
+            foreach ($products as $product) {
+                $order_detail = new AaiOrderDetailModel();
+                $order_detail->order_id = $order_id;
+                $order_detail->product_id = $product['product_id'];
+                $order_detail->product_quantity = $product['quantity'];
+                $order_detail->product_price_input = number_format($product['product_price_input'], 3, '.', '');
+                $order_detail->product_price_output = number_format($product['product_price_output'], 3, '.', '');
+                $order_detail->save();
+    
+                $updated = AaiProductModel::where('product_id', $product['product_id'])
+                    ->where('product_quantity_remaining', '>=', $product['quantity']) // Kiểm tra nếu số lượng còn lại đủ
+                    ->update(['product_quantity_remaining' => DB::raw('product_quantity_remaining - ' . $product['quantity'])]);
+                if (!$updated) {
+                    // Nếu không tìm thấy sản phẩm hoặc số lượng không đủ, bạn có thể xử lý lỗi ở đây
+                    throw new \Exception("Không đủ số lượng sản phẩm hoặc sản phẩm không tồn tại trong kho.");
+                }
+            }
+    
+            // Xử lý ảnh (nếu có)
+          
+    
+            return response()->json([
+                'success' => true,
+                'message' => 'Tạo phiếu bán hàng thành công',
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tạo phiếu bán hàng thất bại',
                 'error' => $e->getMessage(),
             ], 500);
         }

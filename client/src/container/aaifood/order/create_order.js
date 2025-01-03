@@ -209,7 +209,7 @@ const create_order = () => {
                 </Form.Item>
               </Col>
               <Col className="gutter-row" span={24}>
-                <Form.Item label="Số điện thoại" name="customer_phone">
+                <Form.Item label="Số điện thoại" name="customer_phone" rules={[{ required: true, message: 'Vui lòng nhập số điện thoại khách hàng!' }]}>
                   <Input />
                 </Form.Item>
               </Col>

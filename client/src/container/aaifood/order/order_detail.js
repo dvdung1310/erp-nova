@@ -4,7 +4,7 @@
 // import { Row, Col, Table, Spin, message, Button, Modal, Form, Input, Select } from 'antd';
 // import { OrderDetail, storeAgency, updateAgency } from '../../../apis/aaifood/index';
 // const order_detail = () => {
-//   const { order_id } = useParams(); 
+//   const { order_id } = useParams();
 //   const [dataSource, setDataSource] = useState([]);
 //     const [loading, setLoading] = useState(true);
 
@@ -22,7 +22,7 @@
 //         setLoading(false);
 //       }
 //     };
-  
+
 //     useEffect(() => {
 //       fetchDocument();
 //     }, []);
@@ -67,8 +67,6 @@
 // };
 
 // export default order_detail;
-
-
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -115,6 +113,18 @@ const PaymentResult = () => {
                   <li>Khách hàng : {customer.customer_name}</li>
                   <li>Số điện thoại : {customer.customer_phone}</li>
                   <li>Địa chỉ : {customer.customer_address}</li>
+                  <li>
+                    Trạng thái thanh toán:
+                    {customer.payos_status === 0 ? (
+                      <span style={{ color: '#DB3C29' }}>Chưa thanh toán</span>
+                    ) : customer.payos_status === 1 ? (
+                      <span style={{ color: '#3868DC' }}>Đã thanh toán</span>
+                    ) : customer.payos_status === 2 ? (
+                      <span style={{ color: '#16DB45' }}>Đã xác nhận</span>
+                    ) : (
+                      'Không xác định'
+                    )}
+                  </li>
                 </ul>
               </div>
             </div>

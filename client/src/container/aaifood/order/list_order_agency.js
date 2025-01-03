@@ -1,15 +1,17 @@
 import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { NavLink, useRouteMatch } from 'react-router-dom';
-import { Tabs, Table, Spin, Button, Popconfirm, message, Drawer, Form, DatePicker } from 'antd';
+import { Tabs, Table, Spin, Button, Popconfirm, message, Drawer, Form, DatePicker ,Modal} from 'antd';
 import {
   allOrder,
   deleteOrder,
   confirmPayment,
   confirmPaymentChange,
   checkRoleUser,
-  orderDeliveryStatus
+  orderDeliveryStatus,
 } from '../../../apis/aaifood/index';
 import moment from 'moment';
+import { FaEye } from 'react-icons/fa';
+const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
 const list_order_agency = () => {
   const { path } = useRouteMatch();
   const [filteredData, setFilteredData] = useState([]);
@@ -20,6 +22,8 @@ const list_order_agency = () => {
   const [openSideBarRetail, setOpenSideBarRetail] = useState(false);
   const [openSideBarAgency, setOpenSideBarAgency] = useState(false);
   const [roleUser, setRoleUser] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [invoiceImage, setInvoiceImage] = useState('');
   const fetchDocument = async () => {
     try {
       setLoading(true);
@@ -166,11 +170,12 @@ const list_order_agency = () => {
         message.info('Đơn hàng đã ở trạng thái cuối cùng.');
         return;
       }
-  
+
       // Gửi yêu cầu cập nhật trạng thái vận chuyển
-      const response = await orderDeliveryStatus(record.order_id, newStatus);  // Truyền đúng tham số
-  
-      if (response.success) {  // Kiểm tra kết quả trả về
+      const response = await orderDeliveryStatus(record.order_id, newStatus); // Truyền đúng tham số
+
+      if (response.success) {
+        // Kiểm tra kết quả trả về
         message.success('Cập nhật trạng thái vận chuyển thành công!');
         // Cập nhật lại dữ liệu bảng nếu cần thiết
         fetchDocument();
@@ -182,8 +187,24 @@ const list_order_agency = () => {
       message.error('Có lỗi xảy ra khi cập nhật trạng thái vận chuyển!');
     }
   };
-  const canEdit =
-  roleUser && (roleUser.department_id === 1 || roleUser.department_id === 8 || roleUser.role_id === 1);
+  const showModal = (image) => {
+    const baseUrl = LARAVEL_SERVER;
+    const fullImageUrl = `${baseUrl}/${image}`; 
+    setInvoiceImage(fullImageUrl);
+    setIsModalVisible(true);
+  };
+
+  // Function to handle modal close
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+  const canEdit = roleUser && (roleUser.department_id === 1 || roleUser.department_id === 8 || roleUser.role_id === 1);
+  const canClick =
+    roleUser &&
+    (roleUser.department_id === 9 ||
+      roleUser.department_id === 1 ||
+      roleUser.department_id === 8 ||
+      roleUser.role_id === 1);
   const columns_orderRetail = [
     {
       title: 'ID',
@@ -194,6 +215,12 @@ const list_order_agency = () => {
       title: 'Khách hàng',
       dataIndex: 'customer_name',
       key: 'customer_name',
+      render: (text, record) => (
+        <NavLink to={`/admin/aaifood/chi-tiet-phieu-thu/${record.order_id}`} activeClassName="active-link">
+          {record.customer_name}
+        </NavLink>
+        //  <NavLink to={`${path}/chi-tiet/${record.order_id}`}>Chi tiết</NavLink>
+      ),
     },
     {
       title: 'SĐT',
@@ -225,35 +252,39 @@ const list_order_agency = () => {
       dataIndex: 'order_date',
       key: 'order_date',
     },
-    {
-      title: 'Ngày lập phiếu',
-      dataIndex: 'created_at',
-      key: 'created_at',
-      render: (text) => moment(text).format('YYYY-MM-DD'),
-    },
+    // {
+    //   title: 'Ngày lập phiếu',
+    //   dataIndex: 'created_at',
+    //   key: 'created_at',
+    //   render: (text) => moment(text).format('YYYY-MM-DD'),
+    // },
     {
       title: 'Người lập',
       dataIndex: 'name',
       key: 'name',
     },
     {
-      title: 'Chi tiết',
-      key: 'details',
+      title: 'Ảnh hóa đơn',
+      dataIndex: 'payment_img', // Assuming you have the image URL in the 'payment_img' field
+      key: 'payment_img',
       render: (text, record) => (
-        <NavLink to={`/admin/aaifood/chi-tiet-phieu-thu/${record.order_id}`} activeClassName="active-link">
-          <Button type="primary">Chi tiết</Button>
-        </NavLink>
-        //  <NavLink to={`${path}/chi-tiet/${record.order_id}`}>Chi tiết</NavLink>
+        // Check if 'payment_img' exists before rendering the button
+        record.payment_img ? (
+          <Button
+            onClick={() => showModal(record.payment_img)} // Show modal with the image
+            type="link"
+          >
+            <FaEye />
+          </Button>
+        ) : null // If no 'payment_img', don't render anything
       ),
     },
+
     {
       title: 'Trạng thái thanh toán',
       key: 'action',
       render: (_, record) => {
         // Kiểm tra quyền của người dùng
-       
-
-        // Hiển thị các trạng thái
         if (record.payos_status === 1) {
           return (
             <Popconfirm
@@ -303,7 +334,6 @@ const list_order_agency = () => {
         }
         return null;
       },
-     
     },
     {
       title: 'Trạng thái vận chuyển',
@@ -315,42 +345,41 @@ const list_order_agency = () => {
             onConfirm={() => handleShippingStatusChange(record, nextStatus)}
             okText="Đồng ý"
             cancelText="Hủy"
-            disabled={!canEdit}
+            disabled={!canClick}
           >
-            <Button style={{ background: color, color: '#FFF' }} disabled={!canEdit}>
+            <Button style={{ background: color, color: '#FFF' }} disabled={!canClick}>
               {label}
             </Button>
           </Popconfirm>
         );
-  
+
         // Xử lý trạng thái hiện tại và nút tiếp theo
         switch (record.delivery_status) {
           case 0: // Xuất hàng
-            return getButton(0, 'Xuất hàng', '#FF9900', 1); // Chuyển sang Giao ĐVVC
+            return getButton(0, 'Chưa xuất hàng', '#FF9900', 1); // Chuyển sang Giao ĐVVC
           case 1: // Giao ĐVVC
-            return getButton(1, 'Giao ĐVVC', '#22AAEF', 2); // Chuyển sang Giao hàng thành công
-          case 2: // Giao hàng thành công
-            return getButton(2, 'Giao thành công', 'green', null); // Không có trạng thái tiếp theo
+            return getButton(1, 'Đã xuất hàng', '#22AAEF', null); // Chuyển sang Giao hàng thành công
+          // case 2: // Giao hàng thành công
+          //   return getButton(2, 'Giao thành công', 'green', null); // Không có trạng thái tiếp theo
           default:
             return <span>Không xác định</span>;
         }
       },
     },
-
-    // {
-    //   title: 'Hành động',
-    //   key: 'action',
-    //   render: (_, record) => (
-    //     <Popconfirm
-    //       title="Bạn có chắc chắn muốn xóa bản ghi này?"
-    //       onConfirm={() => handleDelete(record)}
-    //       okText="Xóa"
-    //       cancelText="Hủy"
-    //     >
-    //       <Button type="danger">Xóa</Button>
-    //     </Popconfirm>
-    //   ),
-    // },
+    ...(canEdit ? [{
+      title: 'Hành động',
+      key: 'action',
+      render: (_, record) => (
+        <Popconfirm
+          title="Bạn có chắc chắn muốn xóa bản ghi này?"
+          onConfirm={() => handleDelete(record)}
+          okText="Xóa"
+          cancelText="Hủy"
+        >
+          <Button type="danger">Xóa</Button>
+        </Popconfirm>
+      ),
+    }] : []),
   ];
   const columns_orderAgency = [
     {
@@ -362,6 +391,12 @@ const list_order_agency = () => {
       title: 'Khách hàng',
       dataIndex: 'agency_name',
       key: 'agency_name',
+      render: (text, record) => (
+        <NavLink to={`/admin/aaifood/chi-tiet-phieu-thu/${record.order_id}`} activeClassName="active-link">
+          {record.agency_name}
+        </NavLink>
+        //  <NavLink to={`${path}/chi-tiet/${record.order_id}`}>Chi tiết</NavLink>
+      ),
     },
     {
       title: 'SĐT',
@@ -373,11 +408,11 @@ const list_order_agency = () => {
       dataIndex: 'agency_address',
       key: 'agency_address',
     },
-    {
-      title: 'Cấp đại lý',
-      dataIndex: 'agency_level',
-      key: 'agency_level',
-    },
+    // {
+    //   title: 'Cấp đại lý',
+    //   dataIndex: 'agency_level',
+    //   key: 'agency_level',
+    // },
     {
       title: 'Thành tiền',
       dataIndex: 'order_total',
@@ -398,26 +433,27 @@ const list_order_agency = () => {
       dataIndex: 'order_date',
       key: 'order_date',
     },
-    {
-      title: 'Ngày lập phiếu',
-      dataIndex: 'created_at',
-      key: 'created_at',
-      render: (text) => moment(text).format('YYYY-MM-DD'), // Định dạng ngày/tháng/năm
-    },
+    // {
+    //   title: 'Ngày lập phiếu',
+    //   dataIndex: 'created_at',
+    //   key: 'created_at',
+    //   render: (text) => moment(text).format('YYYY-MM-DD'), // Định dạng ngày/tháng/năm
+    // },
     {
       title: 'Người lập',
       dataIndex: 'name',
       key: 'name',
     },
-    {
-      title: 'Chi tiết',
-      key: 'details',
-      render: (text, record) => (
-        <NavLink to={`/admin/aaifood/chi-tiet-phieu-thu/${record.order_id}`} activeClassName="active-link">
-          <Button type="primary">Chi tiết</Button>
-        </NavLink>
-      ),
-    },
+
+    // {
+    //   title: 'Chi tiết',
+    //   key: 'details',
+    //   render: (text, record) => (
+    //     <NavLink to={`/admin/aaifood/chi-tiet-phieu-thu/${record.order_id}`} activeClassName="active-link">
+    //       <Button type="primary">Chi tiết</Button>
+    //     </NavLink>
+    //   ),
+    // },
     {
       title: 'Trạng thái thanh toán',
       key: 'action',
@@ -482,6 +518,37 @@ const list_order_agency = () => {
         return null;
       },
     },
+    {
+      title: 'Trạng thái vận chuyển',
+      key: 'shipping_status',
+      render: (_, record) => {
+        const getButton = (status, label, color, nextStatus) => (
+          <Popconfirm
+            title={`Bạn có chắc chắn muốn chuyển sang trạng thái "${label}"?`}
+            onConfirm={() => handleShippingStatusChange(record, nextStatus)}
+            okText="Đồng ý"
+            cancelText="Hủy"
+            disabled={!canClick}
+          >
+            <Button style={{ background: color, color: '#FFF' }} disabled={!canClick}>
+              {label}
+            </Button>
+          </Popconfirm>
+        );
+
+        // Xử lý trạng thái hiện tại và nút tiếp theo
+        switch (record.delivery_status) {
+          case 0: // Xuất hàng
+            return getButton(0, 'Chưa xuất hàng', '#FF9900', 1); // Chuyển sang Giao ĐVVC
+          case 1: // Giao ĐVVC
+            return getButton(1, 'Đã xuất hàng', '#22AAEF', null); // Chuyển sang Giao hàng thành công
+          // case 2: // Giao hàng thành công
+          //   return getButton(2, 'Giao thành công', 'green', null); // Không có trạng thái tiếp theo
+          default:
+            return <span>Không xác định</span>;
+        }
+      },
+    },
   ];
 
   return (
@@ -497,16 +564,27 @@ const list_order_agency = () => {
               marginRight: '15px',
             }}
           >
-            <Button type="primary">Tạo phiếu bán lẻ</Button>
+            <Button type="primary">Tạo phiếu bán hàng online</Button>
           </NavLink>
           <NavLink
             to={`/admin/aaifood/tao-phieu-ban-dai-ly`}
             style={{
               color: 'inherit',
               textDecoration: 'none',
+              marginRight: '15px',
             }}
           >
             <Button type="primary">Tạo phiếu bán đại lý</Button>
+          </NavLink>
+          <NavLink
+            to={`/admin/aaifood/tao-phieu-ban-hang-thu-cong`}
+            style={{
+              color: 'inherit',
+              textDecoration: 'none',
+              marginRight: '15px',
+            }}
+          >
+            <Button style={{ background: '#04E0D3' }}>Tạo phiếu bán hàng thủ công</Button>
           </NavLink>
           {/* <NavLink
             to={`/admin/aaifood/ket-qua-thanh-toan`}
@@ -629,7 +707,17 @@ const list_order_agency = () => {
           ]}
         />
       )}
+      <Modal
+      title="Ảnh hóa đơn"
+      visible={isModalVisible}
+      onCancel={handleCancel}
+      footer={null}
+      width={600}
+    >
+      <img src={invoiceImage} alt="Invoice" style={{ width: '100%' }} />
+    </Modal>
     </div>
+    
   );
 };
 

@@ -95,22 +95,19 @@ export const updateAgency = async (data, id) => {
 //   return response.data;
 // };
 export const allOrder = async (data) => {
-    try {
-      const response = await instanceAxios.get(
-        `${LARAVEL_SERVER}/api/all_order`, 
-        {
-          headers: {
-            'Content-Type': 'application/json',
-             Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      return response;
-    } catch (error) {
-      console.error('Error checking download file:', error.response ? error.response.data : error.message);
-      throw error;
-    }
-  };
+  try {
+    const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/all_order`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    console.error('Error checking download file:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
 export const createOrder = async (data) => {
   const response = await axios.get(`${LARAVEL_SERVER}/api/create_bill`, {
     headers: {
@@ -126,6 +123,16 @@ export const storeOrderRetail = async (payload) => {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
+  });
+  return response.data;
+};
+export const storeOrderHandmade = async (formData) => {
+  const response = await axios.post(`${LARAVEL_SERVER}/api/store_order_handmade`, formData, {
+    headers: {
+     'Content-Type': 'multipart/form-data',
+      Authorization: `Bearer ${token}`,
+    },
+   
   });
   return response.data;
 };
@@ -211,22 +218,19 @@ export const updateCost = async (data, cost_id) => {
   return response.data;
 };
 export const checkRoleUser = async (data) => {
-    try {
-        const token = getToken();
-        const response = await instanceAxios.get(
-            `${LARAVEL_SERVER}/api/check_role_food`,
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                }
-            }
-        );
-        return response;
-    } catch (error) {
-        console.error('Error :', error.response ? error.response.data : error.message);
-        throw error;
-    }
+  try {
+    const token = getToken();
+    const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/check_role_food`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    console.error('Error :', error.response ? error.response.data : error.message);
+    throw error;
+  }
 };
 export const resultPayment = async (orderCode) => {
   const response = await axios.get(`${LARAVEL_SERVER}/api/result_payment_success/${orderCode}`, {
@@ -266,41 +270,35 @@ export const confirmPaymentChange = async (order_id) => {
 //   return response.data;
 // };
 export const filterRevenueFood = async (data) => {
-    try {
-        const token = getToken();
-        const response = await instanceAxios.get(
-            `${LARAVEL_SERVER}/api/filter_revenue_food`,
-            {
-              params: data,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                }
-            }
-        );
-        return response;
-    } catch (error) {
-        console.error('Error :', error.response ? error.response.data : error.message);
-        throw error;
-    }
+  try {
+    const token = getToken();
+    const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/filter_revenue_food`, {
+      params: data,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    console.error('Error :', error.response ? error.response.data : error.message);
+    throw error;
+  }
 };
 export const filterProfitFood = async (data) => {
   try {
-      const token = getToken();
-      const response = await instanceAxios.get(
-          `${LARAVEL_SERVER}/api/filter_profit_food`,
-          {
-            params: data,
-              headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}`
-              }
-          }
-      );
-      return response;
+    const token = getToken();
+    const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/filter_profit_food`, {
+      params: data,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response;
   } catch (error) {
-      console.error('Error :', error.response ? error.response.data : error.message);
-      throw error;
+    console.error('Error :', error.response ? error.response.data : error.message);
+    throw error;
   }
 };
 export const reportProfit = async () => {
@@ -315,18 +313,31 @@ export const reportProfit = async () => {
 export const orderDeliveryStatus = async (order_id, newStatus) => {
   try {
     // Gửi yêu cầu POST với order_id và trạng thái mới
-    const response = await axios.post(`${LARAVEL_SERVER}/api/order_delivery_status`, {
-      order_id: order_id,
-      shipping_status: newStatus,  // Gửi trạng thái mới
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,  // Đảm bảo token hợp lệ
+    const response = await axios.post(
+      `${LARAVEL_SERVER}/api/order_delivery_status`,
+      {
+        order_id: order_id,
+        shipping_status: newStatus, // Gửi trạng thái mới
       },
-    });
-    return response.data;  // Trả về dữ liệu từ API
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`, // Đảm bảo token hợp lệ
+        },
+      },
+    );
+    return response.data; // Trả về dữ liệu từ API
   } catch (error) {
     console.error(error);
-    throw error;  // Ném lỗi nếu có
+    throw error; // Ném lỗi nếu có
   }
+};
+export const createHandmadeSales = async () => {
+  const response = await axios.get(`${LARAVEL_SERVER}/api/all_payment_slip`, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
 };

@@ -217,6 +217,7 @@ Route::group(['middleware' => 'api'], function () {
     Route::get('order_detail/{order_id}', [DepotManagerController::class, 'order_detail']);
     Route::get('delete_order/{order_id}', [DepotManagerController::class, 'delete_order']);
     Route::post('store_order_retail', [DepotManagerController::class, 'store_order_retail']);
+    Route::post('store_order_handmade', [DepotManagerController::class, 'store_order_handmade']);
     Route::post('store_order_agency', [DepotManagerController::class, 'store_order_agency']);
     //Phiếu chi
     Route::get('all_payment_slip', [DepotManagerController::class, 'all_payment_slip']);

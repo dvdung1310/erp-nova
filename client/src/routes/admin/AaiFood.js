@@ -14,7 +14,7 @@ const OrderDetail = lazy(() => import('../../container/aaifood/order/order_detai
 const ResultPayment = lazy(() => import('../../container/aaifood/order/payment_result'));
 const Revenue = lazy(() => import('../../container/aaifood/revenue'));
 const Profit = lazy(() => import('../../container/aaifood/profit'));
-
+const createHandmadeSale = lazy(() => import('../../container/aaifood/order/create_handmade_sale'));
 const NovaupRoutes = memo(() => {
     const {path} = useRouteMatch();
     console.log(path);
@@ -33,6 +33,7 @@ const NovaupRoutes = memo(() => {
             <Route path={`${path}/phieu-chi`} component={PaymentSlip}/>
             <Route path={`${path}/tao-phieu-chi`} component={createPaymentSlip}/>
             <Route path={`${path}/ket-qua-thanh-toan/:orderCode`} component={ResultPayment}/>
+            <Route path={`${path}/tao-phieu-ban-hang-thu-cong`} component={createHandmadeSale}/>
         </Switch>
     );
 });
