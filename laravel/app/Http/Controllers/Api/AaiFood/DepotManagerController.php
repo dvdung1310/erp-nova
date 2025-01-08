@@ -809,7 +809,7 @@ class DepotManagerController extends Controller
     {
         $user_id = auth()->user()->id;
         $user = CrmEmployeeModel::join('users', 'crm_employee.account_id', '=', 'users.id')
-            ->select('crm_employee.department_id', 'users.role_id')
+            ->select('crm_employee.department_id', 'users.role_id','crm_employee.level_id')
             ->where('users.id', $user_id)->first();
         // if($user->department_id == 1 || $user->department_id == 8 ||  $user->role_id == 1){
         //     $check_role = true;

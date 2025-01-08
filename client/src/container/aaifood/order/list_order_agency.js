@@ -198,12 +198,12 @@ const list_order_agency = () => {
   const handleCancel = () => {
     setIsModalVisible(false);
   };
-  const canEdit = roleUser && (roleUser.department_id === 1 || roleUser.department_id === 8 || roleUser.role_id === 1);
+  const canEdit = roleUser && (roleUser.department_id === 1 || (roleUser.department_id === 8&& roleUser.level_id === 23) || roleUser.role_id === 1);
   const canClick =
     roleUser &&
     (roleUser.department_id === 9 ||
       roleUser.department_id === 1 ||
-      roleUser.department_id === 8 ||
+      (roleUser.department_id === 8&& roleUser.level_id === 23) ||
       roleUser.role_id === 1);
   const columns_orderRetail = [
     {

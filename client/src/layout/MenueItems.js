@@ -57,6 +57,10 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
     fetchGroup();
   }, []);
 
+  const showAllMenuItems = (roleUser?.department_id === 8 && roleUser?.level_id === 23) || roleUser?.role_id === 1;
+
+  const showSalesMenuItem =
+    roleUser?.department_id === 9 || (roleUser?.department_id === 8 && roleUser?.level_id === 26);
   return (
     <Menu
       onOpenChange={onOpenChange}
@@ -424,8 +428,7 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
           <SubMenu key="depot" icon={!topMenu && <FaWarehouse size={16} />} title="KHO HÀNG">
             {roleUser && (
               <>
-                {(roleUser.department_id === 8 || roleUser.role_id === 1) && (
-                  // Hiển thị tất cả các mục nếu department_id === 8 hoặc role_id === 1
+                {showAllMenuItems && (
                   <>
                     <Menu.Item key="manager-product">
                       <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/san-pham`}>
@@ -459,8 +462,7 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
                     </Menu.Item>
                   </>
                 )}
-                {roleUser.department_id === 9 && (
-                  // Hiển thị chỉ mục "Bán hàng" nếu department_id === 9
+                {showSalesMenuItem && (
                   <Menu.Item key="manager-sales">
                     <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/ban-hang`}>
                       Bán hàng
