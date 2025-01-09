@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect , useRef } from "react";
 import { startOfMonth, eachDayOfInterval, addDays, getDay } from "date-fns/esm";
 import { fullWorkSchedule } from "../../../apis/employees/index";
 import "../FullWorkSchedule.css";
@@ -12,6 +12,9 @@ const FullWorkSchedule = () => {
     const [weeks, setWeeks] = useState([]);
     const [loading, setLoading] = useState(false);
     const history = useHistory();
+    const currentDate = new Date().toISOString().split("T")[0];
+    const currentDayIndex = (getDay(new Date(currentDate)) + 6) % 7;
+    const currentWeekRef = useRef(null);
     const toRomanNumeral = (num) => {
         const romanNumerals = [
             ["X", 10],
@@ -45,10 +48,15 @@ const FullWorkSchedule = () => {
         fetchScheduleData();
     }, [selectedMonth]);
 
+    useEffect(() => {
+        if (weeks.length > 0 && currentWeekRef.current) {
+            currentWeekRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    }, [weeks, currentDate]);
     // Tạo tuần cho tháng đã chọn
     useEffect(() => {
         const generateWeeks = () => {
-            const firstDayOfMonth = startOfMonth(new Date(2024, selectedMonth - 1));
+            const firstDayOfMonth = startOfMonth(new Date(2025, selectedMonth - 1));
             let firstMonday = firstDayOfMonth;
 
             const dayOfWeek = getDay(firstDayOfMonth);
@@ -57,9 +65,9 @@ const FullWorkSchedule = () => {
             }
 
             const weeksArray = [];
-            if (selectedMonth === 10) {
-                const extraWeekStart = new Date(2024, 8, 31);
-                const extraWeekEnd = new Date(2024, 9, 7);
+            if (selectedMonth === 1) {
+                const extraWeekStart = new Date(2024, 11, 31);
+                const extraWeekEnd = new Date(2024, 12, 6);
                 const extraDays = eachDayOfInterval({ start: extraWeekStart, end: extraWeekEnd });
                 weeksArray.push(extraDays.map(day => day.toISOString().split("T")[0]));
             }
@@ -107,7 +115,7 @@ const FullWorkSchedule = () => {
                                 <th rowSpan={2} className="px-4 border text-center">STT</th>
                                 <th rowSpan={2} className="px-4 border name-class">Họ Và Tên</th>
                                 {["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "CN"].map((day, idx) => (
-                                    <th key={idx} colSpan={3} className="px-4 border text-center date-class">{day}</th>
+                                    <th key={idx} colSpan={3} className={`px-4 border text-center date-class ${currentDayIndex === idx ? "bg-blue font-bold" : ""}`}>{day}</th>
                                 ))}
                                 <th rowSpan={2} className="px-4 border text-center">Tổng</th>
                             </tr>
@@ -125,14 +133,16 @@ const FullWorkSchedule = () => {
 
                         <div style={{ marginTop: '70px', marginBottom: '30px' }}>
                             {weeks.map((week, weekIndex) => (
-                                <div key={weekIndex} className="mb-4">
+                                <div ref={week.includes(currentDate) ? currentWeekRef : null} key={weekIndex} className="mb-4">
                                     <table className="min-w-full bg-white border border-gray-200">
                                         <thead>
                                         <tr className="week-tr">
                                             <th className="px-4 border text-center">STT</th>
                                             <th className="px-4 border name-class">Tuần {weekIndex + 1} tháng {selectedMonth}</th>
                                             {week.map((date, idx) => (
-                                                <th key={idx} colSpan={3} className="px-4 border text-center date-class">
+                                                <th key={idx} colSpan={3} className={`px-4 border text-center date-class ${
+                                                    date === currentDate ? "bg-blue font-bold" : ""
+                                                }`}>
                                                     {new Date(date).toLocaleDateString()}
                                                 </th>
                                             ))}

@@ -43,6 +43,7 @@ const PaymentResult = () => {
                   <li>Khách hàng : {customer.customer_name}</li>
                   <li>Số điện thoại : {customer.customer_phone}</li>
                   <li>Địa chỉ : {customer.customer_address}</li>
+                  
                 </ul>
               </div>
             </div>

@@ -13,7 +13,8 @@ const createPaymentSlip = lazy(() => import('../../container/aaifood/create_paym
 const OrderDetail = lazy(() => import('../../container/aaifood/order/order_detail'));
 const ResultPayment = lazy(() => import('../../container/aaifood/order/payment_result'));
 const Revenue = lazy(() => import('../../container/aaifood/revenue'));
-
+const Profit = lazy(() => import('../../container/aaifood/profit'));
+const createHandmadeSale = lazy(() => import('../../container/aaifood/order/create_handmade_sale'));
 const NovaupRoutes = memo(() => {
     const {path} = useRouteMatch();
     console.log(path);
@@ -28,10 +29,11 @@ const NovaupRoutes = memo(() => {
             <Route path={`${path}/tao-phieu-ban-le`} component={CreateOrder}/>
             <Route path={`${path}/tao-phieu-ban-dai-ly`} component={CreateOrderAgency}/>
             <Route path={`${path}/doanh-thu`} component={Revenue}/>
-            <Route path={`${path}/loi-nhuan`} component={TurnOver}/>
+            <Route path={`${path}/loi-nhuan`} component={Profit}/>
             <Route path={`${path}/phieu-chi`} component={PaymentSlip}/>
             <Route path={`${path}/tao-phieu-chi`} component={createPaymentSlip}/>
             <Route path={`${path}/ket-qua-thanh-toan/:orderCode`} component={ResultPayment}/>
+            <Route path={`${path}/tao-phieu-ban-hang-thu-cong`} component={createHandmadeSale}/>
         </Switch>
     );
 });

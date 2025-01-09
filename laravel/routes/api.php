@@ -217,6 +217,7 @@ Route::group(['middleware' => 'api'], function () {
     Route::get('order_detail/{order_id}', [DepotManagerController::class, 'order_detail']);
     Route::get('delete_order/{order_id}', [DepotManagerController::class, 'delete_order']);
     Route::post('store_order_retail', [DepotManagerController::class, 'store_order_retail']);
+    Route::post('store_order_handmade', [DepotManagerController::class, 'store_order_handmade']);
     Route::post('store_order_agency', [DepotManagerController::class, 'store_order_agency']);
     //Phiếu chi
     Route::get('all_payment_slip', [DepotManagerController::class, 'all_payment_slip']);
@@ -229,11 +230,16 @@ Route::group(['middleware' => 'api'], function () {
     //Doanh thu
     Route::get('report_revenue', [DepotManagerController::class, 'report_revenue']);
     Route::get('filter_revenue_food', [DepotManagerController::class, 'filter_revenue_food'])->middleware(middlewareLogin::class);
+    //Lợi nhuận
+    Route::get('report_profit', [DepotManagerController::class, 'report_profit']);
+    Route::get('filter_profit_food', [DepotManagerController::class, 'filter_profit_food'])->middleware(middlewareLogin::class);
     //Kiểm tra quyền
     Route::get('check_role_food', [DepotManagerController::class, 'check_role_food'])->middleware(middlewareLogin::class);
     Route::get('revenue', [DepotManagerController::class, 'revenue']);
     //Thanh toán
     Route::get('result_payment_success/{orderCode}', [DepotManagerController::class, 'result_payment_success']);
+    //Trạng thái vận chuyển
+    Route::post('order_delivery_status', [DepotManagerController::class, 'order_delivery_status']);
 });
 // Novaup
 Route::group(['middleware' => 'api', 'prefix' => 'customer'], function () {
