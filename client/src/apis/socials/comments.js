@@ -14,3 +14,13 @@ export const createComment = async (data) => {
     })
     return response.data;
 }
+export const createOrUpdateReactionComment = async (data) => {
+    const token = getToken();
+    const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/socials/comments/reactions/create`, data, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    return response.data;
+}

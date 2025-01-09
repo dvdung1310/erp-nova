@@ -128,7 +128,7 @@ class PostController extends Controller
                 $post->hashtags = $hashtags;
 
                 $comments = SocialComment::where('post_id', $post->post_id)
-                    ->with(['createByUser', 'galleries'])
+                    ->with(['createByUser', 'galleries', 'reactions'])
                     ->orderBy('created_at', 'desc')
                     ->get()
                     ->toArray();
@@ -254,6 +254,33 @@ class PostController extends Controller
                 'message' => $e->getMessage(),
             ]);
         }
+    }
+
+    public function delete($post_id)
+    {
+        try {
+            $post = SocialPost::find($post_id);
+            if (!$post) {
+                return response()->json([
+                    'message' => 'Post not found',
+                    'data' => null,
+                    'error' => true
+                ], 404);
+            }
+            $post->delete();
+            return response()->json([
+                'message' => 'Delete post successfully',
+                'data' => null,
+                'error' => false
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'data' => null,
+                'error' => true
+            ], 500);
+        }
+
     }
 
 }

@@ -1,16 +1,31 @@
 import React, {useState} from 'react';
 import PropTypes from 'prop-types';
-import {Comment, Avatar} from 'antd';
+import {Comment, Avatar, Popover} from 'antd';
 import {Link} from 'react-router-dom';
 import moment from 'moment';
 import FeatherIcon from 'feather-icons-react';
 import Masonry from 'react-masonry-css';
 import {SRLWrapper} from 'simple-react-lightbox';
+import {FaAngry, FaHeart, FaLaugh, FaSadTear, FaSurprise, FaThumbsUp} from "react-icons/fa";
+import {checkReaction} from "../../../../../utility/checkValue";
+import {createOrUpdateReactionComment} from "../../../../../apis/socials/comments";
 
 function ExampleComment({replay}) {
+    console.log(replay);
     const [showChildren, setShowChildren] = useState(false);
     const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
-
+    const user_id = replay?.user_id;
+    const [userReaction, setUserReaction] = useState(replay?.reactions?.find((item) => item?.user_id === user_id));
+    const reactionColor = checkReaction(userReaction?.reaction_type).color;
+    const handleCreateOrUpdateReaction = async (comment_id, reaction_type) => {
+        try {
+            const response = await createOrUpdateReactionComment({comment_id, reaction_type});
+            setUserReaction(response?.data);
+        } catch
+            (error) {
+            console.log(error);
+        }
+    }
     const renderChildren = (children) => {
         return children.map((child, key) => (
             <ExampleComment
@@ -22,6 +37,9 @@ function ExampleComment({replay}) {
                     image: child.galleries,
                     createByUser: child.create_by_user,
                     children: child.children,
+                    reactions: child.reactions,
+                    user_id: child.user_id,
+                    comment_id: child.comment_id
                 }}
             />
         ));
@@ -30,9 +48,54 @@ function ExampleComment({replay}) {
     return (
         <Comment
             actions={[
-                <span className="com-like" key="comment-like">
-                    Like{' '}
-                </span>,
+                <span>
+                       <Popover
+                           className="wide-dropdown"
+                           action="hover"
+                           content={
+
+                               <div className='popover-content'>
+                                   <span onClick={() => handleCreateOrUpdateReaction(replay.comment_id, 'like')}
+                                         className="reaction"><FaThumbsUp color='#1E90FF' size={20}/> Like</span>
+                                   <span onClick={() => handleCreateOrUpdateReaction(replay.comment_id, 'love')}
+                                         className="reaction"><FaHeart color='#FF4500' size={20}/> Love</span>
+                                   <span onClick={() => handleCreateOrUpdateReaction(replay.comment_id, 'haha')}
+                                         className="reaction"><FaLaugh color='#FFD700' size={20}/> Haha</span>
+                                   <span onClick={() => handleCreateOrUpdateReaction(replay.comment_id, 'wow')}
+                                         className="reaction"><FaSurprise color='#FF6347' size={20}/> Wow</span>
+                                   <span onClick={() => handleCreateOrUpdateReaction(replay.comment_id, 'sad')}
+                                         className="reaction"><FaSadTear color='#4682B4' size={20}/> Sad</span>
+                                   <span onClick={() => handleCreateOrUpdateReaction(replay.comment_id, 'angry')}
+                                         className="reaction"><FaAngry color='#DC143C' size={20}/> Angry</span>
+                               </div>
+                           }
+                       >
+                      <>
+                        <span className="com-like" key="comment-like">
+                            {
+                                <>
+                                    {
+                                        userReaction?.reaction_type === 'like' ?
+                                            <FaThumbsUp size={24} color={reactionColor}/> :
+                                            userReaction?.reaction_type === 'love' ?
+                                                <FaHeart size={24} color={reactionColor}/> :
+                                                userReaction?.reaction_type === 'haha' ?
+                                                    <FaLaugh size={24} color={reactionColor}/> :
+                                                    userReaction?.reaction_type === 'wow' ?
+                                                        <FaSurprise size={24} color={reactionColor}/> :
+                                                        userReaction?.reaction_type === 'sad' ?
+                                                            <FaSadTear size={24} color={reactionColor}/> :
+                                                            userReaction?.reaction_type === 'angry' ?
+                                                                <FaAngry size={24} color={reactionColor}/> :
+                                                                <FaThumbsUp size={24}/>
+                                    }
+                                    {replay?.reactions?.length > 0 ? replay?.reactions?.length : ''}
+                                </>
+                            }
+                        </span>
+                      </>
+                       </Popover>
+                        </span>,
                 <span className="com-reply" key="comment-reply">
                     Trả lời{' '}
                 </span>,

@@ -25,4 +25,8 @@ class SocialComment extends Model
     {
         return $this->hasMany(SocialGalleries::class, 'comment_id');
     }
+    public function reactions()
+    {
+        return $this->hasMany(SocialReaction::class, 'comment_id');
+    }
 }
