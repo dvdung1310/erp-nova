@@ -14,7 +14,6 @@ import {FaRegFileLines} from "react-icons/fa6";
 import {getItem} from "../../../../../utility/localStorageControl";
 
 const MessageComponent = ({handleCloseComment, task}) => {
-    console.log(task);
     const {pathname} = useLocation();
     const URL_LARAVEL = process.env.REACT_APP_LARAVEL_SERVER;
     const [message, setMessage] = useState([]);
@@ -158,8 +157,10 @@ const MessageComponent = ({handleCloseComment, task}) => {
                     </div>
                     <div className="card-body">
                         <div className="comment">
+                            <div className='text-head'>Mô tả công việc</div>
                             <div className='comment_description'
                                  dangerouslySetInnerHTML={{__html: task?.task_description}}></div>
+                            <div className='text-head'>Thảo luận</div>
                             <div className="message">
                                 {
                                     loading ? <div style={{
@@ -244,58 +245,58 @@ const MessageComponent = ({handleCloseComment, task}) => {
 
                             </div>
                         </div>
-                        <div className="input-group mt-3" style={{borderTop: '1px solid #ccc'}}>
-                            <form onSubmit={handleSendComment} action=""
-                                  style={{
-                                      display: 'flex',
-                                      justifyContent: 'space-between',
-                                      alignItems: 'center',
-                                      width: '100%',
-                                      margin: '10px 0'
-                                  }}
+                    </div>
+                    <div className="input-group mt-3" style={{borderTop: '1px solid #ccc', background: '#fff'}}>
+                        <form onSubmit={handleSendComment} action=""
+                              style={{
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  alignItems: 'center',
+                                  width: '100%',
+                                  margin: '10px 0'
+                              }}
+                        >
+                            <div className="form-group me-3">
+                                <label htmlFor="fileInput"
+                                       className="d-flex align-items-center justify-content-center bg-secondary text-white rounded-circle"
+                                       style={{width: '40px', height: '40px', cursor: 'pointer'}}>
+                                    <MdAttachFile size={24}/>
+                                </label>
+                                <input type="file" hidden onChange={(e) => handleImageChange(e, 'file')}
+                                       className="form-control"
+                                       id="fileInput"/>
+                            </div>
+                            <div className="form-group me-3">
+                                <label htmlFor="fileInput1"
+                                       className="d-flex align-items-center justify-content-center bg-secondary text-white rounded-circle"
+                                       style={{width: '40px', height: '40px', cursor: 'pointer'}}>
+                                    <CiImageOn size={24}/>
+                                </label>
+                                <input type="file" hidden onChange={(e) => handleImageChange(e, 'image')}
+                                       className="form-control"
+                                       id="fileInput1"/>
+                            </div>
+                            <div className="ant-form-item-control-input-content">
+                                <input type="text" className="ant-input" id="exampleInputEmail1"
+                                       value={text}
+                                       onChange={(e) => setText(e.target.value)}
+                                       aria-describedby="emailHelp" placeholder="Nhập bình luận"/>
+                            </div>
+                            <Button type='primary'
+                                    htmlType='submit'
+                                    style={{
+                                        height: '100%',
+                                        padding: '10px 30px',
+                                        margin: '0 10px'
+                                    }}
                             >
-                                <div className="form-group me-3">
-                                    <label htmlFor="fileInput"
-                                           className="d-flex align-items-center justify-content-center bg-secondary text-white rounded-circle"
-                                           style={{width: '40px', height: '40px', cursor: 'pointer'}}>
-                                        <MdAttachFile size={24}/>
-                                    </label>
-                                    <input type="file" hidden onChange={(e) => handleImageChange(e, 'file')}
-                                           className="form-control"
-                                           id="fileInput"/>
-                                </div>
-                                <div className="form-group me-3">
-                                    <label htmlFor="fileInput1"
-                                           className="d-flex align-items-center justify-content-center bg-secondary text-white rounded-circle"
-                                           style={{width: '40px', height: '40px', cursor: 'pointer'}}>
-                                        <CiImageOn size={24}/>
-                                    </label>
-                                    <input type="file" hidden onChange={(e) => handleImageChange(e, 'image')}
-                                           className="form-control"
-                                           id="fileInput1"/>
-                                </div>
-                                <div className="ant-form-item-control-input-content">
-                                    <input type="text" className="ant-input" id="exampleInputEmail1"
-                                           value={text}
-                                           onChange={(e) => setText(e.target.value)}
-                                           aria-describedby="emailHelp" placeholder="Nhập bình luận"/>
-                                </div>
-                                <Button type='primary'
-                                        htmlType='submit'
-                                        style={{
-                                            height: '100%',
-                                            padding: '10px 30px',
-                                            margin: '0 10px'
-                                        }}
-                                >
-                                    {
-                                        loadingSend ? <div>
-                                            <Spin/>
-                                        </div> : 'Gửi'
-                                    }
-                                </Button>
-                            </form>
-                        </div>
+                                {
+                                    loadingSend ? <div>
+                                        <Spin/>
+                                    </div> : 'Gửi'
+                                }
+                            </Button>
+                        </form>
                     </div>
                 </div>
             </motion.div>
