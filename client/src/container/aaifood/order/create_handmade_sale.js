@@ -222,7 +222,7 @@ const create_order = () => {
                   name="customer_phone"
                   rules={[{ required: true, message: 'Vui lòng nhập số điện thoại khách hàng!' }]}
                 >
-                  <Input />
+                  <Input type="number"/>
                 </Form.Item>
               </Col>
               <Col className="gutter-row" span={24}>
@@ -353,7 +353,7 @@ const create_order = () => {
               <Col className="gutter-row" span={24}>
                 <Form.Item>
                   <Button type="primary" htmlType="submit" block>
-                    Tạo phiếu bán hàng Online
+                    Tạo phiếu bán hàng thủ công
                   </Button>
                 </Form.Item>
               </Col>

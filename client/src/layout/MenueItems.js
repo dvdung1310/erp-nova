@@ -357,6 +357,11 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
                 Nguồn khách hàng
               </NavLink>
             </Menu.Item>
+            <Menu.Item key="nvu-receipts">
+              <NavLink onClick={toggleCollapsed} to={`${path}/novaup/phieu-thu`}>
+                Phiếu thu
+              </NavLink>
+            </Menu.Item>
             <Menu.Item key="nvu-revenue">
               <NavLink onClick={toggleCollapsed} to={`${path}/novaup/doanh-thu`}>
                 Doanh thu
@@ -385,6 +390,11 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
             <Menu.Item key="nvt-data">
               <NavLink onClick={toggleCollapsed} to={`${path}/novateen/data-import`}>
                 Data import
+              </NavLink>
+            </Menu.Item>
+            <Menu.Item key="nvt-receipts">
+              <NavLink onClick={toggleCollapsed} to={`${path}/novateen/phieu-thu`}>
+                Phiếu thu
               </NavLink>
             </Menu.Item>
             <Menu.Item key="nvt-bill">

@@ -156,6 +156,11 @@ Route::group(['middleware' => 'api', 'prefix' => 'novaup'], function () {
     Route::get('/deletePayment/{id}', [PaymentController::class, 'delete']);
     Route::get('/getBookingConnectCumstomer', [PaymentController::class, 'getBookingConnectCumstomer']);
 
+    //phiếu thu
+    Route::get('all_recipts_novaup', [PaymentController::class, 'all_recipts_novaup'])->middleware(middlewareLogin::class);
+    Route::post('store_receipts_novaup', [PaymentController::class, 'store_receipts_novaup']);
+    Route::get('report_revenue_novaup', [PaymentController::class, 'report_revenue_novaup']);
+    Route::get('filter_revenue_novaup', [PaymentController::class, 'filter_revenue_novaup'])->middleware(middlewareLogin::class);
 });
 
 // NovaTeen
@@ -194,6 +199,11 @@ Route::group(['middleware' => 'api'], function () {
     Route::post('nvt_import_data', [NvtCustomerController::class, 'nvt_import_data'])->middleware(middlewareLogin::class);
     Route::get('nvt_list_data_import', [NvtCustomerController::class, 'nvt_list_data_import']);
     Route::post('nvt_divide_data', [NvtCustomerController::class, 'nvt_divide_data']);
+    //Phiếu thu
+    Route::post('store_receipts_novateen', [NvtPaymentController::class, 'store_receipts_novateen']);
+    Route::get('all_recipts_novateen', [NvtPaymentController::class, 'all_recipts_novateen'])->middleware(middlewareLogin::class);
+    Route::get('report_revenue_novateen', [NvtPaymentController::class, 'report_revenue_novateen']);
+    Route::get('filter_revenue_novateen', [NvtPaymentController::class, 'filter_revenue_novateen'])->middleware(middlewareLogin::class);
 
 });
 //Thực phẩm

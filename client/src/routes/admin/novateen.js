@@ -7,6 +7,9 @@ const DataImport = lazy(() => import('../../container/NovaTeen/DataImport'));
 const DataSource = lazy(() => import('../../container/NovaTeen/DataSource'));
 const DataStatus = lazy(() => import('../../container/Novaup/StatusData'));
 const listBill = lazy(() => import('../../container/NovaTeen/ListBill'));
+const Receipts = lazy(() => import('../../container/NovaTeen/Receipts'));
+const CreateReceipts = lazy(() => import('../../container/NovaTeen/Create_Receipts'));
+const Revenue = lazy(() => import('../../container/NovaTeen/Revenue'));
 
 const NovaupRoutes = memo(() => {
   const { path } = useRouteMatch();
@@ -17,7 +20,9 @@ const NovaupRoutes = memo(() => {
       <Route path={`${path}/data-import`} component={DataImport} />
       <Route path={`${path}/nguon-data`} component={DataSource} />
       <Route path={`${path}/trang-thai-data`} component={DataStatus} />
-      <Route path={`${path}/doanh-thu`} component={listBill} />
+      <Route path={`${path}/doanh-thu`} component={Revenue} />
+      <Route path={`${path}/phieu-thu`} component={Receipts} />
+      <Route path={`${path}/tao-phieu-thu`} component={CreateReceipts} />
       {/* <Route path={`${path}/khach-hang/chi-tiet`} component={showCustomer} /> */}
     </Switch>
   );

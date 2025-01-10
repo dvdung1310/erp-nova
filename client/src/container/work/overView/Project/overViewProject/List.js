@@ -787,8 +787,8 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                 ),
                 project_status: <Tag style={{
                     padding: "4px 8px",
-                    backgroundColor: checkStatusProjectByTask(completed_tasks, total_tasks)?.color,
-                }}>{checkStatusProjectByTask(completed_tasks, total_tasks)?.status}</Tag>,
+                    backgroundColor: (completed_tasks === total_tasks && total_tasks !== 0) ? '#2e7d32' : checkStatusProject(project_status)?.color,
+                }}>{(completed_tasks === total_tasks && total_tasks !== 0) ? 'Hoàn thành' : checkStatusProject(project_status)?.status}</Tag>,
                 success: (
                     <div className="project-list-progress">
                         <Progress

@@ -227,3 +227,53 @@ export const divideData = async (data) => {
     throw error;
   }
 };
+
+export const storeReceiptsNovaTeen = async (payload) => {
+  const response = await axios.post(`${LARAVEL_SERVER}/api/store_receipts_novateen`, payload, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
+
+export const allReceiptsNovateen = async (data) => {
+  try {
+    const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/all_recipts_novateen`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    console.error('Error checking download file:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+export const reportRevenue = async () => {
+  const response = await axios.get(`${LARAVEL_SERVER}/api/report_revenue_novateen`, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
+export const filterRevenueNovaTeen= async (data) => {
+  try {
+    const token = getToken();
+    const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/filter_revenue_novateen`, {
+      params: data,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    console.error('Error :', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};

@@ -370,14 +370,16 @@ const list_order_agency = () => {
       title: 'Hành động',
       key: 'action',
       render: (_, record) => (
-        <Popconfirm
-          title="Bạn có chắc chắn muốn xóa bản ghi này?"
-          onConfirm={() => handleDelete(record)}
-          okText="Xóa"
-          cancelText="Hủy"
-        >
-          <Button type="danger">Xóa</Button>
-        </Popconfirm>
+        record.payos_status === 0 ? ( // Kiểm tra nếu trạng thái thanh toán là 0
+          <Popconfirm
+            title="Bạn có chắc chắn muốn xóa bản ghi này?"
+            onConfirm={() => handleDelete(record)}
+            okText="Xóa"
+            cancelText="Hủy"
+          >
+            <Button type="danger">Xóa</Button>
+          </Popconfirm>
+        ) : null // Không hiển thị gì nếu trạng thái không phải 0
       ),
     }] : []),
   ];
