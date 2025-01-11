@@ -287,7 +287,7 @@ const list_order_agency = () => {
         <div>
           <div>
             <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
-              <Col className="gutter-row" span={6}>
+              <Col className="gutter-row" xs={24} sm={12} md={6}>
                 <div
                   style={{
                     backgroundColor: '#f5f5f5',
@@ -304,7 +304,7 @@ const list_order_agency = () => {
                   </h4>
                 </div>
               </Col>
-              <Col className="gutter-row" span={6}>
+              <Col className="gutter-row" xs={24} sm={12} md={6}>
                 <div
                   style={{
                     backgroundColor: '#f5f5f5',
@@ -321,7 +321,7 @@ const list_order_agency = () => {
                   </h4>
                 </div>
               </Col>
-              <Col className="gutter-row" span={6}>
+              <Col className="gutter-row" xs={24} sm={12} md={6}>
                 <div
                   style={{
                     backgroundColor: '#f5f5f5',
@@ -338,7 +338,7 @@ const list_order_agency = () => {
                   </h4>
                 </div>
               </Col>
-              <Col className="gutter-row" span={6}>
+              <Col className="gutter-row" xs={24} sm={12} md={6}>
                 <div
                   style={{
                     backgroundColor: '#f5f5f5',
@@ -375,6 +375,7 @@ const list_order_agency = () => {
                         dataSource={orderRetail}
                         columns={columns_orderRetail}
                         rowKey="suppliers_id"
+                        scroll={{ x: 1000 }}
                       />
                     </div>
                   </Col>
@@ -389,6 +390,7 @@ const list_order_agency = () => {
                         dataSource={orderAgency}
                         columns={columns_orderAgency}
                         rowKey="suppliers_id"
+                        scroll={{ x: 1000 }}
                       />
                     </div>
                   </Col>

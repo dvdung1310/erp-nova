@@ -402,6 +402,7 @@ const Receipts = () => {
             columns={columns_orderRetail}
             dataSource={filteredData.length > 0 ? filteredData : orderRetail}
             rowKey="id"
+            scroll={{ x: 1000 }}
           />
         </div>
       )}

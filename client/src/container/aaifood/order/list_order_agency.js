@@ -575,9 +575,9 @@ const list_order_agency = () => {
 
   return (
     <div style={{ padding: '20px', background: '#fff' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignContent: 'center', marginBottom: '30px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignContent: 'center', marginBottom: '30px', flexWrap:'wrap'}}>
         <h3>Danh sách phiếu bán hàng</h3>
-        <div style={{ display: 'flex', alignContent: 'center' }}>
+        <div style={{ display: 'flex', alignContent: 'center',flexWrap:'wrap' }}>
           <NavLink
             to={`/admin/aaifood/tao-phieu-ban-le`}
             style={{
@@ -686,6 +686,7 @@ const list_order_agency = () => {
                     columns={columns_orderRetail}
                     dataSource={filteredData.length > 0 ? filteredData : orderRetail}
                     rowKey="id"
+                    scroll={{ x: 1000 }}
                   />
                 </div>
               ),
@@ -735,6 +736,7 @@ const list_order_agency = () => {
                     columns={columns_orderAgency}
                     dataSource={filteredDataAgency.length > 0 ? filteredDataAgency : orderAgency}
                     rowKey="id"
+                    scroll={{ x: 1000 }}
                   />
                 </div>
               ),
