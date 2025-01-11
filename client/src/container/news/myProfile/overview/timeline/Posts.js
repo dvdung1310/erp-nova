@@ -22,7 +22,7 @@ import {
 } from "react-icons/md";
 import {createComment} from "../../../../../apis/socials/comments";
 import {Dropdown} from "../../../../../components/dropdown/dropdown";
-import {createOrUpdateReaction} from "../../../../../apis/socials/posts";
+import {createOrUpdateReaction, deletePost} from "../../../../../apis/socials/posts";
 import {checkReaction} from "../../../../../utility/checkValue";
 
 moment.locale('vi');
@@ -130,6 +130,7 @@ function Posts({
                    hashtags,
                    list_user_tag,
                    userLogin,
+                   setListPosts,
                    ...prop
                }) {
     const {post_id, post_content, created_at} = prop;
@@ -168,9 +169,6 @@ function Posts({
         try {
             const response = await createOrUpdateReaction({post_id, reaction_type});
             setUserReaction(response?.data);
-            if (!reactionsRender.some(item => item?.reaction_id === response?.data?.reaction_id)) {
-                setReactionsRender([response?.data, ...reactionsRender]);
-            }
         } catch
             (error) {
             console.log(error);
@@ -199,7 +197,17 @@ function Posts({
         }
     };
 
-    const onPostDelete = (id) => {
+    const onPostDelete = async (id) => {
+        try {
+            const response = await deletePost(id);
+            setListPosts((prevState) => prevState.filter((item) => item?.post_id !== id));
+            if (response?.status === 200) {
+                toast.success('Xóa bài viết thành công', {autoClose: 1000});
+            }
+        } catch (error) {
+            toast.error('Có lỗi xảy ra, vui lòng thử lại sau', {autoClose: 1000});
+            console.log(error);
+        }
     };
     const handleUploadChange = ({fileList}) => {
         setFileList(fileList);
@@ -208,7 +216,6 @@ function Posts({
         const newFileList = fileList.filter((file) => file.uid !== uid);
         setFileList(newFileList);
     }
-    console.log(userReaction)
     const ReactionIcon = checkReaction(userReaction?.reaction_type).icon;
     const reactionColor = checkReaction(userReaction?.reaction_type).color;
     console.log(ReactionIcon, reactionColor)
@@ -316,12 +323,11 @@ function Posts({
                             </div>
                         }
                         <div className="post-actions">
-  <span>
+                            <span>
                        <Popover
                            className="wide-dropdown"
                            action="hover"
                            content={
-
                                <div className='popover-content'>
                                    <span onClick={() => handleCreateOrUpdateReaction(post_id, 'like')}
                                          className="reaction"><FaThumbsUp color='#1E90FF' size={20}/> Like</span>
@@ -580,6 +586,9 @@ function Posts({
                                                 image: item.galleries,
                                                 createByUser: item.create_by_user,
                                                 children: item.children,
+                                                reactions: item.reactions,
+                                                user_id: user_id,
+                                                comment_id: item.comment_id
                                             }}
                                         />
                                     ))

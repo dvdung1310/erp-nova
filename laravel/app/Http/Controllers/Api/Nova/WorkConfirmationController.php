@@ -224,7 +224,7 @@ class WorkConfirmationController extends Controller
                 $work->status_detail = 0;
             } else {
                 foreach ($details as $item) {
-                    if ($item->status ===  1 || $item->status ===  0) {
+                    if ($item->status === 1 || $item->status === 0) {
                         $work->status_detail = 1;
                     } else {
                         $work->status_detail = 0;
@@ -266,7 +266,7 @@ class WorkConfirmationController extends Controller
                 $confirmation->status_detail = 0;
             } else {
                 foreach ($details as $item) {
-                    if ($item->status ===  1 || $item->status ===  0) {
+                    if ($item->status === 1 || $item->status === 0) {
                         $confirmation->status_detail = 1;
                     } else {
                         $confirmation->status_detail = 0;
@@ -293,7 +293,7 @@ class WorkConfirmationController extends Controller
                 $confirmation->status_detail = 0;
             } else {
                 foreach ($details as $item) {
-                    if ($item->status ===  1 || $item->status ===  0) {
+                    if ($item->status === 1 || $item->status === 0) {
                         $confirmation->status_detail = 1;
                     } else {
                         $confirmation->status_detail = 0;
@@ -367,6 +367,54 @@ class WorkConfirmationController extends Controller
         $EmployeeWorkConfirmationDetails = EmployeeWorkConfirmationDetails::find($id);
         $EmployeeWorkConfirmationDetails->status = $status;
         $EmployeeWorkConfirmationDetails->save();
+        // Gửi thông báo cho người tạo
+        $confirmation_status = $status;
+        $work_confirmation_id = $EmployeeWorkConfirmationDetails->work_confirmation_id;
+        $confirmations = EmployeeWorkConfirmation::find($work_confirmation_id);
+        $statusMessage = '';
+        if ($confirmation_status == 1) {
+            $statusMessage = 'Đã duyệt';
+        } else {
+            $statusMessage = 'Không duyệt';
+        }
+        $user_id = User::where('id', $confirmations->employee->account_id)->pluck('id')->first();
+        $members = [$user_id];
+        $pathname = '/admin/nhan-su/chi-tiet-xac-nhan-cong/' . $work_confirmation_id;
+        $createByUserName = auth()->user()->name;
+        $create_by_user_id = auth()->user()->id;
+        $notifications = [];
+        foreach ($members as $user_id) {
+            if ($user_id != $create_by_user_id) {
+                $notifications[] = [
+                    'user_id' => $user_id,
+                    'create_by_user_id' => $create_by_user_id,
+                    'notification_title' => 'Đã xem xét đề xuất xác nhận công của bạn' . '(' . $statusMessage . ')',
+                    'notification_link' => $this->ClientUrl . $pathname,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+        }
+        Notification::insert($notifications);
+        $devices = Devices::whereIn('user_id', $members)
+            ->where('user_id', '!=', $create_by_user_id)
+            ->get();
+        $devices = $devices->map(function ($device) {
+            return json_decode($device->endpoint, true);
+        })->filter()->values()->toArray();
+        $notification = Notification::where('notification_link', $this->ClientUrl . $pathname)->first();
+        if (!empty($notifications)) {
+            $payload = [
+                'members' => $members,
+                'devices' => $devices,
+                'createByUserName' => $createByUserName,
+                'notification' => $notification,
+                'createByUserId' => $create_by_user_id,
+                'pathname' => $pathname,
+                'statusMessage' => $statusMessage
+            ];
+            Http::post($this->nodeUrl . '/update-work-confirmation', $payload);
+        }
         return response()->json([
             'message' => 'Hoàn thành xác nhận công',
         ], 200);

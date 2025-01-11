@@ -407,10 +407,12 @@ Route::prefix('records')->group(function () {
 Route::prefix('socials')->group(function () {
     //posts
     Route::post('posts/create', [PostController::class, 'create'])->middleware(middlewareLogin::class);
+    Route::delete('posts/delete/{post_id}', [PostController::class, 'delete'])->middleware(middlewareLogin::class);
     Route::post('posts/reactions/create', [PostController::class, 'createOrUpdateReaction'])->middleware(middlewareLogin::class);
     Route::get('posts/get-all', [PostController::class, 'getAllPosts'])->middleware(middlewareLogin::class);
     Route::get('posts/get-by-id/{post_id}', [PostController::class, 'getPostsById'])->middleware(middlewareLogin::class);
     // comments
     Route::post('comments/create', [CommentController::class, 'create'])->middleware(middlewareLogin::class);
+    Route::post('comments/reactions/create', [CommentController::class, 'createOrUpdateReaction'])->middleware(middlewareLogin::class);
 });
 

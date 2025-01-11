@@ -8,6 +8,7 @@ use App\Models\SocialGalleries;
 use App\Models\SocialHashtag;
 use App\Models\SocialPost;
 use App\Models\SocialPostHashtag;
+use App\Models\SocialReaction;
 use App\Models\SocialUserTag;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -67,6 +68,43 @@ class CommentController extends Controller
                 'status' => false,
                 'message' => 'Comment created failed',
                 'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function createOrUpdateReaction(Request $request)
+    {
+        try {
+            // Xác thực dữ liệu
+            $request->validate([
+                'comment_id' => 'required|integer',
+                'reaction_type' => 'required|in:like,love,haha,wow,sad,angry',
+            ]);
+            $user_id = auth()->user()->id;
+            $reaction_type = $request->reaction_type;
+            $comment_id = $request->comment_id;
+            $reaction = SocialReaction::where('comment_id', $comment_id)->where('user_id', $user_id)->first();
+            if ($reaction) {
+                $reaction->update([
+                    'reaction_type' => $reaction_type,
+                ]);
+            } else {
+                SocialReaction::create([
+                    'user_id' => $user_id,
+                    'comment_id' => $comment_id,
+                    'reaction_type' => $reaction_type,
+                ]);
+            }
+            return response()->json([
+                'data' => $reaction,
+                'status' => 200,
+                'message' => 'Success',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'data' => null,
+                'status' => 500,
+                'message' => $e->getMessage(),
             ]);
         }
     }

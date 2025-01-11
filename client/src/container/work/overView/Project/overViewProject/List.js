@@ -1266,9 +1266,10 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                                         title={member.name}
                                         description={
                                             <>
-                                                <small className="text-muted">{member?.email}</small>
+                                                <small className="text-muted">{member?.email} </small>
                                                 <br/>
-                                                <strong className="text-muted">{checkRole(member?.role_id)}</strong>
+                                                <strong
+                                                    className="text-muted">{member?.department_name} - {member?.level_name}</strong>
                                             </>
                                         }
                                     />
@@ -1373,10 +1374,10 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                                                 title={member.name}
                                                 description={
                                                     <>
-                                                        <small className="text-muted">{member.email}</small>
+                                                        <small className="text-muted">{member?.email} </small>
                                                         <br/>
                                                         <strong
-                                                            className="text-muted">{checkRole(member.role_id)}</strong>
+                                                            className="text-muted">{member?.department_name} - {member?.level_name}</strong>
                                                     </>
                                                 }
                                             />

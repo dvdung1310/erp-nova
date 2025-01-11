@@ -92,6 +92,10 @@
     font-size: 14px;
   }
   .message-component {
+    .text-head {
+      display: none !important;
+    }
+
     .comment {
       flex-direction: row !important;
 
@@ -481,6 +485,8 @@
 
     .ant-comment-actions {
       margin-top: 10px;
+      display: flex;
+      align-items: center;
     }
   }
 
