@@ -288,7 +288,7 @@ class DepotManagerController extends Controller
             $user = CrmEmployeeModel::join('users', 'crm_employee.account_id', '=', 'users.id')
                 ->select('crm_employee.department_id', 'users.role_id')
                 ->where('users.id', $user_id)->first();
-            if ($user->department_id === 1 || $user->department_id === 8 || $user->role_id === 1) {
+            if ($user->department_id === 1 || $user->department_id === 8|| $user->department_id === 9 || $user->role_id === 1) {
                 $order_retail = AaiOrderModel::leftjoin('users', 'aai_order.sale_id', '=', 'users.id')
                     ->select('aai_order.*', 'users.name')
                     ->where('customer_id', null)

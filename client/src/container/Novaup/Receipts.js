@@ -1,6 +1,6 @@
 import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { NavLink, useRouteMatch } from 'react-router-dom';
-import { Tabs, Table, Spin, Button, Popconfirm, message, Drawer, Form, DatePicker, Modal } from 'antd';
+import { Tabs, Table, Spin, Button, Popconfirm, message, Drawer, Form, DatePicker, Modal, Input } from 'antd';
 import {
   allOrder,
   deleteOrder,
@@ -9,7 +9,7 @@ import {
   checkRoleUser,
   orderDeliveryStatus,
 } from '../../apis/aaifood/index';
-import {allReceiptsNovaup} from '../../apis/novaup/payment';
+import { allReceiptsNovaup } from '../../apis/novaup/payment';
 import moment from 'moment';
 import { FaEye } from 'react-icons/fa';
 const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
@@ -17,6 +17,7 @@ const Receipts = () => {
   const { path } = useRouteMatch();
   const [filteredData, setFilteredData] = useState([]);
   const [filteredDataAgency, setFilteredDataAgency] = useState([]);
+    const [allOrderRetail, setAllOrderRetail] = useState([]);
   const [orderRetail, setOrderRetail] = useState([]);
   const [orderAgency, setOrderAgency] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,6 +26,7 @@ const Receipts = () => {
   const [roleUser, setRoleUser] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [invoiceImage, setInvoiceImage] = useState('');
+  const [searchKeyword, setSearchKeyword] = useState('');
   const fetchDocument = async () => {
     try {
       setLoading(true);
@@ -33,6 +35,7 @@ const Receipts = () => {
       console.log(response);
       console.log('====================================');
       setOrderRetail(response.data.all_recipts);
+      setAllOrderRetail(response.data.all_recipts);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching ListSource:', error);
@@ -165,6 +168,20 @@ const Receipts = () => {
   // Function to handle modal close
   const handleCancel = () => {
     setIsModalVisible(false);
+  };
+  const handleSearch = (keyword) => {
+    // Đảm bảo từ khóa tìm kiếm là chuỗi
+    const lowerKeyword = keyword ? keyword.toString().toLowerCase() : '';
+
+    const filteredData = allOrderRetail.filter((order) => {
+      return (
+        order.order_id?.toString().includes(lowerKeyword) || // Chuyển số thành chuỗi để tìm kiếm
+        order.customer_name?.toLowerCase().includes(lowerKeyword) || // Tìm kiếm theo tên khách hàng
+        order.customer_phone?.toString().includes(lowerKeyword) // Chuyển số thành chuỗi để tìm kiếm
+      );
+    });
+
+    setOrderRetail(filteredData);
   };
   const canEdit =
     roleUser &&
@@ -322,51 +339,65 @@ const Receipts = () => {
             <Button type="primary">Tạo phiếu thu online</Button>
           </NavLink>
         </div>
-      
       </div>
-      <hr style={{marginBottom:'10px'}}/>
+      <hr style={{ marginBottom: '10px' }} />
       {loading ? (
         <div className="spin">
           <Spin />
         </div>
       ) : (
         <div>
-          <Button type="primary" onClick={showDrawer} style={{ marginBottom: '20px' }}>
-            Tùy chọn
-          </Button>
-          <Drawer title="Lọc phiếu bán hàng" onClose={onClose} open={openSideBarRetail}>
-            <Form
-              layout="vertical"
-              onFinish={onFilter}
-              onReset={() => setFilteredData(orderRetail)} // Xử lý khi nhấn Reset
-            >
-              {/* Ngày bắt đầu */}
-              <Form.Item
-                label="Ngày bắt đầu"
-                name="startDate"
-                rules={[{ required: true, message: 'Vui lòng chọn ngày bắt đầu!' }]}
-              >
-                <DatePicker style={{ width: '100%', height: '45px', padding: '10px' }} />
-              </Form.Item>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+            <div>
+              <Button type="primary" onClick={showDrawer} style={{ marginBottom: '20px' }}>
+                Tùy chọn
+              </Button>
+              <Drawer title="Lọc phiếu bán hàng" onClose={onClose} open={openSideBarRetail}>
+                <Form
+                  layout="vertical"
+                  onFinish={onFilter}
+                  onReset={() => setFilteredData(orderRetail)} // Xử lý khi nhấn Reset
+                >
+                  {/* Ngày bắt đầu */}
+                  <Form.Item
+                    label="Ngày bắt đầu"
+                    name="startDate"
+                    rules={[{ required: true, message: 'Vui lòng chọn ngày bắt đầu!' }]}
+                  >
+                    <DatePicker style={{ width: '100%', height: '45px', padding: '10px' }} />
+                  </Form.Item>
 
-              {/* Ngày kết thúc */}
-              <Form.Item label="Ngày kết thúc" name="endDate">
-                <DatePicker style={{ width: '100%', height: '45px', padding: '10px' }} />
-              </Form.Item>
+                  {/* Ngày kết thúc */}
+                  <Form.Item label="Ngày kết thúc" name="endDate">
+                    <DatePicker style={{ width: '100%', height: '45px', padding: '10px' }} />
+                  </Form.Item>
 
-              {/* Nút lọc và Reset */}
-              <Form.Item>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <Button type="primary" htmlType="submit" style={{ flex: 1, height: '45px' }}>
-                    Lọc
-                  </Button>
-                  <Button type="default" htmlType="reset" style={{ flex: 1, height: '45px' }}>
-                    Reset
-                  </Button>
-                </div>
-              </Form.Item>
-            </Form>
-          </Drawer>
+                  {/* Nút lọc và Reset */}
+                  <Form.Item>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <Button type="primary" htmlType="submit" style={{ flex: 1, height: '45px' }}>
+                        Lọc
+                      </Button>
+                      <Button type="default" htmlType="reset" style={{ flex: 1, height: '45px' }}>
+                        Reset
+                      </Button>
+                    </div>
+                  </Form.Item>
+                </Form>
+              </Drawer>
+            </div>
+            <div>
+              <Input
+                placeholder="Tìm kiếm phiếu thu"
+                style={{ width: 200, height: '40px' }}
+                value={searchKeyword || ''} // Đảm bảo giá trị không phải null hoặc undefined
+                onChange={(e) => {
+                  setSearchKeyword(e.target.value); // Cập nhật giá trị tìm kiếm
+                  handleSearch(e.target.value); // Gọi hàm tìm kiếm với giá trị mới
+                }}
+              />
+            </div>
+          </div>
           <Table
             columns={columns_orderRetail}
             dataSource={filteredData.length > 0 ? filteredData : orderRetail}

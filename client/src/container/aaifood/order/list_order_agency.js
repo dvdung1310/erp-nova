@@ -1,6 +1,6 @@
 import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { NavLink, useRouteMatch } from 'react-router-dom';
-import { Tabs, Table, Spin, Button, Popconfirm, message, Drawer, Form, DatePicker ,Modal} from 'antd';
+import { Tabs, Table, Spin, Button, Popconfirm, message, Drawer, Form, DatePicker, Modal, Input } from 'antd';
 import {
   allOrder,
   deleteOrder,
@@ -17,6 +17,7 @@ const list_order_agency = () => {
   const [filteredData, setFilteredData] = useState([]);
   const [filteredDataAgency, setFilteredDataAgency] = useState([]);
   const [orderRetail, setOrderRetail] = useState([]);
+  const [allOrderRetail, setAllOrderRetail] = useState([]);
   const [orderAgency, setOrderAgency] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openSideBarRetail, setOpenSideBarRetail] = useState(false);
@@ -24,14 +25,13 @@ const list_order_agency = () => {
   const [roleUser, setRoleUser] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [invoiceImage, setInvoiceImage] = useState('');
+  const [searchKeyword, setSearchKeyword] = useState('');
   const fetchDocument = async () => {
     try {
       setLoading(true);
       const response = await allOrder();
-      console.log('====================================');
-      console.log(response);
-      console.log('====================================');
       setOrderRetail(response.data.order_retail);
+      setAllOrderRetail(response.data.order_retail);
       setOrderAgency(response.data.order_agency);
       setLoading(false);
     } catch (error) {
@@ -189,21 +189,39 @@ const list_order_agency = () => {
   };
   const showModal = (image) => {
     const baseUrl = LARAVEL_SERVER;
-    const fullImageUrl = `${baseUrl}/${image}`; 
+    const fullImageUrl = `${baseUrl}/${image}`;
     setInvoiceImage(fullImageUrl);
     setIsModalVisible(true);
+  };
+  const handleSearch = (keyword) => {
+    // Đảm bảo từ khóa tìm kiếm là chuỗi
+    const lowerKeyword = keyword ? keyword.toString().toLowerCase() : '';
+
+    const filteredData = allOrderRetail.filter((order) => {
+      return (
+        order.order_id?.toString().includes(lowerKeyword) || // Chuyển số thành chuỗi để tìm kiếm
+        order.customer_name?.toLowerCase().includes(lowerKeyword) || // Tìm kiếm theo tên khách hàng
+        order.customer_phone?.toString().includes(lowerKeyword) // Chuyển số thành chuỗi để tìm kiếm
+      );
+    });
+
+    setOrderRetail(filteredData);
   };
 
   // Function to handle modal close
   const handleCancel = () => {
     setIsModalVisible(false);
   };
-  const canEdit = roleUser && (roleUser.department_id === 1 || (roleUser.department_id === 8&& roleUser.level_id === 23) || roleUser.role_id === 1);
+  const canEdit =
+    roleUser &&
+    (roleUser.department_id === 1 ||
+      (roleUser.department_id === 8 && roleUser.level_id === 23) ||
+      roleUser.role_id === 1);
   const canClick =
     roleUser &&
     (roleUser.department_id === 9 ||
       roleUser.department_id === 1 ||
-      (roleUser.department_id === 8&& roleUser.level_id === 23) ||
+      (roleUser.department_id === 8 && roleUser.level_id === 23) ||
       roleUser.role_id === 1);
   const columns_orderRetail = [
     {
@@ -267,7 +285,7 @@ const list_order_agency = () => {
       title: 'Ảnh hóa đơn',
       dataIndex: 'payment_img', // Assuming you have the image URL in the 'payment_img' field
       key: 'payment_img',
-      render: (text, record) => (
+      render: (text, record) =>
         // Check if 'payment_img' exists before rendering the button
         record.payment_img ? (
           <Button
@@ -276,8 +294,7 @@ const list_order_agency = () => {
           >
             <FaEye />
           </Button>
-        ) : null // If no 'payment_img', don't render anything
-      ),
+        ) : null, // If no 'payment_img', don't render anything
     },
 
     {
@@ -366,22 +383,25 @@ const list_order_agency = () => {
         }
       },
     },
-    ...(canEdit ? [{
-      title: 'Hành động',
-      key: 'action',
-      render: (_, record) => (
-        record.payos_status === 0 ? ( // Kiểm tra nếu trạng thái thanh toán là 0
-          <Popconfirm
-            title="Bạn có chắc chắn muốn xóa bản ghi này?"
-            onConfirm={() => handleDelete(record)}
-            okText="Xóa"
-            cancelText="Hủy"
-          >
-            <Button type="danger">Xóa</Button>
-          </Popconfirm>
-        ) : null // Không hiển thị gì nếu trạng thái không phải 0
-      ),
-    }] : []),
+    ...(canEdit
+      ? [
+          {
+            title: 'Hành động',
+            key: 'action',
+            render: (_, record) =>
+              record.payos_status === 0 ? ( // Kiểm tra nếu trạng thái thanh toán là 0
+                <Popconfirm
+                  title="Bạn có chắc chắn muốn xóa bản ghi này?"
+                  onConfirm={() => handleDelete(record)}
+                  okText="Xóa"
+                  cancelText="Hủy"
+                >
+                  <Button type="danger">Xóa</Button>
+                </Popconfirm>
+              ) : null, // Không hiển thị gì nếu trạng thái không phải 0
+          },
+        ]
+      : []),
   ];
   const columns_orderAgency = [
     {
@@ -613,9 +633,22 @@ const list_order_agency = () => {
               key: '1',
               children: (
                 <div>
-                  <Button type="primary" onClick={showDrawer} style={{ marginBottom: '20px' }}>
-                    Tùy chọn
-                  </Button>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',marginBottom:'15px' }}>
+                    <Button type="primary" onClick={showDrawer} >
+                      Tùy chọn
+                    </Button>
+                    <div>
+                      <Input
+                        placeholder="Tìm kiếm phiếu thu"
+                        style={{ width: 200, height: '40px' }}
+                        value={searchKeyword || ''} // Đảm bảo giá trị không phải null hoặc undefined
+                        onChange={(e) => {
+                          setSearchKeyword(e.target.value); // Cập nhật giá trị tìm kiếm
+                          handleSearch(e.target.value); // Gọi hàm tìm kiếm với giá trị mới
+                        }}
+                      />
+                    </div>
+                  </div>
                   <Drawer title="Lọc phiếu bán hàng" onClose={onClose} open={openSideBarRetail}>
                     <Form
                       layout="vertical"
@@ -709,17 +742,10 @@ const list_order_agency = () => {
           ]}
         />
       )}
-      <Modal
-      title="Ảnh hóa đơn"
-      visible={isModalVisible}
-      onCancel={handleCancel}
-      footer={null}
-      width={600}
-    >
-      <img src={invoiceImage} alt="Invoice" style={{ width: '100%' }} />
-    </Modal>
+      <Modal title="Ảnh hóa đơn" visible={isModalVisible} onCancel={handleCancel} footer={null} width={600}>
+        <img src={invoiceImage} alt="Invoice" style={{ width: '100%' }} />
+      </Modal>
     </div>
-    
   );
 };
 

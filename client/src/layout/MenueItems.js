@@ -58,6 +58,16 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
   }, []);
 
   const showAllMenuItems = (roleUser?.department_id === 8 && roleUser?.level_id === 23) || roleUser?.role_id === 1;
+  const showMenuItemsNovaTeen =
+    (roleUser?.department_id === 8 && roleUser?.level_id === 23) ||
+    roleUser?.role_id === 1 ||
+    roleUser?.department_id === 4 ||
+    roleUser?.department_id === 1;
+  const showMenuItemsNovaUp =
+    (roleUser?.department_id === 8 && roleUser?.level_id === 23) ||
+    roleUser?.role_id === 1 ||
+    roleUser?.department_id === 10 ||
+    roleUser?.department_id === 1;
 
   const showSalesMenuItem =
     roleUser?.department_id === 9 || (roleUser?.department_id === 8 && roleUser?.level_id === 26);
@@ -83,22 +93,65 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
     >
       {roleUser && roleUser.department_id === 11 ? (
         // Chỉ hiển thị menu Trang chủ
-        <SubMenu key="depot" icon={!topMenu && <FaWarehouse size={16} />} title="KHO HÀNG">
-          {roleUser && (
+        <>
+          {roleUser && roleUser.department_id === 11 && (
             <>
-              <Menu.Item key="manager-sales">
-                <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/ban-hang`}>
-                  Bán hàng
-                </NavLink>
-              </Menu.Item>
-              <Menu.Item key="manager-revenue">
-                <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/doanh-thu`}>
-                  Doanh thu
-                </NavLink>
-              </Menu.Item>
+              <SubMenu
+                key="employees"
+                icon={!topMenu && <FeatherIcon icon="users" />}
+                title={<span style={{ textTransform: 'uppercase' }}>Nhân sự</span>}
+              >
+                <Menu.Item className="pl-custom-sidebar" key="list_employee">
+                  <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-nhan-su`}>
+                    Danh sách nhân sự
+                  </NavLink>
+                </Menu.Item>
+                <Menu.Item className="pl-custom-sidebar" key="list_department">
+                  <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/phong-ban`}>
+                    Phòng ban
+                  </NavLink>
+                </Menu.Item>
+                <Menu.Item className="pl-custom-sidebar" key="works-schedule">
+                  <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/lich-lam-viec`}>
+                    Lịch làm việc
+                  </NavLink>
+                </Menu.Item>
+                <Menu.Item className="pl-custom-sidebar" key="works-dayoff">
+                  <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/nghi-phep`}>
+                    Đăng ký nghỉ phép
+                  </NavLink>
+                </Menu.Item>
+                <Menu.Item className="pl-custom-sidebar" key="work-confirmation">
+                  <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-xac-nhan-cong`}>
+                    Xác nhận công
+                  </NavLink>
+                </Menu.Item>
+                <Menu.Item className="pl-custom-sidebar" key="de-xuat">
+                  <NavLink onClick={toggleCollapsed} to={`${path}/de-xuat/danh-sach`}>
+                    Đề xuất
+                  </NavLink>
+                </Menu.Item>
+                <Menu.Item className="pl-custom-sidebar" key="bien-ban">
+                  <NavLink onClick={toggleCollapsed} to={`${path}/bien-ban/danh-sach`}>
+                    Biên bản
+                  </NavLink>
+                </Menu.Item>
+              </SubMenu>
+              <SubMenu key="depot" icon={!topMenu && <FaWarehouse size={16} />} title="KHO HÀNG">
+                <Menu.Item key="manager-sales">
+                  <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/ban-hang`}>
+                    Bán hàng
+                  </NavLink>
+                </Menu.Item>
+                <Menu.Item key="manager-revenue">
+                  <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/doanh-thu`}>
+                    Doanh thu
+                  </NavLink>
+                </Menu.Item>
+              </SubMenu>
             </>
           )}
-        </SubMenu>
+        </>
       ) : (
         <>
           <SubMenu
@@ -337,6 +390,9 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
           </SubMenu>
 
           {/* novaup */}
+          {roleUser && (
+            <>
+              {showMenuItemsNovaUp && (
           <SubMenu
             key="novaup"
             icon={!topMenu && <BsHouseUp size={16} />}
@@ -378,51 +434,60 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
               </NavLink>
             </Menu.Item>
           </SubMenu>
+          )}{' '}
+          </>
+        )}
           {/* end novaup   */}
 
           {/* novateen */}
-          <SubMenu key="novateen" icon={!topMenu && <FeatherIcon icon="map-pin" />} title="NOVATEEN">
-            <Menu.Item key="nvt-home">
-              <NavLink onClick={toggleCollapsed} to={`${path}/novateen/khach-hang`}>
-                Khách hàng
-              </NavLink>
-            </Menu.Item>
-            <Menu.Item key="nvt-data">
-              <NavLink onClick={toggleCollapsed} to={`${path}/novateen/data-import`}>
-                Data import
-              </NavLink>
-            </Menu.Item>
-            <Menu.Item key="nvt-receipts">
-              <NavLink onClick={toggleCollapsed} to={`${path}/novateen/phieu-thu`}>
-                Phiếu thu
-              </NavLink>
-            </Menu.Item>
-            <Menu.Item key="nvt-bill">
-              <NavLink onClick={toggleCollapsed} to={`${path}/novateen/doanh-thu`}>
-                Doanh thu
-              </NavLink>
-            </Menu.Item>
-            {/* cấu hình novateen */}
-            <Menu
-              mode={!topMenu || window.innerWidth <= 991 ? 'inline' : 'horizontal'}
-              theme={darkMode ? 'dark' : 'light'}
-              openKeys={openKey}
-              onOpenChange={onOpenChanges}
-            >
-              <SubMenu key="sales" title="Cấu hình" icon={<FeatherIcon icon="settings" />}>
-                <Menu.Item key="nvt_sales-option1">
-                  <NavLink onClick={toggleCollapsed} to={`${path}/novateen/trang-thai-data`}>
-                    Trạng thái data
-                  </NavLink>
-                </Menu.Item>
-                <Menu.Item key="nvt_sales-option2">
-                  <NavLink onClick={toggleCollapsed} to={`${path}/novateen/nguon-data`}>
-                    Nguồn data
-                  </NavLink>
-                </Menu.Item>
-              </SubMenu>
-            </Menu>
-          </SubMenu>
+          {roleUser && (
+            <>
+              {showMenuItemsNovaTeen && (
+                <SubMenu key="novateen" icon={!topMenu && <FeatherIcon icon="map-pin" />} title="NOVATEEN">
+                  <Menu.Item key="nvt-home">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/novateen/khach-hang`}>
+                      Khách hàng
+                    </NavLink>
+                  </Menu.Item>
+                  <Menu.Item key="nvt-data">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/novateen/data-import`}>
+                      Data import
+                    </NavLink>
+                  </Menu.Item>
+                  <Menu.Item key="nvt-receipts">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/novateen/phieu-thu`}>
+                      Phiếu thu
+                    </NavLink>
+                  </Menu.Item>
+                  <Menu.Item key="nvt-bill">
+                    <NavLink onClick={toggleCollapsed} to={`${path}/novateen/doanh-thu`}>
+                      Doanh thu
+                    </NavLink>
+                  </Menu.Item>
+                  {/* cấu hình novateen */}
+                  <Menu
+                    mode={!topMenu || window.innerWidth <= 991 ? 'inline' : 'horizontal'}
+                    theme={darkMode ? 'dark' : 'light'}
+                    openKeys={openKey}
+                    onOpenChange={onOpenChanges}
+                  >
+                    <SubMenu key="sales" title="Cấu hình" icon={<FeatherIcon icon="settings" />}>
+                      <Menu.Item key="nvt_sales-option1">
+                        <NavLink onClick={toggleCollapsed} to={`${path}/novateen/trang-thai-data`}>
+                          Trạng thái data
+                        </NavLink>
+                      </Menu.Item>
+                      <Menu.Item key="nvt_sales-option2">
+                        <NavLink onClick={toggleCollapsed} to={`${path}/novateen/nguon-data`}>
+                          Nguồn data
+                        </NavLink>
+                      </Menu.Item>
+                    </SubMenu>
+                  </Menu>
+                </SubMenu>
+              )}{' '}
+            </>
+          )}
           {/* end novateen */}
 
           {/* Khách hàng */}
@@ -435,11 +500,12 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
           </SubMenu>
           {/* end khách hàng   */}
           {/* quản lý kho */}
-          <SubMenu key="depot" icon={!topMenu && <FaWarehouse size={16} />} title="KHO HÀNG">
+        
             {roleUser && (
               <>
                 {showAllMenuItems && (
                   <>
+                    <SubMenu key="depot" icon={!topMenu && <FaWarehouse size={16} />} title="KHO HÀNG">
                     <Menu.Item key="manager-product">
                       <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/san-pham`}>
                         Sản phẩm
@@ -470,18 +536,21 @@ function MenuItems({ darkMode, toggleCollapsed, topMenu, events }) {
                         Lợi nhuận
                       </NavLink>
                     </Menu.Item>
+                    </SubMenu>
                   </>
                 )}
                 {showSalesMenuItem && (
+                  <SubMenu key="depot" icon={!topMenu && <FaWarehouse size={16} />} title="KHO HÀNG">
                   <Menu.Item key="manager-sales">
                     <NavLink onClick={toggleCollapsed} to={`${path}/aaifood/ban-hang`}>
                       Bán hàng
                     </NavLink>
                   </Menu.Item>
+                  </SubMenu>
                 )}
               </>
             )}
-          </SubMenu>
+         
 
           {/* end quản lý kho*/}
           <Menu.Item key="cdn" icon={<GrStorage size={16} />}>
