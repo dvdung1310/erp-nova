@@ -557,4 +557,39 @@ class NvtPaymentController extends Controller
             ], 422);
         }
     }
+    public function store_order_handmade_novateen(Request $request)
+    {
+        try {
+            $order_total_bill = $request->order_total;
+            $order_total = (int)filter_var($order_total_bill, FILTER_SANITIZE_NUMBER_INT);
+
+            // Tạo đơn hàng
+            $order = new AaiOrderModel();
+            $order->customer_name = $request->customer_name;
+            $order->customer_phone = $request->customer_phone;
+            $order->customer_address = $request->customer_address;
+            $order->order_total = $order_total;
+            $order->order_date = today();
+            $order->payos_status = 1;
+            $order->sale_id = Auth::id();
+            if ($request->hasFile('payment_img')) {
+                $image = $request->file('payment_img');
+                $imageName = time() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('uploads/orders'), $imageName); // Di chuyển ảnh vào thư mục uploads
+                $order->payment_img = 'uploads/orders/' . $imageName; // Lưu đường dẫn ảnh vào DB
+            }
+            $order->type_payment = 'novateen';
+            $order->save();
+            return response()->json([
+                'success' => true,
+                'message' => 'Tạo phiếu bán hàng thành công',
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tạo phiếu bán hàng thất bại',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

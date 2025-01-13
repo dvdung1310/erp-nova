@@ -125,3 +125,13 @@ export const filterRevenueNovaup = async (data) => {
     throw error;
   }
 };
+export const storeOrderHandmade = async (formData) => {
+  const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/novaup/store_order_handmade_novaup`, formData, {
+    headers: {
+     'Content-Type': 'multipart/form-data',
+      Authorization: `Bearer ${token}`,
+    },
+   
+  });
+  return response.data;
+};

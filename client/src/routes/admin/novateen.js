@@ -9,6 +9,7 @@ const DataStatus = lazy(() => import('../../container/Novaup/StatusData'));
 const listBill = lazy(() => import('../../container/NovaTeen/ListBill'));
 const Receipts = lazy(() => import('../../container/NovaTeen/Receipts'));
 const CreateReceipts = lazy(() => import('../../container/NovaTeen/Create_Receipts'));
+const CreateReceiptsHandmade = lazy(() => import('../../container/NovaTeen/Create_Receipts_handmade'));
 const Revenue = lazy(() => import('../../container/NovaTeen/Revenue'));
 
 const NovaupRoutes = memo(() => {
@@ -23,6 +24,7 @@ const NovaupRoutes = memo(() => {
       <Route path={`${path}/doanh-thu`} component={Revenue} />
       <Route path={`${path}/phieu-thu`} component={Receipts} />
       <Route path={`${path}/tao-phieu-thu`} component={CreateReceipts} />
+      <Route path={`${path}/tao-phieu-thu-thu-cong`} component={CreateReceiptsHandmade} />
       {/* <Route path={`${path}/khach-hang/chi-tiet`} component={showCustomer} /> */}
     </Switch>
   );

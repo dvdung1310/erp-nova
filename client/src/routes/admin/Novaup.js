@@ -11,6 +11,7 @@ const Payment = lazy(() => import('../../container/Novaup/Payment'));
 const Receipts = lazy(() => import('../../container/Novaup/Receipts'));
 const CreateReceipts = lazy(() => import('../../container/Novaup/Create_Receipts'));
 const Revenue = lazy(() => import('../../container/Novaup/Revenue'));
+const Create_Revenue_handmade = lazy(() => import('../../container/Novaup/Create_Receipts_handmade'));
 const NovaupRoutes = memo(() => {
     const {path} = useRouteMatch();
     console.log(path);
@@ -26,6 +27,7 @@ const NovaupRoutes = memo(() => {
             <Route path={`${path}/doanh-thu`} component={Revenue}/>
             <Route path={`${path}/phieu-thu`} component={Receipts}/>
             <Route path={`${path}/tao-phieu-thu`} component={CreateReceipts}/>
+            <Route path={`${path}/tao-phieu-thu-thu-cong`} component={Create_Revenue_handmade}/>
         </Switch>
     );
 });

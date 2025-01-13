@@ -161,6 +161,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'novaup'], function () {
     Route::post('store_receipts_novaup', [PaymentController::class, 'store_receipts_novaup']);
     Route::get('report_revenue_novaup', [PaymentController::class, 'report_revenue_novaup']);
     Route::get('filter_revenue_novaup', [PaymentController::class, 'filter_revenue_novaup'])->middleware(middlewareLogin::class);
+    Route::post('store_order_handmade_novaup', [PaymentController::class, 'store_order_handmade_novaup']);
 });
 
 // NovaTeen
@@ -204,7 +205,7 @@ Route::group(['middleware' => 'api'], function () {
     Route::get('all_recipts_novateen', [NvtPaymentController::class, 'all_recipts_novateen'])->middleware(middlewareLogin::class);
     Route::get('report_revenue_novateen', [NvtPaymentController::class, 'report_revenue_novateen']);
     Route::get('filter_revenue_novateen', [NvtPaymentController::class, 'filter_revenue_novateen'])->middleware(middlewareLogin::class);
-
+    Route::post('store_order_handmade_novateen', [NvtPaymentController::class, 'store_order_handmade_novateen']);
 });
 //Thực phẩm
 Route::group(['middleware' => 'api'], function () {

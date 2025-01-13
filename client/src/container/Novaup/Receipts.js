@@ -17,7 +17,7 @@ const Receipts = () => {
   const { path } = useRouteMatch();
   const [filteredData, setFilteredData] = useState([]);
   const [filteredDataAgency, setFilteredDataAgency] = useState([]);
-    const [allOrderRetail, setAllOrderRetail] = useState([]);
+  const [allOrderRetail, setAllOrderRetail] = useState([]);
   const [orderRetail, setOrderRetail] = useState([]);
   const [orderAgency, setOrderAgency] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -237,6 +237,21 @@ const Receipts = () => {
       },
     },
     {
+      title: 'Ảnh hóa đơn',
+      dataIndex: 'payment_img', // Assuming you have the image URL in the 'payment_img' field
+      key: 'payment_img',
+      render: (text, record) =>
+        // Check if 'payment_img' exists before rendering the button
+        record.payment_img ? (
+          <Button
+            onClick={() => showModal(record.payment_img)} // Show modal with the image
+            type="link"
+          >
+            <FaEye />
+          </Button>
+        ) : null, // If no 'payment_img', don't render anything
+    },
+    {
       title: 'Ngày thanh toán',
       dataIndex: 'order_date',
       key: 'order_date',
@@ -337,6 +352,16 @@ const Receipts = () => {
             }}
           >
             <Button type="primary">Tạo phiếu thu online</Button>
+          </NavLink>
+          <NavLink
+            to={`/admin/novaup/tao-phieu-thu-thu-cong`}
+            style={{
+              color: 'inherit',
+              textDecoration: 'none',
+              marginRight: '15px',
+            }}
+          >
+            <Button type="primary">Tạo phiếu thu thủ công</Button>
           </NavLink>
         </div>
       </div>
