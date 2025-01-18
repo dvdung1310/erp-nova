@@ -201,7 +201,7 @@ const Receipts = () => {
       key: 'order_id',
     },
     {
-      title: 'Khách hàng',
+      title: 'Phụ huynh - học sinh',
       dataIndex: 'customer_name',
       key: 'customer_name',
       // render: (text, record) => (
@@ -220,6 +220,11 @@ const Receipts = () => {
       title: 'Địa chỉ',
       dataIndex: 'customer_address',
       key: 'customer_address',
+    },
+    {
+      title: 'Nội dung',
+      dataIndex: 'customer_description',
+      key: 'customer_description',
     },
     {
       title: 'Thành tiền',

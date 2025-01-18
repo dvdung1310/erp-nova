@@ -105,9 +105,9 @@ const create_order = () => {
             <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }} style={{ display: 'flex', alignItems: 'center' }}>
               <Col className="gutter-row" span={24}>
                 <Form.Item
-                  label="Tên khách hàng"
+                  label="Tên phụ huynh - học sinh"
                   name="customer_name"
-                  rules={[{ required: true, message: 'Vui lòng nhập tên khách hàng!' }]}
+                  rules={[{ required: true, message: 'Vui lòng nhập tên phụ huynh - học sinh!' }]}
                 >
                   <Input />
                 </Form.Item>
@@ -128,9 +128,9 @@ const create_order = () => {
               </Col>
               <Col className="gutter-row" span={24}>
                 <Form.Item
-                  label="Chi phí"
+                  label="Khoản tiền"
                   name="order_total"
-                  rules={[{ required: true, message: 'Vui lòng nhập chi phí!' }]}
+                  rules={[{ required: true, message: 'Vui lòng nhập Khoản tiền!' }]}
                 >
                   <NumericFormat
                     customInput={Input}
@@ -144,6 +144,15 @@ const create_order = () => {
                     //   form.setFieldsValue({ product_input_price: values.value });
                     // }}
                   />
+                </Form.Item>
+              </Col>
+              <Col className="gutter-row" span={24}>
+                <Form.Item
+                  label="Mô tả (ghi rõ học sinh nào, lớp nào, gói nào)"
+                  name="customer_description"
+                  rules={[{ required: true, message: 'Vui lòng nhập nội dung!' }]}
+                >
+                  <Input.TextArea rows={4} />
                 </Form.Item>
               </Col>
               <Col className="gutter-row" span={24}>

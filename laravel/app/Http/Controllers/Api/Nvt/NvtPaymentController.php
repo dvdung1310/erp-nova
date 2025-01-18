@@ -568,6 +568,7 @@ class NvtPaymentController extends Controller
             $order->customer_name = $request->customer_name;
             $order->customer_phone = $request->customer_phone;
             $order->customer_address = $request->customer_address;
+            $order->customer_description = $request->customer_description;
             $order->order_total = $order_total;
             $order->order_date = today();
             $order->payos_status = 1;
