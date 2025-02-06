@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import RichTextEditor from 'react-rte';
 import {
     Row,
@@ -16,42 +16,42 @@ import {
     List,
     Badge, Select, InputNumber
 } from 'antd';
-import {useSelector} from 'react-redux';
-import {Link, useHistory, useLocation} from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { Link, useHistory, useLocation } from 'react-router-dom';
 import FeatherIcon from 'feather-icons-react';
 import Heading from '../../../../../components/heading/heading';
-import {Cards} from '../../../../../components/cards/frame/cards-frame';
-import {ProjectPagination, ProjectListTitle, ProjectListAssignees, ProjectList} from '../style';
-import {Dropdown} from '../../../../../components/dropdown/dropdown';
+import { Cards } from '../../../../../components/cards/frame/cards-frame';
+import { ProjectPagination, ProjectListTitle, ProjectListAssignees, ProjectList } from '../style';
+import { Dropdown } from '../../../../../components/dropdown/dropdown';
 import moment from "moment";
 import Avatar from "../../../../../components/Avatar/Avatar";
-import {checkRole, checkStatus, checkStatusProject, checkStatusProjectByTask} from "../../../../../utility/checkValue";
-import {MdContentCopy, MdDelete, MdEdit, MdGroups, MdOutlineDateRange, MdOutlineSettings} from "react-icons/md";
-import {GrInProgress} from "react-icons/gr";
-import {Modal} from "../../../../../components/modals/antd-modals";
-import {BasicFormWrapper} from "../../../../styled";
+import { checkRole, checkStatus, checkStatusProject, checkStatusProjectByTask } from "../../../../../utility/checkValue";
+import { MdContentCopy, MdDelete, MdEdit, MdGroups, MdOutlineDateRange, MdOutlineSettings } from "react-icons/md";
+import { GrInProgress } from "react-icons/gr";
+import { Modal } from "../../../../../components/modals/antd-modals";
+import { BasicFormWrapper } from "../../../../styled";
 import {
     deleteProject, joinProject,
     updateEndDateProject, updateLeaderProject, updateMemberProject,
     updateNameProject, updateNotifyBeforeEndTimeProject, updateProjectType,
     updateStartDateProject, updateStatusProject
 } from "../../../../../apis/work/project";
-import {toast} from "react-toastify";
-import {FaUserTie} from "react-icons/fa";
+import { toast } from "react-toastify";
+import { FaUserTie } from "react-icons/fa";
 import CopyProject from "./CopyProject";
-import {IoEnterOutline} from "react-icons/io5";
-import {FiType} from "react-icons/fi";
+import { IoEnterOutline } from "react-icons/io5";
+import { FiType } from "react-icons/fi";
 
 const dateFormat = 'MM/DD/YYYY';
 
 // eslint-disable-next-line react/prop-types
-function ProjectLists({group_id, listProject, listUser = [], isHome}) {
+function ProjectLists({ group_id, listProject, listUser = [], isHome }) {
     const [listUserData, setListUser] = useState(listUser);
     const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
     const [form] = Form.useForm();
     const history = useHistory();
     const location = useLocation();
-    const {pathname} = location;
+    const { pathname } = location;
     console.log(group_id)
     const [state, setState] = useState({
         projects: listProject,
@@ -161,7 +161,7 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
         setShowModalUpdateType(false)
     }
     //
-    const {projects} = state;
+    const { projects } = state;
     useEffect(() => {
         if (listProject) {
             setState({
@@ -686,17 +686,17 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                                 project_members.slice(0, 5).map((member, index) => {
                                     return (
                                         <div className='d-flex align-items-center'
-                                             style={{
-                                                 marginLeft: '-10px',
-                                                 cursor: 'default'
-                                             }}
-                                             key={index}
-                                             title={member?.user?.name}
+                                            style={{
+                                                marginLeft: '-10px',
+                                                cursor: 'default'
+                                            }}
+                                            key={index}
+                                            title={member?.user?.name}
                                         >
                                             <li key={index}>
                                                 <Avatar width={30} height={30}
-                                                        name={member?.user?.name}
-                                                        imageUrl={member?.user?.avatar ? `${LARAVEL_SERVER}${member?.user?.avatar}` : ""}
+                                                    name={member?.user?.name}
+                                                    imageUrl={member?.user?.avatar ? `${LARAVEL_SERVER}${member?.user?.avatar}` : ""}
                                                 />
                                             </li>
                                         </div>
@@ -706,15 +706,15 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                             {
                                 project_members.length > 5 && (
                                     <div className='d-flex align-items-center'
-                                         style={{
-                                             marginLeft: '-10px',
-                                             cursor: 'default'
-                                         }}
-                                         title={`+${project_members.length - 5} more`}
+                                        style={{
+                                            marginLeft: '-10px',
+                                            cursor: 'default'
+                                        }}
+                                        title={`+${project_members.length - 5} more`}
                                     >
                                         <li>
                                             <Avatar width={30} height={30}
-                                                    name={`+ ${project_members.length - 5}`}
+                                                name={`+ ${project_members.length - 5}`}
                                             />
                                         </li>
                                     </div>
@@ -732,17 +732,17 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                                     project_monitor_users?.slice(0, 5)?.map((member, index) => {
                                         return (
                                             <div className='d-flex align-items-center'
-                                                 style={{
-                                                     marginLeft: '-10px',
-                                                     cursor: 'default'
-                                                 }}
-                                                 key={index}
-                                                 title={member?.name}
+                                                style={{
+                                                    marginLeft: '-10px',
+                                                    cursor: 'default'
+                                                }}
+                                                key={index}
+                                                title={member?.name}
                                             >
                                                 <li key={index}>
                                                     <Avatar width={30} height={30}
-                                                            name={member?.name}
-                                                            imageUrl={member?.avatar ? `${LARAVEL_SERVER}${member?.avatar}` : ""}
+                                                        name={member?.name}
+                                                        imageUrl={member?.avatar ? `${LARAVEL_SERVER}${member?.avatar}` : ""}
                                                     />
                                                 </li>
                                             </div>
@@ -752,15 +752,15 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                                 {
                                     project_monitor_users?.length > 5 && (
                                         <div className='d-flex align-items-center'
-                                             style={{
-                                                 marginLeft: '-10px',
-                                                 cursor: 'default'
-                                             }}
-                                             title={`+${project_members.length - 5} more`}
+                                            style={{
+                                                marginLeft: '-10px',
+                                                cursor: 'default'
+                                            }}
+                                            title={`+${project_members.length - 5} more`}
                                         >
                                             <li>
                                                 <Avatar width={30} height={30}
-                                                        name={`+ ${project_members.length - 5}`}
+                                                    name={`+ ${project_members.length - 5}`}
                                                 />
                                             </li>
                                         </div>
@@ -771,16 +771,16 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                 ),
                 leader: (
                     <div className='d-flex align-items-center'
-                         style={{
-                             marginLeft: '-10px',
-                             cursor: 'default'
-                         }}
-                         title={leader?.name}
+                        style={{
+                            marginLeft: '-10px',
+                            cursor: 'default'
+                        }}
+                        title={leader?.name}
                     >
                         <li key={index}>
                             <Avatar width={30} height={30}
-                                    name={leader?.name}
-                                    imageUrl={leader?.avatar ? `${LARAVEL_SERVER}${leader?.avatar}` : ""}
+                                name={leader?.name}
+                                imageUrl={leader?.avatar ? `${LARAVEL_SERVER}${leader?.avatar}` : ""}
                             />
                         </li>
                     </div>
@@ -812,56 +812,56 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                                 className="wide-dropdwon"
                                 action='click'
                                 content={
-                                    <div className='popover-content' style={{display: 'flex'}}>
-                                        <div style={{marginRight: '20px'}}>
+                                    <div className='popover-content' style={{ display: 'flex' }}>
+                                        <div style={{ marginRight: '20px' }}>
                                             <div className='action-item' onClick={() => handleEditClick('name', value)}>
-                                                <MdEdit size={30} className='d-block ms-1 fs-4 text-secondary'/>
+                                                <MdEdit size={30} className='d-block ms-1 fs-4 text-secondary' />
                                                 <span>Sửa tên, mô tả</span>
                                             </div>
                                             <div className='action-item'
-                                                 onClick={() => handleEditClick('status', value)}>
-                                                <GrInProgress size={30} className='d-block ms-1 fs-4 text-secondary'/>
+                                                onClick={() => handleEditClick('status', value)}>
+                                                <GrInProgress size={30} className='d-block ms-1 fs-4 text-secondary' />
                                                 <span>Cập nhật trạng thái</span>
                                             </div>
                                             <div className='action-item'
-                                                 onClick={() => handleEditClick('members', value)}>
-                                                <MdGroups size={30} className='d-block ms-1 fs-4 text-secondary'/>
+                                                onClick={() => handleEditClick('members', value)}>
+                                                <MdGroups size={30} className='d-block ms-1 fs-4 text-secondary' />
                                                 <span>Thành viên</span>
                                             </div>
                                             <div className='action-item'
-                                                 onClick={() => handleEditClick('leader', value)}>
-                                                <FaUserTie size={30} className='d-block ms-1 fs-4 text-secondary'/>
+                                                onClick={() => handleEditClick('leader', value)}>
+                                                <FaUserTie size={30} className='d-block ms-1 fs-4 text-secondary' />
                                                 <span>Người phụ trách</span>
                                             </div>
                                         </div>
                                         <div>
                                             <div className='action-item'
-                                                 onClick={() => handleEditClick('start_date', value)}>
+                                                onClick={() => handleEditClick('start_date', value)}>
                                                 <MdOutlineDateRange size={30}
-                                                                    className='d-block ms-1 fs-4 text-secondary'/>
+                                                    className='d-block ms-1 fs-4 text-secondary' />
                                                 <span>Sửa ngày bắt đầu</span>
                                             </div>
                                             <div className='action-item'
-                                                 onClick={() => handleEditClick('end_date', value)}>
+                                                onClick={() => handleEditClick('end_date', value)}>
                                                 <MdOutlineDateRange size={30}
-                                                                    className='d-block ms-1 fs-4 text-secondary'/>
+                                                    className='d-block ms-1 fs-4 text-secondary' />
                                                 <span>Sửa ngày kết thúc</span>
                                             </div>
                                             <div className='action-item'
-                                                 onClick={() => handleEditClick('copy', value)}>
+                                                onClick={() => handleEditClick('copy', value)}>
                                                 <MdContentCopy size={30}
-                                                               className='d-block ms-1 fs-4 text-secondary'/>
+                                                    className='d-block ms-1 fs-4 text-secondary' />
                                                 <span>Sao chép dự án</span>
                                             </div>
                                             <div className='action-item'
-                                                 onClick={() => handleEditClick('setting', value)}>
+                                                onClick={() => handleEditClick('setting', value)}>
                                                 <MdOutlineSettings size={30}
-                                                                   className='d-block ms-1 fs-4 text-secondary'/>
+                                                    className='d-block ms-1 fs-4 text-secondary' />
                                                 <span>Cài đặt nhắc nhở</span>
                                             </div>
                                             <div className='action-item'
-                                                 onClick={() => handleEditClick('delete', value)}>
-                                                <MdDelete color='red' size={30} className='icon-delete'/>
+                                                onClick={() => handleEditClick('delete', value)}>
+                                                <MdDelete color='red' size={30} className='icon-delete' />
                                                 <span>Xóa dự án</span>
                                             </div>
                                         </div>
@@ -870,20 +870,20 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                                     </div>
                                 }
                             >
-                                <div role='button' style={{cursor: 'pointer'}}>
-                                    <FeatherIcon icon="more-horizontal" size={18}/>
+                                <div role='button' style={{ cursor: 'pointer' }}>
+                                    <FeatherIcon icon="more-horizontal" size={18} />
                                 </div>
                             </Dropdown>
                         )}
                         {
                             isHome && (
                                 <div className='btn p-1' title='Xem dự án'
-                                     style={{cursor: 'pointer'}}
-                                     onClick={() => {
-                                         history.push(`/admin/lam-viec/nhom-lam-viec/${group_id}`)
-                                     }}
+                                    style={{ cursor: 'pointer' }}
+                                    onClick={() => {
+                                        history.push(`/admin/lam-viec/nhom-lam-viec/${group_id}`)
+                                    }}
                                 >
-                                    <IoEnterOutline color='gray' size={30}/>
+                                    <IoEnterOutline color='gray' size={30} />
                                 </div>
                             )
                         }
@@ -984,13 +984,13 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                 footer={[
                     <div key="1" className="project-modal-footer">
                         <Button size="default" type="primary" key="submit" onClick={handleUpdateName}
-                                style={{
-                                    backgroundColor: loadingUpdate ? "#8c94ff" : "#5f63f2",
-                                    minWidth: '150px',
-                                }}
+                            style={{
+                                backgroundColor: loadingUpdate ? "#8c94ff" : "#5f63f2",
+                                minWidth: '150px',
+                            }}
                         >
                             {loadingUpdate ? <div>
-                                <Spin/>
+                                <Spin />
                             </div> : 'Cập nhật'}
                         </Button>
                     </div>,
@@ -1017,7 +1017,7 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                                         placeholder="Nhập mô tả dự án"
                                         name={'project_description'}
                                         value={editorState}
-                                        onChange={handleChangeEditer}/>
+                                        onChange={handleChangeEditer} />
                                 </div>
                             </Form.Item>
                         </Form>
@@ -1033,13 +1033,13 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                 footer={[
                     <div key="1" className="project-modal-footer">
                         <Button size="default" type="primary" key="submit" onClick={handleUpdateStartDate}
-                                style={{
-                                    backgroundColor: loadingUpdate ? "#8c94ff" : "#5f63f2",
-                                    minWidth: '150px',
-                                }}
+                            style={{
+                                backgroundColor: loadingUpdate ? "#8c94ff" : "#5f63f2",
+                                minWidth: '150px',
+                            }}
                         >
                             {loadingUpdate ? <div>
-                                <Spin/>
+                                <Spin />
                             </div> : 'Cập nhật'}
                         </Button>
                     </div>,
@@ -1057,7 +1057,7 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                                             project_start_date: date?.format('YYYY-MM-DD')
                                         });
                                     }}
-                                    format={dateFormat}/>
+                                    format={dateFormat} />
                             </Form.Item>
                         </Form>
                     </BasicFormWrapper>
@@ -1072,13 +1072,13 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                 footer={[
                     <div key="1" className="project-modal-footer">
                         <Button size="default" type="primary" key="submit" onClick={handleUpdateEndDate}
-                                style={{
-                                    backgroundColor: loadingUpdate ? "#8c94ff" : "#5f63f2",
-                                    minWidth: '150px',
-                                }}
+                            style={{
+                                backgroundColor: loadingUpdate ? "#8c94ff" : "#5f63f2",
+                                minWidth: '150px',
+                            }}
                         >
                             {loadingUpdate ? <div>
-                                <Spin/>
+                                <Spin />
                             </div> : 'Cập nhật'}
                         </Button>
                     </div>,
@@ -1096,7 +1096,7 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                                             project_end_date: date?.format('YYYY-MM-DD')
                                         });
                                     }}
-                                    format={dateFormat}/>
+                                    format={dateFormat} />
                             </Form.Item>
                         </Form>
                     </BasicFormWrapper>
@@ -1111,13 +1111,13 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                 footer={[
                     <div key="1" className="project-modal-footer">
                         <Button size="default" key="submit" className='btn' onClick={handleDeleteProject}
-                                style={{
-                                    backgroundColor: "#dc3545",
-                                    minWidth: '150px',
-                                }}
+                            style={{
+                                backgroundColor: "#dc3545",
+                                minWidth: '150px',
+                            }}
                         >
                             {loadingUpdate ? <div>
-                                <Spin/>
+                                <Spin />
                             </div> : 'Xóa'}
                         </Button>
                     </div>,
@@ -1138,13 +1138,13 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                 footer={[
                     <div key="1" className="project-modal-footer">
                         <Button size="default" type="primary" key="submit" onClick={handleUpdateStatus}
-                                style={{
-                                    backgroundColor: loadingUpdate ? "#8c94ff" : "#5f63f2",
-                                    minWidth: '150px',
-                                }}
+                            style={{
+                                backgroundColor: loadingUpdate ? "#8c94ff" : "#5f63f2",
+                                minWidth: '150px',
+                            }}
                         >
                             {loadingUpdate ? <div>
-                                <Spin/>
+                                <Spin />
                             </div> : 'Cập nhật'}
                         </Button>
                     </div>,
@@ -1179,20 +1179,20 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                 title="Thành viên"
                 footer={null}
             >
-                <div style={{display: 'flex', justifyContent: 'space-around', marginBottom: '16px'}}>
-        <span
-            style={{
-                cursor: 'pointer',
-                padding: '8px 16px',
-                borderRadius: '4px',
-                backgroundColor: showMemberExit ? '#1890ff' : '',
-                color: showMemberExit ? 'white' : '',
-                transition: 'background-color 0.3s'
-            }}
-            onClick={() => setShowMemberExit(true)}
-        >
-            Thành viên hiện có
-        </span>
+                <div style={{ display: 'flex', justifyContent: 'space-around', marginBottom: '16px' }}>
+                    <span
+                        style={{
+                            cursor: 'pointer',
+                            padding: '8px 16px',
+                            borderRadius: '4px',
+                            backgroundColor: showMemberExit ? '#1890ff' : '',
+                            color: showMemberExit ? 'white' : '',
+                            transition: 'background-color 0.3s'
+                        }}
+                        onClick={() => setShowMemberExit(true)}
+                    >
+                        Thành viên hiện có
+                    </span>
                     <span
                         style={{
                             cursor: 'pointer',
@@ -1204,15 +1204,15 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                         }}
                         onClick={() => setShowMemberExit(false)}
                     >
-            Mời thành viên tham gia
-        </span>
+                        Mời thành viên tham gia
+                    </span>
                 </div>
                 {showMemberExit ? (
                     <>
-                        <div style={{marginBottom: '16px'}}>
+                        <div style={{ marginBottom: '16px' }}>
                             {selectedMembers.length > 0 && (
                                 <>
-                                    <h6 style={{marginBottom: '8px', fontWeight: 'bold', fontSize: '1.1rem'}}>Thành viên
+                                    <h6 style={{ marginBottom: '8px', fontWeight: 'bold', fontSize: '1.1rem' }}>Thành viên
                                         đã chọn:</h6>
                                     <div style={{
                                         display: 'flex',
@@ -1239,7 +1239,7 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                                                 }}>
                                                     {member.name}
                                                     <FeatherIcon icon="x" size={16} color='red'
-                                                                 style={{marginLeft: '8px'}}/>
+                                                        style={{ marginLeft: '8px' }} />
                                                 </span>
                                             </Badge>
                                         ))}
@@ -1252,22 +1252,22 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                             placeholder="Tìm kiếm thành viên"
                             value={searchTerm}
                             onChange={handleSearchChange}
-                            style={{marginBottom: '16px'}}
+                            style={{ marginBottom: '16px' }}
                         />
                         <List
                             itemLayout="horizontal"
-                            style={{height: '300px', overflowY: 'auto'}}
+                            style={{ height: '300px', overflowY: 'auto' }}
                             dataSource={filteredMembers}
                             renderItem={(member) => (
-                                <List.Item onClick={() => handleSelectMember(member)} style={{cursor: 'pointer'}}>
+                                <List.Item onClick={() => handleSelectMember(member)} style={{ cursor: 'pointer' }}>
                                     <List.Item.Meta
                                         avatar={<Avatar width={40} height={40} name={member?.name}
-                                                        imageUrl={member?.avatar ? `${LARAVEL_SERVER}${member?.avatar}` : ''}/>}
+                                            imageUrl={member?.avatar ? `${LARAVEL_SERVER}${member?.avatar}` : ''} />}
                                         title={member.name}
                                         description={
                                             <>
                                                 <small className="text-muted">{member?.email} </small>
-                                                <br/>
+                                                <br />
                                                 <strong
                                                     className="text-muted">{member?.department_name} - {member?.level_name}</strong>
                                             </>
@@ -1286,7 +1286,7 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                                 name="email_to"
                                 value={dataJoinProject.email_to}
                                 onChange={handleChangeJoinProject}
-                                style={{marginBottom: '16px'}}
+                                style={{ marginBottom: '16px' }}
                             />
                         </Form.Item>
                         <Form.Item label="Lời nhắn" className="form-label fs-4">
@@ -1300,22 +1300,22 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                         </Form.Item>
                     </>
                 )}
-                <div style={{display: 'flex', justifyContent: 'center', marginTop: '16px'}}>
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
                     {showMemberExit ? (
                         <Button
                             type="primary"
-                            style={{minWidth: '300px'}}
+                            style={{ minWidth: '300px' }}
                             onClick={handleUpdateMembers}
                         >
-                            {loadingUpdate ? <Spin/> : 'Cập nhật'}
+                            {loadingUpdate ? <Spin /> : 'Cập nhật'}
                         </Button>
                     ) : (
                         <Button
                             type="primary"
-                            style={{minWidth: '300px'}}
+                            style={{ minWidth: '300px' }}
                             onClick={handleJoinProject}
                         >
-                            {loadingUpdate ? <Spin/> : 'Gửi lời mời'}
+                            {loadingUpdate ? <Spin /> : 'Gửi lời mời'}
                         </Button>
                     )}
                 </div>
@@ -1328,14 +1328,14 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                 footer={[
                     <div key="1" className="project-modal-footer">
                         <Button size="default" type="primary" key="submit"
-                                onClick={handleUpdateLeader}
-                                style={{
-                                    backgroundColor: isLoading ? "#8c94ff" : "#5f63f2",
-                                    minWidth: '150px',
-                                }}
+                            onClick={handleUpdateLeader}
+                            style={{
+                                backgroundColor: isLoading ? "#8c94ff" : "#5f63f2",
+                                minWidth: '150px',
+                            }}
                         >
                             {isLoading ? <div>
-                                <Spin/>
+                                <Spin />
                             </div> : 'Cập nhật'}
 
                         </Button>
@@ -1345,37 +1345,37 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                 <div className="project-modal">
                     <BasicFormWrapper>
                         <Form form={form} name="updateLeaderProject" onFinish={handleUpdateLeader}>
-                            <Form.Item style={{marginTop: '10px'}} name="leader" label="Chọn người phụ trách"
+                            <Form.Item style={{ marginTop: '10px' }} name="leader" label="Chọn người phụ trách"
                             >
                                 <Input
                                     type="text"
                                     placeholder="Tìm kiếm thành viên"
                                     value={searchTerm}
                                     onChange={handleSearchChange}
-                                    style={{marginBottom: '16px'}}
+                                    style={{ marginBottom: '16px' }}
                                 />
                                 <List
                                     itemLayout="horizontal"
-                                    style={{height: '200px', overflowY: 'auto'}}
+                                    style={{ height: '200px', overflowY: 'auto' }}
                                     dataSource={filteredMembers}
                                     renderItem={(member) => (
                                         <List.Item onClick={() => handleSelectLeader(member)}
-                                                   style={{cursor: 'pointer'}}>
+                                            style={{ cursor: 'pointer' }}>
                                             <List.Item style={{
                                                 borderBottom: 'none',
                                                 padding: '4px 8px',
                                             }}>
                                                 <input type="radio" value={member?.id}
-                                                       checked={member?.id === selectedLeader?.id}/>
+                                                    checked={member?.id === selectedLeader?.id} />
                                             </List.Item>
                                             <List.Item.Meta
                                                 avatar={<Avatar width={40} height={40} name={member?.name}
-                                                                imageUrl={member?.avatar ? `${LARAVEL_SERVER}${member?.avatar}` : ''}/>}
+                                                    imageUrl={member?.avatar ? `${LARAVEL_SERVER}${member?.avatar}` : ''} />}
                                                 title={member.name}
                                                 description={
                                                     <>
                                                         <small className="text-muted">{member?.email} </small>
-                                                        <br/>
+                                                        <br />
                                                         <strong
                                                             className="text-muted">{member?.department_name} - {member?.level_name}</strong>
                                                     </>
@@ -1391,7 +1391,7 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
             </Modal>
             {
                 selectedProject &&
-                <CopyProject visible={showModalCopy} onCancel={handleCancel} project={selectedProject}/>
+                <CopyProject visible={showModalCopy} onCancel={handleCancel} project={selectedProject} />
             }
             {/*    modal update notification before end time*/}
             <Modal
@@ -1409,12 +1409,12 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                 ]}
             >
                 <div>
-                    <label style={{marginBottom: '10px', display: 'block'}}>Nhắc nhở trước thời gian kết thúc của công
+                    <label style={{ marginBottom: '10px', display: 'block' }}>Nhắc nhở trước thời gian kết thúc của công
                         việc (giờ) <span
-                            style={{color: 'red'}}>*</span></label>
-                    < InputNumber style={{width: '100%'}} min={0} value={notifyBeforeEndTime}
-                                  defaultValue={notifyBeforeEndTime}
-                                  onChange={(value) => setNotifyBeforeEndTime(value)}/>
+                            style={{ color: 'red' }}>*</span></label>
+                    < InputNumber style={{ width: '100%' }} min={0} value={notifyBeforeEndTime}
+                        defaultValue={notifyBeforeEndTime}
+                        onChange={(value) => setNotifyBeforeEndTime(value)} />
                 </div>
 
 
@@ -1428,13 +1428,13 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                 footer={[
                     <div key="1" className="project-modal-footer">
                         <Button size="default" type="primary" key="submit" onClick={handleUpdateType}
-                                style={{
-                                    backgroundColor: loadingUpdate ? "#8c94ff" : "#5f63f2",
-                                    minWidth: '150px',
-                                }}
+                            style={{
+                                backgroundColor: loadingUpdate ? "#8c94ff" : "#5f63f2",
+                                minWidth: '150px',
+                            }}
                         >
                             {loadingUpdate ? <div>
-                                <Spin/>
+                                <Spin />
                             </div> : 'Cập nhật'}
                         </Button>
                     </div>,

@@ -542,7 +542,13 @@ class TaskController extends Controller
                     'createByUserId' => $create_by_user_id,
                     'pathname' => $pathname,
                 ];
-                Http::post($this->nodeUrl . '/update-name-task', $payload);
+                try {
+                    Http::post($this->nodeUrl . '/update-name-task', $payload);
+                } catch (\Exception $e) {
+                    // Log the error or handle it as needed
+                    \Log::error('Failed to send request to Node.js server: ' . $e->getMessage());
+                    // Optionally, you can return a response or take other actions
+                }
             }
 //
             return response()->json([
