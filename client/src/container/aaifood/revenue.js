@@ -4,6 +4,7 @@ import { Tabs, Table, Spin, Button, Row, Col, Drawer, Form, DatePicker, message,
 import { reportRevenue, filterRevenueFood, checkRoleUser } from '../../apis/aaifood/index';
 import moment from 'moment';
 const { Option } = Select;
+import * as XLSX from 'xlsx';
 const list_order_agency = () => {
   const [revenueToday, setProfitToday] = useState(null);
   const [revenueWeek, setRevenueWeek] = useState(null);
@@ -221,6 +222,50 @@ const list_order_agency = () => {
       ),
     },
   ];
+  const exportToExcel = () => {
+    if (orderRetail.length > 0 || orderAgency.length > 0) {
+      const workbook = XLSX.utils.book_new();
+  
+      // Đổi tên cột và thêm sheet cho dữ liệu bán lẻ nếu có
+      if (orderRetail.length > 0) {
+        const retailData = orderRetail.map(item => ({
+          'ID': item.id,
+          'Khách hàng': item.customer_name,
+          'SĐT': item.customer_phone,
+          'Địa chỉ': item.customer_address,
+          'Tổng tiền': item.order_total,
+          'Ngày thanh toán': item.order_date,
+          'Sale': item.name,
+        }));
+        const worksheetRetail = XLSX.utils.json_to_sheet(retailData);
+        XLSX.utils.book_append_sheet(workbook, worksheetRetail, 'Phiếu Bán Lẻ');
+      }
+  
+      // Đổi tên cột và thêm sheet cho dữ liệu đại lý nếu có
+      if (orderAgency.length > 0) {
+        const agencyData = orderAgency.map(item => ({
+          'Mã Đại Lý': item.agency_id,
+          'Tên Đại Lý': item.agency_name,
+          'SĐT': item.agency_phone,
+          'Tổng tiền': item.order_total,
+          'Ngày thanh toán': item.order_date,
+          'Sale': item.name,
+        }));
+        const worksheetAgency = XLSX.utils.json_to_sheet(agencyData);
+        XLSX.utils.book_append_sheet(workbook, worksheetAgency, 'Phiếu Đại Lý');
+      }
+  
+      // Lưu file Excel
+      XLSX.writeFile(
+        workbook,
+        `DoanhThu_${new Date().toISOString().slice(0, 10)}.xlsx`
+      );
+    } else {
+      alert('Không có dữ liệu để xuất Excel!');
+    }
+  };
+  
+  
   return (
     <div style={{ padding: '20px', background: '#fff' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignContent: 'center' }}>
@@ -300,7 +345,7 @@ const list_order_agency = () => {
                 >
                   <h5 style={{ fontSize: '1.5rem', color: '#333', marginBottom: '10px' }}>Hôm nay</h5>
                   <h4 style={{ fontSize: '2rem', color: '#4CAF50', fontWeight: 'bold' }}>
-                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format( revenueToday)}
+                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(revenueToday)}
                   </h4>
                 </div>
               </Col>
@@ -360,10 +405,26 @@ const list_order_agency = () => {
           {/* kết quả lọc */}
           {orderRetail.length > 0 || orderAgency.length > 0 ? (
             <div style={{ marginTop: '30px' }}>
-              <h2 style={{ color: '#6c2c91' }}>
-                Tổng doanh thu:{' '}
-                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalRevenue)}
-              </h2>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h2 style={{ color: '#6c2c91' }}>
+                  Tổng doanh thu:{' '}
+                  {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalRevenue)}
+                </h2>
+                <button
+                  type="button"
+                  onClick={exportToExcel}
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: '#6c2c91',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Xuất file Excel
+                </button>
+              </div>
               <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
                 {orderRetail.length > 0 && (
                   <Col className="gutter-row" span={24}>

@@ -227,7 +227,7 @@ const Receipts = () => {
       key: 'customer_description',
     },
     {
-      title: 'Thành tiền',
+      title: 'Khoản tiền',
       dataIndex: 'order_total',
       key: 'order_total',
       render: (text) => {
