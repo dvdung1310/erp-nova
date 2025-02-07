@@ -288,24 +288,30 @@ class DepotManagerController extends Controller
             $user = CrmEmployeeModel::join('users', 'crm_employee.account_id', '=', 'users.id')
                 ->select('crm_employee.department_id', 'users.role_id')
                 ->where('users.id', $user_id)->first();
-            if ($user->department_id === 1 || $user->department_id === 8 || $user->role_id === 1) {
-                $order_retail = AaiOrderModel::leftjoin('users', 'aai_order.sale_id', '=', 'users.id')
-                    ->select('aai_order.*', 'users.name')
-                    ->where('customer_id', null)->orderBy('order_date', 'desc')->get();
-                $order_agency = AaiOrderModel::leftjoin('users', 'aai_order.sale_id', '=', 'users.id')
-                    ->join('aai_agency', 'aai_order.customer_id', '=', 'aai_agency.agency_id')
-                    ->select('aai_order.*', 'users.name', 'aai_agency.agency_name', 'aai_agency.agency_phone', 'aai_agency.agency_address', 'aai_agency.agency_level')
-                    ->whereNotNull('customer_id')->orderBy('order_date', 'desc')->get();
-            } else {
+            if ($user->department_id === 1 || $user->department_id === 8|| $user->department_id === 9 || $user->role_id === 1) {
                 $order_retail = AaiOrderModel::leftjoin('users', 'aai_order.sale_id', '=', 'users.id')
                     ->select('aai_order.*', 'users.name')
                     ->where('customer_id', null)
-                    ->where('sale_id', $user_id)
+                    ->where('aai_order.type_payment', '=', 'aaifood')
                     ->orderBy('order_date', 'desc')->get();
                 $order_agency = AaiOrderModel::leftjoin('users', 'aai_order.sale_id', '=', 'users.id')
                     ->join('aai_agency', 'aai_order.customer_id', '=', 'aai_agency.agency_id')
                     ->select('aai_order.*', 'users.name', 'aai_agency.agency_name', 'aai_agency.agency_phone', 'aai_agency.agency_address', 'aai_agency.agency_level')
                     ->whereNotNull('customer_id')
+                    ->where('aai_order.type_payment', '=', 'aaifood')
+                    ->orderBy('order_date', 'desc')->get();
+            } else {
+                $order_retail = AaiOrderModel::leftjoin('users', 'aai_order.sale_id', '=', 'users.id')
+                    ->select('aai_order.*', 'users.name')
+                    ->where('customer_id', null)
+                    ->where('sale_id', $user_id)
+                    ->where('aai_order.type_payment', '=', 'aaifood')
+                    ->orderBy('order_date', 'desc')->get();
+                $order_agency = AaiOrderModel::leftjoin('users', 'aai_order.sale_id', '=', 'users.id')
+                    ->join('aai_agency', 'aai_order.customer_id', '=', 'aai_agency.agency_id')
+                    ->select('aai_order.*', 'users.name', 'aai_agency.agency_name', 'aai_agency.agency_phone', 'aai_agency.agency_address', 'aai_agency.agency_level')
+                    ->whereNotNull('customer_id')
+                    ->where('aai_order.type_payment', '=', 'aaifood')
                     ->where('sale_id', $user_id)->orderBy('order_date', 'desc')->get();
             }
 
@@ -358,6 +364,7 @@ class DepotManagerController extends Controller
             $order->order_date = today();
             $order->payos_status = 0;
             $order->sale_id = Auth::id();
+            $order->type_payment = 'aaifood';
             $order->save();
             $order_id = $order->order_id;
 
@@ -413,7 +420,7 @@ class DepotManagerController extends Controller
         try {
             $order_total_bill = $request->order_total;
             $order_total = (int)filter_var($order_total_bill, FILTER_SANITIZE_NUMBER_INT);
-    
+
             // Tạo đơn hàng
             $order = new AaiOrderModel();
             $order->customer_name = $request->customer_name;
@@ -429,9 +436,10 @@ class DepotManagerController extends Controller
                 $image->move(public_path('uploads/orders'), $imageName); // Di chuyển ảnh vào thư mục uploads
                 $order->payment_img = 'uploads/orders/' . $imageName; // Lưu đường dẫn ảnh vào DB
             }
+            $order->type_payment = 'aaifood';
             $order->save();
             $order_id = $order->order_id;
-    
+
             // Xử lý sản phẩm
             $products = json_decode($request->products, true); // Decode danh sách sản phẩm từ JSON
             foreach ($products as $product) {
@@ -442,7 +450,7 @@ class DepotManagerController extends Controller
                 $order_detail->product_price_input = number_format($product['product_price_input'], 3, '.', '');
                 $order_detail->product_price_output = number_format($product['product_price_output'], 3, '.', '');
                 $order_detail->save();
-    
+
                 $updated = AaiProductModel::where('product_id', $product['product_id'])
                     ->where('product_quantity_remaining', '>=', $product['quantity']) // Kiểm tra nếu số lượng còn lại đủ
                     ->update(['product_quantity_remaining' => DB::raw('product_quantity_remaining - ' . $product['quantity'])]);
@@ -451,10 +459,10 @@ class DepotManagerController extends Controller
                     throw new \Exception("Không đủ số lượng sản phẩm hoặc sản phẩm không tồn tại trong kho.");
                 }
             }
-    
+
             // Xử lý ảnh (nếu có)
-          
-    
+
+
             return response()->json([
                 'success' => true,
                 'message' => 'Tạo phiếu bán hàng thành công',
@@ -478,6 +486,7 @@ class DepotManagerController extends Controller
             $order->order_total = $order_total;
             $order->order_date = $request->order_date;
             $order->sale_id = Auth::id();
+            $order->type_payment = 'aaifood';
             $order->save();
             $order_id = $order->order_id;
 
@@ -597,40 +606,47 @@ class DepotManagerController extends Controller
             if ($user->department_id === 1 || $user->department_id === 8 || $user->role_id === 1) {
                 // Lợi nhuận ngày hôm nay
                 $revenue_today = AaiOrderModel::where('payos_status', 2)
-                    ->whereDate('order_date', '=', $today) // So sánh chỉ ngày
+                    ->whereDate('order_date', '=', $today)
+                    ->where('type_payment', '=', 'aaifood')
                     ->sum('order_total');
                 // Lợi nhuận trong tuần
                 $revenue_week = AaiOrderModel::where('payos_status', 2)
+                    ->where('type_payment', '=', 'aaifood')
                     ->whereBetween('order_date', [$start_of_week, $end_of_week]) // So sánh ngày trong tuần
                     ->sum('order_total');
 
                 // Lợi nhuận trong tháng
                 $revenue_month = AaiOrderModel::where('payos_status', 2)
+                    ->where('type_payment', '=', 'aaifood')
                     ->whereBetween('order_date', [$startOfMonth, $endOfMonth]) // So sánh ngày trong tháng
                     ->sum('order_total');
 
                 // Lợi nhuận toàn thời gian
-                $revenue_all_time = AaiOrderModel::where('payos_status', 2)
+                $revenue_all_time = AaiOrderModel::where('payos_status', 2)->where('type_payment', '=', 'aaifood')
                     ->sum('order_total');
             } else {
                 $revenue_today = AaiOrderModel::where('payos_status', 2)
                     ->where('sale_id', $user_id)
+                    ->where('type_payment', '=', 'aaifood')
                     ->whereDate('order_date', '=', $today) // So sánh chỉ ngày
                     ->sum('order_total');
                 // Lợi nhuận trong tuần
                 $revenue_week = AaiOrderModel::where('payos_status', 2)
                     ->where('sale_id', $user_id)
+                    ->where('type_payment', '=', 'aaifood')
                     ->whereBetween('order_date', [$start_of_week, $end_of_week]) // So sánh ngày trong tuần
                     ->sum('order_total');
 
                 // Lợi nhuận trong tháng
                 $revenue_month = AaiOrderModel::where('payos_status', 2)
                     ->where('sale_id', $user_id)
+                    ->where('type_payment', '=', 'aaifood')
                     ->whereBetween('order_date', [$startOfMonth, $endOfMonth]) // So sánh ngày trong tháng
                     ->sum('order_total');
 
                 // Lợi nhuận toàn thời gian
                 $revenue_all_time = AaiOrderModel::where('payos_status', 2)
+                ->where('type_payment', '=', 'aaifood')
                     ->where('sale_id', $user_id)
                     ->sum('order_total');
             }
@@ -638,6 +654,7 @@ class DepotManagerController extends Controller
             // Lấy danh sách các nhân viên bán hàng
             $list_sales = AaiOrderModel::join('users', 'aai_order.sale_id', '=', 'users.id')
                 ->select('users.name', 'users.id')
+                ->where('aai_order.type_payment', '=', 'aaifood')
                 ->distinct()
                 ->get();
 
@@ -809,7 +826,7 @@ class DepotManagerController extends Controller
     {
         $user_id = auth()->user()->id;
         $user = CrmEmployeeModel::join('users', 'crm_employee.account_id', '=', 'users.id')
-            ->select('crm_employee.department_id', 'users.role_id','crm_employee.level_id')
+            ->select('crm_employee.department_id', 'users.role_id', 'crm_employee.level_id')
             ->where('users.id', $user_id)->first();
         // if($user->department_id == 1 || $user->department_id == 8 ||  $user->role_id == 1){
         //     $check_role = true;
@@ -943,6 +960,7 @@ class DepotManagerController extends Controller
                     ->select('aai_order.*', 'users.name')
                     ->where('aai_order.payos_status', 2)
                     ->where('customer_id', null)
+                    ->where('aai_order.type_payment', '=', 'aaifood')
                     ->orderBy('order_date', 'desc');
 
                 // Truy vấn đơn hàng đại lý
@@ -951,6 +969,7 @@ class DepotManagerController extends Controller
                     ->select('aai_order.*', 'users.name', 'aai_agency.agency_name', 'aai_agency.agency_phone', 'aai_agency.agency_address', 'aai_agency.agency_level')
                     ->where('aai_order.payos_status', 2)
                     ->whereNotNull('customer_id')
+                    ->where('aai_order.type_payment', '=', 'aaifood')
                     ->orderBy('order_date', 'desc');
 
 
@@ -1012,6 +1031,7 @@ class DepotManagerController extends Controller
                 $query_retail = AaiOrderModel::leftjoin('users', 'aai_order.sale_id', '=', 'users.id')
                     ->select('aai_order.*', 'users.name')
                     ->where('aai_order.payos_status', 2)
+                    ->where('aai_order.type_payment', '=', 'aaifood')
                     ->where('customer_id', null)
                     ->where('aai_order.sale_id', $user_id)
                     ->orderBy('order_date', 'desc');
@@ -1021,6 +1041,7 @@ class DepotManagerController extends Controller
                     ->join('aai_agency', 'aai_order.customer_id', '=', 'aai_agency.agency_id')
                     ->select('aai_order.*', 'users.name', 'aai_agency.agency_name', 'aai_agency.agency_phone', 'aai_agency.agency_address', 'aai_agency.agency_level')
                     ->where('aai_order.payos_status', 2)
+                    ->where('aai_order.type_payment', '=', 'aaifood')
                     ->where('aai_order.sale_id', $user_id)
                     ->whereNotNull('customer_id')
                     ->orderBy('order_date', 'desc');
@@ -1113,6 +1134,7 @@ class DepotManagerController extends Controller
             ')
                 ->where('o.payos_status', 2)
                 ->whereDate('o.order_date', today())
+                ->where('o.type_payment', '=', 'aaifood')
                 ->value('today_profit');
 
             // Tính tổng chi phí cho ngày hôm nay từ bảng cost
@@ -1128,6 +1150,7 @@ class DepotManagerController extends Controller
                 ->selectRaw('
                 SUM((od.product_quantity * od.product_price_output) - (od.product_quantity * od.product_price_input)) AS today_profit')
                 ->where('o.payos_status', 2)
+                ->where('o.type_payment', '=', 'aaifood')
                 ->whereBetween('o.order_date', [$start_of_week, $end_of_week])
                 ->value('today_profit');
             $total_cost_week = DB::table('aai_cost')
@@ -1141,6 +1164,7 @@ class DepotManagerController extends Controller
                 ->selectRaw('
                 SUM((od.product_quantity * od.product_price_output) - (od.product_quantity * od.product_price_input)) AS today_profit')
                 ->where('o.payos_status', 2)
+                ->where('o.type_payment', '=', 'aaifood')
                 ->whereBetween('o.order_date', [$startOfMonth, $endOfMonth])
                 ->value('today_profit');
             $total_cost_month = DB::table('aai_cost')
@@ -1155,6 +1179,7 @@ class DepotManagerController extends Controller
                 ->selectRaw('
                 SUM((od.product_quantity * od.product_price_output) - (od.product_quantity * od.product_price_input)) AS today_profit')
                 ->where('o.payos_status', 2)
+                ->where('o.type_payment', '=', 'aaifood')
                 ->value('today_profit');
             $total_cost_all = DB::table('aai_cost')
                 ->sum('cost_total');
@@ -1194,6 +1219,7 @@ class DepotManagerController extends Controller
                 ->select('aai_order.*', 'users.name')
                 ->where('aai_order.payos_status', 2)
                 ->where('customer_id', null)
+                ->where('aai_order.type_payment', '=', 'aaifood')
                 ->orderBy('order_date', 'desc');
 
             // Truy vấn đơn hàng đại lý
@@ -1201,6 +1227,7 @@ class DepotManagerController extends Controller
                 ->join('aai_agency', 'aai_order.customer_id', '=', 'aai_agency.agency_id')
                 ->select('aai_order.*', 'users.name', 'aai_agency.agency_name', 'aai_agency.agency_phone', 'aai_agency.agency_address', 'aai_agency.agency_level')
                 ->where('aai_order.payos_status', 2)
+                ->where('aai_order.type_payment', '=', 'aaifood')
                 ->whereNotNull('customer_id')
                 ->orderBy('order_date', 'desc');
 
