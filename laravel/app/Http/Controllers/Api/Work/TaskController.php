@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Work;
 use App\Http\Controllers\Controller;
 use App\Models\Devices;
 use App\Models\Group;
+use App\Models\GroupTask;
 use App\Models\Message;
 use App\Models\MessageTask;
 use App\Models\Notification;
@@ -57,7 +58,11 @@ class TaskController extends Controller
                 ], 403);
             }
             $create_by_user_id = auth()->user()->id;
-            $task = Task::create(array_merge($validatedData, ['create_by_user_id' => $create_by_user_id]));
+            if (!$request->group_task_id) {
+                $task = Task::create(array_merge($validatedData, ['create_by_user_id' => $create_by_user_id]));
+            } else {
+                $task = Task::create(array_merge($validatedData, ['create_by_user_id' => $create_by_user_id, 'group_task_id' => $request->group_task_id]));
+            }
             $membersData = [];
             foreach ($request->members as $user_id) {
                 $membersData[] = [
@@ -78,6 +83,26 @@ class TaskController extends Controller
                 'message_id' => $message->message_id,
                 'task_id' => $task->task_id,
             ]);
+            $project_id = $validatedData['project_id'];
+            $task = Task::select('work_tasks.*', 'work_group_task.group_task_name', 'work_tasks.group_task_id')
+                ->leftJoin('work_group_task', 'work_tasks.group_task_id', '=', 'work_group_task.group_task_id')
+                ->where('work_tasks.project_id', $project_id)
+                ->with(['users' => function ($query) {
+                    $query->select('users.id', 'users.name', 'users.email', 'users.avatar');
+                }])
+                ->get()
+                ->makeHidden('pivot')
+                ->groupBy(function ($task) {
+                    return $task->group_task_id ? $task->group_task_name : 'Chưa có nhóm công việc';
+                })
+                ->map(function ($group, $groupName) {
+                    return [
+                        'group_task_name' => $groupName,
+                        'group_task_id' => $group->first()->group_task_id,
+                        'tasks' => $group
+                    ];
+                })
+                ->values();
             //
             return response()->json([
                 'error' => false,
@@ -110,14 +135,29 @@ class TaskController extends Controller
             }
             $leader_id = $project->leader_id;
             if ($role_id != 5 || $user_id == $leader_id) {
-                $tasks = Task::where('project_id', $project_id)
+                $tasks = Task::select('work_tasks.*', 'work_group_task.group_task_name', 'work_tasks.group_task_id')
+                    ->leftJoin('work_group_task', 'work_tasks.group_task_id', '=', 'work_group_task.group_task_id')
+                    ->where('work_tasks.project_id', $project_id)
                     ->with(['users' => function ($query) {
                         $query->select('users.id', 'users.name', 'users.email', 'users.avatar');
                     }])
                     ->get()
-                    ->makeHidden('pivot');
+                    ->makeHidden('pivot')
+                    ->groupBy(function ($task) {
+                        return $task->group_task_id ? $task->group_task_name : 'Chưa có nhóm công việc';
+                    })
+                    ->map(function ($group, $groupName) {
+                        return [
+                            'group_task_name' => $groupName,
+                            'group_task_id' => $group->first()->group_task_id,
+                            'tasks' => $group
+                        ];
+                    })
+                    ->values();
             } else {
-                $tasks = Task::where('project_id', $project_id)
+                $tasks = Task::select('work_tasks.*', 'work_group_task.group_task_name', 'work_tasks.group_task_id')
+                    ->leftJoin('work_group_task', 'work_tasks.group_task_id', '=', 'work_group_task.group_task_id')
+                    ->where('work_tasks.project_id', $project_id)
                     ->whereHas('users', function ($query) use ($user_id) {
                         $query->where('users.id', $user_id);
                     })
@@ -125,7 +165,18 @@ class TaskController extends Controller
                         $query->select('users.id', 'users.name', 'users.email', 'users.avatar');
                     }])
                     ->get()
-                    ->makeHidden('pivot');
+                    ->makeHidden('pivot')
+                    ->groupBy(function ($task) {
+                        return $task->group_task_id ? $task->group_task_name : 'Chưa có nhóm công việc';
+                    })
+                    ->map(function ($group, $groupName) {
+                        return [
+                            'group_task_name' => $groupName,
+                            'group_task_id' => $group->first()->group_task_id,
+                            'tasks' => $group
+                        ];
+                    })
+                    ->values();
             }
 
             $project = Project::with(['users', 'creator'])->find($project_id);
@@ -385,7 +436,6 @@ class TaskController extends Controller
         }
 
     }
-
 
     public function delete(Request $request, $task_id): JsonResponse
     {
@@ -1307,6 +1357,27 @@ class TaskController extends Controller
                     'tasks' => $tasks,
                 ]
             ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+    }
+
+    public function createGroup(Request $request): JsonResponse
+    {
+        try {
+            $validatedData = $request->validate([
+                'group_task_name' => 'required|string',
+            ]);
+            $groupTask = GroupTask::create($validatedData);
+            return response()->json([
+                'error' => false,
+                'message' => 'Group created successfully',
+                'data' => $groupTask
+            ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,

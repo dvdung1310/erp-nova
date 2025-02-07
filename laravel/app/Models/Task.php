@@ -14,6 +14,7 @@ class Task extends Model
     public $incrementing = true;
     protected $fillable = [
         'project_id',
+        'group_task_id',
         'task_name',
         'task_description',
         'task_progress',

@@ -3,6 +3,7 @@ import React, {useEffect, useState} from "react";
 import {checkPriority, checkStatus} from "../../../../../utility/checkValue";
 import RichTextEditor from 'react-rte';
 import {
+    createGroupTask,
     createTask,
     deleteTask,
     updateDescriptionTask,
@@ -130,6 +131,7 @@ const TaskList = (props) => {
     const {pathname} = useLocation();
 
     const [loading, setLoading] = useState(false);
+    const [loadingCreateGroup, setLoadingCreateGroup] = useState(false);
     const [loadingCreate, setLoadingCreate] = useState(false);
     const [loadingDelete, setLoadingDelete] = useState(false);
     const [loadingUpdate, setLoadingUpdate] = useState(false);
@@ -139,8 +141,10 @@ const TaskList = (props) => {
     const [selectedPriority, setSelectedPriority] = useState(''); // Default priority
     const [showModalConfirm, setShowModalConfirm] = useState(false);
     const [showModalCreate, setShowModalCreate] = useState(false);
+    const [showModelCreateGroupTask, setShowModelCreateGroupTask] = useState(false);
     const [showModalInfo, setShowModalInfo] = useState(false);
     const [taskSelected, setTaskSelected] = useState(null);
+    const [groupTaskSelected, setGroupTaskSelected] = useState(null);
     const [statusAnchorEl, setStatusAnchorEl] = useState(null)
     const [priorityAnchorEl, setPriorityAnchorEl] = useState(null)
     const [nameAnchorEl, setNameAnchorEl] = useState(null)
@@ -174,9 +178,18 @@ const TaskList = (props) => {
         task_name: '',
         task_description: '',
     });
+    const [dataCreateGroupTask, setDataCreateGroupTask] = useState({
+        group_task_name: '',
+    });
     const handleChange = (e) => {
         setDataCreateTask({
             ...dataCreateTask,
+            [e.target.name]: e.target.value
+        })
+    }
+    const handleChangeGroupTask = (e) => {
+        setDataCreateGroupTask({
+            ...dataCreateGroupTask,
             [e.target.name]: e.target.value
         })
     }
@@ -311,7 +324,12 @@ const TaskList = (props) => {
                     pathname
                 }
                 const res = await updateDescriptionTask(payload, selectedTask.task_id)
-                setTasks(tasks.map((task) => task.task_id === selectedTask.task_id ? res.data : task))
+                setTasks(tasks.map(group => {
+                    return {
+                        ...group,
+                        tasks: group.tasks.map(task => task.task_id === selectedTask.task_id ? res.data : task)
+                    };
+                }));
                 toast.success('Thực hiện cập nhật tên công việc thành công', {
                     position: "top-right", autoClose: 1000
                 })
@@ -339,7 +357,12 @@ const TaskList = (props) => {
                     task_name, pathname
                 }
                 const res = await updateNameTask(payload, selectedTask.task_id)
-                setTasks(tasks.map((task) => task.task_id === selectedTask.task_id ? res.data : task))
+                setTasks(tasks.map(group => {
+                    return {
+                        ...group,
+                        tasks: group.tasks.map(task => task.task_id === selectedTask.task_id ? res.data : task)
+                    };
+                }));
                 toast.success('Thực hiện cập nhật tên công việc thành công', {
                     position: "top-right", autoClose: 1000
                 })
@@ -381,7 +404,12 @@ const TaskList = (props) => {
                 }
                 const res = await updateScoreTask(payload, selectedTask.task_id)
                 console.log(res)
-                setTasks(tasks.map((task) => task.task_id === selectedTask.task_id ? res.data : task))
+                setTasks(tasks.map(group => {
+                    return {
+                        ...group,
+                        tasks: group.tasks.map(task => task.task_id === selectedTask.task_id ? res.data : task)
+                    };
+                }));
                 toast.success('Thực hiện cập nhật điểm KPI công việc thành công', {
                     position: "top-right", autoClose: 1000
                 })
@@ -417,7 +445,12 @@ const TaskList = (props) => {
                     pathname
                 }
                 const res = await updateProgress(payload, selectedTask.task_id)
-                setTasks(tasks.map((task) => task.task_id === selectedTask.task_id ? res.data : task))
+                setTasks(tasks.map(group => {
+                    return {
+                        ...group,
+                        tasks: group.tasks.map(task => task.task_id === selectedTask.task_id ? res.data : task)
+                    };
+                }));
                 toast.success('Thực hiện cập nhật tiến độ công việc thành công', {
                     position: "top-right", autoClose: 1000
                 })
@@ -451,7 +484,12 @@ const TaskList = (props) => {
                     handleClose();
                     return;
                 }
-                setTasks(tasks.map((task) => task.task_id === selectedTask.task_id ? res.data : task))
+                setTasks(tasks.map(group => {
+                    return {
+                        ...group,
+                        tasks: group.tasks.map(task => task.task_id === selectedTask.task_id ? res.data : task)
+                    };
+                }));
                 toast.success('Thực hiện cập nhật ngày bắt đầu công việc thành công', {
                     position: "top-right", autoClose: 1000
                 })
@@ -485,7 +523,12 @@ const TaskList = (props) => {
                     setLoadingUpdate(false);
                     return;
                 }
-                setTasks(tasks.map((task) => task.task_id === selectedTask.task_id ? res.data : task))
+                setTasks(tasks.map(group => {
+                    return {
+                        ...group,
+                        tasks: group.tasks.map(task => task.task_id === selectedTask.task_id ? res.data : task)
+                    };
+                }));
                 toast.success('Thực hiện cập nhật ngày kết thúc công việc thành công', {
                     position: "top-right", autoClose: 1000
                 })
@@ -525,7 +568,12 @@ const TaskList = (props) => {
                     setLoadingUpdate(false);
                     return;
                 }
-                setTasks(tasks.map((task) => task.task_id === selectedTask.task_id ? res.data : task))
+                setTasks(tasks.map(group => {
+                    return {
+                        ...group,
+                        tasks: group.tasks.map(task => task.task_id === selectedTask.task_id ? res.data : task)
+                    };
+                }));
                 toast.success('Thực hiện cập nhật người thực hiện công việc thành công', {
                     position: "top-right", autoClose: 1000
                 })
@@ -553,7 +601,12 @@ const TaskList = (props) => {
                     task_status: event.target.value, pathname
                 }
                 const res = await updateStatusTask(payload, selectedTask.task_id)
-                setTasks(tasks.map((task) => task.task_id === selectedTask.task_id ? res.data : task))
+                setTasks(tasks.map(group => {
+                    return {
+                        ...group,
+                        tasks: group.tasks.map(task => task.task_id === selectedTask.task_id ? res.data : task)
+                    };
+                }));
                 toast.success('Thực hiện cập nhật trạng thái công việc thành công', {
                     position: "top-right", autoClose: 1000
                 })
@@ -580,7 +633,12 @@ const TaskList = (props) => {
                     task_priority: event.target.value, pathname
                 }
                 const res = await updatePriorityTask(payload, selectedTask.task_id)
-                setTasks(tasks.map((task) => task.task_id === selectedTask.task_id ? res.data : task))
+                setTasks(tasks.map(group => {
+                    return {
+                        ...group,
+                        tasks: group.tasks.map(task => task.task_id === selectedTask.task_id ? res.data : task)
+                    };
+                }));
                 toast.success('Thực hiện cập nhật độ ưu tiên công việc thành công', {
                     position: "top-right", autoClose: 1000
                 })
@@ -597,15 +655,23 @@ const TaskList = (props) => {
         }
     }
     //confirm create task
-    const handleConfirmCreateTask = () => {
+    const handleConfirmCreateTask = (group_task_id) => {
         setStartDate('')
         setStartTime('')
         setEndDate('')
         setEndTime('')
+        setGroupTaskSelected(group_task_id);
         setShowModalCreate(true);
     }
+    const handleConfirmCreateGroupTask = () => {
+        setShowModelCreateGroupTask(true);
+    }
     const handleCloseCreateTask = () => {
+        setGroupTaskSelected(null);
         setShowModalCreate(false);
+    }
+    const handleCloseCreateGroupTask = () => {
+        setShowModelCreateGroupTask(false);
     }
     //confirm delete task
 
@@ -666,6 +732,7 @@ const TaskList = (props) => {
             const task_end_date_value = task_end_date.format('YYYY-MM-DD HH:mm:ss');
             const payload = {
                 "project_id": id,
+                "group_task_id": groupTaskSelected,
                 "task_name": dataCreateTask.task_name,
                 "task_description": editorState.toString('html'),
                 "task_start_date": task_start_date_value,
@@ -680,7 +747,7 @@ const TaskList = (props) => {
                 setLoadingCreate(false);
                 return;
             }
-            setTasks([...tasks, res.data]);
+            setTasks(res.data);
             toast.success('Thực hiện tạo công việc thành công', {
                 position: "top-right", autoClose: 1000
             })
@@ -700,6 +767,35 @@ const TaskList = (props) => {
             console.log(error);
         }
     };
+    const handleCreateGroupTask = async () => {
+        try {
+            const group_task_name = dataCreateGroupTask.group_task_name;
+            if (!group_task_name) {
+                toast.error('Vui lòng nhập tên nhóm công việc', {
+                    position: "top-right", autoClose: 1000
+                });
+                return;
+            }
+            const payload = {
+                group_task_name
+            }
+            setLoadingCreateGroup(true)
+            const res = await createGroupTask(payload);
+            setShowModelCreateGroupTask(false);
+            form.resetFields();
+            setDataCreateGroupTask({
+                group_task_name: ''
+            })
+            setLoadingCreateGroup(false)
+        } catch (error) {
+            setLoadingCreateGroup(false);
+            toast.error('Đã xảy ra lỗi', {
+                autoClose: 1000,
+                position: 'top-right'
+            })
+            console.log(error);
+        }
+    }
 
     const userOpen = Boolean(userAnchorEl);
     const nameOpen = Boolean(nameAnchorEl);
@@ -740,13 +836,7 @@ const TaskList = (props) => {
                             </TableCell>
                             {/* Sortable Task Name Column */}
                             <TableCell style={{fontWeight: 'bold'}}>
-                                <TableSortLabel
-                                    active={orderBy === 'task_name'}
-                                    direction={orderBy === 'task_name' ? order : 'asc'}
-                                    onClick={() => handleRequestSort('task_name')}
-                                >
-                                    Tên công việc
-                                </TableSortLabel>
+                                Tên công việc
                             </TableCell>
                             {
                                 report && <TableCell style={{fontWeight: 'bold'}}>
@@ -792,240 +882,299 @@ const TaskList = (props) => {
                     </TableHead>
                     <TableBody>
                         <AnimatePresence>
-                            {sortedTasks.length > 0 && sortedTasks?.map((task, index) => {
-                                    console.log(taskSelectedSocket)
-                                    const endDate = new Date(task.task_end_date);
-                                    const now = new Date();
-                                    const diffTime = endDate - now;
-                                    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                                    const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+                            {sortedTasks.length > 0 && sortedTasks?.map((item, index) => {
+
                                     return (
-                                        <motion.tr
-                                            key={task.task_id}
-                                            initial={{opacity: 0, y: -10, z: 0}} // Start animation
-                                            animate={{opacity: 1, y: 0, z: 0}}   // End animation
-                                            exit={{opacity: 0, y: 10, z: 0}}     // Animation when removed
-                                            layout                          // Automatically animate position changes
-                                            transition={{duration: 0.5}}   // Adjust animation speed
-                                            whileHover={{background: '#f1f2f4'}}     // Hover animation
-                                            style={{
-                                                willChange: 'inherit',
-                                                backfaceVisibility: 'inherit',
-                                                backgroundColor: taskSelectedSocket === task.task_id ? '#b9bbbe' : '#fff'
-                                            }} // Đưa phần tử lên layer mới
-                                        >
-                                            <TableCell className="table-cell" style={{
-                                                minWidth: '50px'
-                                            }}>
-                                                {index + 1}
-                                            </TableCell>
-                                            <TableCell
-                                                className="table-cell"
-                                                style={{
-                                                    textAlign: 'left'
-                                                }}
-                                                onClick={(event) => handleNameClick(event, task)}
-                                            >
-                                                {task?.task_name || '....'}
-                                                {isHome && !report && (
-                                                    <>
-                                                        <br/>
-                                                        <span><strong>Dự án:</strong> {task?.project?.project_name}</span>
-                                                    </>
-                                                )}
-                                            </TableCell>
+                                        <>
+                                            <motion.tr key={item.task_id}>
+                                                <td colSpan="12">
+                                                    <div style={{
+                                                        display: "block",
+                                                        fontSize: '20px',
+                                                        fontWeight: '500',
+                                                        padding: '10px',
+                                                    }}>
+                                                        Nhóm công việc: {item?.group_task_name}
+                                                    </div>
+                                                </td>
+                                            </motion.tr>
                                             {
-                                                report && <TableCell>
-                                                    {task?.project?.project_name}
-                                                </TableCell>
-                                            }
-                                            <TableCell
-                                                onClick={(event) => handleStatusClick(event, task)}
-                                                className={`table-cell ${task?.task_status?.toString() !== '0' ? 'table-cell-clickable' : ''}`}
-                                            >
-                                                <Chip
-                                                    style={{
-                                                        fontSize: '12px',
-                                                        backgroundColor: checkStatus(task?.task_status).color,
-                                                        color: '#fff'
-                                                    }}
-                                                    label={checkStatus(task?.task_status).status}
-                                                    className="chip-status"
-                                                    icon={task?.task_status?.toString() === '3' ?
-                                                        <MdCheck style={{color: '#fff'}}/> : null}
-                                                    // color={(task?.task_status?.toString() === '2' || task?.task_status?.toString() === '3') ? 'success' : task?.task_status?.toString() === '1' ? 'info' : task?.task_status?.toString() === '0' ? 'warning' : '#fff'}
-                                                />
-                                                {task?.task_status?.toString() !== '4' && new Date(task.task_end_date) < new Date() && (task?.task_status?.toString() !== '2' && task?.task_status?.toString() !== '3') && (
-                                                    <Chip label="Quá hạn" style={{fontSize: '12px'}}
-                                                          className="chip-status ms-1"
-                                                          color="error"/>
-                                                )}
-                                            </TableCell>
+                                                item?.tasks?.map((task, index) => {
+                                                    const endDate = new Date(task.task_end_date);
+                                                    const now = new Date();
+                                                    const diffTime = endDate - now;
+                                                    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                                                    const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+                                                    return (
+                                                        <motion.tr
+                                                            key={task.task_id}
+                                                            initial={{opacity: 0, y: -10, z: 0}} // Start animation
+                                                            animate={{opacity: 1, y: 0, z: 0}}   // End animation
+                                                            exit={{opacity: 0, y: 10, z: 0}}     // Animation when removed
+                                                            layout                          // Automatically animate position changes
+                                                            transition={{duration: 0.5}}   // Adjust animation speed
+                                                            whileHover={{background: '#f1f2f4'}}     // Hover animation
+                                                            style={{
+                                                                willChange: 'inherit',
+                                                                backfaceVisibility: 'inherit',
+                                                                backgroundColor: taskSelectedSocket === task.task_id ? '#b9bbbe' : '#fff'
+                                                            }} // Đưa phần tử lên layer mới
+                                                        >
+                                                            <TableCell className="table-cell" style={{
+                                                                minWidth: '50px'
+                                                            }}>
+                                                                {index + 1}
+                                                            </TableCell>
+                                                            <TableCell
+                                                                className="table-cell"
+                                                                style={{
+                                                                    textAlign: 'left'
+                                                                }}
+                                                                onClick={(event) => handleNameClick(event, task)}
+                                                            >
+                                                                {task?.task_name || '....'}
+                                                                {isHome && !report && (
+                                                                    <>
+                                                                        <br/>
+                                                                        <span><strong>Dự án:</strong> {task?.project?.project_name}</span>
+                                                                    </>
+                                                                )}
+                                                            </TableCell>
+                                                            {
+                                                                report && <TableCell>
+                                                                    {task?.project?.project_name}
+                                                                </TableCell>
+                                                            }
+                                                            <TableCell
+                                                                onClick={(event) => handleStatusClick(event, task)}
+                                                                className={`table-cell ${task?.task_status?.toString() !== '0' ? 'table-cell-clickable' : ''}`}
+                                                            >
+                                                                <Chip
+                                                                    style={{
+                                                                        fontSize: '12px',
+                                                                        backgroundColor: checkStatus(task?.task_status).color,
+                                                                        color: '#fff'
+                                                                    }}
+                                                                    label={checkStatus(task?.task_status).status}
+                                                                    className="chip-status"
+                                                                    icon={task?.task_status?.toString() === '3' ?
+                                                                        <MdCheck style={{color: '#fff'}}/> : null}
+                                                                    // color={(task?.task_status?.toString() === '2' || task?.task_status?.toString() === '3') ? 'success' : task?.task_status?.toString() === '1' ? 'info' : task?.task_status?.toString() === '0' ? 'warning' : '#fff'}
+                                                                />
+                                                                {task?.task_status?.toString() !== '4' && new Date(task.task_end_date) < new Date() && (task?.task_status?.toString() !== '2' && task?.task_status?.toString() !== '3') && (
+                                                                    <Chip label="Quá hạn" style={{fontSize: '12px'}}
+                                                                          className="chip-status ms-1"
+                                                                          color="error"/>
+                                                                )}
+                                                            </TableCell>
 
-                                            <TableCell className="table-cell">
-                                                {/* eslint-disable-next-line no-restricted-globals */}
-                                                {isNaN(Math.floor((new Date(task.task_end_date) - new Date(task.task_start_date)) / (1000 * 60 * 60 * 24))) ? '' : `${Math.floor((new Date(task.task_end_date) - new Date(task.task_start_date)) / (1000 * 60 * 60 * 24))} Ngày`}
-                                            </TableCell>
+                                                            <TableCell className="table-cell">
+                                                                {/* eslint-disable-next-line no-restricted-globals */}
+                                                                {isNaN(Math.floor((new Date(task.task_end_date) - new Date(task.task_start_date)) / (1000 * 60 * 60 * 24))) ? '' : `${Math.floor((new Date(task.task_end_date) - new Date(task.task_start_date)) / (1000 * 60 * 60 * 24))} Ngày`}
+                                                            </TableCell>
 
-                                            <TableCell className="table-cell"
-                                                       onClick={(event) => handleProgressClick(event, task)}
-                                            >
-                                                <div style={{display: 'flex', alignItems: 'center'}}>
-                                                    <Progress percent={task?.task_progress} size="small"
-                                                              style={{width: '80%'}}/>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="table-cell"
-                                                       onClick={(event) => handPriorityClick(event, task)}
-                                            >
-                                                <Chip
-                                                    style={{
-                                                        fontSize: '12px',
-                                                        backgroundColor: checkPriority(task?.task_priority).color,
-                                                        color: '#fff'
-                                                    }}
-                                                    label={checkPriority(task?.task_priority).status}
-                                                    className="chip-status"
-                                                    // color={checkPriority(task?.task_priority).color}
-                                                />
-                                            </TableCell>
-                                            <TableCell className="table-cell"
-                                                       onClick={(event) => handleStartDateClick(event, task)}>
-                                                <div className='d-flex align-items-center justify-content-center'>
-                                                    {moment(task?.task_start_date).format('DD-MM-YYYY HH:mm')}
-                                                    <MdOutlineDateRange
-                                                        size={16}
-                                                        className='d-block ms-1 fs-4 text-secondary'/>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="table-cell"
-                                                       onClick={(event) => handleEndDateClick(event, task)}>
-                                                <div className='d-flex align-items-center justify-content-center'>
-                                                    {moment(task?.task_end_date).format('DD-MM-YYYY HH:mm')}
-                                                    <MdOutlineDateRange
-                                                        size={16}
-                                                        className='d-block ms-1 fs-4 text-secondary'/>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="table-cell">
+                                                            <TableCell className="table-cell"
+                                                                       onClick={(event) => handleProgressClick(event, task)}
+                                                            >
+                                                                <div style={{display: 'flex', alignItems: 'center'}}>
+                                                                    <Progress percent={task?.task_progress} size="small"
+                                                                              style={{width: '80%'}}/>
+                                                                </div>
+                                                            </TableCell>
+                                                            <TableCell className="table-cell"
+                                                                       onClick={(event) => handPriorityClick(event, task)}
+                                                            >
+                                                                <Chip
+                                                                    style={{
+                                                                        fontSize: '12px',
+                                                                        backgroundColor: checkPriority(task?.task_priority).color,
+                                                                        color: '#fff'
+                                                                    }}
+                                                                    label={checkPriority(task?.task_priority).status}
+                                                                    className="chip-status"
+                                                                    // color={checkPriority(task?.task_priority).color}
+                                                                />
+                                                            </TableCell>
+                                                            <TableCell className="table-cell"
+                                                                       onClick={(event) => handleStartDateClick(event, task)}>
+                                                                <div
+                                                                    className='d-flex align-items-center justify-content-center'>
+                                                                    {moment(task?.task_start_date).format('DD-MM-YYYY HH:mm')}
+                                                                    <MdOutlineDateRange
+                                                                        size={16}
+                                                                        className='d-block ms-1 fs-4 text-secondary'/>
+                                                                </div>
+                                                            </TableCell>
+                                                            <TableCell className="table-cell"
+                                                                       onClick={(event) => handleEndDateClick(event, task)}>
+                                                                <div
+                                                                    className='d-flex align-items-center justify-content-center'>
+                                                                    {moment(task?.task_end_date).format('DD-MM-YYYY HH:mm')}
+                                                                    <MdOutlineDateRange
+                                                                        size={16}
+                                                                        className='d-block ms-1 fs-4 text-secondary'/>
+                                                                </div>
+                                                            </TableCell>
+                                                            <TableCell className="table-cell">
 
-                                                {task.task_date_update_status_completed && (<>
+                                                                {task.task_date_update_status_completed && (<>
 
-                                                    {
-                                                        task?.task_status?.toString() !== '4' ? (
-                                                            <>
-                                                                {new Date(task.task_date_update_status_completed) > new Date(task.task_end_date) ? (
-                                                                    <span className='text-danger'>
+                                                                    {
+                                                                        task?.task_status?.toString() !== '4' ? (
+                                                                            <>
+                                                                                {new Date(task.task_date_update_status_completed) > new Date(task.task_end_date) ? (
+                                                                                    <span className='text-danger'>
                                                                 Quá hạn {Math.floor((new Date(task.task_date_update_status_completed) - new Date(task.task_end_date)) / (1000 * 60 * 60 * 24))} ngày
                                                             </span>) : new Date(task.task_date_update_status_completed) < new Date(task.task_end_date) ? (
-                                                                    <span className='text-success'>
+                                                                                    <span className='text-success'>
                                                                 hoàn thành sớm {Math.floor((new Date(task.task_end_date) - new Date(task.task_date_update_status_completed)) / (1000 * 60 * 60 * 24))} ngày
                                                             </span>) : (<span className='text-success'>
                                                                 hoàn thành đúng hạn
                                                             </span>)}
-                                                            </>
-                                                        ) : <>
-                                                            <span>Tạm dừng</span>
-                                                        </>
-                                                    }
+                                                                            </>
+                                                                        ) : <>
+                                                                            <span>Tạm dừng</span>
+                                                                        </>
+                                                                    }
 
-                                                </>)}
-                                                {!task.task_date_update_status_completed && (
-                                                    <>
-                                                        {
-                                                            task?.task_status?.toString() !== '4' ? (
+                                                                </>)}
+                                                                {!task.task_date_update_status_completed && (
                                                                     <>
-                                                                        {diffDays < 0 ? (
-                                                                            <span className='text-danger'>
+                                                                        {
+                                                                            task?.task_status?.toString() !== '4' ? (
+                                                                                    <>
+                                                                                        {diffDays < 0 ? (
+                                                                                            <span className='text-danger'>
                                                                                 {(Math.abs(diffDays) >= 1 && Math.abs(diffHours) >= 24) ? `Quá hạn ${Math.abs(diffDays)} ngày` : `Quá hạn ${Math.abs(diffHours)} giờ`}
                                                                             </span>
-                                                                        ) : (
-                                                                            <span className='text-warning'>
+                                                                                        ) : (
+                                                                                            <span className='text-warning'>
                                                                                     {diffDays === 0 ? `còn ${Math.abs(diffHours)} giờ` : `còn ${diffDays} ngày`}
                                                                                 </span>
-                                                                        )}
+                                                                                        )}
+                                                                                    </>
+                                                                                )
+                                                                                : <>
+                                                                                    <span>Tạm dừng</span>
+                                                                                </>
+                                                                        }
+
                                                                     </>
-                                                                )
-                                                                : <>
-                                                                    <span>Tạm dừng</span>
-                                                                </>
+                                                                )}
+                                                            </TableCell>
+                                                            {
+                                                                !report &&
+                                                                <TableCell className="table-cell"
+                                                                           onClick={(event) => handleScoreKPIClick(event, task)}
+                                                                >
+                                                                    {task?.task_score_kpi}
+                                                                </TableCell>
+                                                            }
+
+                                                            <TableCell className="table-cell"
+                                                                       onClick={(event) => handleUserClick(event, task)}
+                                                            >
+
+                                                                <div className='d-flex align-items-center'>
+                                                                    {task?.users?.length > 0 && task.users.map((user) => (
+                                                                        <div
+                                                                            key={user.id}
+                                                                            title={user.name}
+                                                                            style={{
+                                                                                marginLeft: '-8px', fontSize: '16px'
+                                                                            }}>
+                                                                            <Avatar width={30} height={30} name={user.name}
+                                                                                    imageUrl={user.avatar ? LARAVEL_SERVER + user.avatar : ''}
+                                                                                    key={user.id}/>
+                                                                        </div>))}
+                                                                    <CiCirclePlus size={30} style={{opacity: '0.2'}}/>
+                                                                </div>
+
+                                                            </TableCell>
+                                                            <TableCell className="table-cell">
+                                                                <div className='d-flex justify-content-center' style={{
+                                                                    gap: '10px'
+                                                                }}>
+                                                                    <div className='btn p-1'
+                                                                         title='Chi tiết'
+                                                                         onClick={(event) => handleInfoClick(event, task)}
+                                                                    >
+                                                                        <PiEyeThin color='gray' size={30}
+                                                                                   className='icon-delete'/>
+                                                                    </div>
+                                                                    {
+                                                                        !isHome && <div className='btn p-1'
+                                                                                        title='Thảo luận'
+                                                                                        onClick={(event) => handleCommentClick(event, task)}
+                                                                        >
+                                                                            <GoComment color='gray' size={30}
+                                                                                       className='icon-delete'/>
+                                                                        </div>
+                                                                    }
+                                                                    {
+                                                                        !isHome && <div className='btn p-1'
+                                                                                        title='Xóa công việc'
+                                                                                        onClick={() => handleShowModalConfirm(task.task_id)}
+                                                                        >
+                                                                            <MdDelete color='red' size={30}
+                                                                                      className='icon-delete'/>
+                                                                        </div>
+                                                                    }
+                                                                    {
+                                                                        isHome && <div className='btn p-1' title='Xem dự án'
+                                                                                       style={{cursor: 'pointer'}}
+                                                                                       onClick={() => {
+                                                                                           history.push(`/admin/lam-viec/du-an/${task?.project?.project_id ?? task?.project_id}`, {
+                                                                                               task_id: task?.task_id
+                                                                                           })
+                                                                                       }}
+                                                                        >
+                                                                            <IoEnterOutline color='gray' size={30}/>
+                                                                        </div>
+                                                                    }
+
+                                                                </div>
+                                                                {/* eslint-disable-next-line react/button-has-type */}
+
+                                                            </TableCell>
+
+                                                        </motion.tr>
+                                                    )
+                                                })
+                                            }
+                                            <motion.tr key={item.task_id}>
+                                                <td colSpan="12">
+                                                    <div style={{
+                                                        display: 'flex',
+                                                        'marginLeft': '20px',
+                                                        padding: '10px'
+                                                    }}>
+
+                                                        {
+                                                            !isHome && (
+                                                                <Button
+                                                                    type="text"
+                                                                    onClick={() => handleConfirmCreateTask(item?.group_task_id)}
+                                                                    style={{}}
+                                                                >
+                                                                    {loadingCreate ? (
+                                                                        <Spin/>
+                                                                    ) : (
+                                                                        <div className='d-flex align-items-center'>
+                                                                            <span className='me-1'>Thêm dòng</span>
+                                                                        </div>
+                                                                    )}
+                                                                </Button>
+                                                            )
                                                         }
 
-                                                    </>
-                                                )}
-                                            </TableCell>
-                                            {
-                                                !report &&
-                                                <TableCell className="table-cell"
-                                                           onClick={(event) => handleScoreKPIClick(event, task)}
-                                                >
-                                                    {task?.task_score_kpi}
-                                                </TableCell>
-                                            }
-
-                                            <TableCell className="table-cell"
-                                                       onClick={(event) => handleUserClick(event, task)}
-                                            >
-
-                                                <div className='d-flex align-items-center'>
-                                                    {task?.users?.length > 0 && task.users.map((user) => (<div
-                                                        key={user.id}
-                                                        title={user.name}
-                                                        style={{
-                                                            marginLeft: '-8px', fontSize: '16px'
-                                                        }}>
-                                                        <Avatar width={30} height={30} name={user.name}
-                                                                imageUrl={user.avatar ? LARAVEL_SERVER + user.avatar : ''}
-                                                                key={user.id}/>
-                                                    </div>))}
-                                                    <CiCirclePlus size={30} style={{opacity: '0.2'}}/>
-                                                </div>
-
-                                            </TableCell>
-                                            <TableCell className="table-cell">
-                                                <div className='d-flex justify-content-center' style={{
-                                                    gap: '10px'
-                                                }}>
-                                                    <div className='btn p-1'
-                                                         title='Chi tiết'
-                                                         onClick={(event) => handleInfoClick(event, task)}
-                                                    >
-                                                        <PiEyeThin color='gray' size={30} className='icon-delete'/>
                                                     </div>
-                                                    {
-                                                        !isHome && <div className='btn p-1'
-                                                                        title='Thảo luận'
-                                                                        onClick={(event) => handleCommentClick(event, task)}
-                                                        >
-                                                            <GoComment color='gray' size={30} className='icon-delete'/>
-                                                        </div>
-                                                    }
-                                                    {
-                                                        !isHome && <div className='btn p-1'
-                                                                        title='Xóa công việc'
-                                                                        onClick={() => handleShowModalConfirm(task.task_id)}
-                                                        >
-                                                            <MdDelete color='red' size={30} className='icon-delete'/>
-                                                        </div>
-                                                    }
-                                                    {
-                                                        isHome && <div className='btn p-1' title='Xem dự án'
-                                                                       style={{cursor: 'pointer'}}
-                                                                       onClick={() => {
-                                                                           history.push(`/admin/lam-viec/du-an/${task?.project?.project_id ?? task?.project_id}`, {
-                                                                               task_id: task?.task_id
-                                                                           })
-                                                                       }}
-                                                        >
-                                                            <IoEnterOutline color='gray' size={30}/>
-                                                        </div>
-                                                    }
+                                                </td>
+                                            </motion.tr>
 
-                                                </div>
-                                                {/* eslint-disable-next-line react/button-has-type */}
 
-                                            </TableCell>
-                                        </motion.tr>)
+                                        </>
+                                    )
                                 }
                             )}
                         </AnimatePresence>
@@ -1038,7 +1187,7 @@ const TaskList = (props) => {
                                         <Button
 
                                             type="default"
-                                            onClick={handleConfirmCreateTask}
+                                            onClick={handleConfirmCreateGroupTask}
                                             style={{
                                                 marginTop: '10px',
                                                 minWidth: '150px',
@@ -1047,12 +1196,12 @@ const TaskList = (props) => {
                                                 backgroundColor: 'rgb(89 89 89)'
                                             }}
                                         >
-                                            {loadingCreate ? (
+                                            {loadingCreateGroup ? (
                                                 <Spin/>
                                             ) : (
                                                 <div className='d-flex align-items-center'>
                                                     <IoIosAdd size={24}/>
-                                                    <span className='me-1'>Thêm công việc</span>
+                                                    <span className='me-1'>Thêm nhóm việc</span>
                                                 </div>
                                             )}
                                         </Button>
@@ -1556,6 +1705,47 @@ const TaskList = (props) => {
                         className='btn btn-primary bg-primary text-white fs-4'
                     >
                         {loading ? <Spin/> : 'Tạo công việc'}
+                    </Button>
+                </div>
+            </Modal>
+            {/*//modal create group task*/}
+            <Modal
+                visible={showModelCreateGroupTask}
+                onCancel={handleCloseCreateGroupTask}
+                centered
+                title="Thêm mới nhóm công việc"
+                footer={null}
+                className='modal-task'
+            >
+                <Form layout="vertical" form={form}>
+                    <div className="row">
+                        <div className="col-md-12">
+                            <Form.Item
+                                label="Tên nhóm việc"
+                                className="form-label fs-4"
+                                name="group_task_name"
+                                rules={[{required: true, message: 'Vui lòng nhập tên nhóm việc'}]}
+                            >
+                                <Input
+                                    className="form-control fs-5"
+                                    id="input1"
+                                    name="group_task_name"
+                                    value={dataCreateGroupTask.group_task_name || ''}
+                                    onChange={handleChangeGroupTask}
+                                    placeholder="Nhập tên nhóm việc"
+                                />
+                            </Form.Item>
+                        </div>
+                    </div>
+                </Form>
+                <div className='d-flex justify-content-center' style={{marginTop: '20px'}}>
+                    <Button
+                        type="primary"
+                        style={{minWidth: '300px'}}
+                        onClick={handleCreateGroupTask}
+                        className='btn btn-primary bg-primary text-white fs-4'
+                    >
+                        {loadingCreateGroup ? <Spin/> : 'Tạo nhóm việc'}
                     </Button>
                 </div>
             </Modal>
