@@ -7,7 +7,7 @@ import {
     createTask,
     deleteTask,
     updateDescriptionTask,
-    updateEndDateTask,
+    updateEndDateTask, updateGroupTask,
     updateMemberTask,
     updateNameTask, updatePriorityTask, updateProgress, updateScoreTask,
     updateStartDateTask,
@@ -47,7 +47,7 @@ import {
 import {AnimatePresence, motion} from "framer-motion";
 import {MdCheck, MdDelete, MdOutlineDateRange} from "react-icons/md";
 import Avatar from "../../../../../components/Avatar/Avatar";
-import {CiCirclePlus} from "react-icons/ci";
+import {CiCirclePlus, CiEdit} from "react-icons/ci";
 import moment from "moment";
 import {GoComment} from "react-icons/go";
 import MessageComponent from "./MessageComponent";
@@ -146,6 +146,7 @@ const TaskList = (props) => {
     const [showModalConfirm, setShowModalConfirm] = useState(false);
     const [showModalCreate, setShowModalCreate] = useState(false);
     const [showModelCreateGroupTask, setShowModelCreateGroupTask] = useState(false);
+    const [showModalUpdateGroupTask, setShowModalUpdateGroupTask] = useState(false);
     const [showModalInfo, setShowModalInfo] = useState(false);
     const [taskSelected, setTaskSelected] = useState(null);
     const [groupTaskSelected, setGroupTaskSelected] = useState(null);
@@ -670,12 +671,25 @@ const TaskList = (props) => {
     const handleConfirmCreateGroupTask = () => {
         setShowModelCreateGroupTask(true);
     }
+    const handleConfirmUpdateGroupTask = (group_task_id, group_task_name) => {
+        form.setFieldsValue({
+            group_task_name: group_task_name
+        })
+        setGroupTaskSelected(group_task_id);
+        setDataCreateGroupTask({
+            group_task_name: group_task_name
+        });
+        setShowModalUpdateGroupTask(true);
+    }
     const handleCloseCreateTask = () => {
         setGroupTaskSelected(null);
         setShowModalCreate(false);
     }
     const handleCloseCreateGroupTask = () => {
         setShowModelCreateGroupTask(false);
+    }
+    const handleCloseUpdateGroupTask = () => {
+        setShowModalUpdateGroupTask(false);
     }
     //confirm delete task
 
@@ -700,8 +714,15 @@ const TaskList = (props) => {
                 setShowModalConfirm(false);
                 return;
             }
-            setTasks(tasks.filter((task) => task?.task_id?.toString() !== task_id?.toString()))
+            // setTasks(tasks.filter((task) => task?.task_id?.toString() !== task_id?.toString()))
+            setTasks(tasks.map(group => {
+                return {
+                    ...group,
+                    tasks: group.tasks.filter(task => task.task_id !== task_id)
+                };
+            }));
             setLoadingDelete(false);
+
             toast.success('Thực hiện xóa công việc thành công', {
                 position: "top-right", autoClose: 1000
             })
@@ -802,6 +823,33 @@ const TaskList = (props) => {
             console.log(error);
         }
     }
+    const handleEditGroupTask = async () => {
+        try {
+            setLoadingCreateGroup(true)
+            const payload = {
+                group_task_name: dataCreateGroupTask.group_task_name
+            }
+            const res = await updateGroupTask(payload, groupTaskSelected)
+            setTasks(prevTasks => prevTasks.map(group => {
+                return {
+                    ...group,
+                    group_task_name: group.group_task_id === groupTaskSelected ? res.data.group_task_name : group.group_task_name,
+                };
+            }));
+            setShowModalUpdateGroupTask(false);
+            form.resetFields();
+            setDataCreateGroupTask({
+                group_task_name: ''
+            });
+            setLoadingCreateGroup(false);
+        } catch (error) {
+            console.log(error);
+            toast.error('Đã xảy ra lỗi', {
+                autoClose: 1000,
+                position: 'top-right'
+            })
+        }
+    }
 
     const userOpen = Boolean(userAnchorEl);
     const nameOpen = Boolean(nameAnchorEl);
@@ -894,12 +942,20 @@ const TaskList = (props) => {
                                             <motion.tr key={item.task_id}>
                                                 <td colSpan="12">
                                                     <div style={{
-                                                        display: "block",
+                                                        display: "flex",
                                                         fontSize: '20px',
                                                         fontWeight: '500',
                                                         padding: '10px',
                                                     }}>
                                                         Nhóm công việc: {item?.group_task_name}
+                                                        {
+                                                            item?.group_task_id && !isHome && (
+                                                                <div style={{cursor: 'pointer', marginLeft: '10px'}}
+                                                                     onClick={() => handleConfirmUpdateGroupTask(item.group_task_id, item.group_task_name)}>
+                                                                    <CiEdit/>
+                                                                </div>
+                                                            )
+                                                        }
                                                     </div>
                                                 </td>
                                             </motion.tr>
@@ -1755,8 +1811,49 @@ const TaskList = (props) => {
                     </Button>
                 </div>
             </Modal>
-            {/*modal show confirm*/}
+            {/*//modal update group task*/}
 
+            {/*modal show confirm*/}
+            <Modal
+                visible={showModalUpdateGroupTask}
+                onCancel={handleCloseUpdateGroupTask}
+                centered
+                title="Cập nhật nhóm công việc"
+                footer={null}
+                className='modal-task'
+            >
+                <Form layout="vertical" form={form}>
+                    <div className="row">
+                        <div className="col-md-12">
+                            <Form.Item
+                                label="Tên nhóm việc"
+                                className="form-label fs-4"
+                                name="group_task_name"
+                                rules={[{required: true, message: 'Vui lòng nhập tên nhóm việc'}]}
+                            >
+                                <Input
+                                    className="form-control fs-5"
+                                    id="input1"
+                                    name="group_task_name"
+                                    value={dataCreateGroupTask.group_task_name || ''}
+                                    onChange={handleChangeGroupTask}
+                                    placeholder="Nhập tên nhóm việc"
+                                />
+                            </Form.Item>
+                        </div>
+                    </div>
+                </Form>
+                <div className='d-flex justify-content-center' style={{marginTop: '20px'}}>
+                    <Button
+                        type="primary"
+                        style={{minWidth: '300px'}}
+                        onClick={handleEditGroupTask}
+                        className='btn btn-primary bg-primary text-white fs-4'
+                    >
+                        {loadingCreateGroup ? <Spin/> : 'Cập nhật'}
+                    </Button>
+                </div>
+            </Modal>
             <Modal
                 visible={showModalConfirm}
                 onCancel={handleCloseModalConfirm}

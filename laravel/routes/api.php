@@ -364,6 +364,7 @@ Route::prefix('projects')->group(function () {
 Route::prefix('tasks')->group(function () {
     //group
     Route::post('create-group', [TaskController::class, 'createGroup'])->middleware(middlewareLogin::class);
+    Route::put('update-group/{group_task_id}', [TaskController::class, 'updateGroup'])->middleware(middlewareLogin::class);
     // message
     Route::post('create-message', [MessageController::class, 'create'])->middleware(middlewareLogin::class);
     Route::get('get-message-by-task/{task_id}', [MessageController::class, 'getMessageByTask'])->middleware(middlewareLogin::class);

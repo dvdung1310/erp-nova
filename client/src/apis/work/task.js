@@ -165,4 +165,14 @@ export const createGroupTask = async (data) => {
     })
     return response.data
 }
+export const updateGroupTask = async (data, id) => {
+    const token = getToken();
+    const response = await instanceAxios.put(`${LARAVEL_SERVER}/api/tasks/update-group/${id}`, data, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    return response.data
+}
 

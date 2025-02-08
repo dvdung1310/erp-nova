@@ -649,7 +649,7 @@ class GroupController extends Controller
             ->get();
 
         foreach ($projects as $project) {
-            $tasks = $project->tasks;
+            $tasks = $project->tasks->load('project');
             $completedTasks = 0;
             $doingTasks = 0;
             $waitingTasks = 0;
@@ -744,7 +744,7 @@ class GroupController extends Controller
         }
 
         foreach ($projects as $project) {
-            $tasks = $project->tasks;
+            $tasks = $project->tasks->load('project');
             $completedTasks = 0;
             $doingTasks = 0;
             $waitingTasks = 0;

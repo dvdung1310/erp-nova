@@ -1401,4 +1401,33 @@ class TaskController extends Controller
             ], 400);
         }
     }
+
+    public function updateGroup(Request $request, $group_task_id): JsonResponse
+    {
+        try {
+            $groupTask = GroupTask::find($group_task_id);
+            if (!$groupTask) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Group not found',
+                    'data' => null
+                ], 404);
+            }
+            $validatedData = $request->validate([
+                'group_task_name' => 'required',
+            ]);
+            $groupTask->update($validatedData);
+            return response()->json([
+                'error' => false,
+                'message' => 'Group updated successfully',
+                'data' => $groupTask
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+    }
 }
