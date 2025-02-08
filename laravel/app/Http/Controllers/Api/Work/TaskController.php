@@ -1335,9 +1335,11 @@ class TaskController extends Controller
             $user_id = auth()->user()->id;
 
             // Fetch tasks
-            $tasks = Task::whereHas('users', function ($query) use ($user_id) {
-                $query->where('users.id', $user_id);
-            })
+            $tasks = Task::select('work_tasks.*', 'work_group_task.group_task_name', 'work_tasks.group_task_id')
+                ->leftJoin('work_group_task', 'work_tasks.group_task_id', '=', 'work_group_task.group_task_id')
+                ->whereHas('users', function ($query) use ($user_id) {
+                    $query->where('users.id', $user_id);
+                })
                 ->with([
                     'users' => function ($query) {
                         $query->select('users.id', 'users.name', 'users.email', 'users.avatar');
@@ -1349,7 +1351,19 @@ class TaskController extends Controller
                 ->where('task_status', '!=', 3)
                 ->orderBy('project_id')
                 ->orderBy('task_id', 'desc')
-                ->get();
+                ->get()
+                ->makeHidden('pivot')
+                ->groupBy(function ($task) {
+                    return $task->group_task_id ? $task->group_task_name : 'Chưa có nhóm công việc';
+                })
+                ->map(function ($group, $groupName) {
+                    return [
+                        'group_task_name' => $groupName,
+                        'group_task_id' => $group->first()->group_task_id,
+                        'tasks' => $group
+                    ];
+                })
+                ->values();
             return response()->json([
                 'error' => false,
                 'message' => 'Tasks found',
@@ -1371,6 +1385,7 @@ class TaskController extends Controller
         try {
             $validatedData = $request->validate([
                 'group_task_name' => 'required|string',
+                'project_id' => 'required',
             ]);
             $groupTask = GroupTask::create($validatedData);
             return response()->json([

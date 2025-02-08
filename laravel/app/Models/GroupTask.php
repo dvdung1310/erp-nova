@@ -12,5 +12,6 @@ class GroupTask extends Model
     public $incrementing = true;
     protected $fillable = [
         'group_task_name',
+        'project_id'
     ];
 }

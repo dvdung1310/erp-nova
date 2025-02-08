@@ -82,6 +82,7 @@ const stableSort = (array, comparator) => {
 
 const TaskList = (props) => {
     //
+    let indexing = 1;
     const location = useLocation();
     const socketConnection = useSelector(state => state?.userSocket?.socketConnection);
     const [taskSelectedSocket, setTaskSelectedSocket] = useState(location?.state?.task_id);
@@ -108,7 +109,10 @@ const TaskList = (props) => {
     }, [socketConnection]);
     useEffect(() => {
         if (taskSelectedSocket) {
-            setSelectedTask(tasks.filter((task) => task.task_id === taskSelectedSocket)[0]);
+            setSelectedTask(tasks?.flatMap(item => item?.tasks).find(task => task.task_id === taskSelectedSocket));
+            console.log(
+                tasks?.flatMap(item => item?.tasks).find(task => task.task_id === taskSelectedSocket)
+            );
             setShowComment(true);
         }
     }, [taskSelectedSocket])
@@ -777,7 +781,8 @@ const TaskList = (props) => {
                 return;
             }
             const payload = {
-                group_task_name
+                group_task_name,
+                project_id: id
             }
             setLoadingCreateGroup(true)
             const res = await createGroupTask(payload);
@@ -787,6 +792,7 @@ const TaskList = (props) => {
                 group_task_name: ''
             })
             setLoadingCreateGroup(false)
+            setTasks([...tasks, res.data]);
         } catch (error) {
             setLoadingCreateGroup(false);
             toast.error('Đã xảy ra lỗi', {
@@ -883,7 +889,6 @@ const TaskList = (props) => {
                     <TableBody>
                         <AnimatePresence>
                             {sortedTasks.length > 0 && sortedTasks?.map((item, index) => {
-
                                     return (
                                         <>
                                             <motion.tr key={item.task_id}>
@@ -920,10 +925,9 @@ const TaskList = (props) => {
                                                                 backgroundColor: taskSelectedSocket === task.task_id ? '#b9bbbe' : '#fff'
                                                             }} // Đưa phần tử lên layer mới
                                                         >
-                                                            <TableCell className="table-cell" style={{
-                                                                minWidth: '50px'
-                                                            }}>
-                                                                {index + 1}
+                                                            <TableCell className="table-cell" style={{minWidth: '50px'}}>
+                                                                {/* eslint-disable-line no-return-assign */}
+                                                                {indexing += 1}
                                                             </TableCell>
                                                             <TableCell
                                                                 className="table-cell"
@@ -1153,9 +1157,11 @@ const TaskList = (props) => {
                                                         {
                                                             !isHome && (
                                                                 <Button
-                                                                    type="text"
+                                                                    type="link"
                                                                     onClick={() => handleConfirmCreateTask(item?.group_task_id)}
-                                                                    style={{}}
+                                                                    style={{
+                                                                        borderColor: '#d9d9d9',
+                                                                    }}
                                                                 >
                                                                     {loadingCreate ? (
                                                                         <Spin/>
