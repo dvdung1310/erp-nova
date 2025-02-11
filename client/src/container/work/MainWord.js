@@ -23,6 +23,7 @@ import Avatar from "../../components/Avatar/Avatar";
 const dateFormat = 'MM/DD/YYYY';
 import RichTextEditor from 'react-rte';
 import moment from "moment";
+import WorkTaskDay from "./overView/Task/overViewTask/WorkTaskDay";
 
 
 const MainWord = () => {
@@ -206,7 +207,7 @@ const MainWord = () => {
                         title={
                             role_id && (role_id === 5 ? 'Danh sách công việc cần làm' :
                                 (role_id === 3 || role_id === 4) ? 'Dự án' :
-                                    (role_id === 1 || role_id === 2) ? 'Danh sách nhóm' :
+                                    (role_id === 1 || role_id === 2) ? '' :
                                         '')
                         }
                         buttons={role_id && (role_id === 1 || role_id === 2) && [
@@ -292,8 +293,20 @@ const MainWord = () => {
                                 </>
                             }
                             {role_id && (role_id === 1 || role_id === 2) &&
-                                <ListGroupComponent listDepartments={listDepartments} listGroup={listGroup}
-                                                    listUser={listUser}/>}
+                                <>
+                                    <PageHeader
+                                        ghost
+                                        title={'Công việc hôm nay'}
+                                    />
+                                    <WorkTaskDay/>
+                                    <PageHeader
+                                        ghost
+                                        title={'Danh sách nhóm'}
+                                    />
+                                    <ListGroupComponent listDepartments={listDepartments} listGroup={listGroup}
+                                                        listUser={listUser}/>
+                                </>
+                            }
                         </div>
                     </>}
                 </div>
