@@ -175,4 +175,13 @@ export const updateGroupTask = async (data, id) => {
     })
     return response.data
 }
-
+export const getTaskInDay = async () => {
+    const token = getToken();
+    const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/tasks/get-task-in-day`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    return response.data
+}

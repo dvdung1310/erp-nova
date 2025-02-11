@@ -344,11 +344,11 @@ Route::prefix('groups')->group(function () {
 });
 // projects
 Route::prefix('projects')->group(function () {
-    Route::post('create', [ProjectController::class, 'create'])->middleware(MiddlewareLoginLeader::class);
-    Route::post('copy', [ProjectController::class, 'copyProject'])->middleware(MiddlewareLoginLeader::class);
-    Route::put('update/{project_id}', [ProjectController::class, 'update'])->middleware(MiddlewareLoginLeader::class);
+    Route::post('create', [ProjectController::class, 'create'])->middleware(middlewareLogin::class);
+    Route::post('copy', [ProjectController::class, 'copyProject'])->middleware(middlewareLogin::class);
+    Route::put('update/{project_id}', [ProjectController::class, 'update'])->middleware(middlewareLogin::class);
     Route::get('get-by-ceo', [ProjectController::class, 'getProjectByCeo'])->middleware(MiddlewareLoginCeo::class);
-    Route::post('member-join-project/{project_id}', [ProjectController::class, 'memberJoinProject'])->middleware(MiddlewareLoginLeader::class);
+    Route::post('member-join-project/{project_id}', [ProjectController::class, 'memberJoinProject'])->middleware(middlewareLogin::class);
     Route::put('update-leader/{project_id}', [ProjectController::class, 'updateLeader'])->middleware(middlewareLogin::class);
     Route::put('update-name/{project_id}', [ProjectController::class, 'updateNameAndDescription'])->middleware(middlewareLogin::class);
     Route::put('update-type/{project_id}', [ProjectController::class, 'updateProjectType'])->middleware(middlewareLogin::class);
