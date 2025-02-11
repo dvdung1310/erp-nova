@@ -4,8 +4,11 @@ import React, {lazy} from "react";
 const EmployeesList = lazy(() => import('../../container/employees/CrmEmployees'));
 const FullWorkSchedule = lazy(() => import('../../container/employees/workschedule/FullWorkSchedule'));
 const CreateWorksSchedule = lazy(() => import('../../container/employees/workschedule/CreateWorkSchedule'));
+<<<<<<< HEAD
 const FullWorkScheduleTimekeeping = lazy(() => import('../../container/employees/workschedule/FullWorkScheduleTimekeeping'));
 const CreateWorksScheduleTimekeeping = lazy(() => import('../../container/employees/workschedule/CreateWorkScheduleTimekeeping'));
+=======
+>>>>>>> b7baa4da8e202d2eac74045ccd2cf84704cfaf33
 const EmployeesMain = lazy(() => import('../../container/employees/CrmEmployees'));
 const CreateExam = lazy(() => import('../../container/employees/exam/CreateExam'));
 const ListExam = lazy(() => import('../../container/employees/exam/ListExam'));
@@ -51,8 +54,11 @@ function Employees() {
             <Route path={`${path}/profile/:employee_id`} component={CrmEmployeeProfile}/>
             <Route path={`${path}/lich-lam-viec`} component={FullWorkSchedule}/>
             <Route path={`${path}/dang-ki/lich-lam-viec`} component={CreateWorksSchedule}/>
+<<<<<<< HEAD
             <Route path={`${path}/kiem-tra-cham-cong`} component={FullWorkScheduleTimekeeping}/>
             <Route path={`${path}/import-file/kiem-tra-cham-cong`} component={CreateWorksScheduleTimekeeping}/>
+=======
+>>>>>>> b7baa4da8e202d2eac74045ccd2cf84704cfaf33
             <Route path={`${path}/tao-de/:type`} component={CreateExam}/>
             <Route path={`${path}/de-thi/:id`} component={DetailExam} />
             <Route path={`${path}/tai-lieu/:id`} component={DetailDocument} />

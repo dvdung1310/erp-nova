@@ -189,11 +189,14 @@ function MenuItems({darkMode, toggleCollapsed, topMenu, events}) {
                                 Biên bản
                             </NavLink>
                         </Menu.Item>
+<<<<<<< HEAD
                         <Menu.Item className="pl-custom-sidebar" key="kiem-tra-cham-cong">
                             <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/kiem-tra-cham-cong`}>
                                 KT chấm công
                             </NavLink>
                         </Menu.Item>
+=======
+>>>>>>> b7baa4da8e202d2eac74045ccd2cf84704cfaf33
                         <Menu.Item style={{display: 'none'}} className="pl-custom-sidebar" key="exam-list">
                             <NavLink onClick={toggleCollapsed} to={`${path}/nhan-su/danh-sach-de`}>
                                 Kho đề
