@@ -19,3 +19,8 @@ Route::prefix('/order')->group(function () {
 Route::prefix('/payment')->group(function () { 
     Route::post('/payos', [PaymentController::class, 'handlePayOSWebhook']);
 });
+Route::get('/success_novateen', [SuccessController::class, 'successPaymentNovateen']);
+Route::get('/cancel_novateen', [SuccessController::class, 'cancelPaymentNovaTeen']);
+
+Route::get('/success_novaup', [SuccessController::class, 'successPaymentNovaup']);
+Route::get('/cancel_novaup', [SuccessController::class, 'cancelPaymentNovaup']);

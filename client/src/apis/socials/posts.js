@@ -33,3 +33,13 @@ export const createOrUpdateReaction = async (data) => {
     })
     return response.data;
 }
+export const deletePost = async (id) => {
+    const token = getToken();
+    const response = await instanceAxios.delete(`${LARAVEL_SERVER}/api/socials/posts/delete/${id}`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    return response.data;
+}

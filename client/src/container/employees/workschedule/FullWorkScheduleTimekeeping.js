@@ -2,9 +2,8 @@ import React, { useState, useEffect , useRef } from "react";
 import { startOfMonth, eachDayOfInterval, addDays, getDay } from "date-fns/esm";
 import { fullWorkScheduleTimekeeping } from "../../../apis/employees/index";
 import "../FullWorkSchedule.css";
-import { Spin , Button} from "antd";
-import {useHistory} from 'react-router-dom';
-
+import { Spin , Button } from "antd";
+import { useHistory } from 'react-router-dom';
 
 const FullWorkScheduleTimekeeping = () => {
     const [scheduleData, setScheduleData] = useState([]);
@@ -15,6 +14,7 @@ const FullWorkScheduleTimekeeping = () => {
     const currentDate = new Date().toISOString().split("T")[0];
     const currentDayIndex = (getDay(new Date(currentDate)) + 6) % 7;
     const currentWeekRef = useRef(null);
+
     const toRomanNumeral = (num) => {
         const romanNumerals = [
             ["X", 10],
@@ -28,10 +28,11 @@ const FullWorkScheduleTimekeeping = () => {
             ["II", 2],
             ["I", 1],
         ];
-    
+
         const found = romanNumerals.find(([_, value]) => value === num);
         return found ? found[0] : "";
     };
+
     useEffect(() => {
         const fetchScheduleData = async () => {
             try {
@@ -53,7 +54,7 @@ const FullWorkScheduleTimekeeping = () => {
             currentWeekRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
         }
     }, [weeks, currentDate]);
-    // Tạo tuần cho tháng đã chọn
+
     useEffect(() => {
         const generateWeeks = () => {
             const firstDayOfMonth = startOfMonth(new Date(2025, selectedMonth - 1));
@@ -94,12 +95,8 @@ const FullWorkScheduleTimekeeping = () => {
     }, [selectedMonth]);
 
     const formatScheduleCode = (code) => {
-        const scheduleMap = {
-            '0': 'x',
-            '1': '0,5'
-        };
-
-        return `${scheduleMap[code[0]] || 'x'} ${scheduleMap[code[1]] || 'x'} ${scheduleMap[code[2]] || 'x'}`;
+        if (!code) return ['x', 'x', 'x'];
+        return code.split('-');
     };
 
     return (
@@ -115,16 +112,17 @@ const FullWorkScheduleTimekeeping = () => {
                                 <th rowSpan={2} className="px-4 border text-center">STT</th>
                                 <th rowSpan={2} className="px-4 border name-class">Họ Và Tên</th>
                                 {["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "CN"].map((day, idx) => (
-                                    <th key={idx} colSpan={3} className={`px-4 border text-center date-class ${currentDayIndex === idx ? "bg-blue font-bold" : ""}`}>{day}</th>
+                                    <th key={idx} colSpan={4} className={`px-4 border text-center date-class ${currentDayIndex === idx ? "bg-blue font-bold" : ""}`}>{day}</th>
                                 ))}
                                 <th rowSpan={2} className="px-4 border text-center">Tổng</th>
                             </tr>
                             <tr>
                                 {Array(7).fill().map((_, idx) => (
                                     <>
-                                        <th style={{ width: '25px' }} key={`S${idx}`} className="px-4 border sang">Đăng ký</th>
-                                        <th style={{ width: '25px' }} key={`C${idx}`} className="px-4 border chieu">Chấm công</th>
+                                        <th style={{ width: '25px' }} key={`S${idx}`} className="px-4 border sang">Chấm công</th>
+                                        <th style={{ width: '25px' }} key={`C${idx}`} className="px-4 border chieu">Đăng ký</th>
                                         <th style={{ width: '25px' }} key={`T${idx}`} className="px-4 border toi">Báo cáo</th>
+                                        <th style={{ width: '25px' , background:'blue',color:'white' }} key={`T${idx}`} className="px-4 border">Số công</th>
                                     </>
                                 ))}
                             </tr>
@@ -140,7 +138,7 @@ const FullWorkScheduleTimekeeping = () => {
                                             <th className="px-4 border text-center">STT</th>
                                             <th className="px-4 border name-class">Tuần {weekIndex + 1} tháng {selectedMonth}</th>
                                             {week.map((date, idx) => (
-                                                <th key={idx} colSpan={3} className={`px-4 border text-center date-class ${
+                                                <th key={idx} colSpan={4} className={`px-4 border text-center date-class ${
                                                     date === currentDate ? "bg-blue font-bold" : ""
                                                 }`}>
                                                     {new Date(date).toLocaleDateString()}
@@ -161,13 +159,11 @@ const FullWorkScheduleTimekeeping = () => {
             }, {})
         ).map(([departmentName, users], deptIdx) => (
             <React.Fragment key={departmentName}>
-                {/* Hiển thị tên phòng ban */}
                 <tr className="department-row">
                     <td colSpan={week.length * 3 + 3} className="px-4 py-2 bg-gray-200 text-left font-semibold" style={{fontWeight:'bold', fontSize:'18px'}}>
                     {toRomanNumeral(deptIdx + 1)}. BP {departmentName}
                     </td>
                 </tr>
-                {/* Hiển thị danh sách nhân sự trong phòng ban */}
                 {users.map((user, idx) => {
                     let totalDays = 0;
                     return (
@@ -176,17 +172,22 @@ const FullWorkScheduleTimekeeping = () => {
                             <td className="border px-4 aa">{user.name}</td>
                             {week.map((date) => {
                                 const schedule = user.schedule?.[date];
-                                const formattedCode = schedule ? formatScheduleCode(schedule).split(" ") : ["x", "x", "x"];
-                                const registeredDays = formattedCode.filter(item => item === '0,5').length;
+                                const formattedCode = formatScheduleCode(schedule);
+                                const registeredDays = formattedCode.filter(item => item === '0.5').length;
 
-                                totalDays += registeredDays / 2;
-
+                                let cong = 0;
+                                if (formattedCode[1] == 1 && formattedCode[2] == 1) {
+                                    cong = Number(formattedCode[0]) || 0;
+                                } else {
+                                    cong = 0;
+                                }
+                                totalDays += cong;
                                 return (
                                     <>
                                         <td key={`${date}-S`} style={{ width: '25px' }} className="border px-4">{formattedCode[0]}</td>
                                         <td key={`${date}-C`} style={{ width: '25px' }} className="border px-4">{formattedCode[1]}</td>
                                         <td key={`${date}-T`} style={{ width: '25px' }} className="border px-4">{formattedCode[2]}</td>
-                                        
+                                        <td key={`${date}-T`} style={{ width: '25px' , background:'blue',color:'white' }} className="border px-4">{cong}</td>
                                     </>
                                 );
                             })}
@@ -205,23 +206,6 @@ const FullWorkScheduleTimekeeping = () => {
                                     </table>
                                 </div>
                             ))}
-                        </div>
-
-                        <div className="flex justify-center my-4 footer-schedule">
-                            {[...Array(12).keys()].map((month) => (
-                                <button
-                                    type="button"
-                                    key={month}
-                                    onClick={() => setSelectedMonth(month + 1)}
-                                    className={`mx-2 p-2 ${selectedMonth === month + 1 ? "bg-blue-500 active" : "bg-gray-200"}`}
-                                >
-                                    Tháng {month + 1}
-                                </button>
-                            ))}
-
-                    <Button style={{textAlign:'end' ,color:'#000' , backgroundColor:'#00FF00' , fontSize:'18px' , border:'none' , marginLeft:'10px'}}  type="primary" onClick={() => history.push(`/admin/nhan-su/import-file/kiem-tra-cham-cong`)}>
-                        Thêm ds chấm công
-                    </Button>
                         </div>
                     </>
                 )

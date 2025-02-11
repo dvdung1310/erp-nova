@@ -1,6 +1,6 @@
-import React, {Suspense, lazy, useEffect} from 'react';
-import {Spin} from 'antd';
-import {Switch, Route, useRouteMatch, useHistory} from 'react-router-dom';
+import React, { Suspense, lazy, useEffect } from 'react';
+import { Spin } from 'antd';
+import { Switch, Route, useRouteMatch, useHistory } from 'react-router-dom';
 
 import Dashboard from './dashboard';
 import Ecommerce from './ecommerce';
@@ -20,10 +20,10 @@ import Employees from "./employees";
 import Proposal from "./proposal";
 import withAdminLayout from '../../layout/withAdminLayout';
 import Work from "./work";
-import {urlBase64ToUint8Array} from "../../utility/utility";
-import {registerDevice} from "../../apis/work/user";
+import { urlBase64ToUint8Array } from "../../utility/utility";
+import { registerDevice } from "../../apis/work/user";
 import Recruit from "./Recruit";
-import {getItem, removeItem} from "../../utility/localStorageControl";
+import { getItem, removeItem } from "../../utility/localStorageControl";
 
 const Projects = lazy(() => import('./projects'));
 const Calendars = lazy(() => import('../../container/Calendar'));
@@ -43,14 +43,14 @@ const Kanban = lazy(() => import('../../container/kanban/Index'));
 const Task = lazy(() => import('../../container/task/Index'));
 // const Cdn = lazy(() => import('../../container/cdn/index'));
 // const Recruit = lazy(() => import('../../container/task/Index'));
-import {io} from "socket.io-client";
-import {useDispatch} from "react-redux";
-import {socketConnect, socketDisconnect} from '../../redux/users/actionCreator';
+import { io } from "socket.io-client";
+import { useDispatch } from "react-redux";
+import { socketConnect, socketDisconnect } from '../../redux/users/actionCreator';
 import NotificationRouter from "./Notification";
 import Records from "./records";
 
 function Admin() {
-    const {path} = useRouteMatch();
+    const { path } = useRouteMatch();
     const publicVapidKey = 'BFRuISHeTPNFMZv_7-PndFq72gEqCd8tvf1YX7mTYyuXkOa3vdBxtvzxaj3B1B8AsYy0rG1Mg4DsFS51glqBFSM';
     const user_id = getItem('user_id');
     const history = useHistory();
@@ -111,47 +111,47 @@ function Admin() {
             <Suspense
                 fallback={
                     <div className="spin">
-                        <Spin/>
+                        <Spin />
                     </div>
                 }
             >
-                <Route path={path} component={Work}/>
-                <Route path={`${path}/dashboard`} component={Dashboard}/>
-                <Route path={`${path}/ecommerce`} component={Ecommerce}/>
-                <Route path={`${path}`} component={Pages}/>
-                <Route path={`${path}`} component={Features}/>
-                <Route path={`${path}`} component={Axios}/>
-                <Route path={`${path}/users`} component={Users}/>
-                <Route path={`${path}/gallery`} component={Gallery}/>
-                <Route path={`${path}/project`} component={Projects}/>
-                <Route path={`${path}/calendar`} component={Calendars}/>
-                <Route path={`${path}/app/kanban`} component={Kanban}/>
-                <Route path={`${path}/email/:page`} component={Inbox}/>
-                <Route path={`${path}/firestore`} component={Firebase}/>
-                <Route path={`${path}/main/chat`} component={Chat}/>
-                <Route path={`${path}/profile/myProfile`} component={Myprofile}/>
-                <Route path={`${path}/app/to-do`} component={ToDo}/>
-                <Route path={`${path}/app/note`} component={Note}/>
-                <Route path={`${path}/app/task`} component={Task}/>
-                <Route path={`${path}/contact/list`} component={Contact}/>
-                <Route path={`${path}/contact/grid`} component={ContactGrid}/>
-                <Route path={`${path}/contact/addNew`} component={ContactAddNew}/>
-                <Route path={`${path}/app/calendar`} component={Calendar}/>
-                <Route path={`${path}/widgets`} component={Widgets}/>
+                <Route path={path} component={Work} />
+                <Route path={`${path}/dashboard`} component={Dashboard} />
+                <Route path={`${path}/ecommerce`} component={Ecommerce} />
+                <Route path={`${path}`} component={Pages} />
+                <Route path={`${path}`} component={Features} />
+                <Route path={`${path}`} component={Axios} />
+                <Route path={`${path}/users`} component={Users} />
+                <Route path={`${path}/gallery`} component={Gallery} />
+                <Route path={`${path}/project`} component={Projects} />
+                <Route path={`${path}/calendar`} component={Calendars} />
+                <Route path={`${path}/app/kanban`} component={Kanban} />
+                <Route path={`${path}/email/:page`} component={Inbox} />
+                <Route path={`${path}/firestore`} component={Firebase} />
+                <Route path={`${path}/main/chat`} component={Chat} />
+                <Route path={`${path}/profile/myProfile`} component={Myprofile} />
+                <Route path={`${path}/app/to-do`} component={ToDo} />
+                <Route path={`${path}/app/note`} component={Note} />
+                <Route path={`${path}/app/task`} component={Task} />
+                <Route path={`${path}/contact/list`} component={Contact} />
+                <Route path={`${path}/contact/grid`} component={ContactGrid} />
+                <Route path={`${path}/contact/addNew`} component={ContactAddNew} />
+                <Route path={`${path}/app/calendar`} component={Calendar} />
+                <Route path={`${path}/widgets`} component={Widgets} />
                 {/**/}
-                <Route path={`${path}/novaup`} component={Novaup}/>
-                <Route path={`${path}/novateen`} component={Novateen}/>
-                <Route path={`${path}/luu-tru`} component={Cdn}/>
-                <Route path={`${path}/aaifood`} component={Aaifood}/>
-                <Route path={`${path}/tai-lieu`} component={Docuement}/>
-                <Route path={`${path}/nhan-su`} component={Employees}/>
-                <Route path={`${path}/de-xuat`} component={Proposal}/>
-                <Route path={`${path}/bien-ban`} component={Records}/>
-                <Route path={`${path}/lam-viec`} component={Work}/>
-                <Route path={`${path}/tuyen-dung`} component={Recruit}/>
-                <Route path={`${path}/thong-bao`} component={NotificationRouter}/>
-                <Route path={`${path}/khach-hang`} component={Customer}/>
-                <Route path={`${path}/tin-tuc`} component={News}/>
+                <Route path={`${path}/novaup`} component={Novaup} />
+                <Route path={`${path}/novateen`} component={Novateen} />
+                <Route path={`${path}/luu-tru`} component={Cdn} />
+                <Route path={`${path}/aaifood`} component={Aaifood} />
+                <Route path={`${path}/tai-lieu`} component={Docuement} />
+                <Route path={`${path}/nhan-su`} component={Employees} />
+                <Route path={`${path}/de-xuat`} component={Proposal} />
+                <Route path={`${path}/bien-ban`} component={Records} />
+                <Route path={`${path}/lam-viec`} component={Work} />
+                <Route path={`${path}/tuyen-dung`} component={Recruit} />
+                <Route path={`${path}/thong-bao`} component={NotificationRouter} />
+                <Route path={`${path}/khach-hang`} component={Customer} />
+                <Route path={`${path}/tin-tuc`} component={News} />
             </Suspense>
         </Switch>
     );

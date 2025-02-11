@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\WorkSchedule;
 use App\Models\CrmEmployeeModel;
 use App\Models\CrmDepartmentModel;
+use App\Models\TaskHistoryUpdate;
 use App\Models\WorksCheduleTimekeepingModel;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -166,40 +167,57 @@ class WorkScheduleController extends Controller
 
         // Lấy dữ liệu từ bảng WorkScheduleTimekeeping (chấm công)
         $timekeepingRecords = WorksCheduleTimekeepingModel::whereBetween('date', [$startOfMonth, $endOfMonth])->get()->groupBy('user_id');
-        // $workReports = WorkReport::whereBetween('date', [$startOfMonth, $endOfMonth])->get()->groupBy('user_id');
-        $workReports = collect([
-            ['id' => 1, 'user_id' => 2, 'date' => '2025-02-12'],
-            ['id' => 2, 'user_id' => 2, 'date' => '2025-02-11'],
-            ['id' => 3, 'user_id' => 7, 'date' => '2025-02-10'],
-            ['id' => 4, 'user_id' => 7, 'date' => '2025-02-11'],
-            ['id' => 5, 'user_id' => 3, 'date' => '2025-02-10'],
-            ['id' => 6, 'user_id' => 3, 'date' => '2025-02-11'],
-            ['id' => 7, 'user_id' => 3, 'date' => '2025-02-12'],
-        ])->groupBy('user_id');
-        
-        
 
-        $result = $workSchedules->map(function ($userSchedules, $userId) use ($timekeepingRecords) {
+        $workReports = TaskHistoryUpdate::whereRaw('DATE(update_time) BETWEEN ? AND ?', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])
+            ->get()
+            ->groupBy('user_id');
+
+        $result = $workSchedules->map(function ($userSchedules, $userId) use ($timekeepingRecords, $workReports) {
             $user = $userSchedules->first()->user;
             $employee = CrmEmployeeModel::where('account_id', $user->id)->first();
             $department = $employee ? CrmDepartmentModel::where('department_id', $employee->department_id)->first() : null;
 
-            $formattedSchedule = $userSchedules->mapWithKeys(function ($schedule) use ($timekeepingRecords, $userId) {
+            $formattedSchedule = $userSchedules->mapWithKeys(function ($schedule) use ($timekeepingRecords, $workReports, $userId) {
                 $date = $schedule->date;
                 $registeredCode = $schedule->code;
 
                 // Kiểm tra chấm công
                 $timekeeping = $timekeepingRecords->get($userId)?->firstWhere('date', $date);
-                $checkedIn = $timekeeping && $timekeeping->check_in_time && $timekeeping->check_out_time ? '1' : '0';
+                $workingHours = 0;
+
+                if ($timekeeping && $timekeeping->check_in_time && $timekeeping->check_out_time) {
+                    // Tính tổng thời gian làm việc
+                    $checkIn = Carbon::parse($timekeeping->check_in_time);
+                    $checkOut = Carbon::parse($timekeeping->check_out_time);
+                    $workingHours = $checkIn->diffInMinutes($checkOut) / 60;
+                    // Xác định số công
+                    if ($workingHours >= 8) {
+                        $checkedIn = 1;
+                    } elseif ($workingHours >= 6) {
+                        $checkedIn = 0.75;
+                    } elseif ($workingHours >= 4) {
+                        $checkedIn = 0.5;
+                    } elseif ($workingHours >= 3) {
+                        $checkedIn = 0.25;
+                    } else {
+                        $checkedIn = 0.15; // Dưới 3 tiếng không được tính công
+                    }
+                } else {
+                    $checkedIn = 0; // Không đủ cả check-in và check-out
+                }
+
+
+                // $checkedIn = $timekeeping && $timekeeping->check_in_time && $timekeeping->check_out_time ? '1' : '0';
 
                 // Kiểm tra đăng ký lịch làm việc
                 $hasRegisteredWork = strpos($registeredCode, '1') !== false ? '1' : '0';
 
                 // Kiểm tra bảng báo cáo để xác định ký tự thứ 3
-                $hasReport = $workReports->get($userId)?->firstWhere('date', $date) ? '1' : '0';
-                
-                $finalCode = $checkedIn . $hasRegisteredWork . $hasReport;
+                $hasReport = $workReports->get($userId)?->first(function ($report) use ($date) {
+                    return Carbon::parse($report->update_time)->toDateString() === $date;
+                }) ? '1' : '0';
 
+                $finalCode = "{$checkedIn}-{$hasRegisteredWork}-{$hasReport}";
                 return [
                     $date => $finalCode,
                 ];

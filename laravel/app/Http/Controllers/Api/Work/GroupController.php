@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Work;
 use App\Http\Controllers\Controller;
 use App\Models\CrmEmployeeModel;
 use App\Models\Group;
+use App\Models\GroupTask;
 use App\Models\MessageTask;
 use App\Models\Notification;
 use App\Models\Project;
@@ -571,7 +572,24 @@ class GroupController extends Controller
         foreach ($projects as $project) {
             $tasks = $project->tasks->load('project');
             $totalTasks += $tasks->count();
-            $listTasks = array_merge($listTasks, $tasks->toArray());
+            $groupedTasks = $tasks->groupBy('group_task_id')->map(function ($tasks, $groupTaskId) {
+                $groupTaskName = 'Chưa có nhóm công việc';
+
+                if ($groupTaskId) {
+                    $groupTask = GroupTask::where('group_task_id', $groupTaskId)->first();
+                    if ($groupTask) {
+                        $groupTaskName = $groupTask->group_task_name;
+                    }
+                }
+
+                return [
+                    'group_task_name' => $groupTaskName,
+                    'group_task_id' => $groupTaskId,
+                    'tasks' => $tasks->toArray()
+                ];
+            })->values()->toArray();
+
+            $listTasks = array_merge($listTasks, $groupedTasks);
         }
 
         $childGroups = Group::where('parent_group_id', $group->group_id)->get();
@@ -631,7 +649,7 @@ class GroupController extends Controller
             ->get();
 
         foreach ($projects as $project) {
-            $tasks = $project->tasks;
+            $tasks = $project->tasks->load('project');
             $completedTasks = 0;
             $doingTasks = 0;
             $waitingTasks = 0;
@@ -663,14 +681,44 @@ class GroupController extends Controller
             $totalDoingTasks += $doingTasks;
             $totalWaitingTasks += $waitingTasks;
             $TotalOverdueTasks += $overdueTasks;
-            $taskDeadlineWeek = array_merge($taskDeadlineWeek, $taskDeadline);
-            $taskOverdueWeek = array_merge($taskOverdueWeek, $taskOverdue);
+
+            $taskDeadlineWeek = $this->groupTasksByGroupTask($taskDeadline, $taskDeadlineWeek);
+            $taskOverdueWeek = $this->groupTasksByGroupTask($taskOverdue, $taskOverdueWeek);
         }
 
         $childGroups = Group::where('parent_group_id', $group->group_id)->get();
         foreach ($childGroups as $childGroup) {
             $this->getProjectsAndTasksFromGroup($childGroup, $totalProjects, $totalTasks, $totalCompletedTasks, $totalDoingTasks, $totalWaitingTasks, $TotalOverdueTasks, $taskDeadlineWeek, $taskOverdueWeek);
         }
+    }
+
+    private function groupTasksByGroupTask($tasks, $groupedTasks)
+    {
+        foreach ($tasks as $task) {
+            $groupTaskId = $task->group_task_id ?? null;
+            $groupTaskName = 'Chưa có nhóm công việc';
+
+            if ($groupTaskId) {
+                $groupTask = GroupTask::where('group_task_id', $groupTaskId)->first();
+                if ($groupTask) {
+                    $groupTaskName = $groupTask->group_task_name;
+                }
+            }
+
+            $groupKey = $groupTaskId ?? $groupTaskName;
+
+            if (!isset($groupedTasks[$groupKey])) {
+                $groupedTasks[$groupKey] = [
+                    'group_task_name' => $groupTaskName,
+                    'group_task_id' => $groupTaskId,
+                    'tasks' => []
+                ];
+            }
+
+            $groupedTasks[$groupKey]['tasks'][] = $task;
+        }
+
+        return array_values($groupedTasks);
     }
 
     private function getReportFromGroup($group, &$totalProjects, &$totalTasks, &$totalCompletedTasks, &$totalDoingTasks,
@@ -696,38 +744,67 @@ class GroupController extends Controller
         }
 
         foreach ($projects as $project) {
-            $tasks = $project->tasks;
+            $tasks = $project->tasks->load('project');
             $completedTasks = 0;
             $doingTasks = 0;
             $waitingTasks = 0;
             $overdueTasks = 0;
             $pausedTasks = 0;
-            foreach ($tasks as $task) {
+            $groupedTasks = [];
 
+            foreach ($tasks as $task) {
                 $task->load(['users' => function ($query) {
                     $query->select('users.id', 'users.name', 'users.email', 'users.avatar');
                 }]);
+
+                $groupTaskId = $task->group_task_id ?? null;
+                $groupTaskName = 'Chưa có nhóm công việc';
+
+                if ($groupTaskId) {
+                    $groupTask = GroupTask::where('group_task_id', $groupTaskId)->first();
+                    if ($groupTask) {
+                        $groupTaskName = $groupTask->group_task_name;
+                    }
+                }
+
+                if (!isset($groupedTasks[$groupTaskId])) {
+                    $groupedTasks[$groupTaskId] = [
+                        'group_task_name' => $groupTaskName,
+                        'group_task_id' => $groupTaskId,
+                        'tasks' => []
+                    ];
+                }
+
+                $groupedTasks[$groupTaskId]['tasks'][] = $task;
+
                 if ($task->task_status == 4) {
                     $pausedTasks++;
-                    $listPausedTasks[] = $task;
+                    $listPausedTasks[$groupTaskId]['group_task_name'] = $groupTaskName;
+                    $listPausedTasks[$groupTaskId]['group_task_id'] = $groupTaskId;
+                    $listPausedTasks[$groupTaskId]['tasks'][] = $task;
                 } elseif (in_array($task->task_status, [2, 3])) {
                     $completedTasks++;
-                    $listCompletedTasks[] = $task;
+                    $listCompletedTasks[$groupTaskId]['group_task_name'] = $groupTaskName;
+                    $listCompletedTasks[$groupTaskId]['group_task_id'] = $groupTaskId;
+                    $listCompletedTasks[$groupTaskId]['tasks'][] = $task;
                 } elseif ($task->task_status == 1) {
                     $doingTasks++;
-                    $listDoingTasks[] = $task;
+                    $listDoingTasks[$groupTaskId]['group_task_name'] = $groupTaskName;
+                    $listDoingTasks[$groupTaskId]['group_task_id'] = $groupTaskId;
+                    $listDoingTasks[$groupTaskId]['tasks'][] = $task;
                 } elseif ($task->task_status == 0) {
                     $waitingTasks++;
-                    $listWaitingTasks[] = $task;
+                    $listWaitingTasks[$groupTaskId]['group_task_name'] = $groupTaskName;
+                    $listWaitingTasks[$groupTaskId]['group_task_id'] = $groupTaskId;
+                    $listWaitingTasks[$groupTaskId]['tasks'][] = $task;
                 }
 
                 if ($task->task_end_date < now() && !in_array($task->task_status, [3, 4]) && $task->task_date_update_status_completed === null) {
                     $overdueTasks++;
-                    $listOverdueTasks[] = $task;
+                    $listOverdueTasks[$groupTaskId]['group_task_name'] = $groupTaskName;
+                    $listOverdueTasks[$groupTaskId]['group_task_id'] = $groupTaskId;
+                    $listOverdueTasks[$groupTaskId]['tasks'][] = $task;
                 }
-
-
-                $listTasks[] = $task;
             }
 
             $totalProjects++;
@@ -739,6 +816,7 @@ class GroupController extends Controller
             $listProjects[] = $project;
             $totalPausedTasks += $pausedTasks;
 
+            $listTasks = array_merge($listTasks, array_values($groupedTasks));
         }
 
         $childGroups = Group::where('parent_group_id', $group->group_id)->get();
@@ -748,6 +826,12 @@ class GroupController extends Controller
                 $listCompletedTasks, $listDoingTasks, $listWaitingTasks, $listOverdueTasks, $startDate, $endDate,
                 $totalPausedTasks, $listPausedTasks);
         }
+
+        $listCompletedTasks = array_values($listCompletedTasks);
+        $listDoingTasks = array_values($listDoingTasks);
+        $listWaitingTasks = array_values($listWaitingTasks);
+        $listOverdueTasks = array_values($listOverdueTasks);
+        $listPausedTasks = array_values($listPausedTasks);
     }
 
     public function getReportsByGroupId(Request $request, $group_id)
@@ -842,7 +926,6 @@ class GroupController extends Controller
                 'data' => null
             ], 400);
         }
-
     }
 
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, lazy, Suspense } from 'react';
+import React, { useEffect, useState, lazy, Suspense, useRef } from 'react';
 import { Row, Col, Table, Spin, message, Button, Modal, Form, Input, Select, DatePicker } from 'antd';
 import { Cards } from '../../components/cards/frame/cards-frame';
 import { allProduct, storeProduct, updateProduct } from '../../apis/aaifood/index';
@@ -8,17 +8,20 @@ const { Option } = Select;
 
 const suppliers = () => {
   const [dataSource, setDataSource] = useState([]);
+    const [allData, setAllData] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null); // Thêm trạng thái
   const [form] = Form.useForm();
-
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const debounceTimeout = useRef(null);
   const fetchDocument = async () => {
     try {
       setLoading(true);
       const response = await allProduct();
       setDataSource(response.data);
+      setAllData(response.data);
       setSuppliers(response.suppliers);
       setLoading(false);
     } catch (error) {
@@ -113,6 +116,16 @@ const suppliers = () => {
     setLoading(false);
   };
 
+  const handleSearch = () => {
+    const filteredData = allData.filter((product) => {
+      const keyword = searchKeyword.toLowerCase();
+      return (
+        product.product_name?.toLowerCase().includes(keyword) || // Tìm kiếm theo tên
+        product.product_id?.toLowerCase().includes(keyword)
+      );
+    });
+    setDataSource(filteredData); // Cập nhật danh sách nhân sự
+  };
   const columns = [
     { title: 'ID', dataIndex: 'product_id', key: 'product_id' },
     { title: 'Tên sản phẩm', dataIndex: 'product_name', key: 'product_name' },
@@ -127,17 +140,29 @@ const suppliers = () => {
       key: 'product_input_price',
       render: (text) => {
         // Kiểm tra và định dạng số với dấu phân cách hàng nghìn là dấu phẩy và phần thập phân có dấu chấm
-        return text ? parseFloat(text).toLocaleString('en-US', { style: 'decimal', minimumFractionDigits: 3, maximumFractionDigits: 3 }) : '';
+        return text
+          ? parseFloat(text).toLocaleString('en-US', {
+              style: 'decimal',
+              minimumFractionDigits: 3,
+              maximumFractionDigits: 3,
+            })
+          : '';
       },
     },
-    
+
     {
       title: 'Giá bán',
       dataIndex: 'product_output_price',
       key: 'product_output_price',
       render: (text) => {
         // Kiểm tra và định dạng số với dấu phân cách hàng nghìn là dấu phẩy và phần thập phân có dấu chấm
-        return text ? parseFloat(text).toLocaleString('en-US', { style: 'decimal', minimumFractionDigits: 3, maximumFractionDigits: 3 }) : '';
+        return text
+          ? parseFloat(text).toLocaleString('en-US', {
+              style: 'decimal',
+              minimumFractionDigits: 3,
+              maximumFractionDigits: 3,
+            })
+          : '';
       },
     },
     { title: 'Số lượng nhập', dataIndex: 'product_input_quantity', key: 'product_input_quantity' },
@@ -177,9 +202,23 @@ const suppliers = () => {
       <Row gutter={15}>
         <Col xs={24}>
           <Cards title="Quản lý kho sản phẩm">
-            <Button type="primary" onClick={handleAddNew} style={{ marginBottom: 16 }}>
-              Nhập kho sản phẩm
-            </Button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Button type="primary" onClick={handleAddNew} style={{ marginBottom: 16 }}>
+                Nhập kho sản phẩm
+              </Button>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                {/* Search Form */}
+                <Input
+                  placeholder="Tìm kiếm sản phẩm"
+                  style={{ width: 200, height: '40px' }}
+                  value={searchKeyword}
+                  onChange={(e) => {
+                    setSearchKeyword(e.target.value);
+                    handleSearch();
+                  }}
+                />
+              </div>
+            </div>
             {loading ? (
               <div className="spin">
                 <Spin />
@@ -254,10 +293,7 @@ const suppliers = () => {
             </Col>
 
             <Col className="gutter-row" span={12}>
-              <Form.Item
-                label="Giá bán"
-                name="product_output_price"
-              >
+              <Form.Item label="Giá bán" name="product_output_price">
                 <NumericFormat
                   customInput={Input}
                   thousandSeparator={true} // Thêm dấu phân cách hàng nghìn
@@ -282,10 +318,7 @@ const suppliers = () => {
               </Form.Item>
             </Col>
             <Col className="gutter-row" span={12}>
-              <Form.Item
-                label="Nhà cung cấp"
-                name="suppliers_id"
-              >
+              <Form.Item label="Nhà cung cấp" name="suppliers_id">
                 <Select
                   placeholder="Chọn nhà cung cấp"
                   allowClear // Cho phép xóa lựa chọn
@@ -304,10 +337,17 @@ const suppliers = () => {
               </Form.Item>
             </Col>
             <Col className="gutter-row" span={24}>
-              <Form.Item
-                label="Ngày sản xuất"
-                name="product_date_manufacture"
-              >
+              <Form.Item label="Ngày sản xuất" name="product_date_manufacture">
+                <DatePicker
+                  format="DD/MM/YYYY"
+                  placeholder="Chọn ngày"
+                  // disabledDate={(current) => current && current < moment().startOf('day')}
+                  style={{ height: '45px', padding: '10px', with: '100%' }}
+                />
+              </Form.Item>
+            </Col>
+            <Col className="gutter-row" span={24}>
+              <Form.Item label="Hạn sử dụng sản phẩm" name="product_shelf_life">
                 <DatePicker
                   format="DD/MM/YYYY"
                   placeholder="Chọn ngày"
@@ -317,24 +357,7 @@ const suppliers = () => {
               </Form.Item>
             </Col>
             <Col className="gutter-row" span={24}>
-              <Form.Item
-                label="Hạn sử dụng sản phẩm"
-                name="product_shelf_life"
-              >
-                <DatePicker
-                  format="DD/MM/YYYY"
-                  placeholder="Chọn ngày"
-                  disabledDate={(current) => current && current < moment().startOf('day')}
-                  style={{ height: '45px', padding: '10px', with: '100%' }}
-                />
-              </Form.Item>
-            </Col>
-            <Col className="gutter-row" span={24}>
-              <Form.Item
-                label="Ngày nhập kho"
-                name="product_input_date"
- 
-              >
+              <Form.Item label="Ngày nhập kho" name="product_input_date">
                 <DatePicker
                   format="DD/MM/YYYY"
                   placeholder="Chọn ngày"

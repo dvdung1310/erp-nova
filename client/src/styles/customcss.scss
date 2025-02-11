@@ -92,6 +92,10 @@
     font-size: 14px;
   }
   .message-component {
+    .text-head {
+      display: none !important;
+    }
+
     .comment {
       flex-direction: row !important;
 
@@ -481,6 +485,8 @@
 
     .ant-comment-actions {
       margin-top: 10px;
+      display: flex;
+      align-items: center;
     }
   }
 
@@ -515,12 +521,6 @@
   color: #d32f2f;
 }
 
-//.text-warning {
-//    color: #ed6c02;
-//}
-//.text-info{
-//    color: #0288d1;
-//}
-//.text-success {
-//    color: #2e7d32;
-//}
+.ant-collapse-content > .ant-collapse-content-box {
+  overflow: auto;
+}

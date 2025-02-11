@@ -52,7 +52,7 @@ const ReportGroupAll = () => {
                                         data?.length > 0 ? data?.sort((a, b) => b.list_tasks.length - a.list_tasks.length)?.map((item, index) => {
                                             return (
                                                 <Panel
-                                                    header={`${item?.group_name} (${item?.list_tasks?.length} công việc)`}
+                                                    header={`${item?.group_name} (${item?.list_tasks?.reduce((total, group) => total + group.tasks.length, 0)} công việc)`}
                                                     key={index.toString()} style={{
                                                     background: `linear-gradient(45deg, rgba(${parseInt(item?.color.slice(1, 3), 16)}, ${parseInt(item?.color.slice(3, 5), 16)}, ${parseInt(item?.color.slice(5, 7), 16)}, 0.2), #dadada)`,
                                                     margin: '16px 0',

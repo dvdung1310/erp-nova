@@ -60,7 +60,7 @@ function Timeline() {
                                             </Cards>
                                         }
                                     >
-                                        <AllPosts {...post} userLogin={userLogin}/>
+                                        <AllPosts {...post} setListPosts={setListPosts} userLogin={userLogin}/>
                                     </Suspense>
                                 );
                             })}

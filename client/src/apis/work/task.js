@@ -155,4 +155,24 @@ export const createCommentFile = async (data) => {
     )
     return response.data
 }
+export const createGroupTask = async (data) => {
+    const token = getToken();
+    const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/tasks/create-group`, data, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    return response.data
+}
+export const updateGroupTask = async (data, id) => {
+    const token = getToken();
+    const response = await instanceAxios.put(`${LARAVEL_SERVER}/api/tasks/update-group/${id}`, data, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    return response.data
+}
 

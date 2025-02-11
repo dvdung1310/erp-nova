@@ -57,6 +57,7 @@
     "no-restricted-syntax": "off",
     "no-else-return": "off",
     "react/jsx-boolean-value": "off",
+    "no-return-assign": "off",
     "react/jsx-filename-extension": [
       0,
       {

@@ -158,6 +158,12 @@ Route::group(['middleware' => 'api', 'prefix' => 'novaup'], function () {
     Route::get('/deletePayment/{id}', [PaymentController::class, 'delete']);
     Route::get('/getBookingConnectCumstomer', [PaymentController::class, 'getBookingConnectCumstomer']);
 
+    //phiếu thu
+    Route::get('all_recipts_novaup', [PaymentController::class, 'all_recipts_novaup'])->middleware(middlewareLogin::class);
+    Route::post('store_receipts_novaup', [PaymentController::class, 'store_receipts_novaup']);
+    Route::get('report_revenue_novaup', [PaymentController::class, 'report_revenue_novaup']);
+    Route::get('filter_revenue_novaup', [PaymentController::class, 'filter_revenue_novaup'])->middleware(middlewareLogin::class);
+    Route::post('store_order_handmade_novaup', [PaymentController::class, 'store_order_handmade_novaup']);
 });
 
 // NovaTeen
@@ -196,7 +202,12 @@ Route::group(['middleware' => 'api'], function () {
     Route::post('nvt_import_data', [NvtCustomerController::class, 'nvt_import_data'])->middleware(middlewareLogin::class);
     Route::get('nvt_list_data_import', [NvtCustomerController::class, 'nvt_list_data_import']);
     Route::post('nvt_divide_data', [NvtCustomerController::class, 'nvt_divide_data']);
-
+    //Phiếu thu
+    Route::post('store_receipts_novateen', [NvtPaymentController::class, 'store_receipts_novateen']);
+    Route::get('all_recipts_novateen', [NvtPaymentController::class, 'all_recipts_novateen'])->middleware(middlewareLogin::class);
+    Route::get('report_revenue_novateen', [NvtPaymentController::class, 'report_revenue_novateen']);
+    Route::get('filter_revenue_novateen', [NvtPaymentController::class, 'filter_revenue_novateen'])->middleware(middlewareLogin::class);
+    Route::post('store_order_handmade_novateen', [NvtPaymentController::class, 'store_order_handmade_novateen']);
 });
 //Thực phẩm
 Route::group(['middleware' => 'api'], function () {
@@ -219,6 +230,7 @@ Route::group(['middleware' => 'api'], function () {
     Route::get('order_detail/{order_id}', [DepotManagerController::class, 'order_detail']);
     Route::get('delete_order/{order_id}', [DepotManagerController::class, 'delete_order']);
     Route::post('store_order_retail', [DepotManagerController::class, 'store_order_retail']);
+    Route::post('store_order_handmade', [DepotManagerController::class, 'store_order_handmade']);
     Route::post('store_order_agency', [DepotManagerController::class, 'store_order_agency']);
     //Phiếu chi
     Route::get('all_payment_slip', [DepotManagerController::class, 'all_payment_slip']);
@@ -239,6 +251,8 @@ Route::group(['middleware' => 'api'], function () {
     Route::get('revenue', [DepotManagerController::class, 'revenue']);
     //Thanh toán
     Route::get('result_payment_success/{orderCode}', [DepotManagerController::class, 'result_payment_success']);
+    //Trạng thái vận chuyển
+    Route::post('order_delivery_status', [DepotManagerController::class, 'order_delivery_status']);
 });
 // Novaup
 Route::group(['middleware' => 'api', 'prefix' => 'customer'], function () {
@@ -350,10 +364,12 @@ Route::prefix('projects')->group(function () {
 });
 // task
 Route::prefix('tasks')->group(function () {
+    //group
+    Route::post('create-group', [TaskController::class, 'createGroup'])->middleware(middlewareLogin::class);
+    Route::put('update-group/{group_task_id}', [TaskController::class, 'updateGroup'])->middleware(middlewareLogin::class);
     // message
     Route::post('create-message', [MessageController::class, 'create'])->middleware(middlewareLogin::class);
     Route::get('get-message-by-task/{task_id}', [MessageController::class, 'getMessageByTask'])->middleware(middlewareLogin::class);
-
     //
     Route::post('create', [TaskController::class, 'create'])->middleware(middlewareLogin::class);
     Route::get('get-task-unfinished-by-user-id', [TaskController::class, 'getTaskUnfinishedByUserId'])->middleware(middlewareLogin::class);
@@ -368,6 +384,7 @@ Route::prefix('tasks')->group(function () {
     Route::put('update-start-date/{task_id}', [TaskController::class, 'updateStartDate'])->middleware(middlewareLogin::class);
     Route::put('update-end-date/{task_id}', [TaskController::class, 'updateEndDate'])->middleware(middlewareLogin::class);
     Route::put('update-members/{task_id}', [TaskController::class, 'updateMember'])->middleware(middlewareLogin::class);
+    Route::get('get-task-in-day', [TaskController::class, 'getTaskInDay'])->middleware(MiddlewareLoginCeo::class);
 });
 // devices
 Route::prefix('devices')->group(function () {
@@ -396,10 +413,12 @@ Route::prefix('records')->group(function () {
 Route::prefix('socials')->group(function () {
     //posts
     Route::post('posts/create', [PostController::class, 'create'])->middleware(middlewareLogin::class);
+    Route::delete('posts/delete/{post_id}', [PostController::class, 'delete'])->middleware(middlewareLogin::class);
     Route::post('posts/reactions/create', [PostController::class, 'createOrUpdateReaction'])->middleware(middlewareLogin::class);
     Route::get('posts/get-all', [PostController::class, 'getAllPosts'])->middleware(middlewareLogin::class);
     Route::get('posts/get-by-id/{post_id}', [PostController::class, 'getPostsById'])->middleware(middlewareLogin::class);
     // comments
     Route::post('comments/create', [CommentController::class, 'create'])->middleware(middlewareLogin::class);
+    Route::post('comments/reactions/create', [CommentController::class, 'createOrUpdateReaction'])->middleware(middlewareLogin::class);
 });
 

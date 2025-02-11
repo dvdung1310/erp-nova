@@ -66,6 +66,18 @@
         font-size: 14px;
         padding: 4px 8px;
       }
+
+      .ant-collapse-header {
+        font-weight: 600;
+
+        .ant-collapse-header-text {
+          flex: unset;
+        }
+
+        .ant-collapse-extra {
+          margin-left: 10px;
+        }
+      }
     }
   }
 }

@@ -5,16 +5,19 @@ namespace App\Http\Controllers\Api\Work;
 use App\Http\Controllers\Controller;
 use App\Models\Devices;
 use App\Models\Group;
+use App\Models\GroupTask;
 use App\Models\Message;
 use App\Models\MessageTask;
 use App\Models\Notification;
 use App\Models\Project;
 use App\Models\Task;
+use App\Models\TaskHistoryUpdate;
 use App\Models\TaskMember;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
@@ -57,7 +60,11 @@ class TaskController extends Controller
                 ], 403);
             }
             $create_by_user_id = auth()->user()->id;
-            $task = Task::create(array_merge($validatedData, ['create_by_user_id' => $create_by_user_id]));
+            if (!$request->group_task_id) {
+                $task = Task::create(array_merge($validatedData, ['create_by_user_id' => $create_by_user_id]));
+            } else {
+                $task = Task::create(array_merge($validatedData, ['create_by_user_id' => $create_by_user_id, 'group_task_id' => $request->group_task_id]));
+            }
             $membersData = [];
             foreach ($request->members as $user_id) {
                 $membersData[] = [
@@ -78,6 +85,26 @@ class TaskController extends Controller
                 'message_id' => $message->message_id,
                 'task_id' => $task->task_id,
             ]);
+            $project_id = $validatedData['project_id'];
+            $task = Task::select('work_tasks.*', 'work_group_task.group_task_name', 'work_tasks.group_task_id')
+                ->leftJoin('work_group_task', 'work_tasks.group_task_id', '=', 'work_group_task.group_task_id')
+                ->where('work_tasks.project_id', $project_id)
+                ->with(['users' => function ($query) {
+                    $query->select('users.id', 'users.name', 'users.email', 'users.avatar');
+                }])
+                ->get()
+                ->makeHidden('pivot')
+                ->groupBy(function ($task) {
+                    return $task->group_task_id ? $task->group_task_name : 'Chưa có nhóm công việc';
+                })
+                ->map(function ($group, $groupName) {
+                    return [
+                        'group_task_name' => $groupName,
+                        'group_task_id' => $group->first()->group_task_id,
+                        'tasks' => $group
+                    ];
+                })
+                ->values();
             //
             return response()->json([
                 'error' => false,
@@ -110,14 +137,29 @@ class TaskController extends Controller
             }
             $leader_id = $project->leader_id;
             if ($role_id != 5 || $user_id == $leader_id) {
-                $tasks = Task::where('project_id', $project_id)
+                $tasks = Task::select('work_tasks.*', 'work_group_task.group_task_name', 'work_tasks.group_task_id')
+                    ->leftJoin('work_group_task', 'work_tasks.group_task_id', '=', 'work_group_task.group_task_id')
+                    ->where('work_tasks.project_id', $project_id)
                     ->with(['users' => function ($query) {
                         $query->select('users.id', 'users.name', 'users.email', 'users.avatar');
                     }])
                     ->get()
-                    ->makeHidden('pivot');
+                    ->makeHidden('pivot')
+                    ->groupBy(function ($task) {
+                        return $task->group_task_id ? $task->group_task_name : 'Chưa có nhóm công việc';
+                    })
+                    ->map(function ($group, $groupName) {
+                        return [
+                            'group_task_name' => $groupName,
+                            'group_task_id' => $group->first()->group_task_id,
+                            'tasks' => $group
+                        ];
+                    })
+                    ->values();
             } else {
-                $tasks = Task::where('project_id', $project_id)
+                $tasks = Task::select('work_tasks.*', 'work_group_task.group_task_name', 'work_tasks.group_task_id')
+                    ->leftJoin('work_group_task', 'work_tasks.group_task_id', '=', 'work_group_task.group_task_id')
+                    ->where('work_tasks.project_id', $project_id)
                     ->whereHas('users', function ($query) use ($user_id) {
                         $query->where('users.id', $user_id);
                     })
@@ -125,7 +167,18 @@ class TaskController extends Controller
                         $query->select('users.id', 'users.name', 'users.email', 'users.avatar');
                     }])
                     ->get()
-                    ->makeHidden('pivot');
+                    ->makeHidden('pivot')
+                    ->groupBy(function ($task) {
+                        return $task->group_task_id ? $task->group_task_name : 'Chưa có nhóm công việc';
+                    })
+                    ->map(function ($group, $groupName) {
+                        return [
+                            'group_task_name' => $groupName,
+                            'group_task_id' => $group->first()->group_task_id,
+                            'tasks' => $group
+                        ];
+                    })
+                    ->values();
             }
 
             $project = Project::with(['users', 'creator'])->find($project_id);
@@ -386,7 +439,6 @@ class TaskController extends Controller
 
     }
 
-
     public function delete(Request $request, $task_id): JsonResponse
     {
         try {
@@ -471,6 +523,7 @@ class TaskController extends Controller
             $validatedData = $request->validate([
                 'task_name' => 'nullable|string|max:255',
             ]);
+            $old_value = $task->task_name;
             $members = $task->users->pluck('id');
             $project = Project::find($task->project_id);
             $leader_id = $project->leader_id;
@@ -489,6 +542,7 @@ class TaskController extends Controller
                 ], 403);
             }
             $task->update($validatedData);
+            $new_value = $task->task_name;
             // insert comment
             $message = Message::create([
                 'text' => 'Cập nhật tên công việc ',
@@ -498,6 +552,17 @@ class TaskController extends Controller
             MessageTask::create([
                 'message_id' => $message->message_id,
                 'task_id' => $task->task_id,
+            ]);
+            // insert history update
+            TaskHistoryUpdate::create([
+                'task_id' => $task_id,
+                'user_id' => $user_id,
+                'type' => 'name',
+                'update_time' => now(),
+                'old_value' => $old_value,
+                'new_value' => $new_value,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
             //
             $pathname = $request->input('pathname');
@@ -542,7 +607,13 @@ class TaskController extends Controller
                     'createByUserId' => $create_by_user_id,
                     'pathname' => $pathname,
                 ];
-                Http::post($this->nodeUrl . '/update-name-task', $payload);
+                try {
+                    Http::post($this->nodeUrl . '/update-name-task', $payload);
+                } catch (\Exception $e) {
+                    // Log the error or handle it as needed
+                    \Log::error('Failed to send request to Node.js server: ' . $e->getMessage());
+                    // Optionally, you can return a response or take other actions
+                }
             }
 //
             return response()->json([
@@ -573,6 +644,7 @@ class TaskController extends Controller
             $validatedData = $request->validate([
                 'task_progress' => 'required|numeric',
             ]);
+            $old_value = $task->task_progress;
             $members = $task->users->pluck('id');
             $project = Project::find($task->project_id);
             $leader_id = $project->leader_id;
@@ -589,6 +661,7 @@ class TaskController extends Controller
                 $validatedData['task_date_update_status_completed'] = now();
             }
             $task->update($validatedData);
+            $new_value = $task->task_progress;
             // insert comment
             $message = Message::create([
                 'text' => 'Cập nhật tiến độ công việc' . ' ' . $oldProgress . '% ' . '->' . ' ' . $task->task_progress . '%',
@@ -598,6 +671,17 @@ class TaskController extends Controller
             MessageTask::create([
                 'message_id' => $message->message_id,
                 'task_id' => $task->task_id,
+            ]);
+            // insert history update
+            TaskHistoryUpdate::create([
+                'task_id' => $task_id,
+                'user_id' => $user_id,
+                'type' => 'progress',
+                'update_time' => now(),
+                'old_value' => $old_value,
+                'new_value' => $new_value,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
             //
             $pathname = $request->input('pathname');
@@ -674,6 +758,7 @@ class TaskController extends Controller
             $validatedData = $request->validate([
                 'task_score_kpi' => 'required|numeric',
             ]);
+            $old_value = $task->task_score_kpi;
             $members = $task->users->pluck('id');
             $project = Project::find($task->project_id);
             // checl role
@@ -725,6 +810,7 @@ class TaskController extends Controller
             $members = array_unique($members->toArray());
             $oldScoreKpi = $task->task_score_kpi;
             $task->update($validatedData);
+            $new_value = $task->task_score_kpi;
             // insert comment
             $message = Message::create([
                 'text' => 'Cập nhật điểm kpi công việc ' . $oldScoreKpi . ' -> ' . $task->task_score_kpi,
@@ -734,6 +820,17 @@ class TaskController extends Controller
             MessageTask::create([
                 'message_id' => $message->message_id,
                 'task_id' => $task->task_id,
+            ]);
+            // insert history update
+            TaskHistoryUpdate::create([
+                'task_id' => $task_id,
+                'user_id' => $user_id,
+                'type' => 'score_kpi',
+                'update_time' => now(),
+                'old_value' => $old_value,
+                'new_value' => $new_value,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
             //
             $pathname = $request->input('pathname');
@@ -810,6 +907,7 @@ class TaskController extends Controller
             $validatedData = $request->validate([
                 'task_description' => 'nullable|string',
             ]);
+            $old_value = $task->task_description;
             $members = $task->users->pluck('id');
             $project = Project::find($task->project_id);
             $leader_id = $project->leader_id;
@@ -828,6 +926,7 @@ class TaskController extends Controller
                 ], 403);
             }
             $task->update($validatedData);
+            $new_value = $task->task_description;
             // insert comment
             $message = Message::create([
                 'text' => 'Cập nhật mô tả công việc công việc ',
@@ -838,6 +937,18 @@ class TaskController extends Controller
                 'message_id' => $message->message_id,
                 'task_id' => $task->task_id,
             ]);
+            //insert task history update
+            TaskHistoryUpdate::create([
+                'task_id' => $task_id,
+                'user_id' => $user_id,
+                'type' => 'description',
+                'update_time' => now(),
+                'old_value' => $old_value,
+                'new_value' => $new_value,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
             //
             $pathname = $request->input('pathname');
             $createByUserName = auth()->user()->name;
@@ -913,6 +1024,7 @@ class TaskController extends Controller
             $validatedData = $request->validate([
                 'task_status' => 'required|in:0,1,2,3,4',
             ]);
+            $old_value = $task->task_status;
 
             if ($validatedData['task_status'] == 2 || $validatedData['task_status'] == 3) {
                 $validatedData['task_progress'] = 100;
@@ -937,6 +1049,7 @@ class TaskController extends Controller
             $members = array_unique($members->toArray());
             $oldStatus = $task->task_status;
             $task->update($validatedData);
+            $new_value = $task->task_status;
 
             //
             $status = $request->input('task_status');
@@ -975,6 +1088,18 @@ class TaskController extends Controller
             MessageTask::create([
                 'message_id' => $message->message_id,
                 'task_id' => $task->task_id,
+            ]);
+            // insert history update
+            $user_id = auth()->user()->id;
+            TaskHistoryUpdate::create([
+                'task_id' => $task_id,
+                'user_id' => $user_id,
+                'type' => 'status',
+                'update_time' => now(),
+                'old_value' => $old_value,
+                'new_value' => $new_value,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
             $pathname = $request->input('pathname');
             $createByUserName = auth()->user()->name;
@@ -1052,6 +1177,7 @@ class TaskController extends Controller
             $validatedData = $request->validate([
                 'task_start_date' => 'required',
             ]);
+            $old_value = $task->task_start_date;
             $members = $task->users->pluck('id');
             $project = Project::find($task->project_id);
             $leader_id = $project->leader_id;
@@ -1070,6 +1196,7 @@ class TaskController extends Controller
                 ], 403);
             }
             $task->update($validatedData);
+            $new_value = $task->task_start_date;
             // insert comment
             $message = Message::create([
                 'text' => 'Cập nhật ngày bắt đầu công việc',
@@ -1079,6 +1206,17 @@ class TaskController extends Controller
             MessageTask::create([
                 'message_id' => $message->message_id,
                 'task_id' => $task->task_id,
+            ]);
+            // insert history update
+            TaskHistoryUpdate::create([
+                'task_id' => $task_id,
+                'user_id' => auth()->user()->id,
+                'type' => 'start_date',
+                'update_time' => now(),
+                'old_value' => $old_value,
+                'new_value' => $new_value,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
             //
             $pathname = $request->input('pathname');
@@ -1155,6 +1293,7 @@ class TaskController extends Controller
             $validatedData = $request->validate([
                 'task_end_date' => 'required',
             ]);
+            $old_value = $task->task_end_date;
             $members = $task->users->pluck('id');
             $project = Project::find($task->project_id);
             $leader_id = $project->leader_id;
@@ -1173,6 +1312,7 @@ class TaskController extends Controller
                 ], 403);
             }
             $task->update($validatedData);
+            $new_value = $task->task_end_date;
             // insert comment
             $message = Message::create([
                 'text' => 'Cập nhật ngày kết thúc công việc',
@@ -1182,6 +1322,17 @@ class TaskController extends Controller
             MessageTask::create([
                 'message_id' => $message->message_id,
                 'task_id' => $task->task_id,
+            ]);
+            // insert history update
+            TaskHistoryUpdate::create([
+                'task_id' => $task_id,
+                'user_id' => auth()->user()->id,
+                'type' => 'end_date',
+                'update_time' => now(),
+                'old_value' => $old_value,
+                'new_value' => $new_value,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
             //
             $pathname = $request->input('pathname');
@@ -1257,7 +1408,22 @@ class TaskController extends Controller
             $validatedData = $request->validate([
                 'task_priority' => 'required|in:0,1,2',
             ]);
+            $old_value = $task->task_priority;
             $task->update($validatedData);
+            $new_value = $task->task_priority;
+            // insert history update
+            $user_id = auth()->user()->id;
+            TaskHistoryUpdate::create([
+                'task_id' => $task_id,
+                'user_id' => $user_id,
+                'type' => 'priority',
+                'update_time' => now(),
+                'old_value' => $old_value,
+                'new_value' => $new_value,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
             return response()->json([
                 'error' => false,
                 'message' => 'Task priority updated successfully',
@@ -1279,9 +1445,11 @@ class TaskController extends Controller
             $user_id = auth()->user()->id;
 
             // Fetch tasks
-            $tasks = Task::whereHas('users', function ($query) use ($user_id) {
-                $query->where('users.id', $user_id);
-            })
+            $tasks = Task::select('work_tasks.*', 'work_group_task.group_task_name', 'work_tasks.group_task_id')
+                ->leftJoin('work_group_task', 'work_tasks.group_task_id', '=', 'work_group_task.group_task_id')
+                ->whereHas('users', function ($query) use ($user_id) {
+                    $query->where('users.id', $user_id);
+                })
                 ->with([
                     'users' => function ($query) {
                         $query->select('users.id', 'users.name', 'users.email', 'users.avatar');
@@ -1293,7 +1461,120 @@ class TaskController extends Controller
                 ->where('task_status', '!=', 3)
                 ->orderBy('project_id')
                 ->orderBy('task_id', 'desc')
-                ->get();
+                ->get()
+                ->makeHidden('pivot')
+                ->groupBy(function ($task) {
+                    return $task->group_task_id ? $task->group_task_name : 'Chưa có nhóm công việc';
+                })
+                ->map(function ($group, $groupName) {
+                    return [
+                        'group_task_name' => $groupName,
+                        'group_task_id' => $group->first()->group_task_id,
+                        'tasks' => $group
+                    ];
+                })
+                ->values();
+            return response()->json([
+                'error' => false,
+                'message' => 'Tasks found',
+                'data' => [
+                    'tasks' => $tasks,
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+    }
+
+    public function createGroup(Request $request): JsonResponse
+    {
+        try {
+            $validatedData = $request->validate([
+                'group_task_name' => 'required|string',
+                'project_id' => 'required',
+            ]);
+            $groupTask = GroupTask::create($validatedData);
+            return response()->json([
+                'error' => false,
+                'message' => 'Group created successfully',
+                'data' => $groupTask
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+    }
+
+    public function updateGroup(Request $request, $group_task_id): JsonResponse
+    {
+        try {
+            $groupTask = GroupTask::find($group_task_id);
+            if (!$groupTask) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Group not found',
+                    'data' => null
+                ], 404);
+            }
+            $validatedData = $request->validate([
+                'group_task_name' => 'required',
+            ]);
+            $groupTask->update($validatedData);
+            return response()->json([
+                'error' => false,
+                'message' => 'Group updated successfully',
+                'data' => $groupTask
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+    }
+
+    public function getTaskInDay(): JsonResponse
+    {
+        try {
+
+            $now = Carbon::now();
+
+            $tasks = Task::where('task_start_date', '<=', $now)
+                ->where('task_end_date', '>=', $now)
+                ->with([
+                    'users' => function ($query) {
+                        $query->where('status', 1)
+                            ->select('users.id', 'users.name', 'users.email', 'users.avatar');
+                    },
+                    'project' => function ($query) {
+                        $query->select('work_projects.project_id', 'work_projects.project_name'); // Adjust the fields as needed
+                    },
+                    'createByUser' => function ($query) {
+                        $query->select('users.id', 'users.name', 'users.email', 'users.avatar');
+                    }
+                ])
+                ->orderBy('task_id', 'desc')
+                ->get()
+                ->makeHidden('pivot')
+                ->filter(function ($task) {
+                    return $task->users->isNotEmpty();
+                })
+                ->groupBy(function ($task) {
+                    return $task->users->first()->id;
+                })
+                ->map(function ($tasks) {
+                    return $tasks;
+                })
+                ->values()
+                ->collapse();
             return response()->json([
                 'error' => false,
                 'message' => 'Tasks found',
