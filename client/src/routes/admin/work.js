@@ -7,7 +7,7 @@ const ReportGroupAll = lazy(() => import('../../container/work/overView/Group/ov
 const CalculatorKPI = lazy(() => import('../../container/work/overView/Group/overViewGroup/CalculatorKPI'));
 const Group = lazy(() => import('../../container/work/overView/Group/Group'));
 const Task = lazy(() => import('../../container/work/overView/Task/Task'));
-
+const WorkTaskDay = lazy(() => import('../../container/work/overView/Task/overViewTask/WorkTaskDay'));
 function WorkRouter() {
     const {path} = useRouteMatch();
 
@@ -19,6 +19,7 @@ function WorkRouter() {
             <Route path={`${path}/bao-cao/:id`} component={ReportGroup}/>
             <Route path={`${path}/du-an/:id`} component={Task}/>
             <Route path={`${path}/tinh-kpi`} component={CalculatorKPI}/>
+            <Route path={`${path}/cong-viec-hom-nay`} component={WorkTaskDay}/>
         </Switch>
     );
 }

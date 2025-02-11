@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Task extends Model
 {
@@ -28,25 +31,30 @@ class Task extends Model
     ];
 
     // Task.php
-    public function users()
+    public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'work_task_members', 'task_id', 'user_id')
             ->select('users.id', 'users.name', 'users.email', 'users.avatar')
             ->withPivot([]);
     }
 
-    public function members()
+    public function members(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'work_task_members', 'task_id', 'user_id');
     }
 
-    public function taskMembers()
+    public function taskMembers(): HasMany
     {
         return $this->hasMany(TaskMember::class, 'task_id');
     }
 
-    public function project()
+    public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class, 'project_id');
+    }
+
+    public function createByUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'create_by_user_id');
     }
 }

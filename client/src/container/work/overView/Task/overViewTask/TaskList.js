@@ -838,6 +838,9 @@ const TaskList = (props) => {
                     group_task_name: group.group_task_id === groupTaskSelected ? res.data.group_task_name : group.group_task_name,
                 };
             }));
+            toast.success('Thực hiện cập nhật tên nhóm công việc thành công', {
+                position: "top-right", autoClose: 1000
+            })
             setShowModalUpdateGroupTask(false);
             form.resetFields();
             setDataCreateGroupTask({

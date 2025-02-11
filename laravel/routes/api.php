@@ -368,7 +368,6 @@ Route::prefix('tasks')->group(function () {
     // message
     Route::post('create-message', [MessageController::class, 'create'])->middleware(middlewareLogin::class);
     Route::get('get-message-by-task/{task_id}', [MessageController::class, 'getMessageByTask'])->middleware(middlewareLogin::class);
-
     //
     Route::post('create', [TaskController::class, 'create'])->middleware(middlewareLogin::class);
     Route::get('get-task-unfinished-by-user-id', [TaskController::class, 'getTaskUnfinishedByUserId'])->middleware(middlewareLogin::class);
@@ -383,6 +382,7 @@ Route::prefix('tasks')->group(function () {
     Route::put('update-start-date/{task_id}', [TaskController::class, 'updateStartDate'])->middleware(middlewareLogin::class);
     Route::put('update-end-date/{task_id}', [TaskController::class, 'updateEndDate'])->middleware(middlewareLogin::class);
     Route::put('update-members/{task_id}', [TaskController::class, 'updateMember'])->middleware(middlewareLogin::class);
+    Route::get('get-task-in-day', [TaskController::class, 'getTaskInDay'])->middleware(MiddlewareLoginCeo::class);
 });
 // devices
 Route::prefix('devices')->group(function () {
