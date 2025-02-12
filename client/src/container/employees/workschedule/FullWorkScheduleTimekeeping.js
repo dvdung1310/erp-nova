@@ -114,7 +114,7 @@ const FullWorkScheduleTimekeeping = () => {
                                 {["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "CN"].map((day, idx) => (
                                     <th key={idx} colSpan={4} className={`px-4 border text-center date-class ${currentDayIndex === idx ? "bg-blue font-bold" : ""}`}>{day}</th>
                                 ))}
-                                <th rowSpan={2} className="px-4 border text-center">Tổng</th>
+                                <th rowSpan={2} style={{ background:'blue', color:'#fff' }} className="px-4 border text-center">Tổng</th>
                             </tr>
                             <tr>
                                 {Array(7).fill().map((_, idx) => (
@@ -122,7 +122,7 @@ const FullWorkScheduleTimekeeping = () => {
                                         <th style={{ width: '25px' }} key={`S${idx}`} className="px-4 border sang">Chấm công</th>
                                         <th style={{ width: '25px' }} key={`C${idx}`} className="px-4 border chieu">Đăng ký</th>
                                         <th style={{ width: '25px' }} key={`T${idx}`} className="px-4 border toi">Báo cáo</th>
-                                        <th style={{ width: '25px' , background:'blue',color:'white' }} key={`T${idx}`} className="px-4 border">Số công</th>
+                                        <th style={{ width: '25px' , background:'rgb(141 141 200)',color:'white' }} key={`T${idx}`} className="px-4 border">Số công</th>
                                     </>
                                 ))}
                             </tr>
@@ -187,11 +187,11 @@ const FullWorkScheduleTimekeeping = () => {
                                         <td key={`${date}-S`} style={{ width: '25px' }} className="border px-4">{formattedCode[0]}</td>
                                         <td key={`${date}-C`} style={{ width: '25px' }} className="border px-4">{formattedCode[1]}</td>
                                         <td key={`${date}-T`} style={{ width: '25px' }} className="border px-4">{formattedCode[2]}</td>
-                                        <td key={`${date}-T`} style={{ width: '25px' , background:'blue',color:'white' }} className="border px-4">{cong}</td>
+                                        <td key={`${date}-T`} style={{ width: '25px' , background:'rgb(141 141 200)',color:'white' }} className="border px-4">{cong}</td>
                                     </>
                                 );
                             })}
-                            <td className="border px-4">{totalDays}</td>
+                            <td className="border px-4"  style={{ background:'blue' , color:'#fff' }}>{totalDays}</td>
                         </tr>
                     );
                 })}
@@ -207,6 +207,23 @@ const FullWorkScheduleTimekeeping = () => {
                                 </div>
                             ))}
                         </div>
+
+                        <div className="flex justify-center my-4 footer-schedule">
+                                                    {[...Array(12).keys()].map((month) => (
+                                                        <button
+                                                            type="button"
+                                                            key={month}
+                                                            onClick={() => setSelectedMonth(month + 1)}
+                                                            className={`mx-2 p-2 ${selectedMonth === month + 1 ? "bg-blue-500 active" : "bg-gray-200"}`}
+                                                        >
+                                                            Tháng {month + 1}
+                                                        </button>
+                                                    ))}
+                        
+                                            <Button style={{textAlign:'end' ,color:'#000' , backgroundColor:'#00FF00' , fontSize:'18px' , border:'none' , marginLeft:'10px'}}  type="primary" onClick={() => history.push(`/admin/nhan-su/import-file/kiem-tra-cham-cong`)}>
+                                                Thêm bảng công
+                                            </Button>
+                                                </div>
                     </>
                 )
             }

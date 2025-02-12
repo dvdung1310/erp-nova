@@ -189,19 +189,16 @@ class WorkScheduleController extends Controller
                     // Tính tổng thời gian làm việc
                     $checkIn = Carbon::parse($timekeeping->check_in_time);
                     $checkOut = Carbon::parse($timekeeping->check_out_time);
-                    $workingHours = $checkIn->diffInMinutes($checkOut) / 60;
-                    // Xác định số công
-                    if ($workingHours >= 8) {
+                    $totalMinutes = $checkIn->diffInMinutes($checkOut);
+                
+                    // Tính số công bằng cách lấy tổng số phút chia cho 480 (8 tiếng = 480 phút)
+                    $checkedIn = $totalMinutes / 480;
+                
+                    // Giới hạn số công tối đa là 1
+                    if ($checkedIn > 1) {
                         $checkedIn = 1;
-                    } elseif ($workingHours >= 6) {
-                        $checkedIn = 0.75;
-                    } elseif ($workingHours >= 4) {
-                        $checkedIn = 0.5;
-                    } elseif ($workingHours >= 3) {
-                        $checkedIn = 0.25;
-                    } else {
-                        $checkedIn = 0.15; // Dưới 3 tiếng không được tính công
                     }
+                    $checkedIn = round($checkedIn, 3);
                 } else {
                     $checkedIn = 0; // Không đủ cả check-in và check-out
                 }

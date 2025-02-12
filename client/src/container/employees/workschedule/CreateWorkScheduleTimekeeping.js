@@ -64,7 +64,7 @@ const ExcelImport = () => {
   };
 
   return (
-    <div className="p-6 max-w-xl mx-auto">
+    <div className="p-6 max-w-xl mx-auto" style={{ padding:'20px' }}>
       <h2 className="text-2xl font-bold mb-4">Import File Excel</h2>
       <input 
         type="file" 
