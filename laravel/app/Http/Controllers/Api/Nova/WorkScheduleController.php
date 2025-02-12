@@ -229,4 +229,87 @@ class WorkScheduleController extends Controller
 
         return response()->json($result->values());
     }
+
+    public function getWorkSchedulesByMonthTimekeepingExportExcel($month)
+    {
+        $year = date('Y');
+        $startOfMonth = Carbon::createFromDate($year, $month, 1)->startOfDay();
+        $endOfMonth = Carbon::createFromDate($year, $month, 1)->endOfMonth()->endOfDay();
+        $workSchedulesQuery = WorkSchedule::with('user')
+            ->whereBetween('date', [$startOfMonth, $endOfMonth]);
+
+        $workSchedules = $workSchedulesQuery->get()->groupBy('user_id');
+
+        // Lấy dữ liệu từ bảng WorkScheduleTimekeeping (chấm công)
+        $timekeepingRecords = WorksCheduleTimekeepingModel::whereBetween('date', [$startOfMonth, $endOfMonth])->get()->groupBy('user_id');
+
+        $workReports = TaskHistoryUpdate::whereRaw('DATE(update_time) BETWEEN ? AND ?', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])
+            ->get()
+            ->groupBy('user_id');
+
+        $result = $workSchedules->map(function ($userSchedules, $userId) use ($timekeepingRecords, $workReports) {
+            $user = $userSchedules->first()->user;
+            $employee = CrmEmployeeModel::where('account_id', $user->id)->first();
+            $department = $employee ? CrmDepartmentModel::where('department_id', $employee->department_id)->first() : null;
+
+            $formattedSchedule = $userSchedules->mapWithKeys(function ($schedule) use ($timekeepingRecords, $workReports, $userId) {
+                $date = $schedule->date;
+                $registeredCode = $schedule->code;
+
+                // Kiểm tra chấm công
+                $timekeeping = $timekeepingRecords->get($userId)?->firstWhere('date', $date);
+                $workingHours = 0;
+                $checkIn = 'N/A';
+                $checkOut = 'N/A';
+                if(isset($timekeeping->check_in_time)){
+                    $checkIn = $timekeeping->check_in_time;
+                }
+                if(isset($timekeeping->check_out_time)){
+                    $checkOut = $timekeeping->check_out_time;
+                }
+                if ($timekeeping && $timekeeping->check_in_time && $timekeeping->check_out_time) {
+                    // Tính tổng thời gian làm việc
+                    $checkIn = Carbon::parse($timekeeping->check_in_time);
+                    $checkOut = Carbon::parse($timekeeping->check_out_time);
+                    $totalMinutes = $checkIn->diffInMinutes($checkOut);
+                
+                    // Tính số công bằng cách lấy tổng số phút chia cho 480 (8 tiếng = 480 phút)
+                    $checkedIn = $totalMinutes / 480;
+                    $checkIn = $timekeeping->check_in_time;
+                    $checkOut = $timekeeping->check_out_time;
+                    // Giới hạn số công tối đa là 1
+                    if ($checkedIn > 1) {
+                        $checkedIn = 1;
+                    }
+                    $checkedIn = round($checkedIn, 3);
+                } else {
+                    $checkedIn = 0; // Không đủ cả check-in và check-out
+                }
+
+
+                // $checkedIn = $timekeeping && $timekeeping->check_in_time && $timekeeping->check_out_time ? '1' : '0';
+
+                // Kiểm tra đăng ký lịch làm việc
+                $hasRegisteredWork = strpos($registeredCode, '1') !== false ? '1' : '0';
+
+                // Kiểm tra bảng báo cáo để xác định ký tự thứ 3
+                $hasReport = $workReports->get($userId)?->first(function ($report) use ($date) {
+                    return Carbon::parse($report->update_time)->toDateString() === $date;
+                }) ? '1' : '0';
+
+                $finalCode = "{$checkIn}-{$checkOut}-{$checkedIn}-{$hasRegisteredWork}-{$hasReport}";
+                return [
+                    $date => $finalCode,
+                ];
+            });
+
+            return [
+                'name' => $user->name,
+                'department_name' => $department ? $department->department_name : 'No Department',
+                'schedule' => $formattedSchedule,
+            ];
+        });
+
+        return response()->json($result->values());
+    }
 }

@@ -27,11 +27,11 @@ const ExcelImport = () => {
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
   
       const formattedData = jsonData.map(item => ({
-        manv: item['Mã NV'],
-        name: item['Tên'],
+        manv: item['Mã N.Viên'],
+        name: item['Tên N.Viên'],
         date: excelDateToJSDate(item['Ngày']),
-        time_in: excelTimeToJS(item['Giờ vào']),
-        time_out: excelTimeToJS(item['Giờ ra'])
+        time_in: excelTimeToJS(item['Vào']),
+        time_out: excelTimeToJS(item['Ra'])
       }));
   
       setData(formattedData);
@@ -57,10 +57,38 @@ const ExcelImport = () => {
 
   // Hàm chuyển đổi giờ từ số thập phân của Excel
   const excelTimeToJS = (excelTime) => {
-    const totalSeconds = Math.round(86400 * excelTime);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+    if (!excelTime) return null; // Xử lý khi giá trị bị null hoặc undefined
+  
+    // Nếu dữ liệu là dạng số (thập phân), xử lý như cũ
+    if (typeof excelTime === 'number') {
+      const totalSeconds = Math.round(86400 * excelTime);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+    }
+  
+    // Nếu dữ liệu là dạng text (ví dụ "08:30" hoặc "8:30 AM")
+    if (typeof excelTime === 'string') {
+      // Kiểm tra định dạng HH:mm
+      const timeMatch = excelTime.match(/^(\d{1,2}):(\d{2})$/);
+      if (timeMatch) {
+        const [ , hours, minutes ] = timeMatch;
+        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+      }
+  
+      // Kiểm tra định dạng có AM/PM
+      const amPmMatch = excelTime.match(/^(\d{1,2}):(\d{2})\s?(AM|PM)$/i);
+      if (amPmMatch) {
+        let [ , hours, minutes, period ] = amPmMatch;
+        hours = parseInt(hours, 10);
+        if (period.toUpperCase() === 'PM' && hours < 12) hours += 12;
+        if (period.toUpperCase() === 'AM' && hours === 12) hours = 0;
+        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+      }
+    }
+  
+    // Trường hợp không xác định được định dạng
+    return 'NaN:NaN';
   };
 
   return (

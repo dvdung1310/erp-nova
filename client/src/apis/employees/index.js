@@ -62,3 +62,13 @@ export const fullWorkScheduleTimekeeping = async (month) => {
     });
     return response;
 };
+
+export const fullWorkScheduleTimekeepingExportExcel = async (month) => {
+    const response = await instanceAxios.get(`${LARAVEL_SERVER}/api/get_workschedule_timekeeping_export_excel/${month}`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    return response;
+};
