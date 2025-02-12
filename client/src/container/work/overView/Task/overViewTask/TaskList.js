@@ -91,7 +91,6 @@ const TaskList = (props) => {
             console.log('socketConnection', socketConnection);
             socketConnection.off('view-notification');
             socketConnection.on('view-notification', (data) => {
-                console.log('new-notification', data);
                 setTaskSelectedSocket(data?.task_id);
                 // setSelectedTask(tasks.filter((task) => task.task_id === data.task_id)[0]);
                 // setShowComment(true);
@@ -104,9 +103,6 @@ const TaskList = (props) => {
     useEffect(() => {
         if (taskSelectedSocket) {
             setSelectedTask(tasks?.flatMap(item => item?.tasks).find(task => task.task_id === taskSelectedSocket));
-            console.log(
-                tasks?.flatMap(item => item?.tasks).find(task => task.task_id === taskSelectedSocket)
-            );
             setShowComment(true);
         }
     }, [taskSelectedSocket])
@@ -947,7 +943,9 @@ const TaskList = (props) => {
                                         const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
                                         const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
                                         return (
-                                            <TableRow key={task.task_id}>
+                                            <TableRow key={task.task_id} style={{
+                                                background: task.task_id === taskSelectedSocket ? '#c2c2c2' : '',
+                                            }}>
                                                 <TableCell className="table-cell" style={{minWidth: '50px'}}>
                                                     {indexing += 1}
                                                 </TableCell>

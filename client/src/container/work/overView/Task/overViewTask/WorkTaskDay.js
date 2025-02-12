@@ -6,12 +6,18 @@ import {checkStatus} from "../../../../../utility/checkValue";
 import moment from "moment";
 import './WorkTaskDay.scss';
 import {getTaskInDay} from "../../../../../apis/work/task";
+import {useSelector} from "react-redux";
+import {getItem} from "../../../../../utility/localStorageControl";
+import {Link, useHistory, useLocation} from "react-router-dom";
 
 const WorkTaskDay = () => {
+    const user_id = getItem('user_id');
     const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
-
+    const socketConnection = useSelector(state => state?.userSocket?.socketConnection);
+    const history = useHistory();
+    const location = useLocation();
     const getTasks = async () => {
         setLoading(true);
         try {
@@ -30,6 +36,22 @@ const WorkTaskDay = () => {
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
     };
+    const handleClickTaskName = (record) => {
+        const pathName = `/admin/lam-viec/du-an/${record?.project?.project_id}`;
+        history.push(pathName, {
+            task_id: record?.task_id
+        });
+
+        if (socketConnection) {
+            if (record?.task_id) {
+                const payload = {
+                    user_id,
+                    task_id: record?.task_id,
+                }
+                socketConnection.emit('view-notification', payload);
+            }
+        }
+    }
 
     const filteredTasks = tasks.filter(task => {
         const taskNameMatch = task.task_name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -65,15 +87,24 @@ const WorkTaskDay = () => {
         },
         {
             title: 'Tên công việc',
-            dataIndex: 'task_name',
+            dataIndex: ['task_name', 'task_id', 'project'],
             key: 'task_name',
-            className: 'cell-name',
+            className: 'cell-name cell-link',
+            render: (text, record) => (
+                <span style={{display: 'block'}} onClick={() => handleClickTaskName(record)}>{record.task_name}</span>
+            ),
         },
         {
             title: 'Tên dự án',
             dataIndex: ['project', 'project_name'],
             key: 'project_name',
-            className: 'cell-name',
+            className: 'cell-name cell-link',
+            render: (text, record) => (
+                <span style={{display: "block"}}>
+                    <Link
+                        to={`/admin/lam-viec/du-an/${record?.project?.project_id}`}>{record?.project?.project_name}</Link>
+                </span>
+            ),
         },
         {
             title: 'Người giao việc',
