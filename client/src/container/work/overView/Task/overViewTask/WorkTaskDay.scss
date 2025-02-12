@@ -4,6 +4,28 @@
 
   .cell-name {
     min-width: 200px;
+
+
+  }
+
+  .cell-link {
+    cursor: pointer;
+
+    span {
+      a {
+        color: #272B41;
+      }
+    }
+
+    &:hover {
+      span {
+        color: #1a9aef;
+
+        a {
+          color: #1a9aef;
+        }
+      }
+    }
   }
 
 
