@@ -274,9 +274,9 @@ class AuthController extends Controller
     {
         try {
             $users = User::join('crm_employee', 'users.id', '=', 'crm_employee.account_id')
-                ->join('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
+                ->leftJoin('crm_department', 'crm_employee.department_id', '=', 'crm_department.department_id')
                 ->leftJoin('crm_department_team', 'crm_employee.team_id', '=', 'crm_department_team.team_id')
-                ->join('crm_employee_level', 'crm_employee.level_id', '=', 'crm_employee_level.level_id')
+                ->leftJoin('crm_employee_level', 'crm_employee.level_id', '=', 'crm_employee_level.level_id')
                 ->select(
                     'users.id',
                     'users.name',
