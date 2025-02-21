@@ -181,7 +181,7 @@ const FullWorkScheduleTimekeeping = () => {
     };
 
     const formatScheduleCode = (code) => {
-        if (!code) return ['x', 'x', 'x'];
+        if (!code) return ['-', '-', '-'];
         return code.split('-');
     };
 
@@ -259,7 +259,7 @@ const FullWorkScheduleTimekeeping = () => {
                                                                         const schedule = user.schedule?.[date];
                                                                         const formattedCode = formatScheduleCode(schedule);
                                                                         let cong = 0;
-                                                                        if (formattedCode[1] === 1 && formattedCode[2] === 1) {
+                                                                        if (formattedCode[1]?.toString() === '1' && formattedCode[2]?.toString() === '1') {
                                                                             cong = Number(formattedCode[0]) || 0;
                                                                         } else {
                                                                             cong = 0;

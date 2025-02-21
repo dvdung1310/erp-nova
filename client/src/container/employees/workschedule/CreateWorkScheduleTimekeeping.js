@@ -31,7 +31,7 @@ const ExcelImport = () => {
         name: item['Tên N.Viên'],
         date: excelDateToJSDate(item['Ngày']),
         time_in: excelTimeToJS(item['Vào']),
-        time_out: excelTimeToJS(item['Ra'])
+        time_out: excelTimeToJS(item['Giờ Ra'])
       }));
   
       setData(formattedData);
@@ -79,7 +79,7 @@ const ExcelImport = () => {
       // Kiểm tra định dạng có AM/PM
       const amPmMatch = excelTime.match(/^(\d{1,2}):(\d{2})\s?(AM|PM)$/i);
       if (amPmMatch) {
-        let [ , hours, minutes, period ] = amPmMatch;
+        const  [ , hours, minutes, period ] = amPmMatch;
         hours = parseInt(hours, 10);
         if (period.toUpperCase() === 'PM' && hours < 12) hours += 12;
         if (period.toUpperCase() === 'AM' && hours === 12) hours = 0;

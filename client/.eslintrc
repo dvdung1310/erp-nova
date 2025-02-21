@@ -58,6 +58,7 @@
     "no-else-return": "off",
     "react/jsx-boolean-value": "off",
     "no-return-assign": "off",
+    "no-const-assign": "off",
     "react/jsx-filename-extension": [
       0,
       {
