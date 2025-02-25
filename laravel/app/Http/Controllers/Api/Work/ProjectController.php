@@ -195,6 +195,7 @@ class ProjectController extends Controller
                     'task_progress' => $task->task_progress,
                     'task_start_date' => $newTaskStartDate,
                     'task_end_date' => $newTaskEndDate,
+                    'group_task_id' => $task->group_task_id,
                     'create_by_user_id' => $task->create_by_user_id,
                     'created_at' => now(),
                     'updated_at' => now(),
