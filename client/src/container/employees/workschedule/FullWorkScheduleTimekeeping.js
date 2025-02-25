@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { startOfMonth, eachDayOfInterval, addDays, getDay } from "date-fns/esm";
 import { fullWorkScheduleTimekeeping, fullWorkScheduleTimekeepingExportExcel } from "../../../apis/employees/index";
 import "../FullWorkSchedule.css";
-import { Spin, Button } from "antd";
+import { Spin, Button , Input  } from "antd";
 import { useHistory } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 
@@ -15,7 +15,7 @@ const FullWorkScheduleTimekeeping = () => {
     const currentDate = new Date().toISOString().split("T")[0];
     const currentDayIndex = (getDay(new Date(currentDate)) + 6) % 7;
     const currentWeekRef = useRef(null);
-
+    const [searchName, setSearchName] = useState("");
     const toRomanNumeral = (num) => {
         const romanNumerals = [
             ["X", 10],
@@ -94,6 +94,12 @@ const FullWorkScheduleTimekeeping = () => {
 
         generateWeeks();
     }, [selectedMonth]);
+
+    const handleSearch = () => {
+        if (searchName.trim()) {
+            history.push(`tong-cong-nhan-vien/${selectedMonth}/${searchName}`);
+        }
+    };
 
 
     const handleExportExcel = async () => {
@@ -310,6 +316,16 @@ const FullWorkScheduleTimekeeping = () => {
                             <Button onClick={handleExportExcel} style={{ textAlign: 'end', color: '#000', backgroundColor: '#00FF00', fontSize: '18px', border: 'none', marginLeft: '10px' }} type="primary">
                                 Xuất Excel
                             </Button>
+
+                           
+                            <Input 
+                                placeholder="Nhập tên nhân sự" 
+                                value={searchName} 
+                                onChange={(e) => setSearchName(e.target.value)} 
+                                style={{ width: 200, marginRight: 10 }} 
+                            />
+                            <Button type="primary" onClick={handleSearch}>Tìm kiếm</Button>
+                           
                         </div>
                     </>
                 )

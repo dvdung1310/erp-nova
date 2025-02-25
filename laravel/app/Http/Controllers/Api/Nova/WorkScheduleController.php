@@ -190,10 +190,10 @@ class WorkScheduleController extends Controller
                     $checkIn = Carbon::parse($timekeeping->check_in_time);
                     $checkOut = Carbon::parse($timekeeping->check_out_time);
                     $totalMinutes = $checkIn->diffInMinutes($checkOut);
-                
+
                     // Tính số công bằng cách lấy tổng số phút chia cho 480 (8 tiếng = 480 phút)
                     $checkedIn = $totalMinutes / 480;
-                
+
                     // Giới hạn số công tối đa là 1
                     if ($checkedIn > 1) {
                         $checkedIn = 1;
@@ -239,7 +239,6 @@ class WorkScheduleController extends Controller
             ->whereBetween('date', [$startOfMonth, $endOfMonth]);
 
         $workSchedules = $workSchedulesQuery->get()->groupBy('user_id');
-
         // Lấy dữ liệu từ bảng WorkScheduleTimekeeping (chấm công)
         $timekeepingRecords = WorksCheduleTimekeepingModel::whereBetween('date', [$startOfMonth, $endOfMonth])->get()->groupBy('user_id');
 
@@ -261,10 +260,10 @@ class WorkScheduleController extends Controller
                 $workingHours = 0;
                 $checkIn = 'N/A';
                 $checkOut = 'N/A';
-                if(isset($timekeeping->check_in_time)){
+                if (isset($timekeeping->check_in_time)) {
                     $checkIn = $timekeeping->check_in_time;
                 }
-                if(isset($timekeeping->check_out_time)){
+                if (isset($timekeeping->check_out_time)) {
                     $checkOut = $timekeeping->check_out_time;
                 }
                 if ($timekeeping && $timekeeping->check_in_time && $timekeeping->check_out_time) {
@@ -272,7 +271,7 @@ class WorkScheduleController extends Controller
                     $checkIn = Carbon::parse($timekeeping->check_in_time);
                     $checkOut = Carbon::parse($timekeeping->check_out_time);
                     $totalMinutes = $checkIn->diffInMinutes($checkOut);
-                
+
                     // Tính số công bằng cách lấy tổng số phút chia cho 480 (8 tiếng = 480 phút)
                     $checkedIn = $totalMinutes / 480;
                     $checkIn = $timekeeping->check_in_time;
@@ -311,5 +310,70 @@ class WorkScheduleController extends Controller
         });
 
         return response()->json($result->values());
+    }
+
+    public function get_user_workschedule_timekeeping($month, $name)
+    {
+        $year = date('Y');
+        $startOfMonth = Carbon::createFromDate($year, $month, 1)->startOfDay();
+        $endOfMonth = Carbon::createFromDate($year, $month, 1)->endOfMonth()->endOfDay();
+
+        // Tìm user theo tên
+        $user = User::where('name', $name)->first();
+        if (!$user) {
+            return response()->json(['error' => 'Bạn hãy điền đầy đủ tên nhân sự'], 404);
+        }
+
+        // Lấy lịch làm việc của user đó trong tháng
+        $workSchedules = WorkSchedule::where('user_id', $user->id)
+            ->whereBetween('date', [$startOfMonth, $endOfMonth])
+            ->get();
+
+        // Lấy dữ liệu chấm công của user trong tháng
+        $timekeepingRecords = WorksCheduleTimekeepingModel::where('user_id', $user->id)
+            ->whereBetween('date', [$startOfMonth, $endOfMonth])
+            ->get();
+
+        // Lấy dữ liệu báo cáo công việc
+        $workReports = TaskHistoryUpdate::where('user_id', $user->id)
+            ->whereRaw('DATE(update_time) BETWEEN ? AND ?', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])
+            ->get();
+
+        $employee = CrmEmployeeModel::where('account_id', $user->id)->first();
+        $department = $employee ? CrmDepartmentModel::where('department_id', $employee->department_id)->first() : null;
+
+        $formattedSchedule = $workSchedules->mapWithKeys(function ($schedule) use ($timekeepingRecords, $workReports, $user) {
+            $date = $schedule->date;
+            $registeredCode = $schedule->code;
+
+            // Kiểm tra chấm công
+            $timekeeping = $timekeepingRecords->firstWhere('date', $date);
+            $checkIn = $timekeeping?->check_in_time ?? 'N/A';
+            $checkOut = $timekeeping?->check_out_time ?? 'N/A';
+            $checkedIn = 0;
+
+            if ($timekeeping && $timekeeping->check_in_time && $timekeeping->check_out_time) {
+                $checkInTime = Carbon::parse($timekeeping->check_in_time);
+                $checkOutTime = Carbon::parse($timekeeping->check_out_time);
+                $totalMinutes = $checkInTime->diffInMinutes($checkOutTime);
+                $checkedIn = min(1, round($totalMinutes / 480, 3)); // Giới hạn tối đa 1 công
+            }
+
+            // Kiểm tra lịch làm việc
+            $hasRegisteredWork = strpos($registeredCode, '1') !== false ? '1' : '0';
+
+            // Kiểm tra báo cáo công việc
+            $hasReport = $workReports->first(fn($report) => Carbon::parse($report->update_time)->toDateString() === $date) ? '1' : '0';
+
+            $finalCode = "{$checkIn}-{$checkOut}-{$checkedIn}-{$hasRegisteredWork}-{$hasReport}";
+
+            return [$date => $finalCode];
+        });
+
+        return response()->json([
+            'name' => $user->name,
+            'department_name' => $department?->department_name ?? 'No Department',
+            'schedule' => $formattedSchedule,
+        ]);
     }
 }

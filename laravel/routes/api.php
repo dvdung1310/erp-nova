@@ -80,6 +80,7 @@ Route::group(['middleware' => 'api'], function () {
     Route::post('store_workschedule_timekeeping', [WorkScheduleController::class, 'store_excel']);
     Route::get('get_workschedule_timekeeping/{month}', [WorkScheduleController::class, 'getWorkSchedulesByMonthTimekeeping']);
     Route::get('get_workschedule_timekeeping_export_excel/{month}', [WorkScheduleController::class, 'getWorkSchedulesByMonthTimekeepingExportExcel']);
+    Route::get('get_user_workschedule_timekeeping/{month}/{name}', [WorkScheduleController::class, 'get_user_workschedule_timekeeping']);
     Route::post('/upload-image', [ExamController::class, 'upload'])->name('upload.image');
     Route::post('/store-question', [QuestionController::class, 'store']);
     Route::get('/list-question-answer/{id}', [QuestionController::class, 'getQuestionsWithAnswers']);
