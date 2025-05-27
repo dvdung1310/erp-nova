@@ -64,7 +64,18 @@ class WorkScheduleController extends Controller
                 })
                 ->get()
                 ->groupBy('user_id');
-        } else {
+            }elseif($month == 2){
+                $startOfExtraDay0 = Carbon::create(2025, 3, 1)->startOfDay();
+                $startOfExtraDay1 = Carbon::create(2025, 3, 2)->startOfDay();
+                $schedules = WorkSchedule::with('user')
+                ->where(function ($query) use ($startOfMonth, $endOfMonth, $startOfExtraDay1, $startOfExtraDay0) {
+                    $query->whereBetween('date', [$startOfMonth, $endOfMonth])
+                        ->orWhere('date', $startOfExtraDay0)
+                        ->orWhere('date', $startOfExtraDay1);   
+                })
+                ->get()
+                ->groupBy('user_id');
+             }else {
             $schedules = WorkSchedule::with('user')
                 ->whereBetween('date', [$startOfMonth, $endOfMonth])
                 ->get()
@@ -140,7 +151,7 @@ class WorkScheduleController extends Controller
         $year = date('Y');
         $startOfMonth = Carbon::createFromDate($year, $month, 1)->startOfDay();
         $endOfMonth = Carbon::createFromDate($year, $month, 1)->endOfMonth()->endOfDay();
-
+    
         // Lấy dữ liệu từ bảng WorkSchedule (lịch làm việc)
         $workSchedulesQuery = WorkSchedule::with('user')
             ->whereBetween('date', [$startOfMonth, $endOfMonth]);
@@ -156,6 +167,18 @@ class WorkScheduleController extends Controller
                 Carbon::create($year, 1, 5),
             ];
 
+            $workSchedulesQuery->orWhere(function ($query) use ($extraDays) {
+                foreach ($extraDays as $day) {
+                    $query->orWhere('date', $day);
+                }
+            });
+        }
+
+        if ($month == 2) {
+            $extraDays = [
+                Carbon::create($year, 3, 1),
+                Carbon::create($year, 3, 2),
+            ];
             $workSchedulesQuery->orWhere(function ($query) use ($extraDays) {
                 foreach ($extraDays as $day) {
                     $query->orWhere('date', $day);
