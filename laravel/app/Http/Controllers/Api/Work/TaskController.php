@@ -52,13 +52,13 @@ class TaskController extends Controller
             $group_id = $project->group_id;
             $group = Group::find($group_id);
 
-            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2 && $group->leader_id != $user_id) {
-                return response()->json([
-                    'error' => true,
-                    'message' => 'Bạn không có quyền thực hiện hành động này',
-                    'data' => $role_id
-                ], 403);
-            }
+            // if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2 && $group->leader_id != $user_id) {
+            //     return response()->json([
+            //         'error' => true,
+            //         'message' => 'Bạn không có quyền thực hiện hành động này',
+            //         'data' => $role_id
+            //     ], 403);
+            // }
             $create_by_user_id = auth()->user()->id;
             if (!$request->group_task_id) {
                 $task = Task::create(array_merge($validatedData, ['create_by_user_id' => $create_by_user_id]));
@@ -136,7 +136,7 @@ class TaskController extends Controller
                 ], 404);
             }
             $leader_id = $project->leader_id;
-            if ($role_id != 5 || $user_id == $leader_id) {
+            if ($role_id == 5 || $user_id == $leader_id) {
                 $tasks = Task::select('work_tasks.*', 'work_group_task.group_task_name', 'work_tasks.group_task_id')
                     ->leftJoin('work_group_task', 'work_tasks.group_task_id', '=', 'work_group_task.group_task_id')
                     ->where('work_tasks.project_id', $project_id)
@@ -453,13 +453,13 @@ class TaskController extends Controller
             $project = Project::find($task->project_id);
             $user_id = auth()->user()->id;
             $role_id = auth()->user()->role_id;
-            if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2) {
-                return response()->json([
-                    'error' => true,
-                    'message' => 'Bạn không có quyền thực hiện hành động này',
-                    'data' => $role_id
-                ], 403);
-            }
+            // if ($project->leader_id != $user_id && $role_id != 1 && $role_id != 2) {
+            //     return response()->json([
+            //         'error' => true,
+            //         'message' => 'Bạn không có quyền thực hiện hành động này',
+            //         'data' => $role_id
+            //     ], 403);
+            // }
 
             // Delete related task members
             TaskMember::where('task_id', $task_id)->delete();

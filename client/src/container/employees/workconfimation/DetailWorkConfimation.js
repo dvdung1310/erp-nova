@@ -1,25 +1,25 @@
-import React, {useEffect, useState} from 'react';
-import {Row, Col, Input, Card, Button, Modal, Table, Typography, Spin, Form, Badge, List, Tag} from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Row, Col, Input, Card, Button, Modal, Table, Typography, Spin, Form, Badge, List, Tag } from 'antd';
 import Avatar from "../../../components/Avatar/Avatar";
-import {toast} from "react-toastify";
+import { toast } from "react-toastify";
 import FeatherIcon from 'feather-icons-react';
 import 'react-toastify/dist/ReactToastify.css';
-import {useParams} from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import {
     detailWorkConfimation,
     deleteDetailWorkConfimation,
     storeWorkConfimationManager,
     updateDetailWorkConfimation
 } from '../../../apis/employees/workconfimation';
-import {getAllUsers} from '../../../apis/employees/employee';
+import { getAllUsers } from '../../../apis/employees/employee';
 
-const {Title, Text} = Typography;
+const { Title, Text } = Typography;
 const LARAVEL_SERVER = process.env.REACT_APP_LARAVEL_SERVER;
-import {checkRole, checkStatus} from '../../../utility/checkValue';
+import { checkRole, checkStatus } from '../../../utility/checkValue';
 import './WorkConfimation.css';
 
 const DetailWorkConfimation = () => {
-    const {id: workConfirmationId} = useParams();
+    const { id: workConfirmationId } = useParams();
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState({
         employee_name: '',
@@ -96,7 +96,7 @@ const DetailWorkConfimation = () => {
     const handleInputChange = (index, field, value) => {
         const updatedDetails = [...data.work_confirmation_details];
         updatedDetails[index][field] = value;
-        setData({...data, work_confirmation_details: updatedDetails});
+        setData({ ...data, work_confirmation_details: updatedDetails });
     };
 
     const filteredMembers = listUserData?.filter(
@@ -133,18 +133,18 @@ const DetailWorkConfimation = () => {
         const statusStr = String(status);
         switch (statusStr) {
             case '0':
-                return <Tag color="gray" style={{fontSize: '14px', padding: '6px 10px'}}>Chưa xác nhận</Tag>;
+                return <Tag color="gray" style={{ fontSize: '14px', padding: '6px 10px' }}>Chưa xác nhận</Tag>;
             case '1':
-                return <Tag color="green" style={{fontSize: '14px', padding: '6px 10px'}}>Đã duyệt</Tag>;
+                return <Tag color="green" style={{ fontSize: '14px', padding: '6px 10px' }}>Đã duyệt</Tag>;
             case '2':
-                return <Tag color="red" style={{fontSize: '14px', padding: '6px 10px'}}>Không duyệt</Tag>;
+                return <Tag color="red" style={{ fontSize: '14px', padding: '6px 10px' }}>Không duyệt</Tag>;
             default:
                 return null;
         }
     }
 
     const columns = [
-        {title: 'STT', dataIndex: 'stt', width: 60, render: (_, __, index) => <Text>{index + 1}</Text>},
+        { title: 'STT', dataIndex: 'stt', width: 60, render: (_, __, index) => <Text>{index + 1}</Text> },
         {
             title: 'Ngày',
             dataIndex: 'work_date',
@@ -211,7 +211,7 @@ const DetailWorkConfimation = () => {
                     }}
                     value={record.reason}
                     onChange={(e) => handleInputChange(index, 'reason', e.target.value)}
-                    autoSize={{minRows: 1, maxRows: 4}}
+                    autoSize={{ minRows: 1, maxRows: 4 }}
                 />
             )
         },
@@ -220,16 +220,21 @@ const DetailWorkConfimation = () => {
             title: 'Ảnh',
             dataIndex: 'image',
             with: 80,
-            render: (text, record) => (
-                <a
-                    onClick={() => {
-                        setSelectedImage(`${LARAVEL_SERVER}/storage/${record.image}`);
-                        setIsImageModalVisible(true);
-                    }}
-                >
-                    Xem ảnh
-                </a>
-            ),
+            render: (text, record) => {
+                const hasImage = record.image && record.image.trim() !== "";
+                return hasImage ? (
+                    <a
+                        onClick={() => {
+                            setSelectedImage(`${LARAVEL_SERVER}/storage/${record.image}`);
+                            setIsImageModalVisible(true);
+                        }}
+                    >
+                        Xem ảnh
+                    </a>
+                ) : (
+                    <span style={{ color: '#999' }}>Không có ảnh</span>
+                );
+            }
         },
 
         {
@@ -259,9 +264,9 @@ const DetailWorkConfimation = () => {
                     {
                         record.status_detail !== 0 && record.status_detail !== 1 && <>
                             <Button type="primary" onClick={() => handleUpdateRow(index)}
-                                    style={{marginRight: 8}}>Sửa</Button>
+                                style={{ marginRight: 8 }}>Sửa</Button>
                             <Button type="danger"
-                                    onClick={() => handleDelete(data.work_confirmation_details[index].id)}>Xóa</Button>
+                                onClick={() => handleDelete(data.work_confirmation_details[index].id)}>Xóa</Button>
                         </>
                     }
                 </>
@@ -270,25 +275,25 @@ const DetailWorkConfimation = () => {
     ];
 
     return (
-        <div style={{padding: '20px'}}>
+        <div style={{ padding: '20px' }}>
             {
                 loading ? <div className='spin'>
-                    <Spin/>
+                    <Spin />
                 </div> : (
                     <Card bordered={false}>
-                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <img src="https://novaedu.vn/frontend/asset/images/logo_ver_new.png" alt="Logo"
-                                 style={{maxWidth: '150px'}}/>
+                                style={{ maxWidth: '150px' }} />
                             <div className='text-center'>
                                 <Title level={3}>Cộng hòa xã hội chủ nghĩa Việt Nam
                                 </Title>
                                 <Text>Độc lập - Tự do - Hạnh phúc</Text>
                             </div>
                         </div>
-                        <Title level={3} style={{textAlign: 'center', marginBottom: '5px'}}>Giấy xác nhận công</Title>
-                        <Text strong style={{fontSize: '18px'}}>Kính gửi:</Text> <Text
-                        style={{fontSize: '18px', marginLeft: '15px'}}>Phòng Hành Chính Nhân Sự</Text>
-                        <div style={{marginTop: '0px'}}>
+                        <Title level={3} style={{ textAlign: 'center', marginBottom: '5px' }}>Giấy xác nhận công</Title>
+                        <Text strong style={{ fontSize: '18px' }}>Kính gửi:</Text> <Text
+                            style={{ fontSize: '18px', marginLeft: '15px' }}>Phòng Hành Chính Nhân Sự</Text>
+                        <div style={{ marginTop: '0px' }}>
                             <Row gutter={16}>
                                 <Col span={16}>
                                     <Text strong>Tôi tên là: <span className='ms-2' style={{
@@ -324,7 +329,7 @@ const DetailWorkConfimation = () => {
                             </Row>
                         </div>
 
-                        <div style={{marginTop: '30px', marginBottom: '5px'}}>
+                        <div style={{ marginTop: '30px', marginBottom: '5px' }}>
                             <Text>Đề nghị cấp trên xác nhận giờ công làm việc cho tôi như sau:</Text>
                         </div>
 
@@ -334,13 +339,13 @@ const DetailWorkConfimation = () => {
                             pagination={false}
                             tableLayout="fixed"
                             rowKey={(record) => record.stt}
-                            scroll={{x: 'max-content'}}
-                            style={{borderRadius: "8px", overflow: "hidden"}}
+                            scroll={{ x: 'max-content' }}
+                            style={{ borderRadius: "8px", overflow: "hidden" }}
                         />
 
 
                         {data.status_detail !== 0 && data.status_detail !== 1 && (
-                            <div style={{marginTop: '10px', textAlign: 'center'}}>
+                            <div style={{ marginTop: '10px', textAlign: 'center' }}>
                                 <Button type="primary" onClick={opentModelDayOff}>Gửi xác nhận</Button>
                             </div>
                         )}
@@ -355,11 +360,11 @@ const DetailWorkConfimation = () => {
                         >
                             <Form form={form} layout="vertical">
                                 <Form.Item name="workConfirmationId" initialValue={workConfirmationId} hidden>
-                                    <Input type="hidden"/>
+                                    <Input type="hidden" />
                                 </Form.Item>
                                 {showModalUpdateMembers && (
                                     <>
-                                        <div style={{marginBottom: '16px'}}>
+                                        <div style={{ marginBottom: '16px' }}>
                                             <h6 style={{
                                                 marginBottom: '8px',
                                                 fontWeight: 'bold',
@@ -378,19 +383,19 @@ const DetailWorkConfimation = () => {
                                                     }}>
                                                         {selectedMembers.map((member) => (
                                                             <Badge key={member.email}
-                                                                   onClick={() => handleRemoveMember(member.email)}>
-                        <span style={{
-                            cursor: 'pointer',
-                            padding: '4px 8px',
-                            borderRadius: '4px',
-                            backgroundColor: '#f0f0f0',
-                            color: '#000',
-                            display: 'flex',
-                            alignItems: 'center',
-                        }}>
-                          {member.name}
-                            <FeatherIcon icon="x" size={16} color="red" style={{marginLeft: '8px'}}/>
-                        </span>
+                                                                onClick={() => handleRemoveMember(member.email)}>
+                                                                <span style={{
+                                                                    cursor: 'pointer',
+                                                                    padding: '4px 8px',
+                                                                    borderRadius: '4px',
+                                                                    backgroundColor: '#f0f0f0',
+                                                                    color: '#000',
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                }}>
+                                                                    {member.name}
+                                                                    <FeatherIcon icon="x" size={16} color="red" style={{ marginLeft: '8px' }} />
+                                                                </span>
                                                             </Badge>
                                                         ))}
                                                     </div>
@@ -402,23 +407,23 @@ const DetailWorkConfimation = () => {
                                             placeholder="Tìm kiếm thành viên"
                                             value={searchTerm}
                                             onChange={handleSearchChange}
-                                            style={{marginBottom: '16px'}}
+                                            style={{ marginBottom: '16px' }}
                                         />
                                         <List
                                             itemLayout="horizontal"
-                                            style={{height: '300px', overflowY: 'auto'}}
+                                            style={{ height: '300px', overflowY: 'auto' }}
                                             dataSource={filteredMembers}
                                             renderItem={(member) => (
                                                 <List.Item onClick={() => handleSelectMember(member)}
-                                                           style={{cursor: 'pointer'}}>
+                                                    style={{ cursor: 'pointer' }}>
                                                     <List.Item.Meta
                                                         avatar={<Avatar width={40} height={40} name={member?.name}
-                                                                        imageUrl={member?.avatar ? `${LARAVEL_SERVER}${member?.avatar}` : ''}/>}
+                                                            imageUrl={member?.avatar ? `${LARAVEL_SERVER}${member?.avatar}` : ''} />}
                                                         title={member.name}
                                                         description={
                                                             <>
                                                                 <small className="text-muted">{member?.email}</small>
-                                                                <br/>
+                                                                <br />
                                                                 <strong
                                                                     className="text-muted">{checkRole(member?.role_id)}</strong>
                                                             </>
@@ -430,16 +435,26 @@ const DetailWorkConfimation = () => {
                                     </>
                                 )}
 
-                                <div style={{display: 'flex', justifyContent: 'center', marginTop: '16px'}}>
-                                    <Button type="primary" onClick={handleSubmit} style={{minWidth: '300px'}}>
+                                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
+                                    <Button type="primary" onClick={handleSubmit} style={{ minWidth: '300px' }}>
                                         Gửi đơn
                                     </Button>
                                 </div>
                             </Form>
                         </Modal>
-                        <Modal title="Xem ảnh" visible={isImageModalVisible} footer={null}
-                               onCancel={() => setIsImageModalVisible(false)}>
-                            <img src={selectedImage} alt="Preview" style={{width: '100%'}}/>
+                        <Modal
+                            title="Xem ảnh"
+                            visible={isImageModalVisible}
+                            footer={null}
+                            onCancel={() => setIsImageModalVisible(false)}
+                        >
+                            {selectedImage ? (
+                                <img src={selectedImage} alt="ảnh" style={{ width: '100%' }} />
+                            ) : (
+                                <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+                                    Không có ảnh để hiển thị
+                                </div>
+                            )}
                         </Modal>
                     </Card>
                 )}

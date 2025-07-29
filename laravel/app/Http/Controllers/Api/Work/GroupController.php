@@ -90,7 +90,6 @@ class GroupController extends Controller
                         'data' => null,
                         'error' => true
                     ], 400);
-
                 }
             }
             $group->save();
@@ -143,7 +142,10 @@ class GroupController extends Controller
                 ->select('group_id', 'group_name', 'color', 'leader_id', 'group_description')
                 ->get();
             $project = [];
-            if ((string)$role_id == '1' || (string)$role_id == '2') {
+            $isLeader = Group::where('group_id', $parent_group_id)
+                ->where('leader_id', $user_id)
+                ->exists();
+            if ((string)$role_id == '1' || (string)$role_id == '2' || $isLeader) {
                 $project = Project::where('group_id', $parent_group_id)
                     ->with(['tasks', 'projectMembers.user', 'leader'])
                     ->withCount(['tasks as total_tasks', 'tasks as completed_tasks' => function ($query) {
@@ -176,16 +178,16 @@ class GroupController extends Controller
                     $projectMonitor = json_decode($proj['project_monitor'], true) ?? [];
                     $proj['project_monitor_users'] = User::whereIn('id', $projectMonitor)->get();
                 }
-//                $project = Project::whereHas('projectMembers', function ($query) use ($user_id, $parent_group_id) {
-//                    $query->where('user_id', $user_id)
-//                        ->where('group_id', $parent_group_id);
-//                })
-//                    ->with(['projectMembers.user', 'leader'])
-//                    ->withCount(['tasks as total_tasks', 'tasks as completed_tasks' => function ($query) {
-//                        $query->whereIn('task_status', [2, 3]);
-//                    }])
-//                    ->orderBy('created_at', 'desc')
-//                    ->get();
+                //                $project = Project::whereHas('projectMembers', function ($query) use ($user_id, $parent_group_id) {
+                //                    $query->where('user_id', $user_id)
+                //                        ->where('group_id', $parent_group_id);
+                //                })
+                //                    ->with(['projectMembers.user', 'leader'])
+                //                    ->withCount(['tasks as total_tasks', 'tasks as completed_tasks' => function ($query) {
+                //                        $query->whereIn('task_status', [2, 3]);
+                //                    }])
+                //                    ->orderBy('created_at', 'desc')
+                //                    ->get();
             }
 
             $currentGroup = Group::where('group_id', $parent_group_id)->first();
@@ -266,7 +268,6 @@ class GroupController extends Controller
                         'data' => null,
                         'error' => true
                     ], 400);
-
                 }
             }
 
@@ -390,7 +391,6 @@ class GroupController extends Controller
                         'data' => null,
                         'error' => true
                     ], 400);
-
                 }
             }
             //
@@ -414,7 +414,6 @@ class GroupController extends Controller
                 'data' => null
             ], 500);
         }
-
     }
 
     public function getGroupByUserId(Request $request)
@@ -453,7 +452,7 @@ class GroupController extends Controller
                     ];
                 }
 
-// Remove duplicate elements based on 'group_id'
+                // Remove duplicate elements based on 'group_id'
                 $dataResponse = array_map("unserialize", array_unique(array_map("serialize", $dataResponse)));
                 $dataResponse = array_values($dataResponse);
                 return response([
@@ -461,9 +460,7 @@ class GroupController extends Controller
                     'error' => false,
                     'message' => 'Groups fetched successfully'
                 ], 200);
-
             }
-
         } catch (\Exception $e) {
             return response([
                 'message' => $e->getMessage(),
@@ -509,7 +506,6 @@ class GroupController extends Controller
                     return true;
                 }
             }
-
         }
 
         return false;
@@ -533,7 +529,9 @@ class GroupController extends Controller
                     'list_tasks' => [],
                 ];
                 $this->getProjectsAndTasksFromGroupAll(
-                    $group, $groupData['total_tasks'], $groupData['list_tasks']
+                    $group,
+                    $groupData['total_tasks'],
+                    $groupData['list_tasks']
                 );
                 $allGroupsProjectsAndTasks[] = $groupData;
             }
@@ -553,9 +551,10 @@ class GroupController extends Controller
     }
 
     private function getProjectsAndTasksFromGroupAll(
-        $group, &$totalTasks, &$listTasks = []
-    )
-    {
+        $group,
+        &$totalTasks,
+        &$listTasks = []
+    ) {
         $projects = Project::where('group_id', $group->group_id)
             ->with(['tasks.users'])
             ->get();
@@ -721,11 +720,25 @@ class GroupController extends Controller
         return array_values($groupedTasks);
     }
 
-    private function getReportFromGroup($group, &$totalProjects, &$totalTasks, &$totalCompletedTasks, &$totalDoingTasks,
-                                        &$totalWaitingTasks, &$TotalOverdueTasks, &$listProjects = [], &$listTasks = [],
-                                        &$listCompletedTasks = [], &$listDoingTasks = [], &$listWaitingTasks = [],
-                                        &$listOverdueTasks = [], $startDate = null, $endDate = null, &$totalPausedTasks = 0, &$listPausedTasks = [])
-    {
+    private function getReportFromGroup(
+        $group,
+        &$totalProjects,
+        &$totalTasks,
+        &$totalCompletedTasks,
+        &$totalDoingTasks,
+        &$totalWaitingTasks,
+        &$TotalOverdueTasks,
+        &$listProjects = [],
+        &$listTasks = [],
+        &$listCompletedTasks = [],
+        &$listDoingTasks = [],
+        &$listWaitingTasks = [],
+        &$listOverdueTasks = [],
+        $startDate = null,
+        $endDate = null,
+        &$totalPausedTasks = 0,
+        &$listPausedTasks = []
+    ) {
         $projects = Project::where('group_id', $group->group_id)
             ->with(['projectMembers.user', 'leader'])
             ->with(['tasks'])
@@ -821,10 +834,25 @@ class GroupController extends Controller
 
         $childGroups = Group::where('parent_group_id', $group->group_id)->get();
         foreach ($childGroups as $childGroup) {
-            $this->getReportFromGroup($childGroup, $totalProjects, $totalTasks, $totalCompletedTasks,
-                $totalDoingTasks, $totalWaitingTasks, $TotalOverdueTasks, $listProjects, $listTasks,
-                $listCompletedTasks, $listDoingTasks, $listWaitingTasks, $listOverdueTasks, $startDate, $endDate,
-                $totalPausedTasks, $listPausedTasks);
+            $this->getReportFromGroup(
+                $childGroup,
+                $totalProjects,
+                $totalTasks,
+                $totalCompletedTasks,
+                $totalDoingTasks,
+                $totalWaitingTasks,
+                $TotalOverdueTasks,
+                $listProjects,
+                $listTasks,
+                $listCompletedTasks,
+                $listDoingTasks,
+                $listWaitingTasks,
+                $listOverdueTasks,
+                $startDate,
+                $endDate,
+                $totalPausedTasks,
+                $listPausedTasks
+            );
         }
 
         $listCompletedTasks = array_values($listCompletedTasks);
@@ -904,13 +932,24 @@ class GroupController extends Controller
                 'list_paused_tasks' => [],
                 'taskByUsers' => $taskByUsers
             ];
-            $this->getReportFromGroup($group, $groupData['total_projects'], $groupData['total_tasks'],
-                $groupData['total_completed_tasks'], $groupData['total_doing_tasks'],
-                $groupData['total_waiting_tasks'], $groupData['total_overdue_tasks'],
-                $groupData['list_projects'], $groupData['list_tasks'],
-                $groupData['list_completed_tasks'], $groupData['list_doing_tasks'],
-                $groupData['list_waiting_tasks'], $groupData['list_overdue_tasks'],
-                $startDate, $endDate, $groupData['total_paused_tasks'], $groupData['list_paused_tasks']
+            $this->getReportFromGroup(
+                $group,
+                $groupData['total_projects'],
+                $groupData['total_tasks'],
+                $groupData['total_completed_tasks'],
+                $groupData['total_doing_tasks'],
+                $groupData['total_waiting_tasks'],
+                $groupData['total_overdue_tasks'],
+                $groupData['list_projects'],
+                $groupData['list_tasks'],
+                $groupData['list_completed_tasks'],
+                $groupData['list_doing_tasks'],
+                $groupData['list_waiting_tasks'],
+                $groupData['list_overdue_tasks'],
+                $startDate,
+                $endDate,
+                $groupData['total_paused_tasks'],
+                $groupData['list_paused_tasks']
             );
 
             return response()->json([
@@ -918,7 +957,6 @@ class GroupController extends Controller
                 'message' => 'Group fetched successfully',
                 'data' => $groupData
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
@@ -927,5 +965,4 @@ class GroupController extends Controller
             ], 400);
         }
     }
-
 }

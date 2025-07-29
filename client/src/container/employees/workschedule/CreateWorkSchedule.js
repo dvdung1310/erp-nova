@@ -1,13 +1,13 @@
-import React, {useState, useEffect} from "react";
-import {Row, Col, Checkbox, Card, Button, Tabs} from "antd";
-import {toast} from "react-toastify";
-import {useHistory} from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { Row, Col, Checkbox, Card, Button, Tabs } from "antd";
+import { toast } from "react-toastify";
+import { useHistory } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
-import {saveWorkSchedule, getWorkScheduleForWeekByUserId} from '../../../apis/employees/index';
-import {startOfMonth, addDays, getDay, eachDayOfInterval} from "date-fns";
+import { saveWorkSchedule, getWorkScheduleForWeekByUserId } from '../../../apis/employees/index';
+import { startOfMonth, addDays, getDay, eachDayOfInterval } from "date-fns";
 import '../style.css';
 
-const {TabPane} = Tabs;
+const { TabPane } = Tabs;
 
 const CreateWorkSchedule = () => {
     const [weeks, setWeeks] = useState([]);
@@ -19,7 +19,7 @@ const CreateWorkSchedule = () => {
     // Hàm lấy các tuần trong tháng bắt đầu từ thứ Hai đầu tiên
     const getWeeksOfMonthStartingFromMonday = (month) => {
         const firstDayOfMonth = startOfMonth(new Date(new Date().getFullYear(), month - 1));
-
+        
         let firstMonday = firstDayOfMonth;
         const dayOfWeek = getDay(firstDayOfMonth);
         if (dayOfWeek !== 1) {
@@ -29,6 +29,17 @@ const CreateWorkSchedule = () => {
         const weeks = [];
         let currentWeekStart = firstMonday;
 
+        // Trường hợp đặc biệt: Tháng 7/2025 thêm tuần từ 30/6
+        if (month === 7) {
+            const customStart = new Date(2025, 5, 30); // 30/6/2025
+            const customEnd = addDays(customStart, 6); // 6/7/2025
+            const customWeek = eachDayOfInterval({ start: customStart, end: customEnd }).map(day => ({
+                dayName: day.toLocaleDateString('vi-VN', { weekday: 'long' }),
+                date: day.toLocaleDateString('en-GB'),
+            }));
+            weeks.push(customWeek);
+        }
+
         while (currentWeekStart.getMonth() === firstDayOfMonth.getMonth()) {
             const weekDays = eachDayOfInterval({
                 start: currentWeekStart,
@@ -36,7 +47,7 @@ const CreateWorkSchedule = () => {
             });
 
             weeks.push(weekDays.map(day => ({
-                dayName: day.toLocaleDateString('vi-VN', {weekday: 'long'}),
+                dayName: day.toLocaleDateString('vi-VN', { weekday: 'long' }),
                 date: day.toLocaleDateString('en-GB'),
             })));
 
@@ -72,14 +83,14 @@ const CreateWorkSchedule = () => {
         setIsRegistrationClosed(false);
         if (dayOfWeek === 0 || dayOfWeek === 1 || dayOfWeek === 6) {
             setIsRegistrationClosed(false);
-        }else {
+        } else {
             setIsRegistrationClosed(true);
             toast.warn('Đã hết hạn đăng ký lịch làm việc cho tuần này', {
                 autoClose: 1000,
                 position: 'top-right'
             });
         }
-    
+
     };
 
     useEffect(() => {
@@ -147,7 +158,9 @@ const CreateWorkSchedule = () => {
                                 ))}
                                 <Col lg={6} md={12} xs={24}>
                                     <div>
-                                        <Button type="primary" onClick={handleSubmit} disabled={isRegistrationClosed}>
+                                        <Button type="primary" onClick={handleSubmit}
+                                        disabled={isRegistrationClosed}
+                                        >
                                             Lưu
                                         </Button>
                                     </div>

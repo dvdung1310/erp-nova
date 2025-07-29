@@ -1204,7 +1204,7 @@ function ProjectLists({group_id, listProject, listUser = [], isHome}) {
                         }}
                         onClick={() => setShowMemberExit(false)}
                     >
-                        Mời thành viên tham gia
+                        Mời thành viên tham gia 2
                     </span>
                 </div>
                 {showMemberExit ? (

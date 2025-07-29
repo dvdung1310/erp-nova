@@ -71,6 +71,20 @@ const FullWorkSchedule = () => {
                 const extraDays = eachDayOfInterval({ start: extraWeekStart, end: extraWeekEnd });
                 weeksArray.push(extraDays.map(day => day.toISOString().split("T")[0]));
             }
+
+            if (selectedMonth === 7) {
+                const extraWeekStart = new Date(2025, 6, 1);
+                const extraWeekEnd = new Date(2025, 6, 7);
+                const extraDays = eachDayOfInterval({ start: extraWeekStart, end: extraWeekEnd });
+                weeksArray.push(extraDays.map(day => day.toISOString().split("T")[0]));
+            }
+            
+            if (selectedMonth === 10) {
+                const extraWeekStart = new Date(2025, 8, 30);
+                const extraWeekEnd = new Date(2025, 9, 6);
+                const extraDays = eachDayOfInterval({ start: extraWeekStart, end: extraWeekEnd });
+                weeksArray.push(extraDays.map(day => day.toISOString().split("T")[0]));
+            }
             const firstTuesday = addDays(firstMonday, 1);
             const days = eachDayOfInterval({ start: firstTuesday, end: addDays(firstTuesday, 27) });
 

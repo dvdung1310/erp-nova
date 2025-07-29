@@ -1159,8 +1159,9 @@ class ProjectController extends Controller
                 ]);
             }
             $user = auth()->user();
-            $pathname = $request->input('pathname');
-            $pathname = $pathname ? $pathname : '/lam-viec/nhom-lam-viec/' . $project->group_id;
+            // $pathname = $request->input('pathname');
+            // $pathname = $pathname ? $pathname : '/lam-viec/nhom-lam-viec/' . $project->group_id;
+            $pathname = '/admin/lam-viec/du-an/' . $project_id;
             $link = $this->ClientUrl . $pathname;
             // add notification
             $createByUserName = auth()->user()->name;

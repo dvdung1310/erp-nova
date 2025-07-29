@@ -52,6 +52,9 @@ class WorkScheduleController extends Controller
             $startOfExtraDay3 = Carbon::create(2025, 1, 4)->startOfDay();
             $startOfExtraDay4 = Carbon::create(2025, 1, 5)->startOfDay();
             $schedules = WorkSchedule::with('user')
+                ->whereHas('user', function ($query) {
+                    $query->where('status', 1);
+                })
                 ->where(function ($query) use ($startOfMonth, $endOfMonth, $startOfExtraDay, $startOfExtraDay1, $startOfExtraDay2, $startOfExtraDay3, $startOfExtraDay4, $startOfExtraDay0, $startOfExtraDay00) {
                     $query->whereBetween('date', [$startOfMonth, $endOfMonth])
                         ->orWhere('date', $startOfExtraDay)
@@ -64,19 +67,73 @@ class WorkScheduleController extends Controller
                 })
                 ->get()
                 ->groupBy('user_id');
-            }elseif($month == 2){
-                $startOfExtraDay0 = Carbon::create(2025, 3, 1)->startOfDay();
-                $startOfExtraDay1 = Carbon::create(2025, 3, 2)->startOfDay();
-                $schedules = WorkSchedule::with('user')
+        } elseif ($month == 2) {
+            $startOfExtraDay0 = Carbon::create(2025, 3, 1)->startOfDay();
+            $startOfExtraDay1 = Carbon::create(2025, 3, 2)->startOfDay();
+            $schedules = WorkSchedule::with('user')
+                ->whereHas('user', function ($query) {
+                    $query->where('status', 1);
+                })
                 ->where(function ($query) use ($startOfMonth, $endOfMonth, $startOfExtraDay1, $startOfExtraDay0) {
                     $query->whereBetween('date', [$startOfMonth, $endOfMonth])
                         ->orWhere('date', $startOfExtraDay0)
-                        ->orWhere('date', $startOfExtraDay1);   
+                        ->orWhere('date', $startOfExtraDay1);
                 })
                 ->get()
                 ->groupBy('user_id');
-             }else {
+        } else if ($month == 7) {
+            $startOfExtraDay00 = Carbon::create(2025, 6, 30)->startOfDay();
+            $startOfExtraDay0 = Carbon::create(2025, 7, 1)->startOfDay();
+            $startOfExtraDay = Carbon::create(2025, 7, 2)->startOfDay();
+            $startOfExtraDay1 = Carbon::create(2025, 7, 3)->startOfDay();
+            $startOfExtraDay2 = Carbon::create(2025, 7, 4)->startOfDay();
+            $startOfExtraDay3 = Carbon::create(2025, 7, 5)->startOfDay();
+            $startOfExtraDay4 = Carbon::create(2025, 7, 6)->startOfDay();
+            $startOfExtraDay80 = Carbon::create(2025, 8, 1)->startOfDay();
+            $startOfExtraDay81 = Carbon::create(2025, 8, 2)->startOfDay();
+            $startOfExtraDay82 = Carbon::create(2025, 8, 3)->startOfDay();
             $schedules = WorkSchedule::with('user')
+                ->whereHas('user', function ($query) {
+                    $query->where('status', 1);
+                })
+                ->where(function ($query) use ($startOfMonth, $endOfMonth, $startOfExtraDay, $startOfExtraDay1, $startOfExtraDay2, $startOfExtraDay3, $startOfExtraDay4, $startOfExtraDay0, $startOfExtraDay00,$startOfExtraDay80,$startOfExtraDay81,$startOfExtraDay82) {
+                    $query->whereBetween('date', [$startOfMonth, $endOfMonth])
+                        ->orWhere('date', $startOfExtraDay)
+                        ->orWhere('date', $startOfExtraDay1)
+                        ->orWhere('date', $startOfExtraDay2)
+                        ->orWhere('date', $startOfExtraDay3)
+                        ->orWhere('date', $startOfExtraDay4)
+                        ->orWhere('date', $startOfExtraDay0)
+                        ->orWhere('date', $startOfExtraDay00)
+                        ->orWhere('date', $startOfExtraDay80)
+                        ->orWhere('date', $startOfExtraDay81)
+                        ->orWhere('date', $startOfExtraDay82);
+                })
+                ->get()
+                ->groupBy('user_id');
+        } else if ($month == 10) {
+            $startOfExtraDay0 = Carbon::create(2025, 9, 29)->startOfDay();
+            $startOfExtraDay1 = Carbon::create(2025, 9, 30)->startOfDay();
+            $startOfExtraDay2 = Carbon::create(2025, 11, 1)->startOfDay();
+            $startOfExtraDay3 = Carbon::create(2025, 11, 2)->startOfDay();
+            $schedules = WorkSchedule::with('user')
+                ->whereHas('user', function ($query) {
+                    $query->where('status', 1);
+                })
+                ->where(function ($query) use ($startOfMonth, $endOfMonth, $startOfExtraDay1, $startOfExtraDay0,$startOfExtraDay3,$startOfExtraDay2) {
+                    $query->whereBetween('date', [$startOfMonth, $endOfMonth])
+                        ->orWhere('date', $startOfExtraDay0)
+                        ->orWhere('date', $startOfExtraDay1)
+                        ->orWhere('date', $startOfExtraDay2)
+                        ->orWhere('date', $startOfExtraDay3);
+                })
+                ->get()
+                ->groupBy('user_id');
+        } else {
+            $schedules = WorkSchedule::with('user')
+                ->whereHas('user', function ($query) {
+                    $query->where('status', 1);
+                })
                 ->whereBetween('date', [$startOfMonth, $endOfMonth])
                 ->get()
                 ->groupBy('user_id');
@@ -151,7 +208,7 @@ class WorkScheduleController extends Controller
         $year = date('Y');
         $startOfMonth = Carbon::createFromDate($year, $month, 1)->startOfDay();
         $endOfMonth = Carbon::createFromDate($year, $month, 1)->endOfMonth()->endOfDay();
-    
+
         // Lấy dữ liệu từ bảng WorkSchedule (lịch làm việc)
         $workSchedulesQuery = WorkSchedule::with('user')
             ->whereBetween('date', [$startOfMonth, $endOfMonth]);

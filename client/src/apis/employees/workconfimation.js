@@ -101,7 +101,7 @@ export const updateDetailWorkConfimation = async (formData) => {
     try {
         const response = await instanceAxios.post(`${LARAVEL_SERVER}/api/work-confirmations/update_detail/`, {detailconfirmations: formData}, {
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'multipart/form-data',
             },
         });
         return response.data;
